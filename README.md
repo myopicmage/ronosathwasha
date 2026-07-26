@@ -5,7 +5,7 @@ consonant-plus-vowel syllabary, encoded in the Unicode Private Use Area.
 
 `ronesathwasha` is `rone` + `sa` + `thwasha`, "people's tongue".
 
-13 consonants x 12 vowels = 156 syllables. Every syllable is exactly one
+11 consonants x 12 vowels = 132 syllables. Every syllable is exactly one
 consonant and one vowel: no onsetless syllables, no codas, no clusters.
 
 ## Using it
@@ -13,7 +13,7 @@ consonant and one vowel: no onsetless syllables, no codas, no clusters.
 ```sh
 nix develop 'path:.'          # or just cd in, direnv handles it
 python3 -m tools.build_font   # declaration -> UFO -> build/Ronesathwasha.ttf
-python3 -m pytest             # 46 tests
+python3 -m pytest             # 47 tests
 python3 -m mypy               # strict
 ```
 
@@ -37,7 +37,6 @@ vowel the glide.
 
 | key | plain | shift |
 |---|---|---|
-| `C` | ch | j |
 | `H` | th | dh |
 | `L` | l | r |
 | `M` | m | none |
@@ -52,7 +51,7 @@ vowel the glide.
 | `U` | u | wu |
 | `;` | ə | wə |
 
-Fourteen keys for the whole writing system. To type the language's own name:
+Thirteen keys for the whole writing system. To type the language's own name:
 
 ```
 Shift+L   O   N   E   S   A   H   Shift+A   Shift+S   A
@@ -106,7 +105,7 @@ second copy is a second thing that can disagree:
 Both halves are featural: the shape of a letter encodes the phonology rather
 than being arbitrary.
 
-- **A vertical stem marks voicing.** `t`->`d`, `ch`->`j`, `th`->`dh`.
+- **A vertical stem marks voicing.** `t`->`d`, `th`->`dh`.
 - **A crossbar marks place**, alveolar moving back to post-alveolar. `s`->`sh`,
   `l`->`r`.
 - **A vowel is a chevron pointing at its cell** in the vowel trapezoid, and the

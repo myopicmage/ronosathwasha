@@ -18,9 +18,8 @@ PEN = 4.6  # nib width, specimen units
 
 # Shared marks. Referenced rather than redrawn, so a derived letter cannot
 # drift away from the mark that derives it.
-STEM = "M50,25 L50,75"                      # voicing:  ch->j, th->dh, t->d
+STEM = "M50,25 L50,75"                      # voicing:  t->d, th->dh
 CROSSBAR = "M27,56 L72,46"                  # place:    s->sh, l->r
-ARCH = "M32,72 L32,50 A18,18 0 0 1 68,50 L68,72"
 WAVE = "M30,70 Q34,30 48,48 Q62,66 70,30"
 TALLY = ["M34,70 L43,31", "M49,70 L58,31", "M64,70 L73,31"]
 HOOK = "M62,24 L62,56 C62,70 50,78 39,73 C30,69 29,58 36,52"
@@ -34,8 +33,6 @@ CONSONANTS: dict[str, list[str]] = {
     # arms cross twice. The same primitive the vowels are built from.
     "c_t": ["M74,24 L24,50 L74,76", "M26,24 L76,50 L26,76"],
     "c_d": ["M74,24 L24,50 L74,76", "M26,24 L76,50 L26,76", STEM],
-    "c_ch": [ARCH],
-    "c_j": [ARCH, "M50,31 L50,81"],
     "c_th": [WAVE],
     "c_dh": [WAVE, STEM],
     "c_s": list(TALLY),

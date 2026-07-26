@@ -26,7 +26,6 @@
     <keyMap index="0">
       <key code="1" action="press_c_s"/>
       <key code="4" action="press_c_th"/>
-      <key code="8" action="press_c_ch"/>
       <key code="16" action="press_c_y"/>
       <key code="17" action="press_c_t"/>
       <key code="37" action="press_c_l"/>
@@ -45,7 +44,6 @@
     <keyMap index="1">
       <key code="1" action="press_c_sh"/>
       <key code="4" action="press_c_dh"/>
-      <key code="8" action="press_c_j"/>
       <key code="16" action="press_c_y"/>
       <key code="17" action="press_c_d"/>
       <key code="37" action="press_c_r"/>
@@ -69,8 +67,6 @@
       <when state="c_n" next="c_m"/>
       <when state="c_t" next="c_m"/>
       <when state="c_d" next="c_m"/>
-      <when state="c_ch" next="c_m"/>
-      <when state="c_j" next="c_m"/>
       <when state="c_th" next="c_m"/>
       <when state="c_dh" next="c_m"/>
       <when state="c_s" next="c_m"/>
@@ -85,8 +81,6 @@
       <when state="c_n" next="c_n"/>
       <when state="c_t" next="c_n"/>
       <when state="c_d" next="c_n"/>
-      <when state="c_ch" next="c_n"/>
-      <when state="c_j" next="c_n"/>
       <when state="c_th" next="c_n"/>
       <when state="c_dh" next="c_n"/>
       <when state="c_s" next="c_n"/>
@@ -101,8 +95,6 @@
       <when state="c_n" next="c_t"/>
       <when state="c_t" next="c_t"/>
       <when state="c_d" next="c_t"/>
-      <when state="c_ch" next="c_t"/>
-      <when state="c_j" next="c_t"/>
       <when state="c_th" next="c_t"/>
       <when state="c_dh" next="c_t"/>
       <when state="c_s" next="c_t"/>
@@ -117,8 +109,6 @@
       <when state="c_n" next="c_d"/>
       <when state="c_t" next="c_d"/>
       <when state="c_d" next="c_d"/>
-      <when state="c_ch" next="c_d"/>
-      <when state="c_j" next="c_d"/>
       <when state="c_th" next="c_d"/>
       <when state="c_dh" next="c_d"/>
       <when state="c_s" next="c_d"/>
@@ -127,46 +117,12 @@
       <when state="c_r" next="c_d"/>
       <when state="c_y" next="c_d"/>
     </action>
-    <action id="press_c_ch">
-      <when state="none" next="c_ch"/>
-      <when state="c_m" next="c_ch"/>
-      <when state="c_n" next="c_ch"/>
-      <when state="c_t" next="c_ch"/>
-      <when state="c_d" next="c_ch"/>
-      <when state="c_ch" next="c_ch"/>
-      <when state="c_j" next="c_ch"/>
-      <when state="c_th" next="c_ch"/>
-      <when state="c_dh" next="c_ch"/>
-      <when state="c_s" next="c_ch"/>
-      <when state="c_sh" next="c_ch"/>
-      <when state="c_l" next="c_ch"/>
-      <when state="c_r" next="c_ch"/>
-      <when state="c_y" next="c_ch"/>
-    </action>
-    <action id="press_c_j">
-      <when state="none" next="c_j"/>
-      <when state="c_m" next="c_j"/>
-      <when state="c_n" next="c_j"/>
-      <when state="c_t" next="c_j"/>
-      <when state="c_d" next="c_j"/>
-      <when state="c_ch" next="c_j"/>
-      <when state="c_j" next="c_j"/>
-      <when state="c_th" next="c_j"/>
-      <when state="c_dh" next="c_j"/>
-      <when state="c_s" next="c_j"/>
-      <when state="c_sh" next="c_j"/>
-      <when state="c_l" next="c_j"/>
-      <when state="c_r" next="c_j"/>
-      <when state="c_y" next="c_j"/>
-    </action>
     <action id="press_c_th">
       <when state="none" next="c_th"/>
       <when state="c_m" next="c_th"/>
       <when state="c_n" next="c_th"/>
       <when state="c_t" next="c_th"/>
       <when state="c_d" next="c_th"/>
-      <when state="c_ch" next="c_th"/>
-      <when state="c_j" next="c_th"/>
       <when state="c_th" next="c_th"/>
       <when state="c_dh" next="c_th"/>
       <when state="c_s" next="c_th"/>
@@ -181,8 +137,6 @@
       <when state="c_n" next="c_dh"/>
       <when state="c_t" next="c_dh"/>
       <when state="c_d" next="c_dh"/>
-      <when state="c_ch" next="c_dh"/>
-      <when state="c_j" next="c_dh"/>
       <when state="c_th" next="c_dh"/>
       <when state="c_dh" next="c_dh"/>
       <when state="c_s" next="c_dh"/>
@@ -197,8 +151,6 @@
       <when state="c_n" next="c_s"/>
       <when state="c_t" next="c_s"/>
       <when state="c_d" next="c_s"/>
-      <when state="c_ch" next="c_s"/>
-      <when state="c_j" next="c_s"/>
       <when state="c_th" next="c_s"/>
       <when state="c_dh" next="c_s"/>
       <when state="c_s" next="c_s"/>
@@ -213,8 +165,6 @@
       <when state="c_n" next="c_sh"/>
       <when state="c_t" next="c_sh"/>
       <when state="c_d" next="c_sh"/>
-      <when state="c_ch" next="c_sh"/>
-      <when state="c_j" next="c_sh"/>
       <when state="c_th" next="c_sh"/>
       <when state="c_dh" next="c_sh"/>
       <when state="c_s" next="c_sh"/>
@@ -229,8 +179,6 @@
       <when state="c_n" next="c_l"/>
       <when state="c_t" next="c_l"/>
       <when state="c_d" next="c_l"/>
-      <when state="c_ch" next="c_l"/>
-      <when state="c_j" next="c_l"/>
       <when state="c_th" next="c_l"/>
       <when state="c_dh" next="c_l"/>
       <when state="c_s" next="c_l"/>
@@ -245,8 +193,6 @@
       <when state="c_n" next="c_r"/>
       <when state="c_t" next="c_r"/>
       <when state="c_d" next="c_r"/>
-      <when state="c_ch" next="c_r"/>
-      <when state="c_j" next="c_r"/>
       <when state="c_th" next="c_r"/>
       <when state="c_dh" next="c_r"/>
       <when state="c_s" next="c_r"/>
@@ -261,8 +207,6 @@
       <when state="c_n" next="c_y"/>
       <when state="c_t" next="c_y"/>
       <when state="c_d" next="c_y"/>
-      <when state="c_ch" next="c_y"/>
-      <when state="c_j" next="c_y"/>
       <when state="c_th" next="c_y"/>
       <when state="c_dh" next="c_y"/>
       <when state="c_s" next="c_y"/>
@@ -277,15 +221,13 @@
       <when state="c_n" output="&#xE001;&#xE024;"/>
       <when state="c_t" output="&#xE002;&#xE024;"/>
       <when state="c_d" output="&#xE003;&#xE024;"/>
-      <when state="c_ch" output="&#xE004;&#xE024;"/>
-      <when state="c_j" output="&#xE005;&#xE024;"/>
-      <when state="c_th" output="&#xE006;&#xE024;"/>
-      <when state="c_dh" output="&#xE007;&#xE024;"/>
-      <when state="c_s" output="&#xE008;&#xE024;"/>
-      <when state="c_sh" output="&#xE009;&#xE024;"/>
-      <when state="c_l" output="&#xE00A;&#xE024;"/>
-      <when state="c_r" output="&#xE00B;&#xE024;"/>
-      <when state="c_y" output="&#xE00C;&#xE024;"/>
+      <when state="c_th" output="&#xE004;&#xE024;"/>
+      <when state="c_dh" output="&#xE005;&#xE024;"/>
+      <when state="c_s" output="&#xE006;&#xE024;"/>
+      <when state="c_sh" output="&#xE007;&#xE024;"/>
+      <when state="c_l" output="&#xE008;&#xE024;"/>
+      <when state="c_r" output="&#xE009;&#xE024;"/>
+      <when state="c_y" output="&#xE00A;&#xE024;"/>
     </action>
     <action id="press_v_wa">
       <when state="none" output=""/>
@@ -293,15 +235,13 @@
       <when state="c_n" output="&#xE001;&#xE02A;"/>
       <when state="c_t" output="&#xE002;&#xE02A;"/>
       <when state="c_d" output="&#xE003;&#xE02A;"/>
-      <when state="c_ch" output="&#xE004;&#xE02A;"/>
-      <when state="c_j" output="&#xE005;&#xE02A;"/>
-      <when state="c_th" output="&#xE006;&#xE02A;"/>
-      <when state="c_dh" output="&#xE007;&#xE02A;"/>
-      <when state="c_s" output="&#xE008;&#xE02A;"/>
-      <when state="c_sh" output="&#xE009;&#xE02A;"/>
-      <when state="c_l" output="&#xE00A;&#xE02A;"/>
-      <when state="c_r" output="&#xE00B;&#xE02A;"/>
-      <when state="c_y" output="&#xE00C;&#xE02A;"/>
+      <when state="c_th" output="&#xE004;&#xE02A;"/>
+      <when state="c_dh" output="&#xE005;&#xE02A;"/>
+      <when state="c_s" output="&#xE006;&#xE02A;"/>
+      <when state="c_sh" output="&#xE007;&#xE02A;"/>
+      <when state="c_l" output="&#xE008;&#xE02A;"/>
+      <when state="c_r" output="&#xE009;&#xE02A;"/>
+      <when state="c_y" output="&#xE00A;&#xE02A;"/>
     </action>
     <action id="press_v_e">
       <when state="none" output=""/>
@@ -309,15 +249,13 @@
       <when state="c_n" output="&#xE001;&#xE022;"/>
       <when state="c_t" output="&#xE002;&#xE022;"/>
       <when state="c_d" output="&#xE003;&#xE022;"/>
-      <when state="c_ch" output="&#xE004;&#xE022;"/>
-      <when state="c_j" output="&#xE005;&#xE022;"/>
-      <when state="c_th" output="&#xE006;&#xE022;"/>
-      <when state="c_dh" output="&#xE007;&#xE022;"/>
-      <when state="c_s" output="&#xE008;&#xE022;"/>
-      <when state="c_sh" output="&#xE009;&#xE022;"/>
-      <when state="c_l" output="&#xE00A;&#xE022;"/>
-      <when state="c_r" output="&#xE00B;&#xE022;"/>
-      <when state="c_y" output="&#xE00C;&#xE022;"/>
+      <when state="c_th" output="&#xE004;&#xE022;"/>
+      <when state="c_dh" output="&#xE005;&#xE022;"/>
+      <when state="c_s" output="&#xE006;&#xE022;"/>
+      <when state="c_sh" output="&#xE007;&#xE022;"/>
+      <when state="c_l" output="&#xE008;&#xE022;"/>
+      <when state="c_r" output="&#xE009;&#xE022;"/>
+      <when state="c_y" output="&#xE00A;&#xE022;"/>
     </action>
     <action id="press_v_we">
       <when state="none" output=""/>
@@ -325,15 +263,13 @@
       <when state="c_n" output="&#xE001;&#xE028;"/>
       <when state="c_t" output="&#xE002;&#xE028;"/>
       <when state="c_d" output="&#xE003;&#xE028;"/>
-      <when state="c_ch" output="&#xE004;&#xE028;"/>
-      <when state="c_j" output="&#xE005;&#xE028;"/>
-      <when state="c_th" output="&#xE006;&#xE028;"/>
-      <when state="c_dh" output="&#xE007;&#xE028;"/>
-      <when state="c_s" output="&#xE008;&#xE028;"/>
-      <when state="c_sh" output="&#xE009;&#xE028;"/>
-      <when state="c_l" output="&#xE00A;&#xE028;"/>
-      <when state="c_r" output="&#xE00B;&#xE028;"/>
-      <when state="c_y" output="&#xE00C;&#xE028;"/>
+      <when state="c_th" output="&#xE004;&#xE028;"/>
+      <when state="c_dh" output="&#xE005;&#xE028;"/>
+      <when state="c_s" output="&#xE006;&#xE028;"/>
+      <when state="c_sh" output="&#xE007;&#xE028;"/>
+      <when state="c_l" output="&#xE008;&#xE028;"/>
+      <when state="c_r" output="&#xE009;&#xE028;"/>
+      <when state="c_y" output="&#xE00A;&#xE028;"/>
     </action>
     <action id="press_v_o">
       <when state="none" output=""/>
@@ -341,15 +277,13 @@
       <when state="c_n" output="&#xE001;&#xE023;"/>
       <when state="c_t" output="&#xE002;&#xE023;"/>
       <when state="c_d" output="&#xE003;&#xE023;"/>
-      <when state="c_ch" output="&#xE004;&#xE023;"/>
-      <when state="c_j" output="&#xE005;&#xE023;"/>
-      <when state="c_th" output="&#xE006;&#xE023;"/>
-      <when state="c_dh" output="&#xE007;&#xE023;"/>
-      <when state="c_s" output="&#xE008;&#xE023;"/>
-      <when state="c_sh" output="&#xE009;&#xE023;"/>
-      <when state="c_l" output="&#xE00A;&#xE023;"/>
-      <when state="c_r" output="&#xE00B;&#xE023;"/>
-      <when state="c_y" output="&#xE00C;&#xE023;"/>
+      <when state="c_th" output="&#xE004;&#xE023;"/>
+      <when state="c_dh" output="&#xE005;&#xE023;"/>
+      <when state="c_s" output="&#xE006;&#xE023;"/>
+      <when state="c_sh" output="&#xE007;&#xE023;"/>
+      <when state="c_l" output="&#xE008;&#xE023;"/>
+      <when state="c_r" output="&#xE009;&#xE023;"/>
+      <when state="c_y" output="&#xE00A;&#xE023;"/>
     </action>
     <action id="press_v_wo">
       <when state="none" output=""/>
@@ -357,15 +291,13 @@
       <when state="c_n" output="&#xE001;&#xE029;"/>
       <when state="c_t" output="&#xE002;&#xE029;"/>
       <when state="c_d" output="&#xE003;&#xE029;"/>
-      <when state="c_ch" output="&#xE004;&#xE029;"/>
-      <when state="c_j" output="&#xE005;&#xE029;"/>
-      <when state="c_th" output="&#xE006;&#xE029;"/>
-      <when state="c_dh" output="&#xE007;&#xE029;"/>
-      <when state="c_s" output="&#xE008;&#xE029;"/>
-      <when state="c_sh" output="&#xE009;&#xE029;"/>
-      <when state="c_l" output="&#xE00A;&#xE029;"/>
-      <when state="c_r" output="&#xE00B;&#xE029;"/>
-      <when state="c_y" output="&#xE00C;&#xE029;"/>
+      <when state="c_th" output="&#xE004;&#xE029;"/>
+      <when state="c_dh" output="&#xE005;&#xE029;"/>
+      <when state="c_s" output="&#xE006;&#xE029;"/>
+      <when state="c_sh" output="&#xE007;&#xE029;"/>
+      <when state="c_l" output="&#xE008;&#xE029;"/>
+      <when state="c_r" output="&#xE009;&#xE029;"/>
+      <when state="c_y" output="&#xE00A;&#xE029;"/>
     </action>
     <action id="press_v_u">
       <when state="none" output=""/>
@@ -373,15 +305,13 @@
       <when state="c_n" output="&#xE001;&#xE021;"/>
       <when state="c_t" output="&#xE002;&#xE021;"/>
       <when state="c_d" output="&#xE003;&#xE021;"/>
-      <when state="c_ch" output="&#xE004;&#xE021;"/>
-      <when state="c_j" output="&#xE005;&#xE021;"/>
-      <when state="c_th" output="&#xE006;&#xE021;"/>
-      <when state="c_dh" output="&#xE007;&#xE021;"/>
-      <when state="c_s" output="&#xE008;&#xE021;"/>
-      <when state="c_sh" output="&#xE009;&#xE021;"/>
-      <when state="c_l" output="&#xE00A;&#xE021;"/>
-      <when state="c_r" output="&#xE00B;&#xE021;"/>
-      <when state="c_y" output="&#xE00C;&#xE021;"/>
+      <when state="c_th" output="&#xE004;&#xE021;"/>
+      <when state="c_dh" output="&#xE005;&#xE021;"/>
+      <when state="c_s" output="&#xE006;&#xE021;"/>
+      <when state="c_sh" output="&#xE007;&#xE021;"/>
+      <when state="c_l" output="&#xE008;&#xE021;"/>
+      <when state="c_r" output="&#xE009;&#xE021;"/>
+      <when state="c_y" output="&#xE00A;&#xE021;"/>
     </action>
     <action id="press_v_wu">
       <when state="none" output=""/>
@@ -389,15 +319,13 @@
       <when state="c_n" output="&#xE001;&#xE027;"/>
       <when state="c_t" output="&#xE002;&#xE027;"/>
       <when state="c_d" output="&#xE003;&#xE027;"/>
-      <when state="c_ch" output="&#xE004;&#xE027;"/>
-      <when state="c_j" output="&#xE005;&#xE027;"/>
-      <when state="c_th" output="&#xE006;&#xE027;"/>
-      <when state="c_dh" output="&#xE007;&#xE027;"/>
-      <when state="c_s" output="&#xE008;&#xE027;"/>
-      <when state="c_sh" output="&#xE009;&#xE027;"/>
-      <when state="c_l" output="&#xE00A;&#xE027;"/>
-      <when state="c_r" output="&#xE00B;&#xE027;"/>
-      <when state="c_y" output="&#xE00C;&#xE027;"/>
+      <when state="c_th" output="&#xE004;&#xE027;"/>
+      <when state="c_dh" output="&#xE005;&#xE027;"/>
+      <when state="c_s" output="&#xE006;&#xE027;"/>
+      <when state="c_sh" output="&#xE007;&#xE027;"/>
+      <when state="c_l" output="&#xE008;&#xE027;"/>
+      <when state="c_r" output="&#xE009;&#xE027;"/>
+      <when state="c_y" output="&#xE00A;&#xE027;"/>
     </action>
     <action id="press_v_i">
       <when state="none" output=""/>
@@ -405,15 +333,13 @@
       <when state="c_n" output="&#xE001;&#xE020;"/>
       <when state="c_t" output="&#xE002;&#xE020;"/>
       <when state="c_d" output="&#xE003;&#xE020;"/>
-      <when state="c_ch" output="&#xE004;&#xE020;"/>
-      <when state="c_j" output="&#xE005;&#xE020;"/>
-      <when state="c_th" output="&#xE006;&#xE020;"/>
-      <when state="c_dh" output="&#xE007;&#xE020;"/>
-      <when state="c_s" output="&#xE008;&#xE020;"/>
-      <when state="c_sh" output="&#xE009;&#xE020;"/>
-      <when state="c_l" output="&#xE00A;&#xE020;"/>
-      <when state="c_r" output="&#xE00B;&#xE020;"/>
-      <when state="c_y" output="&#xE00C;&#xE020;"/>
+      <when state="c_th" output="&#xE004;&#xE020;"/>
+      <when state="c_dh" output="&#xE005;&#xE020;"/>
+      <when state="c_s" output="&#xE006;&#xE020;"/>
+      <when state="c_sh" output="&#xE007;&#xE020;"/>
+      <when state="c_l" output="&#xE008;&#xE020;"/>
+      <when state="c_r" output="&#xE009;&#xE020;"/>
+      <when state="c_y" output="&#xE00A;&#xE020;"/>
     </action>
     <action id="press_v_wi">
       <when state="none" output=""/>
@@ -421,15 +347,13 @@
       <when state="c_n" output="&#xE001;&#xE026;"/>
       <when state="c_t" output="&#xE002;&#xE026;"/>
       <when state="c_d" output="&#xE003;&#xE026;"/>
-      <when state="c_ch" output="&#xE004;&#xE026;"/>
-      <when state="c_j" output="&#xE005;&#xE026;"/>
-      <when state="c_th" output="&#xE006;&#xE026;"/>
-      <when state="c_dh" output="&#xE007;&#xE026;"/>
-      <when state="c_s" output="&#xE008;&#xE026;"/>
-      <when state="c_sh" output="&#xE009;&#xE026;"/>
-      <when state="c_l" output="&#xE00A;&#xE026;"/>
-      <when state="c_r" output="&#xE00B;&#xE026;"/>
-      <when state="c_y" output="&#xE00C;&#xE026;"/>
+      <when state="c_th" output="&#xE004;&#xE026;"/>
+      <when state="c_dh" output="&#xE005;&#xE026;"/>
+      <when state="c_s" output="&#xE006;&#xE026;"/>
+      <when state="c_sh" output="&#xE007;&#xE026;"/>
+      <when state="c_l" output="&#xE008;&#xE026;"/>
+      <when state="c_r" output="&#xE009;&#xE026;"/>
+      <when state="c_y" output="&#xE00A;&#xE026;"/>
     </action>
     <action id="press_v_schwa">
       <when state="none" output=""/>
@@ -437,15 +361,13 @@
       <when state="c_n" output="&#xE001;&#xE025;"/>
       <when state="c_t" output="&#xE002;&#xE025;"/>
       <when state="c_d" output="&#xE003;&#xE025;"/>
-      <when state="c_ch" output="&#xE004;&#xE025;"/>
-      <when state="c_j" output="&#xE005;&#xE025;"/>
-      <when state="c_th" output="&#xE006;&#xE025;"/>
-      <when state="c_dh" output="&#xE007;&#xE025;"/>
-      <when state="c_s" output="&#xE008;&#xE025;"/>
-      <when state="c_sh" output="&#xE009;&#xE025;"/>
-      <when state="c_l" output="&#xE00A;&#xE025;"/>
-      <when state="c_r" output="&#xE00B;&#xE025;"/>
-      <when state="c_y" output="&#xE00C;&#xE025;"/>
+      <when state="c_th" output="&#xE004;&#xE025;"/>
+      <when state="c_dh" output="&#xE005;&#xE025;"/>
+      <when state="c_s" output="&#xE006;&#xE025;"/>
+      <when state="c_sh" output="&#xE007;&#xE025;"/>
+      <when state="c_l" output="&#xE008;&#xE025;"/>
+      <when state="c_r" output="&#xE009;&#xE025;"/>
+      <when state="c_y" output="&#xE00A;&#xE025;"/>
     </action>
     <action id="press_v_wschwa">
       <when state="none" output=""/>
@@ -453,15 +375,13 @@
       <when state="c_n" output="&#xE001;&#xE02B;"/>
       <when state="c_t" output="&#xE002;&#xE02B;"/>
       <when state="c_d" output="&#xE003;&#xE02B;"/>
-      <when state="c_ch" output="&#xE004;&#xE02B;"/>
-      <when state="c_j" output="&#xE005;&#xE02B;"/>
-      <when state="c_th" output="&#xE006;&#xE02B;"/>
-      <when state="c_dh" output="&#xE007;&#xE02B;"/>
-      <when state="c_s" output="&#xE008;&#xE02B;"/>
-      <when state="c_sh" output="&#xE009;&#xE02B;"/>
-      <when state="c_l" output="&#xE00A;&#xE02B;"/>
-      <when state="c_r" output="&#xE00B;&#xE02B;"/>
-      <when state="c_y" output="&#xE00C;&#xE02B;"/>
+      <when state="c_th" output="&#xE004;&#xE02B;"/>
+      <when state="c_dh" output="&#xE005;&#xE02B;"/>
+      <when state="c_s" output="&#xE006;&#xE02B;"/>
+      <when state="c_sh" output="&#xE007;&#xE02B;"/>
+      <when state="c_l" output="&#xE008;&#xE02B;"/>
+      <when state="c_r" output="&#xE009;&#xE02B;"/>
+      <when state="c_y" output="&#xE00A;&#xE02B;"/>
     </action>
     <action id="press_49">
       <when state="none" output="&#x0020;"/>
@@ -469,8 +389,6 @@
       <when state="c_n" output="&#x0020;"/>
       <when state="c_t" output="&#x0020;"/>
       <when state="c_d" output="&#x0020;"/>
-      <when state="c_ch" output="&#x0020;"/>
-      <when state="c_j" output="&#x0020;"/>
       <when state="c_th" output="&#x0020;"/>
       <when state="c_dh" output="&#x0020;"/>
       <when state="c_s" output="&#x0020;"/>
@@ -485,8 +403,6 @@
       <when state="c_n" output="&#x000D;"/>
       <when state="c_t" output="&#x000D;"/>
       <when state="c_d" output="&#x000D;"/>
-      <when state="c_ch" output="&#x000D;"/>
-      <when state="c_j" output="&#x000D;"/>
       <when state="c_th" output="&#x000D;"/>
       <when state="c_dh" output="&#x000D;"/>
       <when state="c_s" output="&#x000D;"/>
@@ -501,8 +417,6 @@
       <when state="c_n" output="&#x0009;"/>
       <when state="c_t" output="&#x0009;"/>
       <when state="c_d" output="&#x0009;"/>
-      <when state="c_ch" output="&#x0009;"/>
-      <when state="c_j" output="&#x0009;"/>
       <when state="c_th" output="&#x0009;"/>
       <when state="c_dh" output="&#x0009;"/>
       <when state="c_s" output="&#x0009;"/>
@@ -517,8 +431,6 @@
     <when state="c_n" output=""/>
     <when state="c_t" output=""/>
     <when state="c_d" output=""/>
-    <when state="c_ch" output=""/>
-    <when state="c_j" output=""/>
     <when state="c_th" output=""/>
     <when state="c_dh" output=""/>
     <when state="c_s" output=""/>

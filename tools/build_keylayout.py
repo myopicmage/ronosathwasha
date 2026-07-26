@@ -24,7 +24,6 @@ CONSONANT_KEYS: dict[str, int] = {
     "m": 46,   # m
     "n": 45,   # n
     "t": 17,   # t, shift -> d
-    "ch": 8,   # c, shift -> j
     "th": 4,   # h, shift -> dh
     "s": 1,    # s, shift -> sh
     "l": 37,   # l, shift -> r

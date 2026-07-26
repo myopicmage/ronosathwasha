@@ -21,14 +21,14 @@ syllable = "CV"
 [phonotactics]
 # Every syllable is exactly one consonant plus one vowel. No onsetless
 # syllables, no codas, no clusters. This is what makes the inventory exactly
-# 12 x 12 = 144, and what lets a dead-key layout make illegal input untypeable.
+# 11 x 12 = 132, and what lets a dead-key layout make illegal input untypeable.
 onset_required = true
 coda_allowed = false
 
 
 [block]
 # Private Use Area, two aligned runs with room to grow between them.
-consonant_base = 0xE000     # E000..E00B
+consonant_base = 0xE000     # E000..E00A
 vowel_base = 0xE020         # E020..E025 plain, E026..E02B glide
 
 # A glide vowel always sits exactly this far above its plain vowel. One
@@ -99,26 +99,6 @@ mark = "stem"
 
 [[consonant]]
 offset = 4
-glyph = "c_ch"
-roman = "ch"
-ipa = "tʃ"
-place = "post-alveolar"
-manner = "plosive"
-voiced = false
-
-[[consonant]]
-offset = 5
-glyph = "c_j"
-roman = "j"
-ipa = "dʒ"
-place = "post-alveolar"
-manner = "plosive"
-voiced = true
-derives_from = "c_ch"
-mark = "stem"
-
-[[consonant]]
-offset = 6
 glyph = "c_th"
 roman = "th"
 ipa = "θ"
@@ -127,7 +107,7 @@ manner = "fricative"
 voiced = false
 
 [[consonant]]
-offset = 7
+offset = 5
 glyph = "c_dh"
 roman = "dh"
 ipa = "ð"
@@ -138,7 +118,7 @@ derives_from = "c_th"
 mark = "stem"
 
 [[consonant]]
-offset = 8
+offset = 6
 glyph = "c_s"
 roman = "s"
 ipa = "s"
@@ -147,7 +127,7 @@ manner = "fricative"
 voiced = false
 
 [[consonant]]
-offset = 9
+offset = 7
 glyph = "c_sh"
 roman = "sh"
 ipa = "ʃ"
@@ -158,7 +138,7 @@ derives_from = "c_s"
 mark = "crossbar"
 
 [[consonant]]
-offset = 10
+offset = 8
 glyph = "c_l"
 roman = "l"
 ipa = "l"
@@ -167,7 +147,7 @@ manner = "approximant"
 voiced = true
 
 [[consonant]]
-offset = 11
+offset = 9
 glyph = "c_r"
 roman = "r"
 ipa = "ɹ"
@@ -178,7 +158,7 @@ derives_from = "c_l"
 mark = "crossbar"
 
 [[consonant]]
-offset = 12
+offset = 10
 glyph = "c_y"
 roman = "y"
 ipa = "j"

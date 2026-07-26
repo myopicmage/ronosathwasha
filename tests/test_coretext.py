@@ -27,10 +27,10 @@ pytestmark = [
 
 WORDS = [
     "ronesathwasha",  # every position: right, left, below, glide, below
-    "nishimi",        # up-left and centre-ish vowels
+    "nishimi",        # up-left, and a derived consonant
     "tumame",         # up-right
     "twatha",         # a glide over a derived consonant
-    "jechiswo",       # the consonant whose IPA symbol collides with another's name
+    "dhələ",          # both marks, and the ring that encloses rather than sits
 ]
 
 

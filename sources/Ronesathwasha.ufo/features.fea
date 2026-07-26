@@ -4,7 +4,7 @@
 # is deliberately absent here. This file covers only the case the anchors
 # cannot express: a vowel with no consonant to attach to.
 
-@consonant = [c_m c_n c_t c_d c_ch c_j c_th c_dh c_s c_sh c_l c_r c_y];
+@consonant = [c_m c_n c_t c_d c_th c_dh c_s c_sh c_l c_r c_y];
 @vowel = [v_i v_u v_e v_o v_a v_schwa v_wi v_wu v_we v_wo v_wa v_wschwa];
 
 # A vowel is a zero-width mark. Orphaned, it does not fail: it silently piles

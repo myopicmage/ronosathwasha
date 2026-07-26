@@ -21,10 +21,10 @@ def script() -> Script:
     return load()
 
 
-def test_inventory_is_thirteen_by_twelve(script: Script) -> None:
-    assert len(script.consonants) == 13
+def test_inventory_is_eleven_by_twelve(script: Script) -> None:
+    assert len(script.consonants) == 11
     assert len(script.vowels) == 12
-    assert len(list(script.syllables())) == 156
+    assert len(list(script.syllables())) == 132
 
 
 def test_glide_vowels_are_derived_not_declared(script: Script) -> None:
@@ -84,11 +84,27 @@ def test_derivations_use_only_two_marks(script: Script) -> None:
     derived = {c.roman: c.derivation for c in script.consonants if c.derivation}
     assert {c: d.mark for c, d in derived.items() if d} == {
         "d": "stem",
-        "j": "stem",
         "dh": "stem",
         "sh": "crossbar",
         "r": "crossbar",
     }
+
+
+def test_no_glyph_ever_carries_both_marks(script: Script) -> None:
+    """The reason the affricates went.
+
+    A consonant needing both a place mark and a voicing mark would have to
+    stack them on one base, and the only base that would ever have needed to
+    was `t`, which is already four strokes crossing at the centre. Dropping
+    ch and j removed the cell rather than complicating the rule.
+    """
+    by_glyph = {c.glyph: c for c in script.consonants}
+    for c in script.consonants:
+        if c.derivation is None:
+            continue
+
+        base = by_glyph[c.derivation.base]
+        assert base.derivation is None, f"{c.roman} derives from a derived form"
 
 
 def test_voicing_stem_only_ever_voices(script: Script) -> None:
@@ -107,11 +123,11 @@ def test_autonym_round_trips(script: Script) -> None:
     assert not isinstance(parsed, ParseFailure)
     assert [s.roman for s in parsed] == ["ro", "ne", "sa", "thwa", "sha"]
     assert script.encode(parsed) == (
-        0xE00B, 0xE023,  # ro
+        0xE009, 0xE023,  # ro
         0xE001, 0xE022,  # ne
-        0xE008, 0xE024,  # sa
-        0xE006, 0xE02A,  # thwa
-        0xE009, 0xE024,  # sha
+        0xE006, 0xE024,  # sa
+        0xE004, 0xE02A,  # thwa
+        0xE007, 0xE024,  # sha
     )
 
 
@@ -122,7 +138,7 @@ def test_parse_prefers_the_longest_spelling(script: Script) -> None:
         ("sa", ["sa"]),
         ("thwa", ["thwa"]),
         ("tha", ["tha"]),
-        ("chime", ["chi", "me"]),
+        ("shwi", ["shwi"]),  # both at once: sh beats s, and wi beats i
     ]:
         parsed = script.parse(word)
         assert not isinstance(parsed, ParseFailure), parsed
@@ -135,13 +151,19 @@ def test_ipa_spelling_of_the_dental_fricatives_is_accepted(script: Script) -> No
         assert not isinstance(script.parse(word), ParseFailure), word
 
 
-def test_romanisation_beats_ipa_when_they_collide(script: Script) -> None:
-    # /y/'s IPA symbol is "j", which is also /j/'s romanisation. The written
-    # form has to win, or "jechiswo" parses as "ye chi swo" and renders the
-    # wrong glyph without erroring anywhere.
-    parsed = script.parse("jechiswo")
+def test_the_ipa_spelling_collision_no_longer_exists(script: Script) -> None:
+    """`j` used to be ambiguous and stopped being so when the affricates went.
+
+    /y/ carries the IPA symbol "j", which was also the romanisation of the
+    affricate /dʒ/. With that consonant gone, "j" resolves to exactly one
+    letter and there is nothing left for spelling order to arbitrate.
+    """
+    spellings = [r for c in script.consonants for r in (c.roman, c.ipa)]
+    assert spellings.count("j") == 1
+
+    parsed = script.parse("jo")
     assert not isinstance(parsed, ParseFailure)
-    assert [s.consonant.roman for s in parsed] == ["j", "ch", "s"]
+    assert parsed[0].consonant.roman == "y"
 
     ipa_only = script.parse("ðo")
     assert not isinstance(ipa_only, ParseFailure)
@@ -166,7 +188,7 @@ def test_every_syllable_encodes_to_two_codepoints(script: Script) -> None:
         pair = script.encode([s])
         assert len(pair) == 2
         seen.add(pair)
-    assert len(seen) == 156
+    assert len(seen) == 132
 
 
 def _write(tmp_path: Path, body: str) -> Path:

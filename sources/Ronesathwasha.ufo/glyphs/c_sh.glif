@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <glyph name="c_sh" format="2">
   <advance width="1000"/>
-  <unicode hex="E009"/>
+  <unicode hex="E007"/>
   <anchor x="0" y="0" name="vowel"/>
   <outline>
     <contour>

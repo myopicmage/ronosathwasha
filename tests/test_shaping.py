@@ -29,7 +29,7 @@ def every_syllable(built: Built) -> list[tuple[Syllable, list[Placed]]]:
 def test_every_syllable_is_two_glyphs(
     every_syllable: list[tuple[Syllable, list[Placed]]],
 ) -> None:
-    assert len(every_syllable) == 156
+    assert len(every_syllable) == 132
     for syllable, run in every_syllable:
         assert [p.glyph for p in run] == [
             syllable.consonant.glyph,
