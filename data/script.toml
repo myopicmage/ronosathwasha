@@ -12,8 +12,10 @@
 #     vowel whose glyph disagrees with its own phonology is unwritable here.
 
 [language]
-# The language has no name yet. Fill this in and nothing else has to change.
-name = "unnamed"
+# ro.ne.sa.thwa.sha, five legal syllables. The autonym is itself a well-formed
+# string in this encoding, which makes it the obvious smoke test: if the font
+# cannot render the language's own name, nothing else is worth checking.
+name = "ronesathwasha"
 syllable = "CV"
 
 [phonotactics]
