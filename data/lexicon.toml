@@ -16,6 +16,80 @@
 #
 # Seeded from the ~2021 notes in the Scrivener project. 61 entries.
 
+# Vocabulary backlog. These are semantic slots, not canonical forms. Prefer
+# deriving related meanings from shared machinery instead of coining fifty
+# unrelated roots.
+#
+# Conversation repair
+#   word
+#   mean, signify
+#   say, tell
+#   ask
+#   answer
+#
+# Thought and understanding
+#   know
+#   understand
+#   think, believe
+#   remember
+#   forget
+#
+# Interrogatives
+#   who
+#   what
+#   where
+#   when
+#   why
+#
+# Manner and comparison
+#   how
+#   which
+#   same
+#   different
+#   other, another
+#
+# Clause connection
+#   and
+#   or
+#   but
+#   because
+#   if
+#
+# Relations
+#   with
+#   without
+#   from
+#   for, intended for
+#   about, concerning
+#
+# Basic action
+#   exist, be present
+#   do, make
+#   come
+#   give
+#   take, receive
+#
+# Ability and coordination
+#   can, be able
+#   need, must
+#   help
+#   wait, remain
+#   stop, finish
+#
+# Perception and discovery
+#   see
+#   hear
+#   feel
+#   find
+#   show
+#
+# Social and physical anchors
+#   name
+#   friend, ally
+#   enemy, opponent
+#   place
+#   water
+
 
 [pronoun]
 "la" = "I"
