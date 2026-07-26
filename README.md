@@ -14,7 +14,8 @@ consonant and one vowel: no onsetless syllables, no codas, no clusters.
 nix develop 'path:.'              # or just cd in, direnv handles it
 python3 -m tools.build_font       # declaration -> UFO -> build/Ronesathwasha.ttf
 python3 -m tools.build_dictionary # lexicon -> build/dictionary.html
-python3 -m pytest                 # 63 tests
+python3 -m tools.build_docs       # docs/*.html -> build/, font inlined
+python3 -m pytest                 # 68 tests
 python3 -m mypy                   # strict
 ```
 
@@ -50,6 +51,28 @@ same reason `install.sh` builds both halves together.
 Searching matches the gloss and the romanisation, never the encoded text. The
 PUA gets nothing from Unicode's casefolding or collation, so a search over it
 could only ever be an exact substring match, on characters with no keys.
+
+## Showing it to someone else
+
+```sh
+python3 -m tools.build_dictionary
+python3 -m tools.build_docs
+python3 -m http.server -d build 8000
+cloudflared tunnel --url http://localhost:8000
+```
+
+**Serve `build/`, never `docs/`.** A page in `docs/` is a source file: it names
+the font and points at a path, which is right for editing and wrong for anyone
+else. `build_docs` rewrites that `@font-face` rule to carry the font it just
+compiled, and writes the result next to the dictionary.
+
+The `local("Ronesathwasha")` in a source page is the trap worth knowing about.
+It resolves against the *installed* font, so the page looks correct here however
+stale it is, and shows nothing recognisable anywhere else. `pytest` fails if a
+built page can still reach outside itself for a font.
+
+A quick tunnel is public: anyone with the URL can read it while the tunnel is
+up, and the URL is the only thing gating it.
 
 Fonts refresh immediately. **The keyboard layout needs a log out and back in**,
 because macOS only scans that directory at login, and the script says so only
@@ -115,6 +138,7 @@ data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
 ronesathwasha/         those files parsed into models that cannot hold a broken one
 sources/strokes.py     the consonant letterforms, as centrelines
 tools/                 the generators: UFO, font, keyboard layout, dictionary
+docs/                  hand-written pages; rebuilt into build/ with the font in them
 layouts/               the generated .keylayout
 scripts/install.sh     build both and put them where macOS looks
 tests/                 model, shaping (HarfBuzz), shaping (CoreText), keyboard

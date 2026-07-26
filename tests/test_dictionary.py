@@ -7,6 +7,7 @@ text in the page is compared against `script.encode` rather than inspected.
 
 from __future__ import annotations
 
+import base64
 import html
 import re
 from pathlib import Path
@@ -14,7 +15,8 @@ from pathlib import Path
 import pytest
 
 from ronesathwasha import Lexicon, Script
-from tools.build_dictionary import canonical, font, page, searchable
+from tools.build_dictionary import canonical, page, searchable
+from tools.webfont import compile_woff2
 
 SCRIPT_SPAN = re.compile(r'<span class="script"[^>]*>(?P<text>[^<]*)</span>')
 KEY = re.compile(r'data-key="(?P<key>[^"]*)"')
@@ -105,6 +107,13 @@ def test_a_non_ascii_romanisation_is_reachable_from_a_plain_keyboard(
     assert "ə" not in searchable(schwa).replace(schwa.roman, "")
 
 
-def test_the_embedded_font_is_really_woff2(script: Script, tmp_path: Path) -> None:
-    """WOFF2's signature. A TTF would still render, and would be twice the size."""
-    assert font(script, tmp_path)[:4] == b"wOF2"
+def test_the_page_carries_the_font_it_was_built_against(
+    script: Script, lexicon: Lexicon, tmp_path: Path
+) -> None:
+    """Inlined, and WOFF2 by its signature rather than by its declared type."""
+    woff2 = compile_woff2(script, tmp_path)
+    assert woff2[:4] == b"wOF2"
+
+    built = page(script, lexicon, woff2)
+    assert base64.b64encode(woff2).decode("ascii") in built
+    assert "local(" not in built, "the installed font may be a different vintage"

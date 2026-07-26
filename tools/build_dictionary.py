@@ -15,41 +15,19 @@ encoding behind the font renders as fluent nonsense rather than as an error.
 
 from __future__ import annotations
 
-import base64
 import html
-import io
 from pathlib import Path
 from typing import Final
 
-from ufo2ft import compileTTF
-
 from ronesathwasha import Entry, Lexicon, Script, load, load_lexicon
-from tools.build_ufo import build
+from tools.webfont import FAMILY, compile_woff2, face
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 OUT: Final = ROOT / "build" / "dictionary.html"
 
-FAMILY: Final = "Ronesathwasha"
-
 # The one non-ASCII romanisation. Folded so the search box is reachable from a
 # plain keyboard: nobody types a schwa to look up a word.
 FOLD: Final = {"ə": "e"}
-
-
-def font(script: Script, work: Path) -> bytes:
-    """Compile the font and return it as WOFF2 bytes.
-
-    WOFF2 rather than the TTF because it halves the payload, and because the
-    flake already carries brotli (`flake.nix`) for exactly this: WOFF2's
-    container is Brotli-compressed by spec, so fontTools cannot write one
-    without it.
-    """
-    ufo = build(script, work / f"{FAMILY}.ufo")
-    ttf = compileTTF(ufo)
-    ttf.flavor = "woff2"
-    buffer = io.BytesIO()
-    ttf.save(buffer)
-    return buffer.getvalue()
 
 
 def canonical(entry: Entry) -> str:
@@ -96,16 +74,14 @@ def section(script: Script, name: str, entries: tuple[Entry, ...]) -> str:
 
 
 def page(script: Script, lexicon: Lexicon, woff2: bytes) -> str:
-    encoded = base64.b64encode(woff2).decode("ascii")
     sections = "\n".join(
         section(script, name, entries) for name, entries in lexicon.sections()
     )
-    count = len(lexicon.writable())
     return TEMPLATE.format(
         family=FAMILY,
-        font=encoded,
+        face=face(woff2),
         sections=sections,
-        count=count,
+        count=len(lexicon.writable()),
         blocked=len(lexicon.blocked()),
     )
 
@@ -115,7 +91,7 @@ def main() -> None:
     lexicon = load_lexicon(script)
     OUT.parent.mkdir(parents=True, exist_ok=True)
 
-    woff2 = font(script, OUT.parent)
+    woff2 = compile_woff2(script, OUT.parent)
     OUT.write_text(page(script, lexicon, woff2), encoding="utf-8")
 
     print(f"{OUT.relative_to(Path.cwd())}: {OUT.stat().st_size:,} bytes, "
@@ -131,11 +107,7 @@ TEMPLATE: Final = """<!doctype html>
 <style>
 /* The font is the decoder, not a style. Without it the private-use code points
    below are unreadable, so it travels with the page rather than being linked. */
-@font-face {{
-  font-family: "{family}";
-  src: url(data:font/woff2;base64,{font}) format("woff2");
-  font-display: block;
-}}
+{face}
 
 :root {{
   color-scheme: light dark;
