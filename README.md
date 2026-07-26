@@ -67,6 +67,16 @@ Two things that look like bugs and are not:
   no consonant for it to attach to. This language has no onsetless syllables, so
   the layout has no state in which one is reachable.
 
+## Numbers and punctuation
+
+Latin, for now. The script has no numerals or punctuation of its own and is not
+getting any: questions, negation and commands are all marked morphologically
+(`tho`, `ma`, `yo`), so the grammar covers what punctuation usually would.
+
+The font carries no glyphs for them either, so digits and stops come from
+whatever font the system falls back to. That works, and the only visible cost is
+that they will not match the script's weight.
+
 ## How it fits together
 
 Everything is generated from one declaration, so nothing is stated twice.
