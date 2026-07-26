@@ -13,7 +13,7 @@ consonant and one vowel: no onsetless syllables, no codas, no clusters.
 ```sh
 nix develop 'path:.'          # or just cd in, direnv handles it
 python3 -m tools.build_font   # declaration -> UFO -> build/Ronesathwasha.ttf
-python3 -m pytest             # 47 tests
+python3 -m pytest             # 53 tests
 python3 -m mypy               # strict
 ```
 
@@ -31,31 +31,32 @@ Settings > Keyboard > Input Sources.
 ## Typing
 
 Consonants are dead keys: they emit nothing and arm a state. The vowel fires
-and emits the whole syllable. **Shift means one thing on both halves of the
-keyboard: add the mark.** On a consonant that gives the derived letter, on a
-vowel the glide.
+and emits the whole syllable. **Every consonant sits on the letter it is
+romanised with**, so you type what you would write and the layout needs no
+diagram. Shift is only the glide.
 
-| key | plain | shift |
-|---|---|---|
-| `H` | th | dh |
-| `L` | l | r |
-| `M` | m | none |
-| `N` | n | none |
-| `S` | s | sh |
-| `T` | t | d |
-| `Y` | y | none |
-| `A` | a | wa |
-| `E` | e | we |
-| `I` | i | wi |
-| `O` | o | wo |
-| `U` | u | wu |
-| `;` | ə | wə |
+`H` is not a phoneme here, which frees it to complete the digraphs: `t` followed
+by `h` can only ever have meant `th`.
 
-Thirteen keys for the whole writing system. To type the language's own name:
+| key | letter |
+|---|---|
+| `M` | m |
+| `N` | n |
+| `T` | t |
+| `D` | d |
+| `S` | s |
+| `L` | l |
+| `R` | r |
+| `Y` | y |
+| `H` | completes a digraph: `T H` = th, `D H` = dh, `S H` = sh |
+| `A` `E` `I` `O` `U` `;` | a e i o u ə, with shift for the glide |
+
+
+Fifteen keys for the whole writing system. To type the language's own name:
 
 ```
-Shift+L   O   N   E   S   A   H   Shift+A   Shift+S   A
-   r      o   n   e   s   a  th     wa        sh      a
+R  O   N  E   S  A   T H  Shift+A   S H  A
+ro     ne     sa     thwa           sha
 ```
 
 Two things that look like bugs and are not:

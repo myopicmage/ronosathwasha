@@ -25,39 +25,107 @@
   <keyMapSet id="keys">
     <keyMap index="0">
       <key code="1" action="press_c_s"/>
-      <key code="4" action="press_c_th"/>
+      <key code="2" action="press_c_d"/>
+      <key code="15" action="press_c_r"/>
       <key code="16" action="press_c_y"/>
       <key code="17" action="press_c_t"/>
       <key code="37" action="press_c_l"/>
       <key code="45" action="press_c_n"/>
       <key code="46" action="press_c_m"/>
+      <key code="4" action="press_digraph"/>
       <key code="0" action="press_v_a"/>
       <key code="14" action="press_v_e"/>
       <key code="31" action="press_v_o"/>
       <key code="32" action="press_v_u"/>
       <key code="34" action="press_v_i"/>
       <key code="41" action="press_v_schwa"/>
-      <key code="49" action="press_49"/>
+      <key code="18" action="press_18"/>
+      <key code="19" action="press_19"/>
+      <key code="20" action="press_20"/>
+      <key code="21" action="press_21"/>
+      <key code="22" action="press_22"/>
+      <key code="23" action="press_23"/>
+      <key code="24" action="press_24"/>
+      <key code="25" action="press_25"/>
+      <key code="26" action="press_26"/>
+      <key code="27" action="press_27"/>
+      <key code="28" action="press_28"/>
+      <key code="29" action="press_29"/>
+      <key code="30" action="press_30"/>
+      <key code="33" action="press_33"/>
       <key code="36" action="press_36"/>
+      <key code="39" action="press_39"/>
+      <key code="42" action="press_42"/>
+      <key code="43" action="press_43"/>
+      <key code="44" action="press_44"/>
+      <key code="47" action="press_47"/>
       <key code="48" action="press_48"/>
+      <key code="49" action="press_49"/>
+      <key code="50" action="press_50"/>
+      <key code="51" action="press_51"/>
+      <key code="53" action="press_53"/>
+      <key code="76" action="press_76"/>
+      <key code="115" action="press_115"/>
+      <key code="116" action="press_116"/>
+      <key code="117" action="press_117"/>
+      <key code="119" action="press_119"/>
+      <key code="121" action="press_121"/>
+      <key code="123" action="press_123"/>
+      <key code="124" action="press_124"/>
+      <key code="125" action="press_125"/>
+      <key code="126" action="press_126"/>
     </keyMap>
     <keyMap index="1">
-      <key code="1" action="press_c_sh"/>
-      <key code="4" action="press_c_dh"/>
+      <key code="1" action="press_c_s"/>
+      <key code="2" action="press_c_d"/>
+      <key code="15" action="press_c_r"/>
       <key code="16" action="press_c_y"/>
-      <key code="17" action="press_c_d"/>
-      <key code="37" action="press_c_r"/>
+      <key code="17" action="press_c_t"/>
+      <key code="37" action="press_c_l"/>
       <key code="45" action="press_c_n"/>
       <key code="46" action="press_c_m"/>
+      <key code="4" action="press_digraph"/>
       <key code="0" action="press_v_wa"/>
       <key code="14" action="press_v_we"/>
       <key code="31" action="press_v_wo"/>
       <key code="32" action="press_v_wu"/>
       <key code="34" action="press_v_wi"/>
       <key code="41" action="press_v_wschwa"/>
-      <key code="49" action="press_49"/>
+      <key code="18" action="shift_18"/>
+      <key code="19" action="shift_19"/>
+      <key code="20" action="shift_20"/>
+      <key code="21" action="shift_21"/>
+      <key code="22" action="shift_22"/>
+      <key code="23" action="shift_23"/>
+      <key code="24" action="shift_24"/>
+      <key code="25" action="shift_25"/>
+      <key code="26" action="shift_26"/>
+      <key code="27" action="shift_27"/>
+      <key code="28" action="shift_28"/>
+      <key code="29" action="shift_29"/>
+      <key code="30" action="shift_30"/>
+      <key code="33" action="shift_33"/>
       <key code="36" action="press_36"/>
+      <key code="39" action="shift_39"/>
+      <key code="42" action="shift_42"/>
+      <key code="43" action="shift_43"/>
+      <key code="44" action="shift_44"/>
+      <key code="47" action="shift_47"/>
       <key code="48" action="press_48"/>
+      <key code="49" action="press_49"/>
+      <key code="50" action="shift_50"/>
+      <key code="51" action="press_51"/>
+      <key code="53" action="press_53"/>
+      <key code="76" action="press_76"/>
+      <key code="115" action="press_115"/>
+      <key code="116" action="press_116"/>
+      <key code="117" action="press_117"/>
+      <key code="119" action="press_119"/>
+      <key code="121" action="press_121"/>
+      <key code="123" action="press_123"/>
+      <key code="124" action="press_124"/>
+      <key code="125" action="press_125"/>
+      <key code="126" action="press_126"/>
     </keyMap>
   </keyMapSet>
   <actions>
@@ -67,13 +135,13 @@
       <when state="c_n" next="c_m"/>
       <when state="c_t" next="c_m"/>
       <when state="c_d" next="c_m"/>
-      <when state="c_th" next="c_m"/>
-      <when state="c_dh" next="c_m"/>
       <when state="c_s" next="c_m"/>
-      <when state="c_sh" next="c_m"/>
       <when state="c_l" next="c_m"/>
       <when state="c_r" next="c_m"/>
       <when state="c_y" next="c_m"/>
+      <when state="c_th" next="c_m"/>
+      <when state="c_dh" next="c_m"/>
+      <when state="c_sh" next="c_m"/>
     </action>
     <action id="press_c_n">
       <when state="none" next="c_n"/>
@@ -81,13 +149,13 @@
       <when state="c_n" next="c_n"/>
       <when state="c_t" next="c_n"/>
       <when state="c_d" next="c_n"/>
-      <when state="c_th" next="c_n"/>
-      <when state="c_dh" next="c_n"/>
       <when state="c_s" next="c_n"/>
-      <when state="c_sh" next="c_n"/>
       <when state="c_l" next="c_n"/>
       <when state="c_r" next="c_n"/>
       <when state="c_y" next="c_n"/>
+      <when state="c_th" next="c_n"/>
+      <when state="c_dh" next="c_n"/>
+      <when state="c_sh" next="c_n"/>
     </action>
     <action id="press_c_t">
       <when state="none" next="c_t"/>
@@ -95,13 +163,13 @@
       <when state="c_n" next="c_t"/>
       <when state="c_t" next="c_t"/>
       <when state="c_d" next="c_t"/>
-      <when state="c_th" next="c_t"/>
-      <when state="c_dh" next="c_t"/>
       <when state="c_s" next="c_t"/>
-      <when state="c_sh" next="c_t"/>
       <when state="c_l" next="c_t"/>
       <when state="c_r" next="c_t"/>
       <when state="c_y" next="c_t"/>
+      <when state="c_th" next="c_t"/>
+      <when state="c_dh" next="c_t"/>
+      <when state="c_sh" next="c_t"/>
     </action>
     <action id="press_c_d">
       <when state="none" next="c_d"/>
@@ -109,41 +177,13 @@
       <when state="c_n" next="c_d"/>
       <when state="c_t" next="c_d"/>
       <when state="c_d" next="c_d"/>
-      <when state="c_th" next="c_d"/>
-      <when state="c_dh" next="c_d"/>
       <when state="c_s" next="c_d"/>
-      <when state="c_sh" next="c_d"/>
       <when state="c_l" next="c_d"/>
       <when state="c_r" next="c_d"/>
       <when state="c_y" next="c_d"/>
-    </action>
-    <action id="press_c_th">
-      <when state="none" next="c_th"/>
-      <when state="c_m" next="c_th"/>
-      <when state="c_n" next="c_th"/>
-      <when state="c_t" next="c_th"/>
-      <when state="c_d" next="c_th"/>
-      <when state="c_th" next="c_th"/>
-      <when state="c_dh" next="c_th"/>
-      <when state="c_s" next="c_th"/>
-      <when state="c_sh" next="c_th"/>
-      <when state="c_l" next="c_th"/>
-      <when state="c_r" next="c_th"/>
-      <when state="c_y" next="c_th"/>
-    </action>
-    <action id="press_c_dh">
-      <when state="none" next="c_dh"/>
-      <when state="c_m" next="c_dh"/>
-      <when state="c_n" next="c_dh"/>
-      <when state="c_t" next="c_dh"/>
-      <when state="c_d" next="c_dh"/>
-      <when state="c_th" next="c_dh"/>
-      <when state="c_dh" next="c_dh"/>
-      <when state="c_s" next="c_dh"/>
-      <when state="c_sh" next="c_dh"/>
-      <when state="c_l" next="c_dh"/>
-      <when state="c_r" next="c_dh"/>
-      <when state="c_y" next="c_dh"/>
+      <when state="c_th" next="c_d"/>
+      <when state="c_dh" next="c_d"/>
+      <when state="c_sh" next="c_d"/>
     </action>
     <action id="press_c_s">
       <when state="none" next="c_s"/>
@@ -151,27 +191,13 @@
       <when state="c_n" next="c_s"/>
       <when state="c_t" next="c_s"/>
       <when state="c_d" next="c_s"/>
-      <when state="c_th" next="c_s"/>
-      <when state="c_dh" next="c_s"/>
       <when state="c_s" next="c_s"/>
-      <when state="c_sh" next="c_s"/>
       <when state="c_l" next="c_s"/>
       <when state="c_r" next="c_s"/>
       <when state="c_y" next="c_s"/>
-    </action>
-    <action id="press_c_sh">
-      <when state="none" next="c_sh"/>
-      <when state="c_m" next="c_sh"/>
-      <when state="c_n" next="c_sh"/>
-      <when state="c_t" next="c_sh"/>
-      <when state="c_d" next="c_sh"/>
-      <when state="c_th" next="c_sh"/>
-      <when state="c_dh" next="c_sh"/>
-      <when state="c_s" next="c_sh"/>
-      <when state="c_sh" next="c_sh"/>
-      <when state="c_l" next="c_sh"/>
-      <when state="c_r" next="c_sh"/>
-      <when state="c_y" next="c_sh"/>
+      <when state="c_th" next="c_s"/>
+      <when state="c_dh" next="c_s"/>
+      <when state="c_sh" next="c_s"/>
     </action>
     <action id="press_c_l">
       <when state="none" next="c_l"/>
@@ -179,13 +205,13 @@
       <when state="c_n" next="c_l"/>
       <when state="c_t" next="c_l"/>
       <when state="c_d" next="c_l"/>
-      <when state="c_th" next="c_l"/>
-      <when state="c_dh" next="c_l"/>
       <when state="c_s" next="c_l"/>
-      <when state="c_sh" next="c_l"/>
       <when state="c_l" next="c_l"/>
       <when state="c_r" next="c_l"/>
       <when state="c_y" next="c_l"/>
+      <when state="c_th" next="c_l"/>
+      <when state="c_dh" next="c_l"/>
+      <when state="c_sh" next="c_l"/>
     </action>
     <action id="press_c_r">
       <when state="none" next="c_r"/>
@@ -193,13 +219,13 @@
       <when state="c_n" next="c_r"/>
       <when state="c_t" next="c_r"/>
       <when state="c_d" next="c_r"/>
-      <when state="c_th" next="c_r"/>
-      <when state="c_dh" next="c_r"/>
       <when state="c_s" next="c_r"/>
-      <when state="c_sh" next="c_r"/>
       <when state="c_l" next="c_r"/>
       <when state="c_r" next="c_r"/>
       <when state="c_y" next="c_r"/>
+      <when state="c_th" next="c_r"/>
+      <when state="c_dh" next="c_r"/>
+      <when state="c_sh" next="c_r"/>
     </action>
     <action id="press_c_y">
       <when state="none" next="c_y"/>
@@ -207,13 +233,69 @@
       <when state="c_n" next="c_y"/>
       <when state="c_t" next="c_y"/>
       <when state="c_d" next="c_y"/>
-      <when state="c_th" next="c_y"/>
-      <when state="c_dh" next="c_y"/>
       <when state="c_s" next="c_y"/>
-      <when state="c_sh" next="c_y"/>
       <when state="c_l" next="c_y"/>
       <when state="c_r" next="c_y"/>
       <when state="c_y" next="c_y"/>
+      <when state="c_th" next="c_y"/>
+      <when state="c_dh" next="c_y"/>
+      <when state="c_sh" next="c_y"/>
+    </action>
+    <action id="press_c_th">
+      <when state="none" next="c_th"/>
+      <when state="c_m" next="c_th"/>
+      <when state="c_n" next="c_th"/>
+      <when state="c_t" next="c_th"/>
+      <when state="c_d" next="c_th"/>
+      <when state="c_s" next="c_th"/>
+      <when state="c_l" next="c_th"/>
+      <when state="c_r" next="c_th"/>
+      <when state="c_y" next="c_th"/>
+      <when state="c_th" next="c_th"/>
+      <when state="c_dh" next="c_th"/>
+      <when state="c_sh" next="c_th"/>
+    </action>
+    <action id="press_c_dh">
+      <when state="none" next="c_dh"/>
+      <when state="c_m" next="c_dh"/>
+      <when state="c_n" next="c_dh"/>
+      <when state="c_t" next="c_dh"/>
+      <when state="c_d" next="c_dh"/>
+      <when state="c_s" next="c_dh"/>
+      <when state="c_l" next="c_dh"/>
+      <when state="c_r" next="c_dh"/>
+      <when state="c_y" next="c_dh"/>
+      <when state="c_th" next="c_dh"/>
+      <when state="c_dh" next="c_dh"/>
+      <when state="c_sh" next="c_dh"/>
+    </action>
+    <action id="press_c_sh">
+      <when state="none" next="c_sh"/>
+      <when state="c_m" next="c_sh"/>
+      <when state="c_n" next="c_sh"/>
+      <when state="c_t" next="c_sh"/>
+      <when state="c_d" next="c_sh"/>
+      <when state="c_s" next="c_sh"/>
+      <when state="c_l" next="c_sh"/>
+      <when state="c_r" next="c_sh"/>
+      <when state="c_y" next="c_sh"/>
+      <when state="c_th" next="c_sh"/>
+      <when state="c_dh" next="c_sh"/>
+      <when state="c_sh" next="c_sh"/>
+    </action>
+    <action id="press_digraph">
+      <when state="none" output=""/>
+      <when state="c_t" next="c_th"/>
+      <when state="c_d" next="c_dh"/>
+      <when state="c_s" next="c_sh"/>
+      <when state="c_m" output=""/>
+      <when state="c_n" output=""/>
+      <when state="c_l" output=""/>
+      <when state="c_r" output=""/>
+      <when state="c_y" output=""/>
+      <when state="c_th" output=""/>
+      <when state="c_dh" output=""/>
+      <when state="c_sh" output=""/>
     </action>
     <action id="press_v_a">
       <when state="none" output=""/>
@@ -221,13 +303,13 @@
       <when state="c_n" output="&#xE001;&#xE024;"/>
       <when state="c_t" output="&#xE002;&#xE024;"/>
       <when state="c_d" output="&#xE003;&#xE024;"/>
-      <when state="c_th" output="&#xE004;&#xE024;"/>
-      <when state="c_dh" output="&#xE005;&#xE024;"/>
       <when state="c_s" output="&#xE006;&#xE024;"/>
-      <when state="c_sh" output="&#xE007;&#xE024;"/>
       <when state="c_l" output="&#xE008;&#xE024;"/>
       <when state="c_r" output="&#xE009;&#xE024;"/>
       <when state="c_y" output="&#xE00A;&#xE024;"/>
+      <when state="c_th" output="&#xE004;&#xE024;"/>
+      <when state="c_dh" output="&#xE005;&#xE024;"/>
+      <when state="c_sh" output="&#xE007;&#xE024;"/>
     </action>
     <action id="press_v_wa">
       <when state="none" output=""/>
@@ -235,13 +317,13 @@
       <when state="c_n" output="&#xE001;&#xE02A;"/>
       <when state="c_t" output="&#xE002;&#xE02A;"/>
       <when state="c_d" output="&#xE003;&#xE02A;"/>
-      <when state="c_th" output="&#xE004;&#xE02A;"/>
-      <when state="c_dh" output="&#xE005;&#xE02A;"/>
       <when state="c_s" output="&#xE006;&#xE02A;"/>
-      <when state="c_sh" output="&#xE007;&#xE02A;"/>
       <when state="c_l" output="&#xE008;&#xE02A;"/>
       <when state="c_r" output="&#xE009;&#xE02A;"/>
       <when state="c_y" output="&#xE00A;&#xE02A;"/>
+      <when state="c_th" output="&#xE004;&#xE02A;"/>
+      <when state="c_dh" output="&#xE005;&#xE02A;"/>
+      <when state="c_sh" output="&#xE007;&#xE02A;"/>
     </action>
     <action id="press_v_e">
       <when state="none" output=""/>
@@ -249,13 +331,13 @@
       <when state="c_n" output="&#xE001;&#xE022;"/>
       <when state="c_t" output="&#xE002;&#xE022;"/>
       <when state="c_d" output="&#xE003;&#xE022;"/>
-      <when state="c_th" output="&#xE004;&#xE022;"/>
-      <when state="c_dh" output="&#xE005;&#xE022;"/>
       <when state="c_s" output="&#xE006;&#xE022;"/>
-      <when state="c_sh" output="&#xE007;&#xE022;"/>
       <when state="c_l" output="&#xE008;&#xE022;"/>
       <when state="c_r" output="&#xE009;&#xE022;"/>
       <when state="c_y" output="&#xE00A;&#xE022;"/>
+      <when state="c_th" output="&#xE004;&#xE022;"/>
+      <when state="c_dh" output="&#xE005;&#xE022;"/>
+      <when state="c_sh" output="&#xE007;&#xE022;"/>
     </action>
     <action id="press_v_we">
       <when state="none" output=""/>
@@ -263,13 +345,13 @@
       <when state="c_n" output="&#xE001;&#xE028;"/>
       <when state="c_t" output="&#xE002;&#xE028;"/>
       <when state="c_d" output="&#xE003;&#xE028;"/>
-      <when state="c_th" output="&#xE004;&#xE028;"/>
-      <when state="c_dh" output="&#xE005;&#xE028;"/>
       <when state="c_s" output="&#xE006;&#xE028;"/>
-      <when state="c_sh" output="&#xE007;&#xE028;"/>
       <when state="c_l" output="&#xE008;&#xE028;"/>
       <when state="c_r" output="&#xE009;&#xE028;"/>
       <when state="c_y" output="&#xE00A;&#xE028;"/>
+      <when state="c_th" output="&#xE004;&#xE028;"/>
+      <when state="c_dh" output="&#xE005;&#xE028;"/>
+      <when state="c_sh" output="&#xE007;&#xE028;"/>
     </action>
     <action id="press_v_o">
       <when state="none" output=""/>
@@ -277,13 +359,13 @@
       <when state="c_n" output="&#xE001;&#xE023;"/>
       <when state="c_t" output="&#xE002;&#xE023;"/>
       <when state="c_d" output="&#xE003;&#xE023;"/>
-      <when state="c_th" output="&#xE004;&#xE023;"/>
-      <when state="c_dh" output="&#xE005;&#xE023;"/>
       <when state="c_s" output="&#xE006;&#xE023;"/>
-      <when state="c_sh" output="&#xE007;&#xE023;"/>
       <when state="c_l" output="&#xE008;&#xE023;"/>
       <when state="c_r" output="&#xE009;&#xE023;"/>
       <when state="c_y" output="&#xE00A;&#xE023;"/>
+      <when state="c_th" output="&#xE004;&#xE023;"/>
+      <when state="c_dh" output="&#xE005;&#xE023;"/>
+      <when state="c_sh" output="&#xE007;&#xE023;"/>
     </action>
     <action id="press_v_wo">
       <when state="none" output=""/>
@@ -291,13 +373,13 @@
       <when state="c_n" output="&#xE001;&#xE029;"/>
       <when state="c_t" output="&#xE002;&#xE029;"/>
       <when state="c_d" output="&#xE003;&#xE029;"/>
-      <when state="c_th" output="&#xE004;&#xE029;"/>
-      <when state="c_dh" output="&#xE005;&#xE029;"/>
       <when state="c_s" output="&#xE006;&#xE029;"/>
-      <when state="c_sh" output="&#xE007;&#xE029;"/>
       <when state="c_l" output="&#xE008;&#xE029;"/>
       <when state="c_r" output="&#xE009;&#xE029;"/>
       <when state="c_y" output="&#xE00A;&#xE029;"/>
+      <when state="c_th" output="&#xE004;&#xE029;"/>
+      <when state="c_dh" output="&#xE005;&#xE029;"/>
+      <when state="c_sh" output="&#xE007;&#xE029;"/>
     </action>
     <action id="press_v_u">
       <when state="none" output=""/>
@@ -305,13 +387,13 @@
       <when state="c_n" output="&#xE001;&#xE021;"/>
       <when state="c_t" output="&#xE002;&#xE021;"/>
       <when state="c_d" output="&#xE003;&#xE021;"/>
-      <when state="c_th" output="&#xE004;&#xE021;"/>
-      <when state="c_dh" output="&#xE005;&#xE021;"/>
       <when state="c_s" output="&#xE006;&#xE021;"/>
-      <when state="c_sh" output="&#xE007;&#xE021;"/>
       <when state="c_l" output="&#xE008;&#xE021;"/>
       <when state="c_r" output="&#xE009;&#xE021;"/>
       <when state="c_y" output="&#xE00A;&#xE021;"/>
+      <when state="c_th" output="&#xE004;&#xE021;"/>
+      <when state="c_dh" output="&#xE005;&#xE021;"/>
+      <when state="c_sh" output="&#xE007;&#xE021;"/>
     </action>
     <action id="press_v_wu">
       <when state="none" output=""/>
@@ -319,13 +401,13 @@
       <when state="c_n" output="&#xE001;&#xE027;"/>
       <when state="c_t" output="&#xE002;&#xE027;"/>
       <when state="c_d" output="&#xE003;&#xE027;"/>
-      <when state="c_th" output="&#xE004;&#xE027;"/>
-      <when state="c_dh" output="&#xE005;&#xE027;"/>
       <when state="c_s" output="&#xE006;&#xE027;"/>
-      <when state="c_sh" output="&#xE007;&#xE027;"/>
       <when state="c_l" output="&#xE008;&#xE027;"/>
       <when state="c_r" output="&#xE009;&#xE027;"/>
       <when state="c_y" output="&#xE00A;&#xE027;"/>
+      <when state="c_th" output="&#xE004;&#xE027;"/>
+      <when state="c_dh" output="&#xE005;&#xE027;"/>
+      <when state="c_sh" output="&#xE007;&#xE027;"/>
     </action>
     <action id="press_v_i">
       <when state="none" output=""/>
@@ -333,13 +415,13 @@
       <when state="c_n" output="&#xE001;&#xE020;"/>
       <when state="c_t" output="&#xE002;&#xE020;"/>
       <when state="c_d" output="&#xE003;&#xE020;"/>
-      <when state="c_th" output="&#xE004;&#xE020;"/>
-      <when state="c_dh" output="&#xE005;&#xE020;"/>
       <when state="c_s" output="&#xE006;&#xE020;"/>
-      <when state="c_sh" output="&#xE007;&#xE020;"/>
       <when state="c_l" output="&#xE008;&#xE020;"/>
       <when state="c_r" output="&#xE009;&#xE020;"/>
       <when state="c_y" output="&#xE00A;&#xE020;"/>
+      <when state="c_th" output="&#xE004;&#xE020;"/>
+      <when state="c_dh" output="&#xE005;&#xE020;"/>
+      <when state="c_sh" output="&#xE007;&#xE020;"/>
     </action>
     <action id="press_v_wi">
       <when state="none" output=""/>
@@ -347,13 +429,13 @@
       <when state="c_n" output="&#xE001;&#xE026;"/>
       <when state="c_t" output="&#xE002;&#xE026;"/>
       <when state="c_d" output="&#xE003;&#xE026;"/>
-      <when state="c_th" output="&#xE004;&#xE026;"/>
-      <when state="c_dh" output="&#xE005;&#xE026;"/>
       <when state="c_s" output="&#xE006;&#xE026;"/>
-      <when state="c_sh" output="&#xE007;&#xE026;"/>
       <when state="c_l" output="&#xE008;&#xE026;"/>
       <when state="c_r" output="&#xE009;&#xE026;"/>
       <when state="c_y" output="&#xE00A;&#xE026;"/>
+      <when state="c_th" output="&#xE004;&#xE026;"/>
+      <when state="c_dh" output="&#xE005;&#xE026;"/>
+      <when state="c_sh" output="&#xE007;&#xE026;"/>
     </action>
     <action id="press_v_schwa">
       <when state="none" output=""/>
@@ -361,13 +443,13 @@
       <when state="c_n" output="&#xE001;&#xE025;"/>
       <when state="c_t" output="&#xE002;&#xE025;"/>
       <when state="c_d" output="&#xE003;&#xE025;"/>
-      <when state="c_th" output="&#xE004;&#xE025;"/>
-      <when state="c_dh" output="&#xE005;&#xE025;"/>
       <when state="c_s" output="&#xE006;&#xE025;"/>
-      <when state="c_sh" output="&#xE007;&#xE025;"/>
       <when state="c_l" output="&#xE008;&#xE025;"/>
       <when state="c_r" output="&#xE009;&#xE025;"/>
       <when state="c_y" output="&#xE00A;&#xE025;"/>
+      <when state="c_th" output="&#xE004;&#xE025;"/>
+      <when state="c_dh" output="&#xE005;&#xE025;"/>
+      <when state="c_sh" output="&#xE007;&#xE025;"/>
     </action>
     <action id="press_v_wschwa">
       <when state="none" output=""/>
@@ -375,27 +457,405 @@
       <when state="c_n" output="&#xE001;&#xE02B;"/>
       <when state="c_t" output="&#xE002;&#xE02B;"/>
       <when state="c_d" output="&#xE003;&#xE02B;"/>
-      <when state="c_th" output="&#xE004;&#xE02B;"/>
-      <when state="c_dh" output="&#xE005;&#xE02B;"/>
       <when state="c_s" output="&#xE006;&#xE02B;"/>
-      <when state="c_sh" output="&#xE007;&#xE02B;"/>
       <when state="c_l" output="&#xE008;&#xE02B;"/>
       <when state="c_r" output="&#xE009;&#xE02B;"/>
       <when state="c_y" output="&#xE00A;&#xE02B;"/>
+      <when state="c_th" output="&#xE004;&#xE02B;"/>
+      <when state="c_dh" output="&#xE005;&#xE02B;"/>
+      <when state="c_sh" output="&#xE007;&#xE02B;"/>
     </action>
-    <action id="press_49">
-      <when state="none" output="&#x0020;"/>
-      <when state="c_m" output="&#x0020;"/>
-      <when state="c_n" output="&#x0020;"/>
-      <when state="c_t" output="&#x0020;"/>
-      <when state="c_d" output="&#x0020;"/>
-      <when state="c_th" output="&#x0020;"/>
-      <when state="c_dh" output="&#x0020;"/>
-      <when state="c_s" output="&#x0020;"/>
-      <when state="c_sh" output="&#x0020;"/>
-      <when state="c_l" output="&#x0020;"/>
-      <when state="c_r" output="&#x0020;"/>
-      <when state="c_y" output="&#x0020;"/>
+    <action id="press_18">
+      <when state="none" output="&#x0031;"/>
+      <when state="c_m" output="&#x0031;"/>
+      <when state="c_n" output="&#x0031;"/>
+      <when state="c_t" output="&#x0031;"/>
+      <when state="c_d" output="&#x0031;"/>
+      <when state="c_s" output="&#x0031;"/>
+      <when state="c_l" output="&#x0031;"/>
+      <when state="c_r" output="&#x0031;"/>
+      <when state="c_y" output="&#x0031;"/>
+      <when state="c_th" output="&#x0031;"/>
+      <when state="c_dh" output="&#x0031;"/>
+      <when state="c_sh" output="&#x0031;"/>
+    </action>
+    <action id="shift_18">
+      <when state="none" output="&#x0021;"/>
+      <when state="c_m" output="&#x0021;"/>
+      <when state="c_n" output="&#x0021;"/>
+      <when state="c_t" output="&#x0021;"/>
+      <when state="c_d" output="&#x0021;"/>
+      <when state="c_s" output="&#x0021;"/>
+      <when state="c_l" output="&#x0021;"/>
+      <when state="c_r" output="&#x0021;"/>
+      <when state="c_y" output="&#x0021;"/>
+      <when state="c_th" output="&#x0021;"/>
+      <when state="c_dh" output="&#x0021;"/>
+      <when state="c_sh" output="&#x0021;"/>
+    </action>
+    <action id="press_19">
+      <when state="none" output="&#x0032;"/>
+      <when state="c_m" output="&#x0032;"/>
+      <when state="c_n" output="&#x0032;"/>
+      <when state="c_t" output="&#x0032;"/>
+      <when state="c_d" output="&#x0032;"/>
+      <when state="c_s" output="&#x0032;"/>
+      <when state="c_l" output="&#x0032;"/>
+      <when state="c_r" output="&#x0032;"/>
+      <when state="c_y" output="&#x0032;"/>
+      <when state="c_th" output="&#x0032;"/>
+      <when state="c_dh" output="&#x0032;"/>
+      <when state="c_sh" output="&#x0032;"/>
+    </action>
+    <action id="shift_19">
+      <when state="none" output="&#x0040;"/>
+      <when state="c_m" output="&#x0040;"/>
+      <when state="c_n" output="&#x0040;"/>
+      <when state="c_t" output="&#x0040;"/>
+      <when state="c_d" output="&#x0040;"/>
+      <when state="c_s" output="&#x0040;"/>
+      <when state="c_l" output="&#x0040;"/>
+      <when state="c_r" output="&#x0040;"/>
+      <when state="c_y" output="&#x0040;"/>
+      <when state="c_th" output="&#x0040;"/>
+      <when state="c_dh" output="&#x0040;"/>
+      <when state="c_sh" output="&#x0040;"/>
+    </action>
+    <action id="press_20">
+      <when state="none" output="&#x0033;"/>
+      <when state="c_m" output="&#x0033;"/>
+      <when state="c_n" output="&#x0033;"/>
+      <when state="c_t" output="&#x0033;"/>
+      <when state="c_d" output="&#x0033;"/>
+      <when state="c_s" output="&#x0033;"/>
+      <when state="c_l" output="&#x0033;"/>
+      <when state="c_r" output="&#x0033;"/>
+      <when state="c_y" output="&#x0033;"/>
+      <when state="c_th" output="&#x0033;"/>
+      <when state="c_dh" output="&#x0033;"/>
+      <when state="c_sh" output="&#x0033;"/>
+    </action>
+    <action id="shift_20">
+      <when state="none" output="&#x0023;"/>
+      <when state="c_m" output="&#x0023;"/>
+      <when state="c_n" output="&#x0023;"/>
+      <when state="c_t" output="&#x0023;"/>
+      <when state="c_d" output="&#x0023;"/>
+      <when state="c_s" output="&#x0023;"/>
+      <when state="c_l" output="&#x0023;"/>
+      <when state="c_r" output="&#x0023;"/>
+      <when state="c_y" output="&#x0023;"/>
+      <when state="c_th" output="&#x0023;"/>
+      <when state="c_dh" output="&#x0023;"/>
+      <when state="c_sh" output="&#x0023;"/>
+    </action>
+    <action id="press_21">
+      <when state="none" output="&#x0034;"/>
+      <when state="c_m" output="&#x0034;"/>
+      <when state="c_n" output="&#x0034;"/>
+      <when state="c_t" output="&#x0034;"/>
+      <when state="c_d" output="&#x0034;"/>
+      <when state="c_s" output="&#x0034;"/>
+      <when state="c_l" output="&#x0034;"/>
+      <when state="c_r" output="&#x0034;"/>
+      <when state="c_y" output="&#x0034;"/>
+      <when state="c_th" output="&#x0034;"/>
+      <when state="c_dh" output="&#x0034;"/>
+      <when state="c_sh" output="&#x0034;"/>
+    </action>
+    <action id="shift_21">
+      <when state="none" output="&#x0024;"/>
+      <when state="c_m" output="&#x0024;"/>
+      <when state="c_n" output="&#x0024;"/>
+      <when state="c_t" output="&#x0024;"/>
+      <when state="c_d" output="&#x0024;"/>
+      <when state="c_s" output="&#x0024;"/>
+      <when state="c_l" output="&#x0024;"/>
+      <when state="c_r" output="&#x0024;"/>
+      <when state="c_y" output="&#x0024;"/>
+      <when state="c_th" output="&#x0024;"/>
+      <when state="c_dh" output="&#x0024;"/>
+      <when state="c_sh" output="&#x0024;"/>
+    </action>
+    <action id="press_22">
+      <when state="none" output="&#x0036;"/>
+      <when state="c_m" output="&#x0036;"/>
+      <when state="c_n" output="&#x0036;"/>
+      <when state="c_t" output="&#x0036;"/>
+      <when state="c_d" output="&#x0036;"/>
+      <when state="c_s" output="&#x0036;"/>
+      <when state="c_l" output="&#x0036;"/>
+      <when state="c_r" output="&#x0036;"/>
+      <when state="c_y" output="&#x0036;"/>
+      <when state="c_th" output="&#x0036;"/>
+      <when state="c_dh" output="&#x0036;"/>
+      <when state="c_sh" output="&#x0036;"/>
+    </action>
+    <action id="shift_22">
+      <when state="none" output="&#x005E;"/>
+      <when state="c_m" output="&#x005E;"/>
+      <when state="c_n" output="&#x005E;"/>
+      <when state="c_t" output="&#x005E;"/>
+      <when state="c_d" output="&#x005E;"/>
+      <when state="c_s" output="&#x005E;"/>
+      <when state="c_l" output="&#x005E;"/>
+      <when state="c_r" output="&#x005E;"/>
+      <when state="c_y" output="&#x005E;"/>
+      <when state="c_th" output="&#x005E;"/>
+      <when state="c_dh" output="&#x005E;"/>
+      <when state="c_sh" output="&#x005E;"/>
+    </action>
+    <action id="press_23">
+      <when state="none" output="&#x0035;"/>
+      <when state="c_m" output="&#x0035;"/>
+      <when state="c_n" output="&#x0035;"/>
+      <when state="c_t" output="&#x0035;"/>
+      <when state="c_d" output="&#x0035;"/>
+      <when state="c_s" output="&#x0035;"/>
+      <when state="c_l" output="&#x0035;"/>
+      <when state="c_r" output="&#x0035;"/>
+      <when state="c_y" output="&#x0035;"/>
+      <when state="c_th" output="&#x0035;"/>
+      <when state="c_dh" output="&#x0035;"/>
+      <when state="c_sh" output="&#x0035;"/>
+    </action>
+    <action id="shift_23">
+      <when state="none" output="&#x0025;"/>
+      <when state="c_m" output="&#x0025;"/>
+      <when state="c_n" output="&#x0025;"/>
+      <when state="c_t" output="&#x0025;"/>
+      <when state="c_d" output="&#x0025;"/>
+      <when state="c_s" output="&#x0025;"/>
+      <when state="c_l" output="&#x0025;"/>
+      <when state="c_r" output="&#x0025;"/>
+      <when state="c_y" output="&#x0025;"/>
+      <when state="c_th" output="&#x0025;"/>
+      <when state="c_dh" output="&#x0025;"/>
+      <when state="c_sh" output="&#x0025;"/>
+    </action>
+    <action id="press_24">
+      <when state="none" output="&#x003D;"/>
+      <when state="c_m" output="&#x003D;"/>
+      <when state="c_n" output="&#x003D;"/>
+      <when state="c_t" output="&#x003D;"/>
+      <when state="c_d" output="&#x003D;"/>
+      <when state="c_s" output="&#x003D;"/>
+      <when state="c_l" output="&#x003D;"/>
+      <when state="c_r" output="&#x003D;"/>
+      <when state="c_y" output="&#x003D;"/>
+      <when state="c_th" output="&#x003D;"/>
+      <when state="c_dh" output="&#x003D;"/>
+      <when state="c_sh" output="&#x003D;"/>
+    </action>
+    <action id="shift_24">
+      <when state="none" output="&#x002B;"/>
+      <when state="c_m" output="&#x002B;"/>
+      <when state="c_n" output="&#x002B;"/>
+      <when state="c_t" output="&#x002B;"/>
+      <when state="c_d" output="&#x002B;"/>
+      <when state="c_s" output="&#x002B;"/>
+      <when state="c_l" output="&#x002B;"/>
+      <when state="c_r" output="&#x002B;"/>
+      <when state="c_y" output="&#x002B;"/>
+      <when state="c_th" output="&#x002B;"/>
+      <when state="c_dh" output="&#x002B;"/>
+      <when state="c_sh" output="&#x002B;"/>
+    </action>
+    <action id="press_25">
+      <when state="none" output="&#x0039;"/>
+      <when state="c_m" output="&#x0039;"/>
+      <when state="c_n" output="&#x0039;"/>
+      <when state="c_t" output="&#x0039;"/>
+      <when state="c_d" output="&#x0039;"/>
+      <when state="c_s" output="&#x0039;"/>
+      <when state="c_l" output="&#x0039;"/>
+      <when state="c_r" output="&#x0039;"/>
+      <when state="c_y" output="&#x0039;"/>
+      <when state="c_th" output="&#x0039;"/>
+      <when state="c_dh" output="&#x0039;"/>
+      <when state="c_sh" output="&#x0039;"/>
+    </action>
+    <action id="shift_25">
+      <when state="none" output="&#x0028;"/>
+      <when state="c_m" output="&#x0028;"/>
+      <when state="c_n" output="&#x0028;"/>
+      <when state="c_t" output="&#x0028;"/>
+      <when state="c_d" output="&#x0028;"/>
+      <when state="c_s" output="&#x0028;"/>
+      <when state="c_l" output="&#x0028;"/>
+      <when state="c_r" output="&#x0028;"/>
+      <when state="c_y" output="&#x0028;"/>
+      <when state="c_th" output="&#x0028;"/>
+      <when state="c_dh" output="&#x0028;"/>
+      <when state="c_sh" output="&#x0028;"/>
+    </action>
+    <action id="press_26">
+      <when state="none" output="&#x0037;"/>
+      <when state="c_m" output="&#x0037;"/>
+      <when state="c_n" output="&#x0037;"/>
+      <when state="c_t" output="&#x0037;"/>
+      <when state="c_d" output="&#x0037;"/>
+      <when state="c_s" output="&#x0037;"/>
+      <when state="c_l" output="&#x0037;"/>
+      <when state="c_r" output="&#x0037;"/>
+      <when state="c_y" output="&#x0037;"/>
+      <when state="c_th" output="&#x0037;"/>
+      <when state="c_dh" output="&#x0037;"/>
+      <when state="c_sh" output="&#x0037;"/>
+    </action>
+    <action id="shift_26">
+      <when state="none" output="&#x0026;"/>
+      <when state="c_m" output="&#x0026;"/>
+      <when state="c_n" output="&#x0026;"/>
+      <when state="c_t" output="&#x0026;"/>
+      <when state="c_d" output="&#x0026;"/>
+      <when state="c_s" output="&#x0026;"/>
+      <when state="c_l" output="&#x0026;"/>
+      <when state="c_r" output="&#x0026;"/>
+      <when state="c_y" output="&#x0026;"/>
+      <when state="c_th" output="&#x0026;"/>
+      <when state="c_dh" output="&#x0026;"/>
+      <when state="c_sh" output="&#x0026;"/>
+    </action>
+    <action id="press_27">
+      <when state="none" output="&#x002D;"/>
+      <when state="c_m" output="&#x002D;"/>
+      <when state="c_n" output="&#x002D;"/>
+      <when state="c_t" output="&#x002D;"/>
+      <when state="c_d" output="&#x002D;"/>
+      <when state="c_s" output="&#x002D;"/>
+      <when state="c_l" output="&#x002D;"/>
+      <when state="c_r" output="&#x002D;"/>
+      <when state="c_y" output="&#x002D;"/>
+      <when state="c_th" output="&#x002D;"/>
+      <when state="c_dh" output="&#x002D;"/>
+      <when state="c_sh" output="&#x002D;"/>
+    </action>
+    <action id="shift_27">
+      <when state="none" output="&#x005F;"/>
+      <when state="c_m" output="&#x005F;"/>
+      <when state="c_n" output="&#x005F;"/>
+      <when state="c_t" output="&#x005F;"/>
+      <when state="c_d" output="&#x005F;"/>
+      <when state="c_s" output="&#x005F;"/>
+      <when state="c_l" output="&#x005F;"/>
+      <when state="c_r" output="&#x005F;"/>
+      <when state="c_y" output="&#x005F;"/>
+      <when state="c_th" output="&#x005F;"/>
+      <when state="c_dh" output="&#x005F;"/>
+      <when state="c_sh" output="&#x005F;"/>
+    </action>
+    <action id="press_28">
+      <when state="none" output="&#x0038;"/>
+      <when state="c_m" output="&#x0038;"/>
+      <when state="c_n" output="&#x0038;"/>
+      <when state="c_t" output="&#x0038;"/>
+      <when state="c_d" output="&#x0038;"/>
+      <when state="c_s" output="&#x0038;"/>
+      <when state="c_l" output="&#x0038;"/>
+      <when state="c_r" output="&#x0038;"/>
+      <when state="c_y" output="&#x0038;"/>
+      <when state="c_th" output="&#x0038;"/>
+      <when state="c_dh" output="&#x0038;"/>
+      <when state="c_sh" output="&#x0038;"/>
+    </action>
+    <action id="shift_28">
+      <when state="none" output="&#x002A;"/>
+      <when state="c_m" output="&#x002A;"/>
+      <when state="c_n" output="&#x002A;"/>
+      <when state="c_t" output="&#x002A;"/>
+      <when state="c_d" output="&#x002A;"/>
+      <when state="c_s" output="&#x002A;"/>
+      <when state="c_l" output="&#x002A;"/>
+      <when state="c_r" output="&#x002A;"/>
+      <when state="c_y" output="&#x002A;"/>
+      <when state="c_th" output="&#x002A;"/>
+      <when state="c_dh" output="&#x002A;"/>
+      <when state="c_sh" output="&#x002A;"/>
+    </action>
+    <action id="press_29">
+      <when state="none" output="&#x0030;"/>
+      <when state="c_m" output="&#x0030;"/>
+      <when state="c_n" output="&#x0030;"/>
+      <when state="c_t" output="&#x0030;"/>
+      <when state="c_d" output="&#x0030;"/>
+      <when state="c_s" output="&#x0030;"/>
+      <when state="c_l" output="&#x0030;"/>
+      <when state="c_r" output="&#x0030;"/>
+      <when state="c_y" output="&#x0030;"/>
+      <when state="c_th" output="&#x0030;"/>
+      <when state="c_dh" output="&#x0030;"/>
+      <when state="c_sh" output="&#x0030;"/>
+    </action>
+    <action id="shift_29">
+      <when state="none" output="&#x0029;"/>
+      <when state="c_m" output="&#x0029;"/>
+      <when state="c_n" output="&#x0029;"/>
+      <when state="c_t" output="&#x0029;"/>
+      <when state="c_d" output="&#x0029;"/>
+      <when state="c_s" output="&#x0029;"/>
+      <when state="c_l" output="&#x0029;"/>
+      <when state="c_r" output="&#x0029;"/>
+      <when state="c_y" output="&#x0029;"/>
+      <when state="c_th" output="&#x0029;"/>
+      <when state="c_dh" output="&#x0029;"/>
+      <when state="c_sh" output="&#x0029;"/>
+    </action>
+    <action id="press_30">
+      <when state="none" output="&#x005D;"/>
+      <when state="c_m" output="&#x005D;"/>
+      <when state="c_n" output="&#x005D;"/>
+      <when state="c_t" output="&#x005D;"/>
+      <when state="c_d" output="&#x005D;"/>
+      <when state="c_s" output="&#x005D;"/>
+      <when state="c_l" output="&#x005D;"/>
+      <when state="c_r" output="&#x005D;"/>
+      <when state="c_y" output="&#x005D;"/>
+      <when state="c_th" output="&#x005D;"/>
+      <when state="c_dh" output="&#x005D;"/>
+      <when state="c_sh" output="&#x005D;"/>
+    </action>
+    <action id="shift_30">
+      <when state="none" output="&#x007D;"/>
+      <when state="c_m" output="&#x007D;"/>
+      <when state="c_n" output="&#x007D;"/>
+      <when state="c_t" output="&#x007D;"/>
+      <when state="c_d" output="&#x007D;"/>
+      <when state="c_s" output="&#x007D;"/>
+      <when state="c_l" output="&#x007D;"/>
+      <when state="c_r" output="&#x007D;"/>
+      <when state="c_y" output="&#x007D;"/>
+      <when state="c_th" output="&#x007D;"/>
+      <when state="c_dh" output="&#x007D;"/>
+      <when state="c_sh" output="&#x007D;"/>
+    </action>
+    <action id="press_33">
+      <when state="none" output="&#x005B;"/>
+      <when state="c_m" output="&#x005B;"/>
+      <when state="c_n" output="&#x005B;"/>
+      <when state="c_t" output="&#x005B;"/>
+      <when state="c_d" output="&#x005B;"/>
+      <when state="c_s" output="&#x005B;"/>
+      <when state="c_l" output="&#x005B;"/>
+      <when state="c_r" output="&#x005B;"/>
+      <when state="c_y" output="&#x005B;"/>
+      <when state="c_th" output="&#x005B;"/>
+      <when state="c_dh" output="&#x005B;"/>
+      <when state="c_sh" output="&#x005B;"/>
+    </action>
+    <action id="shift_33">
+      <when state="none" output="&#x007B;"/>
+      <when state="c_m" output="&#x007B;"/>
+      <when state="c_n" output="&#x007B;"/>
+      <when state="c_t" output="&#x007B;"/>
+      <when state="c_d" output="&#x007B;"/>
+      <when state="c_s" output="&#x007B;"/>
+      <when state="c_l" output="&#x007B;"/>
+      <when state="c_r" output="&#x007B;"/>
+      <when state="c_y" output="&#x007B;"/>
+      <when state="c_th" output="&#x007B;"/>
+      <when state="c_dh" output="&#x007B;"/>
+      <when state="c_sh" output="&#x007B;"/>
     </action>
     <action id="press_36">
       <when state="none" output="&#x000D;"/>
@@ -403,13 +863,153 @@
       <when state="c_n" output="&#x000D;"/>
       <when state="c_t" output="&#x000D;"/>
       <when state="c_d" output="&#x000D;"/>
-      <when state="c_th" output="&#x000D;"/>
-      <when state="c_dh" output="&#x000D;"/>
       <when state="c_s" output="&#x000D;"/>
-      <when state="c_sh" output="&#x000D;"/>
       <when state="c_l" output="&#x000D;"/>
       <when state="c_r" output="&#x000D;"/>
       <when state="c_y" output="&#x000D;"/>
+      <when state="c_th" output="&#x000D;"/>
+      <when state="c_dh" output="&#x000D;"/>
+      <when state="c_sh" output="&#x000D;"/>
+    </action>
+    <action id="press_39">
+      <when state="none" output="&#x0027;"/>
+      <when state="c_m" output="&#x0027;"/>
+      <when state="c_n" output="&#x0027;"/>
+      <when state="c_t" output="&#x0027;"/>
+      <when state="c_d" output="&#x0027;"/>
+      <when state="c_s" output="&#x0027;"/>
+      <when state="c_l" output="&#x0027;"/>
+      <when state="c_r" output="&#x0027;"/>
+      <when state="c_y" output="&#x0027;"/>
+      <when state="c_th" output="&#x0027;"/>
+      <when state="c_dh" output="&#x0027;"/>
+      <when state="c_sh" output="&#x0027;"/>
+    </action>
+    <action id="shift_39">
+      <when state="none" output="&#x0022;"/>
+      <when state="c_m" output="&#x0022;"/>
+      <when state="c_n" output="&#x0022;"/>
+      <when state="c_t" output="&#x0022;"/>
+      <when state="c_d" output="&#x0022;"/>
+      <when state="c_s" output="&#x0022;"/>
+      <when state="c_l" output="&#x0022;"/>
+      <when state="c_r" output="&#x0022;"/>
+      <when state="c_y" output="&#x0022;"/>
+      <when state="c_th" output="&#x0022;"/>
+      <when state="c_dh" output="&#x0022;"/>
+      <when state="c_sh" output="&#x0022;"/>
+    </action>
+    <action id="press_42">
+      <when state="none" output="&#x005C;"/>
+      <when state="c_m" output="&#x005C;"/>
+      <when state="c_n" output="&#x005C;"/>
+      <when state="c_t" output="&#x005C;"/>
+      <when state="c_d" output="&#x005C;"/>
+      <when state="c_s" output="&#x005C;"/>
+      <when state="c_l" output="&#x005C;"/>
+      <when state="c_r" output="&#x005C;"/>
+      <when state="c_y" output="&#x005C;"/>
+      <when state="c_th" output="&#x005C;"/>
+      <when state="c_dh" output="&#x005C;"/>
+      <when state="c_sh" output="&#x005C;"/>
+    </action>
+    <action id="shift_42">
+      <when state="none" output="&#x007C;"/>
+      <when state="c_m" output="&#x007C;"/>
+      <when state="c_n" output="&#x007C;"/>
+      <when state="c_t" output="&#x007C;"/>
+      <when state="c_d" output="&#x007C;"/>
+      <when state="c_s" output="&#x007C;"/>
+      <when state="c_l" output="&#x007C;"/>
+      <when state="c_r" output="&#x007C;"/>
+      <when state="c_y" output="&#x007C;"/>
+      <when state="c_th" output="&#x007C;"/>
+      <when state="c_dh" output="&#x007C;"/>
+      <when state="c_sh" output="&#x007C;"/>
+    </action>
+    <action id="press_43">
+      <when state="none" output="&#x002C;"/>
+      <when state="c_m" output="&#x002C;"/>
+      <when state="c_n" output="&#x002C;"/>
+      <when state="c_t" output="&#x002C;"/>
+      <when state="c_d" output="&#x002C;"/>
+      <when state="c_s" output="&#x002C;"/>
+      <when state="c_l" output="&#x002C;"/>
+      <when state="c_r" output="&#x002C;"/>
+      <when state="c_y" output="&#x002C;"/>
+      <when state="c_th" output="&#x002C;"/>
+      <when state="c_dh" output="&#x002C;"/>
+      <when state="c_sh" output="&#x002C;"/>
+    </action>
+    <action id="shift_43">
+      <when state="none" output="&#x003C;"/>
+      <when state="c_m" output="&#x003C;"/>
+      <when state="c_n" output="&#x003C;"/>
+      <when state="c_t" output="&#x003C;"/>
+      <when state="c_d" output="&#x003C;"/>
+      <when state="c_s" output="&#x003C;"/>
+      <when state="c_l" output="&#x003C;"/>
+      <when state="c_r" output="&#x003C;"/>
+      <when state="c_y" output="&#x003C;"/>
+      <when state="c_th" output="&#x003C;"/>
+      <when state="c_dh" output="&#x003C;"/>
+      <when state="c_sh" output="&#x003C;"/>
+    </action>
+    <action id="press_44">
+      <when state="none" output="&#x002F;"/>
+      <when state="c_m" output="&#x002F;"/>
+      <when state="c_n" output="&#x002F;"/>
+      <when state="c_t" output="&#x002F;"/>
+      <when state="c_d" output="&#x002F;"/>
+      <when state="c_s" output="&#x002F;"/>
+      <when state="c_l" output="&#x002F;"/>
+      <when state="c_r" output="&#x002F;"/>
+      <when state="c_y" output="&#x002F;"/>
+      <when state="c_th" output="&#x002F;"/>
+      <when state="c_dh" output="&#x002F;"/>
+      <when state="c_sh" output="&#x002F;"/>
+    </action>
+    <action id="shift_44">
+      <when state="none" output="&#x003F;"/>
+      <when state="c_m" output="&#x003F;"/>
+      <when state="c_n" output="&#x003F;"/>
+      <when state="c_t" output="&#x003F;"/>
+      <when state="c_d" output="&#x003F;"/>
+      <when state="c_s" output="&#x003F;"/>
+      <when state="c_l" output="&#x003F;"/>
+      <when state="c_r" output="&#x003F;"/>
+      <when state="c_y" output="&#x003F;"/>
+      <when state="c_th" output="&#x003F;"/>
+      <when state="c_dh" output="&#x003F;"/>
+      <when state="c_sh" output="&#x003F;"/>
+    </action>
+    <action id="press_47">
+      <when state="none" output="&#x002E;"/>
+      <when state="c_m" output="&#x002E;"/>
+      <when state="c_n" output="&#x002E;"/>
+      <when state="c_t" output="&#x002E;"/>
+      <when state="c_d" output="&#x002E;"/>
+      <when state="c_s" output="&#x002E;"/>
+      <when state="c_l" output="&#x002E;"/>
+      <when state="c_r" output="&#x002E;"/>
+      <when state="c_y" output="&#x002E;"/>
+      <when state="c_th" output="&#x002E;"/>
+      <when state="c_dh" output="&#x002E;"/>
+      <when state="c_sh" output="&#x002E;"/>
+    </action>
+    <action id="shift_47">
+      <when state="none" output="&#x003E;"/>
+      <when state="c_m" output="&#x003E;"/>
+      <when state="c_n" output="&#x003E;"/>
+      <when state="c_t" output="&#x003E;"/>
+      <when state="c_d" output="&#x003E;"/>
+      <when state="c_s" output="&#x003E;"/>
+      <when state="c_l" output="&#x003E;"/>
+      <when state="c_r" output="&#x003E;"/>
+      <when state="c_y" output="&#x003E;"/>
+      <when state="c_th" output="&#x003E;"/>
+      <when state="c_dh" output="&#x003E;"/>
+      <when state="c_sh" output="&#x003E;"/>
     </action>
     <action id="press_48">
       <when state="none" output="&#x0009;"/>
@@ -417,13 +1017,223 @@
       <when state="c_n" output="&#x0009;"/>
       <when state="c_t" output="&#x0009;"/>
       <when state="c_d" output="&#x0009;"/>
-      <when state="c_th" output="&#x0009;"/>
-      <when state="c_dh" output="&#x0009;"/>
       <when state="c_s" output="&#x0009;"/>
-      <when state="c_sh" output="&#x0009;"/>
       <when state="c_l" output="&#x0009;"/>
       <when state="c_r" output="&#x0009;"/>
       <when state="c_y" output="&#x0009;"/>
+      <when state="c_th" output="&#x0009;"/>
+      <when state="c_dh" output="&#x0009;"/>
+      <when state="c_sh" output="&#x0009;"/>
+    </action>
+    <action id="press_49">
+      <when state="none" output="&#x0020;"/>
+      <when state="c_m" output="&#x0020;"/>
+      <when state="c_n" output="&#x0020;"/>
+      <when state="c_t" output="&#x0020;"/>
+      <when state="c_d" output="&#x0020;"/>
+      <when state="c_s" output="&#x0020;"/>
+      <when state="c_l" output="&#x0020;"/>
+      <when state="c_r" output="&#x0020;"/>
+      <when state="c_y" output="&#x0020;"/>
+      <when state="c_th" output="&#x0020;"/>
+      <when state="c_dh" output="&#x0020;"/>
+      <when state="c_sh" output="&#x0020;"/>
+    </action>
+    <action id="press_50">
+      <when state="none" output="&#x0060;"/>
+      <when state="c_m" output="&#x0060;"/>
+      <when state="c_n" output="&#x0060;"/>
+      <when state="c_t" output="&#x0060;"/>
+      <when state="c_d" output="&#x0060;"/>
+      <when state="c_s" output="&#x0060;"/>
+      <when state="c_l" output="&#x0060;"/>
+      <when state="c_r" output="&#x0060;"/>
+      <when state="c_y" output="&#x0060;"/>
+      <when state="c_th" output="&#x0060;"/>
+      <when state="c_dh" output="&#x0060;"/>
+      <when state="c_sh" output="&#x0060;"/>
+    </action>
+    <action id="shift_50">
+      <when state="none" output="&#x007E;"/>
+      <when state="c_m" output="&#x007E;"/>
+      <when state="c_n" output="&#x007E;"/>
+      <when state="c_t" output="&#x007E;"/>
+      <when state="c_d" output="&#x007E;"/>
+      <when state="c_s" output="&#x007E;"/>
+      <when state="c_l" output="&#x007E;"/>
+      <when state="c_r" output="&#x007E;"/>
+      <when state="c_y" output="&#x007E;"/>
+      <when state="c_th" output="&#x007E;"/>
+      <when state="c_dh" output="&#x007E;"/>
+      <when state="c_sh" output="&#x007E;"/>
+    </action>
+    <action id="press_51">
+      <when state="none" output="&#x0008;"/>
+      <when state="c_m" output=""/>
+      <when state="c_n" output=""/>
+      <when state="c_t" output=""/>
+      <when state="c_d" output=""/>
+      <when state="c_s" output=""/>
+      <when state="c_l" output=""/>
+      <when state="c_r" output=""/>
+      <when state="c_y" output=""/>
+      <when state="c_th" output=""/>
+      <when state="c_dh" output=""/>
+      <when state="c_sh" output=""/>
+    </action>
+    <action id="press_53">
+      <when state="none" output="&#x001B;"/>
+      <when state="c_m" output="&#x001B;"/>
+      <when state="c_n" output="&#x001B;"/>
+      <when state="c_t" output="&#x001B;"/>
+      <when state="c_d" output="&#x001B;"/>
+      <when state="c_s" output="&#x001B;"/>
+      <when state="c_l" output="&#x001B;"/>
+      <when state="c_r" output="&#x001B;"/>
+      <when state="c_y" output="&#x001B;"/>
+      <when state="c_th" output="&#x001B;"/>
+      <when state="c_dh" output="&#x001B;"/>
+      <when state="c_sh" output="&#x001B;"/>
+    </action>
+    <action id="press_76">
+      <when state="none" output="&#x0003;"/>
+      <when state="c_m" output="&#x0003;"/>
+      <when state="c_n" output="&#x0003;"/>
+      <when state="c_t" output="&#x0003;"/>
+      <when state="c_d" output="&#x0003;"/>
+      <when state="c_s" output="&#x0003;"/>
+      <when state="c_l" output="&#x0003;"/>
+      <when state="c_r" output="&#x0003;"/>
+      <when state="c_y" output="&#x0003;"/>
+      <when state="c_th" output="&#x0003;"/>
+      <when state="c_dh" output="&#x0003;"/>
+      <when state="c_sh" output="&#x0003;"/>
+    </action>
+    <action id="press_115">
+      <when state="none" output="&#x0001;"/>
+      <when state="c_m" output="&#x0001;"/>
+      <when state="c_n" output="&#x0001;"/>
+      <when state="c_t" output="&#x0001;"/>
+      <when state="c_d" output="&#x0001;"/>
+      <when state="c_s" output="&#x0001;"/>
+      <when state="c_l" output="&#x0001;"/>
+      <when state="c_r" output="&#x0001;"/>
+      <when state="c_y" output="&#x0001;"/>
+      <when state="c_th" output="&#x0001;"/>
+      <when state="c_dh" output="&#x0001;"/>
+      <when state="c_sh" output="&#x0001;"/>
+    </action>
+    <action id="press_116">
+      <when state="none" output="&#x000B;"/>
+      <when state="c_m" output="&#x000B;"/>
+      <when state="c_n" output="&#x000B;"/>
+      <when state="c_t" output="&#x000B;"/>
+      <when state="c_d" output="&#x000B;"/>
+      <when state="c_s" output="&#x000B;"/>
+      <when state="c_l" output="&#x000B;"/>
+      <when state="c_r" output="&#x000B;"/>
+      <when state="c_y" output="&#x000B;"/>
+      <when state="c_th" output="&#x000B;"/>
+      <when state="c_dh" output="&#x000B;"/>
+      <when state="c_sh" output="&#x000B;"/>
+    </action>
+    <action id="press_117">
+      <when state="none" output="&#x007F;"/>
+      <when state="c_m" output="&#x007F;"/>
+      <when state="c_n" output="&#x007F;"/>
+      <when state="c_t" output="&#x007F;"/>
+      <when state="c_d" output="&#x007F;"/>
+      <when state="c_s" output="&#x007F;"/>
+      <when state="c_l" output="&#x007F;"/>
+      <when state="c_r" output="&#x007F;"/>
+      <when state="c_y" output="&#x007F;"/>
+      <when state="c_th" output="&#x007F;"/>
+      <when state="c_dh" output="&#x007F;"/>
+      <when state="c_sh" output="&#x007F;"/>
+    </action>
+    <action id="press_119">
+      <when state="none" output="&#x0004;"/>
+      <when state="c_m" output="&#x0004;"/>
+      <when state="c_n" output="&#x0004;"/>
+      <when state="c_t" output="&#x0004;"/>
+      <when state="c_d" output="&#x0004;"/>
+      <when state="c_s" output="&#x0004;"/>
+      <when state="c_l" output="&#x0004;"/>
+      <when state="c_r" output="&#x0004;"/>
+      <when state="c_y" output="&#x0004;"/>
+      <when state="c_th" output="&#x0004;"/>
+      <when state="c_dh" output="&#x0004;"/>
+      <when state="c_sh" output="&#x0004;"/>
+    </action>
+    <action id="press_121">
+      <when state="none" output="&#x000C;"/>
+      <when state="c_m" output="&#x000C;"/>
+      <when state="c_n" output="&#x000C;"/>
+      <when state="c_t" output="&#x000C;"/>
+      <when state="c_d" output="&#x000C;"/>
+      <when state="c_s" output="&#x000C;"/>
+      <when state="c_l" output="&#x000C;"/>
+      <when state="c_r" output="&#x000C;"/>
+      <when state="c_y" output="&#x000C;"/>
+      <when state="c_th" output="&#x000C;"/>
+      <when state="c_dh" output="&#x000C;"/>
+      <when state="c_sh" output="&#x000C;"/>
+    </action>
+    <action id="press_123">
+      <when state="none" output="&#x001C;"/>
+      <when state="c_m" output="&#x001C;"/>
+      <when state="c_n" output="&#x001C;"/>
+      <when state="c_t" output="&#x001C;"/>
+      <when state="c_d" output="&#x001C;"/>
+      <when state="c_s" output="&#x001C;"/>
+      <when state="c_l" output="&#x001C;"/>
+      <when state="c_r" output="&#x001C;"/>
+      <when state="c_y" output="&#x001C;"/>
+      <when state="c_th" output="&#x001C;"/>
+      <when state="c_dh" output="&#x001C;"/>
+      <when state="c_sh" output="&#x001C;"/>
+    </action>
+    <action id="press_124">
+      <when state="none" output="&#x001D;"/>
+      <when state="c_m" output="&#x001D;"/>
+      <when state="c_n" output="&#x001D;"/>
+      <when state="c_t" output="&#x001D;"/>
+      <when state="c_d" output="&#x001D;"/>
+      <when state="c_s" output="&#x001D;"/>
+      <when state="c_l" output="&#x001D;"/>
+      <when state="c_r" output="&#x001D;"/>
+      <when state="c_y" output="&#x001D;"/>
+      <when state="c_th" output="&#x001D;"/>
+      <when state="c_dh" output="&#x001D;"/>
+      <when state="c_sh" output="&#x001D;"/>
+    </action>
+    <action id="press_125">
+      <when state="none" output="&#x001F;"/>
+      <when state="c_m" output="&#x001F;"/>
+      <when state="c_n" output="&#x001F;"/>
+      <when state="c_t" output="&#x001F;"/>
+      <when state="c_d" output="&#x001F;"/>
+      <when state="c_s" output="&#x001F;"/>
+      <when state="c_l" output="&#x001F;"/>
+      <when state="c_r" output="&#x001F;"/>
+      <when state="c_y" output="&#x001F;"/>
+      <when state="c_th" output="&#x001F;"/>
+      <when state="c_dh" output="&#x001F;"/>
+      <when state="c_sh" output="&#x001F;"/>
+    </action>
+    <action id="press_126">
+      <when state="none" output="&#x001E;"/>
+      <when state="c_m" output="&#x001E;"/>
+      <when state="c_n" output="&#x001E;"/>
+      <when state="c_t" output="&#x001E;"/>
+      <when state="c_d" output="&#x001E;"/>
+      <when state="c_s" output="&#x001E;"/>
+      <when state="c_l" output="&#x001E;"/>
+      <when state="c_r" output="&#x001E;"/>
+      <when state="c_y" output="&#x001E;"/>
+      <when state="c_th" output="&#x001E;"/>
+      <when state="c_dh" output="&#x001E;"/>
+      <when state="c_sh" output="&#x001E;"/>
     </action>
   </actions>
   <terminators>
@@ -431,12 +1241,12 @@
     <when state="c_n" output=""/>
     <when state="c_t" output=""/>
     <when state="c_d" output=""/>
-    <when state="c_th" output=""/>
-    <when state="c_dh" output=""/>
     <when state="c_s" output=""/>
-    <when state="c_sh" output=""/>
     <when state="c_l" output=""/>
     <when state="c_r" output=""/>
     <when state="c_y" output=""/>
+    <when state="c_th" output=""/>
+    <when state="c_dh" output=""/>
+    <when state="c_sh" output=""/>
   </terminators>
 </keyboard>

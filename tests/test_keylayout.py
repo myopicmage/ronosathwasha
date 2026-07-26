@@ -8,6 +8,7 @@ exhaustively: not "does it type the right thing" but "can it type a wrong one".
 
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -15,7 +16,15 @@ from pathlib import Path
 import pytest
 
 from ronesathwasha import Consonant, ParseFailure, Script, Vowel, load
-from tools.build_keylayout import CONSONANT_KEYS, VOWEL_KEYS, build
+from tools.build_keylayout import (
+    CONSONANT_KEYS,
+    DIGRAPHS,
+    DIGRAPH_KEY,
+    VOWEL_KEYS,
+    build,
+    parseable,
+    unshift_controls,
+)
 
 PLAIN, SHIFT = 0, 1
 
@@ -32,7 +41,7 @@ class Keyboard:
 
     @classmethod
     def parse(cls, xml: str) -> Keyboard:
-        root = ET.fromstring(xml)
+        root = ET.fromstring(parseable(xml))
         keymaps = {
             int(km.attrib["index"]): {
                 int(k.attrib["code"]): k.attrib["action"] for k in km.findall("key")
@@ -44,14 +53,14 @@ class Keyboard:
                 w.attrib["state"]: (
                     ("next", w.attrib["next"])
                     if "next" in w.attrib
-                    else ("output", w.attrib.get("output", ""))
+                    else ("output", unshift_controls(w.attrib.get("output", "")))
                 )
                 for w in a.findall("when")
             }
             for a in root.findall("actions/action")
         }
         terminators = {
-            w.attrib["state"]: w.attrib.get("output", "")
+            w.attrib["state"]: unshift_controls(w.attrib.get("output", ""))
             for w in root.findall("terminators/when")
         }
         return cls(keymaps, actions, terminators)
@@ -92,35 +101,77 @@ def keyboard(xml: str) -> Keyboard:
     return Keyboard.parse(xml)
 
 
-def keystroke(script: Script, letter: Consonant | Vowel) -> tuple[int, bool]:
-    """Which key, and whether shifted. Shift always means 'add the mark'."""
+def keystrokes(script: Script, letter: Consonant | Vowel) -> list[tuple[int, bool]]:
+    """The key presses for one letter. Digraphs take two; the glide takes shift."""
     if isinstance(letter, Consonant):
-        if letter.derivation is None:
-            return CONSONANT_KEYS[letter.roman], False
+        if letter.roman in CONSONANT_KEYS:
+            return [(CONSONANT_KEYS[letter.roman], False)]
 
-        base = next(c for c in script.consonants if c.glyph == letter.derivation.base)
-        return CONSONANT_KEYS[base.roman], True
+        first = next(f for f, whole in DIGRAPHS.items() if whole == letter.roman)
+        return [(CONSONANT_KEYS[first], False), (DIGRAPH_KEY, False)]
 
     if letter.glide:
-        return VOWEL_KEYS[letter.roman.removeprefix("w")], True
+        return [(VOWEL_KEYS[letter.roman.removeprefix("w")], True)]
 
-    return VOWEL_KEYS[letter.roman], False
+    return [(VOWEL_KEYS[letter.roman], False)]
 
 
-def test_generated_layout_is_valid_against_apples_dtd() -> None:
+def test_generated_layout_is_well_formed() -> None:
+    """Parsed after sanitising, because the real file is not strict XML.
+
+    Control characters below U+0020 cannot be written as references in XML 1.0.
+    macOS requires them anyway and Ukelele writes them the same way, so the
+    structure is checked on a copy with those references swapped out.
+    """
     path = Path("layouts/Ronesathwasha.keylayout")
     assert path.exists(), "run python3 -m tools.build_keylayout"
-    ET.parse(path)  # well-formed; xmllint --valid covers the DTD in the build
+    ET.fromstring(parseable(path.read_text(encoding="utf-8")))
 
 
-def test_every_syllable_takes_exactly_two_keystrokes(
+def test_every_key_a_keyboard_needs_is_mapped(xml: str) -> None:
+    """An unmapped key in a .keylayout emits nothing at all.
+
+    The first version shipped with delete, escape, the arrows, the digits and
+    all punctuation silently dead, because the exhaustive sweep only ever
+    tested keys the layout already defined. It could not miss what was absent.
+    """
+    board = Keyboard.parse(xml)
+    mapped = set(board.keymaps[PLAIN])
+    essential = {
+        51: "delete", 117: "forward delete", 53: "escape",
+        123: "left", 124: "right", 125: "down", 126: "up",
+        49: "space", 36: "return", 48: "tab",
+        18: "1", 29: "0", 47: ".", 43: ",", 27: "-",
+    }
+    missing = [name for code, name in essential.items() if code not in mapped]
+    assert not missing, f"unmapped: {', '.join(missing)}"
+
+
+def test_delete_cancels_a_pending_consonant(script: Script, xml: str) -> None:
+    """Backspacing an armed dead key should undo that keystroke and no more."""
+    board = Keyboard.parse(xml)
+    board.press(CONSONANT_KEYS["m"])
+    assert board.state != "none"
+
+    board.press(51)
+    assert board.state == "none", "delete left the dead key armed"
+    assert board.finish() == "", "delete emitted a character as well as cancelling"
+
+
+def test_delete_emits_backspace_when_nothing_is_pending(xml: str) -> None:
+    board = Keyboard.parse(xml)
+    board.press(51)
+    assert board.finish() == ""
+
+
+def test_every_syllable_is_typeable(
     script: Script, xml: str
 ) -> None:
     for syllable in script.syllables():
         board = Keyboard.parse(xml)
         for letter in (syllable.consonant, syllable.vowel):
-            code, shift = keystroke(script, letter)
-            board.press(code, shift)
+            for code, shift in keystrokes(script, letter):
+                board.press(code, shift)
 
         want = "".join(chr(c) for c in script.encode([syllable]))
         assert board.finish() == want, syllable.roman
@@ -130,8 +181,8 @@ def test_a_consonant_alone_emits_nothing(script: Script, xml: str) -> None:
     """Half a syllable is not a thing this language can write."""
     for consonant in script.consonants:
         board = Keyboard.parse(xml)
-        code, shift = keystroke(script, consonant)
-        board.press(code, shift)
+        for code, shift in keystrokes(script, consonant):
+            board.press(code, shift)
         assert board.state != "none", consonant.roman  # armed, not emitted
         assert board.finish() == "", consonant.roman
 
@@ -140,8 +191,8 @@ def test_a_vowel_alone_emits_nothing(script: Script, xml: str) -> None:
     """The whole point: an onsetless syllable is untypeable, not merely wrong."""
     for vowel in script.vowels:
         board = Keyboard.parse(xml)
-        code, shift = keystroke(script, vowel)
-        board.press(code, shift)
+        for code, shift in keystrokes(script, vowel):
+            board.press(code, shift)
         assert board.finish() == "", vowel.roman
 
 
@@ -171,8 +222,8 @@ def test_the_autonym_is_typeable(script: Script, xml: str) -> None:
     board = Keyboard.parse(xml)
     for syllable in parsed:
         for letter in (syllable.consonant, syllable.vowel):
-            code, shift = keystroke(script, letter)
-            board.press(code, shift)
+            for code, shift in keystrokes(script, letter):
+                board.press(code, shift)
 
     assert board.finish() == "".join(chr(c) for c in script.encode(parsed))
 
@@ -200,11 +251,11 @@ def test_no_two_keystrokes_can_produce_illegal_text(script: Script, xml: str) ->
             out = trial.finish()
             checked += 1
 
-            if out == "" or out.isspace():
-                continue
-
-            for chunk in out.split():
-                assert chunk in legal, f"{first} then {second} produced {chunk!r}"
+            # Latin digits, punctuation and whitespace pass straight through
+            # and are legal. The invariant is about this script's own code
+            # points: every run of them must be a well-formed syllable.
+            for run in re.findall("[\ue000-\ue0ff]+", out):
+                assert run in legal, f"{first} then {second} produced {run!r}"
 
     assert checked == len(presses) ** 2
     assert checked > 1000, f"only {checked} combinations swept"
