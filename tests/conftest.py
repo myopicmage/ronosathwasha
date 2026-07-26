@@ -4,9 +4,14 @@ import pytest
 from fontTools.ttLib import TTFont
 from ufo2ft import compileTTF
 
-from ronesathwasha import load
+from ronesathwasha import Script, load
 from tests.harness import Built
 from tools.build_ufo import build
+
+
+@pytest.fixture(scope="session")
+def script() -> Script:
+    return load()
 
 
 @pytest.fixture(scope="session")

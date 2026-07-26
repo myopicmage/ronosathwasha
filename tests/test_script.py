@@ -16,11 +16,6 @@ from ronesathwasha import (
 )
 
 
-@pytest.fixture(scope="session")
-def script() -> Script:
-    return load()
-
-
 def test_inventory_is_eleven_by_twelve(script: Script) -> None:
     assert len(script.consonants) == 11
     assert len(script.vowels) == 12
@@ -151,23 +146,22 @@ def test_ipa_spelling_of_the_dental_fricatives_is_accepted(script: Script) -> No
         assert not isinstance(script.parse(word), ParseFailure), word
 
 
-def test_the_ipa_spelling_collision_no_longer_exists(script: Script) -> None:
-    """`j` used to be ambiguous and stopped being so when the affricates went.
+def test_only_non_ascii_ipa_symbols_are_accepted_as_spellings(
+    script: Script,
+) -> None:
+    """The alias exists for ð and θ, which is all it should cover.
 
-    /y/ carries the IPA symbol "j", which was also the romanisation of the
-    affricate /dʒ/. With that consonant gone, "j" resolves to exactly one
-    letter and there is nothing left for spelling order to arbitrate.
+    /y/ carries the IPA symbol "j". Accepting that would make every word
+    spelled with a j parse as something else instead of being reported as
+    unwritable, which is exactly what happened to the six affricate words in
+    the lexicon.
     """
-    spellings = [r for c in script.consonants for r in (c.roman, c.ipa)]
-    assert spellings.count("j") == 1
-
-    parsed = script.parse("jo")
-    assert not isinstance(parsed, ParseFailure)
-    assert parsed[0].consonant.roman == "y"
-
     ipa_only = script.parse("ðo")
     assert not isinstance(ipa_only, ParseFailure)
     assert ipa_only[0].consonant.roman == "dh"
+
+    assert isinstance(script.parse("jo"), ParseFailure)
+    assert isinstance(script.parse("je"), ParseFailure)
 
 
 def test_unwritable_words_fail_with_a_position(script: Script) -> None:

@@ -1,0 +1,144 @@
+# The lexicon.
+#
+# To add a word, type one line in the right section:
+#
+#     "rune" = "dog"
+#
+# That is the whole format. Keys are quoted because ə, ð and θ are not valid
+# bare TOML keys, so quoting everything keeps one pattern instead of two.
+#
+# Nothing else is recorded here, because everything else is derivable:
+# the syllables, the code points, the harmony class and whether the word is
+# writable at all are all computed from data/script.toml. `pytest` will tell
+# you if a word cannot be written in the script.
+#
+# Put parenthetical detail inside the gloss:  "rorothwaswo" = "love (very-like)"
+#
+# Seeded from the ~2021 notes in the Scrivener project. 61 entries.
+
+
+[pronoun]
+"la" = "I"
+"lo" = "we"
+"na" = "you"
+"no" = "you (plural)"
+"ða" = "he/she/it (alive)"
+"ðo" = "they (alive)"
+"ya" = "it (not alive)"
+"yo" = "they (not alive)"
+
+
+[noun]
+"nəla" = "ball"
+"sene" = "cat"
+"rune" = "dog"
+"thina" = "drink"
+"shimi" = "family"
+"nishimi" = "parent (up-family)"
+"sishimi" = "child (down-family)"
+"thə" = "fire"
+"thino" = "food"
+"ta" = "home"
+"thwasha" = "language, tongue"
+"tuma" = "magic"
+"ro" = "person"
+"rone" = "people"
+"shwi" = "rabbit"
+"mwu" = "thing"
+
+
+# The w-infix turns a body-relative direction into a compass one.
+[direction]
+"niðə" = "up"
+"siðə" = "down"
+"miðə" = "left"
+"nwiðə" = "north"
+"swiðə" = "south"
+"mwiðə" = "west"
+
+
+[verb]
+"thinaswo" = "to drink"
+"thinoswo" = "to eat (food-verb)"
+"tiswo" = "to have"
+"thwaswo" = "to like"
+"rorothwaswo" = "to love (very-like)"
+"miriswo" = "to teach"
+"neswo" = "to use"
+"twaswo" = "to want"
+
+
+[time]
+"dwe" = "day"
+"me" = "now, present"
+"the" = "future"
+"methe" = "soon"
+"rorothe" = "far future"
+
+
+[adjective]
+"nara" = "good"
+"tura" = "bad"
+"twatha" = "old"
+"rorotwatha" = "ancient (very-old)"
+
+
+[adverb]
+"roro" = "very"
+
+
+# Affixes. Position is in the gloss: (verb) marks where the stem goes.
+[marker]
+"swo" = "infinitive, (verb)swo"
+"ne" = "plural, (noun)ne"
+"sa" = "possessive, (noun)sa"
+"me" = "present tense, (verb)me"
+"the" = "future tense, (verb)the"
+"yo" = "command, yo(verb)"
+"li" = "might, li(verb)"
+"ma" = "negation, ma (verb)"
+"tho" = "question, tho(verb)"
+
+
+[particle]
+"shi" = "at"
+"thi" = "in"
+"mi" = "near"
+"yi" = "object"
+
+
+[phrase]
+"narame" = "hello (good now)"
+"narathe" = "goodbye (good future)"
+"so" = "yes"
+"ma" = "no"
+"thino twa" = "I'm hungry (I want food)"
+"thina twa" = "I'm thirsty (I want drink)"
+"thwame" = "I like"
+"thənəlayi tumame" = "I cast fireball"
+
+
+# Attested but currently unwritable. Not a backlog of missing words: these are
+# real entries blocked by two decisions, and each needs respelling rather than
+# inventing. The tests report these separately instead of failing on them.
+#
+#   ch and j were dropped from the inventory (2026-07-26)
+#   h was never in it, and w stopped being a consonant
+[respell]
+"jechiswo" = "to go"
+"jechi" = "go (imperative)"
+"je" = "past tense, (verb)je"
+"ji" = "continuous, (verb)ji"
+"ju" = "subject particle"
+"jeme" = "recently"
+"roroje" = "far past"
+"rorotwathaje" = "ancient past"
+"chi" = "this"
+"cha" = "that"
+"chu" = "that over there"
+"chime" = "today"
+"chidwe" = "today (this-day)"
+"hiðə" = "right"
+"hwiðə" = "east"
+"hi" = "towards"
+"yəwə" = "crab"
