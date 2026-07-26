@@ -88,6 +88,17 @@ voiced = false
 
 [[consonant]]
 offset = 3
+glyph = "c_d"
+roman = "d"
+ipa = "d"
+place = "alveolar"
+manner = "plosive"
+voiced = true
+derives_from = "c_t"
+mark = "stem"
+
+[[consonant]]
+offset = 4
 glyph = "c_ch"
 roman = "ch"
 ipa = "tʃ"
@@ -96,7 +107,7 @@ manner = "plosive"
 voiced = false
 
 [[consonant]]
-offset = 4
+offset = 5
 glyph = "c_j"
 roman = "j"
 ipa = "dʒ"
@@ -107,7 +118,7 @@ derives_from = "c_ch"
 mark = "stem"
 
 [[consonant]]
-offset = 5
+offset = 6
 glyph = "c_th"
 roman = "th"
 ipa = "θ"
@@ -116,7 +127,7 @@ manner = "fricative"
 voiced = false
 
 [[consonant]]
-offset = 6
+offset = 7
 glyph = "c_dh"
 roman = "dh"
 ipa = "ð"
@@ -127,7 +138,7 @@ derives_from = "c_th"
 mark = "stem"
 
 [[consonant]]
-offset = 7
+offset = 8
 glyph = "c_s"
 roman = "s"
 ipa = "s"
@@ -136,7 +147,7 @@ manner = "fricative"
 voiced = false
 
 [[consonant]]
-offset = 8
+offset = 9
 glyph = "c_sh"
 roman = "sh"
 ipa = "ʃ"
@@ -147,7 +158,7 @@ derives_from = "c_s"
 mark = "crossbar"
 
 [[consonant]]
-offset = 9
+offset = 10
 glyph = "c_l"
 roman = "l"
 ipa = "l"
@@ -156,7 +167,7 @@ manner = "approximant"
 voiced = true
 
 [[consonant]]
-offset = 10
+offset = 11
 glyph = "c_r"
 roman = "r"
 ipa = "ɹ"
@@ -167,7 +178,7 @@ derives_from = "c_l"
 mark = "crossbar"
 
 [[consonant]]
-offset = 11
+offset = 12
 glyph = "c_y"
 roman = "y"
 ipa = "j"
