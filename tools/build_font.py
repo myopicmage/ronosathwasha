@@ -14,6 +14,7 @@ from pathlib import Path
 
 from ronesathwasha import load
 from tools.build_ufo import build
+from tools.installed import FONTS, report
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -44,6 +45,7 @@ def main() -> None:
 
     ttf = ROOT / "build" / "Ronesathwasha.ttf"
     print(f"{ttf.relative_to(Path.cwd())}: {ttf.stat().st_size:,} bytes")
+    report(ttf, FONTS)
 
 
 if __name__ == "__main__":

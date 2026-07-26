@@ -6,9 +6,9 @@ shape is not a convenience, it is the phonotactics: there is no keystroke
 sequence that produces a bare vowel, a bare consonant, or a cluster, because
 there is no state in which those are reachable.
 
-Shift means one thing on both halves of the keyboard: add the mark. On a
-consonant it gives the derived letter (t -> d, s -> sh), on a vowel the glide
-(a -> wa). The keyboard is featural because the script is.
+Every consonant sits on the letter it is romanised with, so the layout needs no
+diagram: you type what you would write. H is not a phoneme here, which frees it
+to complete the digraphs. Shift is only the glide.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from pathlib import Path
 from xml.sax.saxutils import quoteattr
 
 from ronesathwasha import Consonant, Script, Vowel, load
+from tools.installed import LAYOUTS, report
 
 # macOS virtual key codes, ANSI. Every consonant sits on the letter it is
 # romanised with, so the layout needs no diagram: you type what you would
@@ -100,7 +101,7 @@ def _hex(text: str) -> str:
     Note that control characters below U+0020 make this file not strictly
     valid XML 1.0, which forbids references to them. macOS accepts them and
     Ukelele writes them the same way, but any conforming parser will refuse
-    the file. `sanitised()` exists so the structure can still be checked.
+    the file. `parseable()` exists so the structure can still be checked.
     """
     return "".join(f"&#x{ord(ch):04X};" for ch in text)
 
@@ -308,6 +309,7 @@ def main() -> None:
     print(f"  {len(consonants)} consonants + H + {len(vowels)} vowels = {keys} letter keys")
     print("  digraphs: " + ", ".join(f"{a.roman}+h={b.roman}" for a, b in digraphs.items()))
     print("  shift is only the glide, and no consonant is shifted at all")
+    report(out, LAYOUTS, " && log out and back in")
 
 
 if __name__ == "__main__":
