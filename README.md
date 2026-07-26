@@ -20,13 +20,17 @@ python3 -m mypy               # strict
 Install both halves:
 
 ```sh
-cp build/Ronesathwasha.ttf ~/Library/Fonts/
-cp layouts/Ronesathwasha.keylayout ~/Library/Keyboard\ Layouts/
+./scripts/install.sh
 ```
 
+Builds and installs together, on purpose: a font one encoding behind a keyboard
+renders as fluent nonsense rather than as an error. It enters the dev shell
+itself if it needs to.
+
 Fonts refresh immediately. **The keyboard layout needs a log out and back in**,
-because macOS only scans that directory at login. Then enable it under System
-Settings > Keyboard > Input Sources.
+because macOS only scans that directory at login, and the script says so only
+when the layout actually changed. Then enable it under System Settings >
+Keyboard > Input Sources, at the bottom of the list under **Others**.
 
 ## Typing
 
@@ -87,6 +91,7 @@ ronesathwasha/         that file parsed into a model that cannot hold a broken o
 sources/strokes.py     the consonant letterforms, as centrelines
 tools/                 the generators: UFO, font, keyboard layout
 layouts/               the generated .keylayout
+scripts/install.sh     build both and put them where macOS looks
 tests/                 model, shaping (HarfBuzz), shaping (CoreText), keyboard
 GLOSSARY.md            font and typography terms, in the order you meet them
 ```
