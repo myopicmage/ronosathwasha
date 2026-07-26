@@ -123,8 +123,49 @@ either, for the same reason.
 Adobe Font Development Kit. Compiled into GSUB and GPOS.
 
 **Feature writer** — a tool that generates feature code from the source instead
-of you hand-writing it. ufo2ft has writers for `mark`, `mkmk` and `kern`, which
-is why this repo has no feature file yet: the anchors were enough.
+of you hand-writing it. ufo2ft has writers for `mark`, `mkmk` and `kern`, and
+skips any feature the source already defines.
+
+**Lookup** — one rule set inside GSUB or GPOS. Features don't contain rules;
+they contain references to lookups, in order. The indirection lets several
+features share one lookup, and lets a contextual rule invoke another lookup at
+a matched position.
+
+**Glyph class** — a named set of glyphs, written `@vowel = [v_i v_u ...]`. Rules
+match against the class rather than listing members.
+
+**Contextual substitution** — a rule that fires only when its neighbours match.
+Written with a prime: `sub @vowel' by X` means *substitute the vowel*, and
+anything unprimed is context that must be present but is left alone.
+
+**`ignore sub`** — declares a context where a later rule must *not* fire.
+Listed before the general rule, since lookups match in order and stop at the
+first hit. It's how you say "unless", which the syntax otherwise can't express.
+
+**Dotted circle (U+25CC)** — the ring of dots conventionally shown around a
+combining mark that has nothing to attach to. Shapers insert it automatically
+for scripts they know about. For an unencoded script they don't, so the font
+does it itself.
+
+## Vertical metrics
+
+Three separate sets of numbers claim to say how tall the font is, and different
+platforms believe different ones. Getting them to disagree is the classic way to
+ship a font whose line spacing changes between macOS and Windows.
+
+**hhea ascender / descender / lineGap** — the original TrueType metrics. What
+macOS reads.
+
+**OS/2 sTypo ascender / descender / lineGap** — the typographic metrics, meant
+to express design intent.
+
+**OS/2 usWin ascent / descent** — a clipping box, historically. Always positive
+numbers, even the descent.
+
+**USE_TYPO_METRICS** — bit 7 of the OS/2 `fsSelection` field. Set it and
+everything is told to use the sTypo numbers, which is the only way to make all
+three agree in practice. Set all three families to the same values and turn this
+on; that's what Google Fonts requires and there's no reason to do otherwise.
 
 ## Tools
 

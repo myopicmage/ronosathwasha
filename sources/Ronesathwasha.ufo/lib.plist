@@ -5,6 +5,8 @@
     <key>public.glyphOrder</key>
     <array>
       <string>.notdef</string>
+      <string>space</string>
+      <string>dottedcircle</string>
       <string>c_m</string>
       <string>c_n</string>
       <string>c_t</string>
@@ -58,6 +60,10 @@
       <key>c_th</key>
       <string>base</string>
       <key>c_y</key>
+      <string>base</string>
+      <key>dottedcircle</key>
+      <string>base</string>
+      <key>space</key>
       <string>base</string>
       <key>v_a</key>
       <string>mark</string>

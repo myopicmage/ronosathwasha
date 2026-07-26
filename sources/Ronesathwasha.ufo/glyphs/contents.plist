@@ -30,6 +30,10 @@
     <string>c_th.glif</string>
     <key>c_y</key>
     <string>c_y.glif</string>
+    <key>dottedcircle</key>
+    <string>dottedcircle.glif</string>
+    <key>space</key>
+    <string>space.glif</string>
     <key>v_a</key>
     <string>v_a.glif</string>
     <key>v_e</key>
