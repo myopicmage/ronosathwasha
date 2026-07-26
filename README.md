@@ -11,10 +11,11 @@ consonant and one vowel: no onsetless syllables, no codas, no clusters.
 ## Using it
 
 ```sh
-nix develop 'path:.'          # or just cd in, direnv handles it
-python3 -m tools.build_font   # declaration -> UFO -> build/Ronesathwasha.ttf
-python3 -m pytest             # 55 tests
-python3 -m mypy               # strict
+nix develop 'path:.'              # or just cd in, direnv handles it
+python3 -m tools.build_font       # declaration -> UFO -> build/Ronesathwasha.ttf
+python3 -m tools.build_dictionary # lexicon -> build/dictionary.html
+python3 -m pytest                 # 63 tests
+python3 -m mypy                   # strict
 ```
 
 Install both halves:
@@ -26,6 +27,29 @@ Install both halves:
 Builds and installs together, on purpose: a font one encoding behind a keyboard
 renders as fluent nonsense rather than as an error. It enters the dev shell
 itself if it needs to.
+
+## The dictionary
+
+```sh
+python3 -m tools.build_dictionary
+open build/dictionary.html
+```
+
+Every word in `data/lexicon.toml`, searchable by English gloss or by
+romanisation, each one shown in the script.
+
+**The font is inlined into the page**, so it renders on a machine that has never
+installed anything here. That is not a convenience: the script lives in the
+private use area, and a PUA code point with the wrong font renders either as
+tofu or, if some other font claims the same block, as somebody else's letters.
+The page has to carry its own decoder.
+
+The font is compiled during the build rather than read from `build/`, for the
+same reason `install.sh` builds both halves together.
+
+Searching matches the gloss and the romanisation, never the encoded text. The
+PUA gets nothing from Unicode's casefolding or collation, so a search over it
+could only ever be an exact substring match, on characters with no keys.
 
 Fonts refresh immediately. **The keyboard layout needs a log out and back in**,
 because macOS only scans that directory at login, and the script says so only
@@ -87,9 +111,10 @@ Everything is generated from one declaration, so nothing is stated twice.
 
 ```
 data/script.toml       the inventory, the PUA block, the derivation rules
-ronesathwasha/         that file parsed into a model that cannot hold a broken one
+data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
+ronesathwasha/         those files parsed into models that cannot hold a broken one
 sources/strokes.py     the consonant letterforms, as centrelines
-tools/                 the generators: UFO, font, keyboard layout
+tools/                 the generators: UFO, font, keyboard layout, dictionary
 layouts/               the generated .keylayout
 scripts/install.sh     build both and put them where macOS looks
 tests/                 model, shaping (HarfBuzz), shaping (CoreText), keyboard

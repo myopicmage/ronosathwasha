@@ -226,3 +226,26 @@ matters for a script like this one.
 anyone may use them privately. Three ranges; we use U+E000–U+F8FF. A PUA
 character has no script, no properties, and no meaning outside an agreement
 between a font and whoever installed it.
+
+## On the web
+
+**`@font-face`**: the CSS rule that declares a font for a page and says where to
+fetch it. Without one, a page can only name fonts the reader already has.
+
+**WOFF / WOFF2**: Web Open Font Format. A wrapper around an ordinary font with
+the tables compressed. WOFF1 (2012) uses zlib; WOFF2 (2018) transforms `glyf`
+and `loca` into a more compressible form and then compresses the lot with
+**Brotli**, which is why writing one needs a Brotli implementation. Roughly half
+the size of the TTF it wraps.
+
+**Font fallback**: what a renderer does when the first font in the list has no
+glyph for a character: it walks down the list, then to the system fonts, and
+draws tofu only if every one of them fails. Ordinary and invisible for real
+scripts. For a PUA character it is a hazard, because a fallback font may well
+*have* a glyph at that code point, and will then confidently draw somebody
+else's letter instead of failing.
+
+**Embedding a font as a `data:` URI**: putting the font bytes into the CSS
+itself, base64-encoded, instead of linking a file. Makes a page one
+self-contained file. For an encoded script this is a size tradeoff; for a PUA
+script it is the only way the page means anything on someone else's machine.
