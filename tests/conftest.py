@@ -4,7 +4,7 @@ import pytest
 from fontTools.ttLib import TTFont
 from ufo2ft import compileTTF
 
-from ronesathwasha import Script, load
+from ronesathwasha import Lexicon, Script, load, load_lexicon
 from tests.harness import Built
 from tools.build_ufo import build
 
@@ -12,6 +12,11 @@ from tools.build_ufo import build
 @pytest.fixture(scope="session")
 def script() -> Script:
     return load()
+
+
+@pytest.fixture(scope="session")
+def lexicon(script: Script) -> Lexicon:
+    return load_lexicon(script)
 
 
 @pytest.fixture(scope="session")

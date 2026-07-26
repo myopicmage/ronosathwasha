@@ -1,5 +1,12 @@
 """ronesathwasha: the script, its model, and the artefacts generated from it."""
 
+from ronesathwasha.lexicon import (
+    Entry,
+    Harmony,
+    Lexicon,
+    LexiconError,
+)
+from ronesathwasha.lexicon import load as load_lexicon
 from ronesathwasha.script import (
     Backness,
     Consonant,
@@ -20,7 +27,11 @@ __all__ = [
     "Consonant",
     "Derivation",
     "Direction",
+    "Entry",
+    "Harmony",
     "Height",
+    "Lexicon",
+    "LexiconError",
     "Mark",
     "ParseFailure",
     "Script",
@@ -28,4 +39,5 @@ __all__ = [
     "Syllable",
     "Vowel",
     "load",
+    "load_lexicon",
 ]
