@@ -73,17 +73,7 @@ serve: site ## Serve build/ over HTTP
 	$(PY) -m http.server -d build $(PORT)
 
 share: site ## Serve build/ through a public cloudflared tunnel
-	@command -v cloudflared >/dev/null 2>&1 || { \
-	  echo "cloudflared is not on PATH."; \
-	  echo "Either brew install cloudflared, or add pkgs.cloudflared to flake.nix."; \
-	  exit 1; \
-	}
-	@echo "A quick tunnel is public: anyone with the URL can read build/ until this stops."
-	@$(PY) -m http.server -d build $(PORT) >/dev/null 2>&1 & \
-	  server=$$!; \
-	  trap 'kill $$server 2>/dev/null' EXIT INT TERM; \
-	  sleep 1; \
-	  cloudflared tunnel --url http://localhost:$(PORT)
+	./scripts/share.sh $(PORT)
 
 test: ## Run the test suite
 	$(PY) -m pytest

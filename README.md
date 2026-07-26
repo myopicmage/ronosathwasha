@@ -84,6 +84,11 @@ A quick tunnel is public: anyone with the URL can read it while the tunnel is
 up, and the URL is the only thing gating it. `make share` says so before it
 starts, and stops the local server again on the way out.
 
+**It refuses a port something else is already on**, rather than tunnelling to
+it. cloudflared cannot serve files, so `share` proxies a local server, and if
+that server fails to bind while another one answers on the same port, the
+tunnel goes up in front of whatever that other thing is.
+
 `cloudflared` comes from the dev shell. Showing this script to anyone means
 showing them a page: a screenshot loses the text, and the text on its own is
 unreadable without the font, so there is nothing to paste into a message.
@@ -156,6 +161,7 @@ tools/                 the generators: UFO, font, keyboard layout, dictionary
 docs/                  hand-written pages; rebuilt into build/ with the font in them
 layouts/               the generated .keylayout
 scripts/install.sh     build both and put them where macOS looks
+scripts/share.sh       serve build/ and open a public tunnel at it
 tests/                 model, shaping (HarfBuzz), shaping (CoreText), keyboard
 GLOSSARY.md            font and typography terms, in the order you meet them
 ```
