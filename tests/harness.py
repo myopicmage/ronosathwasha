@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -96,27 +95,14 @@ class Built:
         return out
 
     def coretext(self, texts: list[str]) -> list[list[tuple[int, int, int]]]:
-        """The same batch through Apple's shaper, already in absolute terms.
-
-        Run with the nix dev shell's SDK variables stripped. The shell pins
-        SDKROOT and DEVELOPER_DIR at an Apple SDK 14.4 built by Swift 5.10,
-        while /usr/bin/swift here is 6.3.3, and the compiler refuses an SDK
-        newer or older than itself. Unset them and it falls back to the system
-        toolchain, which is the one that matches.
-        """
+        """The same batch through Apple's shaper, already in absolute terms."""
         listing = self._listing(texts, "coretext.txt")
         script = Path(__file__).resolve().parent.parent / "tools" / "coretext_shape.swift"
-        env = {
-            k: v
-            for k, v in os.environ.items()
-            if k not in ("SDKROOT", "DEVELOPER_DIR")
-        }
         out = subprocess.run(
             ["swift", str(script), str(self.path), str(listing)],
             capture_output=True,
             text=True,
             check=True,
-            env=env,
         ).stdout.splitlines()
 
         assert len(out) == len(texts), f"{len(out)} results for {len(texts)} inputs"

@@ -12,7 +12,14 @@
     in
     {
       devShells = forAllSystems (pkgs: {
-        default = pkgs.mkShell {
+        # mkShellNoCC, not mkShell. mkShell pulls in nix's C compiler wrapper,
+        # which sets SDKROOT and DEVELOPER_DIR to a nixpkgs apple-sdk. On this
+        # machine that SDK was built by Swift 5.10 while /usr/bin/swift is
+        # 6.3.3, and the compiler refuses an SDK that does not match itself, so
+        # `swift` will not run at all inside the shell. Nothing here compiles C,
+        # so dropping the wrapper costs nothing and those variables are simply
+        # never set.
+        default = pkgs.mkShellNoCC {
           packages = [
             (pkgs.python3.withPackages (ps: [
               ps.fonttools

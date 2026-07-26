@@ -37,8 +37,12 @@ without explanation is the one thing that reliably makes this work opaque.
   and the de facto standard for open font development.
 - A nix flake provides the dev shell. Enter it with `nix develop 'path:.'`.
 
-**Swift will not compile inside the dev shell without help.** The shell pins `SDKROOT`
-and `DEVELOPER_DIR` to an Apple SDK 14.4 built by Swift 5.10, while `/usr/bin/swift` is
-6.3.3, and the compiler refuses an SDK that does not match its own version. Anything
-invoking `swift` has to drop both variables from the environment first;
-`tests/harness.py` does this for the CoreText comparison.
+**The flake uses `mkShellNoCC`, and must keep doing so.** `mkShell` pulls in nix's C
+compiler wrapper, which sets `SDKROOT` and `DEVELOPER_DIR` to a nixpkgs `apple-sdk`. On
+this machine that SDK was built by Swift 5.10 while `/usr/bin/swift` is 6.3.3, and the
+compiler refuses an SDK that does not match its own version, so `swift` will not run at
+all inside the shell. Nothing here compiles C, so the wrapper costs nothing to drop.
+
+Symptom if it comes back: `failed to build module 'Swift'; this SDK is not supported by
+the compiler`. The same trap is documented in the BRBAviation `nix-dev-env` skill, which
+solves it with `mkShellNoCC` plus a `shellHook`; the hook is not needed here.
