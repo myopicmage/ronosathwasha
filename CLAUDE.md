@@ -24,6 +24,13 @@ Concretely, the things worth stopping to explain:
 Do not narrate ordinary Python, ordinary XML, or ordinary build wiring. Do call out
 gnarly library idioms in `fontTools` / `fontmake` where they are genuinely non-obvious.
 
+**Define font vocabulary the first time it appears.** Kevin is fluent in the languages
+and new to type. Any term of art from typography, font engineering or OpenType gets a
+short gloss inline the first time it comes up in a turn, and an entry in `GLOSSARY.md`.
+This covers the domain, not programming: parser, enum and dataclass need no gloss;
+advance width, mark class, GSUB and shaping all do. When in doubt, gloss it. A term used
+without explanation is the one thing that reliably makes this work opaque.
+
 ## Stack
 
 - Python, with `fontTools` + `fontmake`, sources in UFO. This is the Google Fonts pipeline
