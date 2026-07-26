@@ -24,6 +24,9 @@
               # fontTools imports brotli lazily and only to read or write woff2.
               # Without it, woff2 output fails at call time rather than import time.
               ps.brotli
+
+              ps.mypy
+              ps.pytest
             ]))
 
             # hb-shape answers the only question that matters when debugging a
