@@ -2,6 +2,10 @@
 result
 result-*
 
+# Machine-local permission grants. `.claude/settings.json` is shared and does
+# get committed.
+.claude/settings.local.json
+
 __pycache__/
 *.py[cod]
 
