@@ -47,6 +47,24 @@ overlap simply merge, which is why a chevron can be two overlapping bars.
 outline, optionally transformed. Draw the shape once, use it in ten places, fix
 it in one. The font equivalent of a symbol in a vector editor.
 
+**Centreline** — the path down the middle of a stroke, as opposed to the
+outline around it. This script is drawn with a pen, so its sources are
+centrelines and its outlines are derived.
+
+**Stroke expansion** — turning a centreline plus a nib width into a filled
+outline. A stroke has a width and no inside; a glyph has an inside and no
+width, and something has to convert. `skia-pathops` does it here.
+
+**Quadratic vs cubic** — the two curve types. TrueType stores quadratics (one
+control point), PostScript and UFO sources use cubics (two). A quadratic
+converts to a cubic exactly; the other direction is an approximation, which is
+why sources are cubic and the conversion happens on export.
+
+**Conic** — a rational quadratic: a quadratic with a weight, able to describe a
+true circular arc, which neither plain quadratics nor cubics can do exactly.
+Skia's stroker emits them for round caps and joins. Nothing in the font world
+reads them, so they have to be converted on the way out.
+
 **em** and **units per em (UPM)** — the coordinate grid a glyph is drawn on,
 independent of any real-world size. This font uses 1000. Point size scales the
 em; the numbers inside never change.

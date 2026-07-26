@@ -4,13 +4,13 @@
 [tool.mypy]
 python_version = "3.14"
 strict = true
-files = ["ronesathwasha", "tools", "tests"]
+files = ["ronesathwasha", "sources", "tools", "tests"]
 pretty = true
 
 [[tool.mypy.overrides]]
 # fontTools ships partial stubs at best, and its dynamic table access defeats
 # them. Our own code stays strict; only the boundary is untyped.
-module = ["fontTools.*", "ufoLib2.*", "ufo2ft.*", "defcon.*"]
+module = ["fontTools.*", "ufoLib2.*", "ufo2ft.*", "defcon.*", "pathops.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

@@ -1,16 +1,13 @@
-"""Generate the UFO skeleton from the declaration.
+"""Generate the UFO from the declaration and the centrelines.
 
-The vowel marks are real outlines, because their geometry is derived: a chevron
-is a bearing, a length and a thickness, and the model already knows the
-bearing. The consonants are placeholder boxes, because their shapes are
-drawings nobody has made yet.
+Every glyph in this font is a path traced with one nib, so every glyph is built
+the same way: assemble a centreline, transform it into font space, stroke it,
+draw the result. Consonants come from `sources/strokes.py`; vowel marks are
+derived from the model, because a chevron is a bearing plus two arm lengths and
+the model already knows the bearing.
 
-Regenerating is safe only while that stays true. Once real consonant outlines
-land in the UFO, this script must learn to leave them alone.
-
-Coordinates: the specimen sheets work in a 100x100 box with y pointing down.
-Fonts point y up and put the baseline at zero, so everything passes through
-`pt()` once, here, rather than being re-derived per glyph.
+Coordinates: the specimen box is 100x100 with y pointing down. Fonts point y up
+and put the baseline at zero. That conversion happens once, in `TRANSFORM`.
 """
 
 from __future__ import annotations
@@ -19,152 +16,135 @@ import math
 import shutil
 from pathlib import Path
 
+import pathops
 import ufoLib2
+from fontTools.pens.qu2cuPen import Qu2CuPen
+from fontTools.pens.transformPen import TransformPen
+from fontTools.svgLib.path import parse_path
+from fontTools.misc.transform import Transform
 from ufoLib2.objects import Glyph
 
 from ronesathwasha import Direction, Script, load
+from sources.strokes import CONSONANTS, PEN
 
 UPM = 1000
 BASELINE = 74.0  # in specimen units: where y=0 falls
 SCALE = 10.0
 ADVANCE = 1000  # every syllable occupies the same square, Hangul style
 
+# Specimen space to font space: scale up, flip y, sit on the baseline.
+TRANSFORM = Transform(SCALE, 0, 0, -SCALE, 0, BASELINE * SCALE)
+NIB = PEN * SCALE
+
 CENTRE = (50.0, 50.0)
-CHEVRON_REACH = 44.0  # centre to vertex
+CHEVRON_REACH = 44.0
 CHEVRON_ARM = 22.0
 TICK_REACH = 38.0
 TICK_ARM = 11.0
 RING_RADIUS = 34.0
-PEN = 4.6  # stroke thickness, in specimen units
-
 KAPPA = 0.5522847498
 
 
-def pt(x: float, y: float) -> tuple[float, float]:
-    """Specimen space to font space: scale up, flip y, sit on the baseline."""
-    return (round(x * SCALE), round((BASELINE - y) * SCALE))
+def ink(glyph: Glyph, centrelines: list[str]) -> None:
+    """Trace the centrelines with the nib and draw what the nib covered.
 
+    Stroking is why the source can stay a path. A stroke has a width and no
+    inside; a glyph outline has an inside and no width, and something has to
+    convert between them. skia-pathops does it, and it is already here as a
+    dependency of ufo2ft, which uses it to remove overlaps.
 
-def _bar(glyph: Glyph, a: tuple[float, float], b: tuple[float, float]) -> None:
-    """One stroke as a filled quadrilateral, drawn in specimen coordinates.
-
-    Chevrons are two of these overlapping at the vertex. Overlap is fine:
-    both contours wind the same way, so nonzero fill unions them, and
-    fontmake removes the overlap on export anyway.
+    Round cap and round join because the script is drawn with a pen, and a pen
+    has no corners.
     """
-    (ax, ay), (bx, by) = a, b
-    dx, dy = bx - ax, by - ay
-    length = math.hypot(dx, dy)
-    # Perpendicular of the unit vector, scaled to half the pen width.
-    nx, ny = -dy / length * PEN / 2, dx / length * PEN / 2
+    path = pathops.Path()
+    pen = TransformPen(path.getPen(), TRANSFORM)
+    for centreline in centrelines:
+        parse_path(centreline, pen)
 
-    corners = [(ax + nx, ay + ny), (bx + nx, by + ny), (bx - nx, by - ny), (ax - nx, ay - ny)]
-    p = glyph.getPen()
-    p.moveTo(pt(*corners[0]))
-    for c in corners[1:]:
-        p.lineTo(pt(*c))
-    p.closePath()
-
-
-def _circle(glyph: Glyph, cx: float, cy: float, r: float, clockwise: bool) -> None:
-    """A circle as four cubic segments. Direction sets whether it fills or cuts."""
-    k = r * KAPPA
-    quads = [((r, 0), (r, k), (k, r), (0, r)),
-             ((0, r), (-k, r), (-r, k), (-r, 0)),
-             ((-r, 0), (-r, -k), (-k, -r), (0, -r)),
-             ((0, -r), (k, -r), (r, -k), (r, 0))]
-    if clockwise:
-        quads = [(d, c, b, a) for a, b, c, d in reversed(quads)]
-
-    p = glyph.getPen()
-    p.moveTo(pt(cx + quads[0][0][0], cy + quads[0][0][1]))
-    for _, c1, c2, end in quads:
-        p.curveTo(
-            pt(cx + c1[0], cy + c1[1]),
-            pt(cx + c2[0], cy + c2[1]),
-            pt(cx + end[0], cy + end[1]),
-        )
-    p.closePath()
+    path.stroke(NIB, pathops.LineCap.ROUND_CAP, pathops.LineJoin.ROUND_JOIN, 4.0)
+    # Round caps and joins come back as conics, Skia's rational quadratics.
+    # Nothing downstream reads those: not simplify, not the UFO format, not
+    # TrueType. Convert them to plain quadratics first.
+    path.convertConicsToQuads()
+    # Strokes that cross (t's chevrons, sh's crossbar) leave overlapping
+    # contours. Union merges them into one outline with a single inside.
+    path.simplify()
+    # And back to cubics on the way into the UFO, which is conventionally
+    # cubic. Not `all_cubic`: a round cap is a closed loop of curves with no
+    # on-curve point anywhere on it, which cubics cannot express and
+    # TrueType-flavoured quadratics can. Those few contours stay quadratic.
+    path.draw(Qu2CuPen(glyph.getPen(), max_err=0.1))
 
 
-def _unit(d: Direction) -> tuple[float, float]:
-    x, y = d.value
-    length = math.hypot(x, y)
-    # Font y is up, specimen y is down, so the bearing's y flips on the way in.
-    return (x / length, -y / length)
-
-
-def draw_chevron(glyph: Glyph, direction: Direction) -> None:
+def chevron(direction: Direction) -> list[str]:
     """A V pointing along the bearing, vertex outermost.
 
-    The two arms leave the vertex at 45 degrees either side of the way back to
-    centre, which is what makes `e` a bare `<` and `i` a corner: same
+    The arms leave the vertex at 45 degrees either side of the way back to
+    centre, which is what makes `e` a bare `<` and `i` a corner: one
     construction, rotated.
     """
-    ux, uy = _unit(direction)
+    x, y = direction.value
+    length = math.hypot(x, y)
+    ux, uy = x / length, -y / length  # font y is up, specimen y is down
     vx, vy = CENTRE[0] + ux * CHEVRON_REACH, CENTRE[1] + uy * CHEVRON_REACH
 
+    arms = []
     for sign in (+1, -1):
         angle = math.atan2(-uy, -ux) + sign * math.pi / 4
-        _bar(glyph, (vx, vy), (vx + math.cos(angle) * CHEVRON_ARM,
-                               vy + math.sin(angle) * CHEVRON_ARM))
+        arms.append(
+            f"M{vx:.2f},{vy:.2f} "
+            f"L{vx + math.cos(angle) * CHEVRON_ARM:.2f},"
+            f"{vy + math.sin(angle) * CHEVRON_ARM:.2f}"
+        )
+    return arms
 
 
-def draw_tick(glyph: Glyph, direction: Direction) -> None:
+def tick(direction: Direction) -> list[str]:
     """The glide tick: a short bar at the chevron's tail, across the bearing.
 
     A ring has no tail, so the schwa's tick is placed by convention, straight
     down. That case is the model telling us CENTRE is its own opposite.
     """
     tail = direction.opposite
-    ux, uy = (0.0, -1.0) if tail is Direction.CENTRE else _unit(tail)
-    reach = RING_RADIUS + 12.0 if tail is Direction.CENTRE else TICK_REACH
+    if tail is Direction.CENTRE:
+        ux, uy, reach = 0.0, 1.0, RING_RADIUS + 12.0
+    else:
+        x, y = tail.value
+        length = math.hypot(x, y)
+        ux, uy, reach = x / length, -y / length, TICK_REACH
 
     cx, cy = CENTRE[0] + ux * reach, CENTRE[1] + uy * reach
     px, py = -uy, ux  # perpendicular, so the tick crosses the bearing
-    _bar(glyph, (cx - px * TICK_ARM, cy - py * TICK_ARM),
-                (cx + px * TICK_ARM, cy + py * TICK_ARM))
+    return [
+        f"M{cx - px * TICK_ARM:.2f},{cy - py * TICK_ARM:.2f} "
+        f"L{cx + px * TICK_ARM:.2f},{cy + py * TICK_ARM:.2f}"
+    ]
 
 
-def draw_ring(glyph: Glyph) -> None:
-    _circle(glyph, *CENTRE, RING_RADIUS + PEN / 2, clockwise=False)
-    _circle(glyph, *CENTRE, RING_RADIUS - PEN / 2, clockwise=True)
+def circle(cx: float, cy: float, r: float) -> str:
+    """A closed circle as four cubics. Stroked, so this is a centreline too."""
+    k = r * KAPPA
+    return (
+        f"M{cx - r:.2f},{cy:.2f} "
+        f"C{cx - r:.2f},{cy - k:.2f} {cx - k:.2f},{cy - r:.2f} {cx:.2f},{cy - r:.2f} "
+        f"C{cx + k:.2f},{cy - r:.2f} {cx + r:.2f},{cy - k:.2f} {cx + r:.2f},{cy:.2f} "
+        f"C{cx + r:.2f},{cy + k:.2f} {cx + k:.2f},{cy + r:.2f} {cx:.2f},{cy + r:.2f} "
+        f"C{cx - k:.2f},{cy + r:.2f} {cx - r:.2f},{cy + k:.2f} {cx - r:.2f},{cy:.2f} Z"
+    )
 
 
-def draw_dotted_circle(glyph: Glyph) -> None:
-    """U+25CC, the ring of dots a shaper shows around an orphaned mark.
+def dotted_circle() -> list[str]:
+    """U+25CC, the ring of dots shown around an orphaned mark.
 
-    Complex-script shapers insert this themselves. The default shaper does not,
-    so for an unencoded script the font has to do it, which is what the ccmp
-    rule below is for.
+    Complex-script shapers insert this themselves. The default shaper, which is
+    all an unencoded script gets, does not, so the font's ccmp rule does.
     """
-    for i in range(12):
-        angle = i * math.tau / 12
-        _circle(
-            glyph,
-            CENTRE[0] + math.cos(angle) * 26.0,
-            CENTRE[1] + math.sin(angle) * 26.0,
-            3.4,
-            clockwise=False,
-        )
-
-
-def draw_placeholder(glyph: Glyph, label_offset: int) -> None:
-    """An open frame in the consonant core, tallied so slots are told apart.
-
-    Deliberately not a guess at the real letterform: it marks the space a
-    drawing will occupy and nothing more. Open rather than solid, and the
-    tally lives inside it, because everything outside the core belongs to the
-    vowel and a placeholder has no business colliding with a real mark.
-    """
-    x0, y0, x1, y1 = 30.0, 30.0, 70.0, 70.0
-    for a, b in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)),
-                 ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))):
-        _bar(glyph, a, b)
-
-    for i in range(label_offset + 1):
-        x = 34.0 + i * 2.6
-        _bar(glyph, (x, 38.0), (x, 62.0))
+    return [
+        circle(CENTRE[0] + math.cos(i * math.tau / 12) * 26.0,
+               CENTRE[1] + math.sin(i * math.tau / 12) * 26.0,
+               1.2)
+        for i in range(12)
+    ]
 
 
 def features(script: Script) -> str:
@@ -212,6 +192,10 @@ feature ccmp {{
 
 
 def build(script: Script, out: Path) -> ufoLib2.Font:
+    missing = [c.glyph for c in script.consonants if c.glyph not in CONSONANTS]
+    if missing:
+        raise ValueError(f"no centrelines drawn for: {', '.join(missing)}")
+
     font = ufoLib2.Font()
     info = font.info
     info.familyName = "Ronesathwasha"
@@ -241,7 +225,7 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
 
     notdef = font.newGlyph(".notdef")
     notdef.width = ADVANCE
-    draw_placeholder(notdef, 0)
+    ink(notdef, ["M30,30 L70,30 L70,70 L30,70 Z", "M30,30 L70,70"])
 
     # A font with no space renders the commonest character in any text as
     # tofu, or hands it to whatever fallback font the system picks, which is
@@ -250,12 +234,10 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
     space.width = ADVANCE // 2
     space.unicode = 0x0020
 
-    # Reached only by the ccmp rule, so it needs a code point of its own only
-    # so the glyph is addressable; nothing types it.
     ring = font.newGlyph("dottedcircle")
     ring.width = ADVANCE
     ring.unicode = 0x25CC
-    draw_dotted_circle(ring)
+    ink(ring, dotted_circle())
     # It needs the consonant's anchor, or the orphan it was inserted for sails
     # straight past it and lands on the next glyph instead. Standing in for a
     # missing base is the entire job.
@@ -268,7 +250,7 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
         g = font.newGlyph(c.glyph)
         g.width = ADVANCE
         g.unicode = script.codepoint(c)
-        draw_placeholder(g, c.offset)
+        ink(g, CONSONANTS[c.glyph])
         # One anchor, at the origin. Every vowel is drawn in the consonant's own
         # coordinate space, so they all attach at the same point and a syllable
         # always occupies the same square.
@@ -280,14 +262,16 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
         g = font.newGlyph(v.glyph)
         g.width = 0  # a mark advances nothing; the consonant owns the width
         g.unicode = script.codepoint(v)
+
         if v.direction is Direction.CENTRE:
-            draw_ring(g)
+            centrelines = [circle(*CENTRE, RING_RADIUS)]
         else:
-            draw_chevron(g, v.direction)
+            centrelines = chevron(v.direction)
 
         if v.glide:
-            draw_tick(g, v.direction)
+            centrelines += tick(v.direction)
 
+        ink(g, centrelines)
         g.appendAnchor({"name": "_vowel", "x": 0, "y": 0})
         order.append(v.glyph)
         categories[v.glyph] = "mark"
@@ -308,11 +292,9 @@ def main() -> None:
     script = load()
     out = Path(__file__).resolve().parent.parent / "sources" / "Ronesathwasha.ufo"
     font = build(script, out)
-    marks = sum(1 for g in font if g.width == 0)
-    print(f"{out.relative_to(Path.cwd())}: {len(font)} glyphs, {marks} marks")
-    print(f"  consonants U+{script.consonant_base:04X}.."
-          f"U+{script.consonant_base + len(script.consonants) - 1:04X} (placeholder boxes)")
-    print(f"  vowels     {len(script.vowels)} derived outlines")
+    contours = sum(len(g.contours) for g in font)
+    print(f"{out.relative_to(Path.cwd())}: {len(font)} glyphs, {contours} contours")
+    print(f"  every glyph stroked at a {NIB:.0f}-unit nib, round cap and join")
 
 
 if __name__ == "__main__":
