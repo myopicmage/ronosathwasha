@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<glyph name="v_i" format="2">
+  <unicode hex="E020"/>
+  <anchor x="0" y="0" name="_vowel"/>
+  <outline>
+    <contour>
+      <point x="166" y="551" type="line"/>
+      <point x="166" y="331" type="line"/>
+      <point x="212" y="331" type="line"/>
+      <point x="212" y="551" type="line"/>
+    </contour>
+    <contour>
+      <point x="189" y="528" type="line"/>
+      <point x="409" y="528" type="line"/>
+      <point x="409" y="574" type="line"/>
+      <point x="189" y="574" type="line"/>
+    </contour>
+  </outline>
+</glyph>

@@ -135,6 +135,19 @@ def test_ipa_spelling_of_the_dental_fricatives_is_accepted(script: Script) -> No
         assert not isinstance(script.parse(word), ParseFailure), word
 
 
+def test_romanisation_beats_ipa_when_they_collide(script: Script) -> None:
+    # /y/'s IPA symbol is "j", which is also /j/'s romanisation. The written
+    # form has to win, or "jechiswo" parses as "ye chi swo" and renders the
+    # wrong glyph without erroring anywhere.
+    parsed = script.parse("jechiswo")
+    assert not isinstance(parsed, ParseFailure)
+    assert [s.consonant.roman for s in parsed] == ["j", "ch", "s"]
+
+    ipa_only = script.parse("ðo")
+    assert not isinstance(ipa_only, ParseFailure)
+    assert ipa_only[0].consonant.roman == "dh"
+
+
 def test_unwritable_words_fail_with_a_position(script: Script) -> None:
     for word, position in [("hiðə", 0), ("yəwə", 2), ("ro!", 2)]:
         failure = script.parse(word)

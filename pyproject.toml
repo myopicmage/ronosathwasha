@@ -4,7 +4,7 @@
 [tool.mypy]
 python_version = "3.14"
 strict = true
-files = ["ronesathwasha", "tests"]
+files = ["ronesathwasha", "tools", "tests"]
 pretty = true
 
 [[tool.mypy.overrides]]

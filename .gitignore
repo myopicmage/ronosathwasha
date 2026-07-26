@@ -15,3 +15,6 @@ build/
 *.ttf
 *.otf
 *.woff2
+
+# fontmake writes here; the UFO in sources/ is what's tracked.
+!sources/*.ufo

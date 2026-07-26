@@ -195,11 +195,13 @@ class Script:
         spelling of a consonant are accepted, since the original notes write
         the dental fricatives as θ and ð.
         """
-        cons = sorted(
-            {r: c for c in self.consonants for r in (c.roman, c.ipa)}.items(),
-            key=lambda kv: len(kv[0]),
-            reverse=True,
-        )
+        # IPA first, romanisation second, so romanisation wins any collision.
+        # It collides: /y/ has the IPA symbol "j", which is also /j/'s
+        # romanisation. Without the ordering, "jechiswo" silently parses as
+        # "ye chi swo" and the wrong glyph renders with no error anywhere.
+        spellings: dict[str, Consonant] = {c.ipa: c for c in self.consonants}
+        spellings.update({c.roman: c for c in self.consonants})
+        cons = sorted(spellings.items(), key=lambda kv: len(kv[0]), reverse=True)
         vows = sorted(
             {v.roman: v for v in self.vowels}.items(),
             key=lambda kv: len(kv[0]),
