@@ -1,0 +1,24 @@
+from __future__ import annotations
+
+import pytest
+from fontTools.ttLib import TTFont
+from ufo2ft import compileTTF
+
+from ronesathwasha import load
+from tests.harness import Built
+from tools.build_ufo import build
+
+
+@pytest.fixture(scope="session")
+def built(tmp_path_factory: pytest.TempPathFactory) -> Built:
+    """A font compiled from source inside the test run.
+
+    Never the one in build/, which may be stale, and never the installed one,
+    which may be a different vintage cached by the OS.
+    """
+    script = load()
+    work = tmp_path_factory.mktemp("font")
+    ufo = build(script, work / "Ronesathwasha.ufo")
+    path = work / "Ronesathwasha.ttf"
+    compileTTF(ufo).save(path)
+    return Built(path, TTFont(path), script)

@@ -12,100 +12,11 @@ cannot silently invalidate a test.
 
 from __future__ import annotations
 
-import re
-import subprocess
-from dataclasses import dataclass
-from pathlib import Path
-
 import pytest
-from fontTools.pens.boundsPen import BoundsPen
-from fontTools.ttLib import TTFont
-from ufo2ft import compileTTF
 
-from ronesathwasha import (
-    Consonant,
-    Direction,
-    ParseFailure,
-    Script,
-    Syllable,
-    Vowel,
-    load,
-)
-from tools.build_ufo import ADVANCE, build
-
-SHAPED = re.compile(
-    r"(?P<glyph>[^=|\[\]]+)=(?P<cluster>\d+)"
-    r"(?:@(?P<dx>-?\d+),(?P<dy>-?\d+))?"
-    r"\+(?P<advance>-?\d+)"
-)
-
-
-@dataclass(frozen=True)
-class Placed:
-    glyph: str
-    cluster: int
-    dx: int
-    dy: int
-    advance: int
-
-
-@dataclass(frozen=True)
-class Built:
-    path: Path
-    ttf: TTFont
-    script: Script
-
-    def bounds(self, glyph: str) -> tuple[float, float, float, float] | None:
-        """The glyph's ink box, or None if it draws nothing (a space)."""
-        pen = BoundsPen(self.ttf.getGlyphSet())
-        self.ttf.getGlyphSet()[glyph].draw(pen)
-        box: tuple[float, float, float, float] | None = pen.bounds
-        return box
-
-    def text(self, *words: str) -> str:
-        """Romanisation to encoded text, joined by real spaces."""
-        out = []
-        for word in words:
-            parsed = self.script.parse(word)
-            assert not isinstance(parsed, ParseFailure), parsed
-            out.append("".join(chr(c) for c in self.script.encode(parsed)))
-        return " ".join(out)
-
-    def shape(self, texts: list[str]) -> list[list[Placed]]:
-        """One hb-shape run for the whole batch: 156 subprocesses is silly."""
-        listing = self.path.parent / "input.txt"
-        listing.write_text("\n".join(texts) + "\n", encoding="utf-8")
-        out = subprocess.run(
-            ["hb-shape", str(self.path), "--text-file", str(listing)],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.splitlines()
-
-        assert len(out) == len(texts), f"{len(out)} results for {len(texts)} inputs"
-        return [
-            [
-                Placed(
-                    m.group("glyph"),
-                    int(m.group("cluster")),
-                    int(m.group("dx") or 0),
-                    int(m.group("dy") or 0),
-                    int(m.group("advance")),
-                )
-                for m in SHAPED.finditer(line)
-            ]
-            for line in out
-        ]
-
-
-@pytest.fixture(scope="session")
-def built(tmp_path_factory: pytest.TempPathFactory) -> Built:
-    script = load()
-    work = tmp_path_factory.mktemp("font")
-    ufo = build(script, work / "Ronesathwasha.ufo")
-    path = work / "Ronesathwasha.ttf"
-    compileTTF(ufo).save(path)
-    return Built(path, TTFont(path), script)
+from ronesathwasha import Consonant, Direction, Syllable, Vowel
+from tests.harness import Built, Placed
+from tools.build_ufo import ADVANCE
 
 
 @pytest.fixture(scope="session")
