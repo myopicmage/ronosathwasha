@@ -82,7 +82,11 @@ built page can still reach outside itself for a font.
 
 A quick tunnel is public: anyone with the URL can read it while the tunnel is
 up, and the URL is the only thing gating it. `make share` says so before it
-starts, and needs `cloudflared` on PATH, which the flake does not provide.
+starts, and stops the local server again on the way out.
+
+`cloudflared` comes from the dev shell. Showing this script to anyone means
+showing them a page: a screenshot loses the text, and the text on its own is
+unreadable without the font, so there is nothing to paste into a message.
 
 Fonts refresh immediately. **The keyboard layout needs a log out and back in**,
 because macOS only scans that directory at login, and the script says so only

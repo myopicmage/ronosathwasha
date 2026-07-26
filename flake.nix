@@ -41,6 +41,13 @@
             # and where do they sit. nixpkgs ships the harfbuzz command line
             # tools in the `dev` output, not the default one.
             pkgs.harfbuzz.dev
+
+            # `make share`. Showing this script to someone means showing them a
+            # page, because a screenshot loses the text and the text alone is
+            # unreadable without the font, so there is no way to just paste it
+            # into a message. A quick tunnel is the shortest path from build/ to
+            # a URL, and it is public while it is up.
+            pkgs.cloudflared
           ];
         };
       });
