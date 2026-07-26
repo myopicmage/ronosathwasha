@@ -167,6 +167,26 @@ everything is told to use the sTypo numbers, which is the only way to make all
 three agree in practice. Set all three families to the same values and turn this
 on; that's what Google Fonts requires and there's no reason to do otherwise.
 
+## Input
+
+**Dead key** — a key that emits nothing and changes what the *next* key does.
+The `´` on a French layout is one: press it, nothing appears, press `e` and you
+get `é`. Standard on every platform, and a natural fit for a syllabary, where
+one glyph is two keystrokes by definition.
+
+**`.keylayout`** — macOS's keyboard layout format. XML describing a state
+machine: which physical key produces which action, and what each action does in
+each state. Lives in `~/Library/Keyboard Layouts/`.
+
+**Virtual key code** — the number identifying a physical key position,
+independent of what's printed on it. `0` is where `a` sits on a US keyboard.
+
+**Terminator** — what a dead key emits if it's abandoned instead of completed.
+
+**IME (Input Method Editor)** — the heavier alternative: a running program that
+buffers keystrokes, shows candidates, and commits text. What Japanese and
+Chinese input need. A dead-key layout needs no process, no UI and no signing.
+
 ## Tools
 
 **fontTools** — the Python library underneath everything. Reads and writes every
