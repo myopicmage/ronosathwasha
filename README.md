@@ -11,12 +11,22 @@ consonant and one vowel: no onsetless syllables, no codas, no clusters.
 ## Using it
 
 ```sh
-nix develop 'path:.'              # or just cd in, direnv handles it
+nix develop 'path:.'   # or just cd in, direnv handles it
+make                   # list the targets
+make all               # font, dictionary, pages, keyboard layout
+make check             # 68 tests, then mypy strict
+```
+
+`make` re-enters the dev shell itself if the toolchain is not already on PATH,
+so it works from outside direnv too. Targets that produce a file are declared
+against that file, so `make serve` will not recompile a font to serve a page
+that has not changed. The underlying commands, if you want them directly:
+
+```sh
 python3 -m tools.build_font       # declaration -> UFO -> build/Ronesathwasha.ttf
 python3 -m tools.build_dictionary # lexicon -> build/dictionary.html
 python3 -m tools.build_docs       # docs/*.html -> build/, font inlined
-python3 -m pytest                 # 68 tests
-python3 -m mypy                   # strict
+python3 -m tools.build_keylayout  # -> layouts/Ronesathwasha.keylayout
 ```
 
 Install both halves:
@@ -55,10 +65,9 @@ could only ever be an exact substring match, on characters with no keys.
 ## Showing it to someone else
 
 ```sh
-python3 -m tools.build_dictionary
-python3 -m tools.build_docs
-python3 -m http.server -d build 8000
-cloudflared tunnel --url http://localhost:8000
+make serve             # build/ at http://localhost:8000
+make share             # the same, through a public cloudflared tunnel
+make serve PORT=9000   # either one, elsewhere
 ```
 
 **Serve `build/`, never `docs/`.** A page in `docs/` is a source file: it names
@@ -72,7 +81,8 @@ stale it is, and shows nothing recognisable anywhere else. `pytest` fails if a
 built page can still reach outside itself for a font.
 
 A quick tunnel is public: anyone with the URL can read it while the tunnel is
-up, and the URL is the only thing gating it.
+up, and the URL is the only thing gating it. `make share` says so before it
+starts, and needs `cloudflared` on PATH, which the flake does not provide.
 
 Fonts refresh immediately. **The keyboard layout needs a log out and back in**,
 because macOS only scans that directory at login, and the script says so only
@@ -133,6 +143,7 @@ that they will not match the script's weight.
 Everything is generated from one declaration, so nothing is stated twice.
 
 ```
+Makefile               every command worth running, and what it depends on
 data/script.toml       the inventory, the PUA block, the derivation rules
 data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
 ronesathwasha/         those files parsed into models that cannot hold a broken one
