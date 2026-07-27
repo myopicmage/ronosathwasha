@@ -26,7 +26,6 @@
 #   answer
 #
 # Thought and understanding
-#   remember
 #   forget
 #
 # Interrogatives
@@ -150,6 +149,7 @@
 "neswo" = "to use"
 "twaswo" = "to want"
 "tonə" = "know"
+"tonədu" = "remember, retain (continue-knowing)"
 "taya" = "think"
 "meliya" = "understand"
 "mwatheya" = "believe"
@@ -189,7 +189,8 @@
 "me" = "present tense, (verb)me"
 "se" = "past tense, (verb)se"
 "the" = "future tense, (verb)the"
-"di" = "continuous, (verb)di"
+"di" = "continuous (front or neutral), (verb)di"
+"du" = "continuous (back), (verb)du"
 "yo" = "command, yo(verb)"
 "li" = "might, li(verb)"
 "ma" = "negation, ma (verb)"

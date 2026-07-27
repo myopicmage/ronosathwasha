@@ -48,10 +48,17 @@ harmonic word leans one way the whole length, and a break in harmony is visible
 as a change of lean. No natural script does this, because none of them encode
 backness geometrically.
 
+**Harmony does not encode semantic classes.** Front harmony may feel lighter or
+more abstract, and back harmony may feel heavier or more concrete, but those
+are phonesthetic pressures rather than grammar. They may influence which coined
+root feels right without obligating future vocabulary, assigning neutral roots
+to an awkward third class, or turning exceptions into problems that need
+explanations.
+
 Roughly half the affixes would alternate:
 
 ```
-alternating   -swo/-swe   -me/-mo   -the/-tho   -ne/-no   -yi/-yu   li-/lu-
+alternating   -swo/-swe   -me/-mo   -the/-tho   -ne/-no   -di/-du   -yi/-yu   li-/lu-
 neutral       -sa   ma-   anything whose only vowel is ə or a
 ```
 
@@ -231,7 +238,8 @@ transcription.
 ## 10. Past, continuous and motion share new machinery
 
 Historical `-je` becomes the harmonic past marker **`-se/-so`**. Historical
-`-ji` becomes the continuous marker **`-di`**.
+`-ji` becomes the harmonic continuous pair **`-di/-du`**: `-di` after front or
+neutral stems, and `-du` after back stems.
 
 The time vocabulary follows mechanically:
 
@@ -294,6 +302,7 @@ angle, while `ə` encloses the second syllable in a ring.
 The initial cognitive vocabulary is:
 
 - `tonə`: know;
+- `tonədu`: remember or retain, literally continue-knowing;
 - `taya`: think;
 - `meliya`: understand;
 - `mwatheya`: believe.
@@ -301,6 +310,10 @@ The initial cognitive vocabulary is:
 Thinking is a cognitive process. Believing is a propositional state that
 commits to an idea as part of the speaker's model of what is true.
 Understanding is structural and remains distinct from possessing knowledge.
+`tonədu` is transparent but conventionalized: the back-harmonic continuous
+marker turns knowing into knowledge that continues. Its negation means "do not
+remember" or "cannot recall," a present state rather than the event of
+forgetting.
 
 The recurring `-ya` in three of the four roots is a **phonestheme**: a sound
 associated with a semantic neighborhood without having a stable compositional
@@ -364,3 +377,7 @@ decision rather than an English gloss silently merging them.
   recoverable predicate omitted, as Korean does with *뭐라고?*. An iterative
   marker would mean "again" on any predicate: say again, eat again, go again.
   Do not collapse these into one repair particle; each generalizes on its own.
+- **A cessative marker.** Forget is not simply negated knowledge or memory. A
+  general marker meaning "stop or cease doing" could derive forget from
+  `tonə`, while also expressing stop eating, stop going, and stop speaking.
+  The grammatical job is useful and productive; its form remains open.
