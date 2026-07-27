@@ -12,10 +12,14 @@
 #     vowel whose glyph disagrees with its own phonology is unwritable here.
 
 [language]
-# ro.ne.sa.thwa.sha, five legal syllables. The autonym is itself a well-formed
+# ro.no.sa.thwa.sha, five legal syllables. The autonym is itself a well-formed
 # string in this encoding, which makes it the obvious smoke test: if the font
 # cannot render the language's own name, nothing else is worth checking.
-name = "ronesathwasha"
+#
+# rono.sa.thwasha, "people's language". The plural was `ne` until harmony landed:
+# `ro` is back, and the alternating set gives `-no` after a back stem, so the name
+# repaired itself rather than being rechosen.
+name = "ronosathwasha"
 syllable = "CV"
 
 [phonotactics]
