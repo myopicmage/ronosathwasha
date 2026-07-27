@@ -86,6 +86,33 @@ Two arguments beyond the aesthetic:
 Requires replacing `ma`, whose vowel is neutral and therefore has nothing to be
 disharmonious with.
 
+## 4. `ya` withdraws from the conversation
+
+`ya` remains the third-person singular pronoun for something not alive. A
+speaker may also use it self-referentially, deliberately replacing first-person
+`la` with the nonliving `ya`.
+
+Used alone, `ya` means that the speaker declines to present themself as an
+animate participant. Context supplies the immediate reading:
+
+- when exhausted: "I am too tired for this";
+- after a request: "I do not want to";
+- during an argument or incoming lecture: "I know, enough, stop";
+- when presented with a consequence: "I do not care" or "not my concern."
+
+These are not separate dictionary meanings. They are pragmatic consequences of
+one stance: **the speaker is unavailable as an agent**. Functionally, it
+occupies some of the same conversational territory as English *meh* and Spanish
+*ya*, but reaches it through the language's existing pronoun system.
+
+Applying `ya` to another living person instead denies that person's agency and
+is pointedly rude. The self-directed use is conventional and usually comic,
+weary or dismissive rather than self-abusive.
+
+This decision does not establish a productive animacy marker for first- or
+second-person pronouns, nor does it settle whether animacy can be reassigned to
+ordinary nouns. Those remain open.
+
 ## Open
 
 - **What else may flip the lean.** If a change of lean means negation, it must
