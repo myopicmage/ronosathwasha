@@ -3,26 +3,34 @@
 A font and input method for a constructed script: a strict consonant+vowel syllabary,
 encoded in the Unicode Private Use Area.
 
-## This is a learning project
+## Learning mode is scoped
 
 The `learning-mode` skill defines the working loop (plan first, one stop at a time,
 explanation arrives with the edit, one commit per stop, advance on a go-word).
 
-**The learning axis here is the text stack, not Python.**
+Use it automatically for two parts of this project:
 
-Concretely, the things worth stopping to explain:
+- **The font and input stack.** The learning axis is text technology, not Python.
+  Concretely, the things worth stopping to explain:
 
-- **Unicode encoding model.** Why real scripts got the encoding they did, what precomposed
-  vs decomposed costs, normalization, and where the PUA leaves us on our own.
-- **OpenType shaping.** GSUB and GPOS as the two halves of the shaping engine, the feature
-  file (`.fea`) language, anchors and mark attachment, and how a shaper decides what runs.
-- **Shaping engines in practice.** Where CoreText, HarfBuzz and DirectWrite disagree, and
-  why an unencoded script cannot lean on script-specific shaper logic.
-- **The macOS input stack.** `.keylayout` XML, dead-key state machines, and the line where
-  a keyboard layout stops being enough and an InputMethodKit IME starts.
+  - **Unicode encoding model.** Why real scripts got the encoding they did, what
+    precomposed vs decomposed costs, normalization, and where the PUA leaves us on our
+    own.
+  - **OpenType shaping.** GSUB and GPOS as the two halves of the shaping engine, the
+    feature file (`.fea`) language, anchors and mark attachment, and how a shaper decides
+    what runs.
+  - **Shaping engines in practice.** Where CoreText, HarfBuzz and DirectWrite disagree,
+    and why an unencoded script cannot lean on script-specific shaper logic.
+  - **The macOS input stack.** `.keylayout` XML, dead-key state machines, and the line
+    where a keyboard layout stops being enough and an InputMethodKit IME starts.
+- **The language-development chatbot.** The learning axes are Raku and the mechanics of
+  local LLM integration: inference, prompts, context-window management, and the boundary
+  between conversational state and durable language knowledge.
 
-Do not narrate ordinary Python, ordinary XML, or ordinary build wiring. Do call out
-gnarly library idioms in `fontTools` / `fontmake` where they are genuinely non-obvious.
+Do not invoke learning mode automatically for language design, vocabulary, prose,
+HTML, ordinary Python or XML, or build wiring. Kevin can still opt any task into it
+explicitly. In font work, do call out gnarly library idioms in `fontTools` / `fontmake`
+where they are genuinely non-obvious.
 
 **Define font vocabulary the first time it appears.** Kevin is fluent in the languages
 and new to type. Any term of art from typography, font engineering or OpenType gets a

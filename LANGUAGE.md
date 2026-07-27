@@ -5,9 +5,9 @@ Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
 example sentences are transcribed in `data/examples.toml`. Those files are
 historical evidence; later decisions recorded here take precedence.
 
-Decisions 1, 6, 7, 9, 10 and 11 are implemented in the data files. The rest are
-decided in principle and not written into `data/script.toml`, because they are
-lexicon and grammar, and nothing in the font depends on them.
+Decisions 1, 6, 7, 9, 10, 11 and 12 are implemented in the data files. The rest
+are decided in principle and not written into `data/script.toml`, because they
+are lexicon and grammar, and nothing in the font depends on them.
 
 ## 1. The affricates are gone
 
@@ -27,9 +27,9 @@ It also repaired the script for free, which is written up in the commit for
 `df924f0`.
 
 **The affricate repair is complete.** The canonical backlog is `[respell]` in
-`data/lexicon.toml`, which now holds only the separate `h`/`w` problem under
-Open. It is deliberately not copied here, because a second copy is a second
-thing to get wrong.
+`data/lexicon.toml`, which now holds only the separate consonantal `w` problem
+under Open. It is deliberately not copied here, because a second copy is a
+second thing to get wrong.
 
 ## 2. Vowel harmony, on backness
 
@@ -118,7 +118,7 @@ otherwise. Three states, not two:
 | state | writable | consistent with current decisions |
 |---|---|---|
 | canonical | yes | yes |
-| `[respell]` backlog | no | blocked on decision 1 and on `h`/`w` |
+| `[respell]` backlog | no | blocked on a later inventory decision |
 | harmony-stale | **yes** | no |
 
 **The affixes look better than the roots.** Testing the 2023 corpus against the
@@ -265,6 +265,30 @@ The language has no grammatical politeness hierarchy. Its default register is
 socially unmarked; impoliteness requires an explicit lexical or grammatical
 choice, such as applying `ya` to a living person.
 
+## 12. The rightward direction family begins with `ð`
+
+The historical directional root `hi` is replaced with **`ði`**, preserving the
+three related forms:
+
+- `ði`: towards;
+- `ðiðə`: right;
+- `ðwiðə`: east.
+
+The `w` infix still turns a body-relative direction into its compass
+counterpart, just as `ni` / `nwi` gives up / north, `si` / `swi` gives down /
+south, and `mi` / `mwi` gives left / west.
+
+`ð` was the only consonant whose `-i` particle slot was genuinely unused.
+Other consonants could form collision-free full direction words, but their
+standalone `Ci` forms already carried grammatical or lexical meaning.
+
+The repetition in `ðiðə` is intentional. Spoken /ði.ðə/ holds the dental
+fricative while the vowel relaxes. In the script, the repeated consonant is
+visibly transformed by two very different vowel marks: `i` adds an upper-left
+angle, while `ə` encloses the second syllable in a ring.
+
+**Implemented** in `data/lexicon.toml` and the current sentence page.
+
 ## Open
 
 - **Whether harmony is a constraint or a rule.** Decision 2 states it as a
@@ -280,11 +304,8 @@ choice, such as applying `ya` to a living person.
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
   Finnish and Japanese are heavily length-contrastive and neither is doing that
   work here. It would sit on the vowel marks, not the consonants.
-- **`h` and `yəwə`.** Still unwritable, from the earlier decision to respell
-  rather than add /h/ back. `hiðə` (right) and `hwiðə` (east) need new
-  consonants; any of `t d th dh sh y` is free of collisions for the direction
-  series, though `t` and `d` are a minimal pair and the other three directions
-  are maximally distinct.
+- **`yəwə`.** Still unwritable because `w` stopped being a consonant and now
+  exists only as a vowel glide. The attested word for "crab" needs respelling.
 - **The corrective affirmative.** The language will distinguish ordinary
   affirmation from contradiction of a negative premise, as French distinguishes
   *oui* from *si*. The grammatical job is settled; the form is not.

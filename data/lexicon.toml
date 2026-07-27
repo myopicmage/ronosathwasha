@@ -132,9 +132,11 @@
 "niðə" = "up"
 "siðə" = "down"
 "miðə" = "left"
+"ðiðə" = "right"
 "nwiðə" = "north"
 "swiðə" = "south"
 "mwiðə" = "west"
+"ðwiðə" = "east"
 
 
 [verb]
@@ -193,6 +195,7 @@
 "shi" = "at"
 "thi" = "in"
 "mi" = "near"
+"ði" = "towards"
 "ri" = "subject"
 "yi" = "object"
 
@@ -208,13 +211,9 @@
 
 
 # Attested but currently unwritable. Not a backlog of missing words: these are
-# real entries blocked by two decisions, and each needs respelling rather than
-# inventing. The tests report these separately instead of failing on them.
-#
-#   h was never in the inventory
-#   w stopped being a consonant and now exists only as a vowel glide
+# real entries blocked by an inventory decision, and each needs respelling
+# rather than inventing. The tests report these separately instead of failing
+# on them. Here `w` stopped being a consonant and now exists only as a vowel
+# glide.
 [respell]
-"hiðə" = "right"
-"hwiðə" = "east"
-"hi" = "towards"
 "yəwə" = "crab"
