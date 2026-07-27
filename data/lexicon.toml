@@ -21,16 +21,11 @@
 # unrelated roots.
 #
 # Conversation repair
-#   word
 #   mean, signify
-#   say, tell
-#   ask
+#   tell
 #   answer
 #
 # Thought and understanding
-#   know
-#   understand
-#   think, believe
 #   remember
 #   forget
 #
@@ -89,6 +84,9 @@
 #   enemy, opponent
 #   place
 #   water
+#
+# Unassigned valid forms worth keeping for later suggestions
+#   moluyo: back-harmonic; wrong for "believe", but not wrong in Ronesathwasha
 
 
 [pronoun]
@@ -120,6 +118,7 @@
 "thino" = "food"
 "ta" = "home"
 "thwasha" = "language, tongue"
+"thwashamwu" = "language-expression (usually word)"
 "tuma" = "magic"
 "ro" = "person"
 "rono" = "people"
@@ -150,6 +149,12 @@
 "mediswe" = "to go (now-continuous)"
 "neswo" = "to use"
 "twaswo" = "to want"
+"tonə" = "know"
+"taya" = "think"
+"meliya" = "understand"
+"mwatheya" = "believe"
+"thwashaswo" = "to speak, say"
+"thoswo" = "to ask (question-verb)"
 
 
 [time]

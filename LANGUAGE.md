@@ -5,9 +5,9 @@ Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
 example sentences are transcribed in `data/examples.toml`. Those files are
 historical evidence; later decisions recorded here take precedence.
 
-Decisions 1, 6, 7, 9, 10, 11 and 12 are implemented in the data files. The rest
-are decided in principle and not written into `data/script.toml`, because they
-are lexicon and grammar, and nothing in the font depends on them.
+Decisions 1, 6, 7, 9, 10, 11, 12, 13 and 14 are implemented in the data files.
+The rest are decided in principle and not written into `data/script.toml`,
+because they are lexicon and grammar, and nothing in the font depends on them.
 
 ## 1. The affricates are gone
 
@@ -288,6 +288,55 @@ visibly transformed by two very different vowel marks: `i` adds an upper-left
 angle, while `ə` encloses the second syllable in a ring.
 
 **Implemented** in `data/lexicon.toml` and the current sentence page.
+
+## 13. Cognitive roots share a phonestheme, not a suffix
+
+The initial cognitive vocabulary is:
+
+- `tonə`: know;
+- `taya`: think;
+- `meliya`: understand;
+- `mwatheya`: believe.
+
+Thinking is a cognitive process. Believing is a propositional state that
+commits to an idea as part of the speaker's model of what is true.
+Understanding is structural and remains distinct from possessing knowledge.
+
+The recurring `-ya` in three of the four roots is a **phonestheme**: a sound
+associated with a semantic neighborhood without having a stable compositional
+meaning. It is not a suffix. Speakers may feel the relationship, and future
+cognitive words may gravitate toward it, but attaching `-ya` does not
+mechanically create a cognitive verb. `tonə` is not an exception requiring
+repair because there is no grammatical rule to violate.
+
+`roro` remains a productive intensifier rather than creating additional
+dictionary entries. In context, `rorotaya` may mean contemplate,
+`roromeliya` may mean comprehend deeply, and `rorotonə` may reach the sense of
+"grok." These readings emerge from the intensified root and are not separately
+lexicalized.
+
+**Implemented** in `data/lexicon.toml`.
+
+## 14. Language repair begins with existing machinery
+
+Three conversation-repair words derive from established vocabulary and
+grammar:
+
+- `thwashamwu`: language-expression, from `thwasha` (language) plus `mwu`
+  (thing);
+- `thwashaswo`: to speak or say, the language noun made verbal;
+- `thoswo`: to ask, the question marker `tho` made verbal.
+
+`thwashamwu` denotes a bounded piece of language without specifying its size.
+In ordinary use, the smallest convenient language-thing is usually a word, so
+"word" is its default reading. Context may widen it to an expression,
+utterance, passage, or inscription.
+
+`thwashaswo` does not yet absorb "tell." Saying content and telling a recipient
+have different argument structures, so that extension needs an explicit
+decision rather than an English gloss silently merging them.
+
+**Implemented** in `data/lexicon.toml`.
 
 ## Open
 
