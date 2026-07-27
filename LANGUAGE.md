@@ -309,3 +309,9 @@ angle, while `ə` encloses the second syllable in a ring.
 - **The corrective affirmative.** The language will distinguish ordinary
   affirmation from contradiction of a negative premise, as French distinguishes
   *oui* from *si*. The grammatical job is settled; the form is not.
+- **Conversation repair morphology.** Explore two independent productive
+  markers. A quotative particle would mark spoken or cited content, allowing
+  `WHAT-QUOTATIVE?` to conventionalize as "What did you say?" with the
+  recoverable predicate omitted, as Korean does with *뭐라고?*. An iterative
+  marker would mean "again" on any predicate: say again, eat again, go again.
+  Do not collapse these into one repair particle; each generalizes on its own.
