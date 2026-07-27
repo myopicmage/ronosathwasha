@@ -1,13 +1,13 @@
 # Language notes
 
-**Current decisions about ronesathwasha itself.** The original December 2023
+**Current decisions about ronosathwasha itself.** The original December 2023
 Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
 example sentences are transcribed in `data/examples.toml`. Those files are
 historical evidence; later decisions recorded here take precedence.
 
-Only the first one is implemented. The rest are decided in principle and not
-written into `data/script.toml`, because they are lexicon and grammar, and
-nothing in the font depends on them.
+Decisions 1 and 6 are implemented in the data files. The rest are decided in
+principle and not written into `data/script.toml`, because they are lexicon and
+grammar, and nothing in the font depends on them.
 
 ## 1. The affricates are gone
 
@@ -26,18 +26,16 @@ Two reasons, pointing the same way:
 It also repaired the script for free, which is written up in the commit for
 `df924f0`.
 
-**Owed: the closed class needs respelling.** These are all attested and all
-now unwritable:
+**Owed: the closed class needs respelling.** The canonical backlog is
+`[respell]` in `data/lexicon.toml`, which currently holds seventeen entries and
+is the authority. It is deliberately not copied here, because a second copy is a
+second thing to get wrong.
 
-| was | gloss |
-|---|---|
-| `je` | past tense marker |
-| `ji` | continuous tense marker |
-| `ju` | subject particle |
-| `chi` | this |
-| `cha` | that |
-| `chu` | that over there |
-| `jechiswo` | to go |
+Two separate decisions feed that one table: the affricates above, and the `h`
+and `w` question still under Open. The entries that hurt are the structural
+ones rather than the vocabulary, because grammar cannot be exercised without
+them: `ju` (subject particle), `je` (past), `ji` (continuous), `hi` (towards),
+and the `chi`/`cha`/`chu` demonstratives.
 
 ## 2. Vowel harmony, on backness
 
@@ -113,11 +111,75 @@ This decision does not establish a productive animacy marker for first- or
 second-person pronouns, nor does it settle whether animacy can be reassigned to
 ordinary nouns. Those remain open.
 
+## 5. The lexicon predates harmony
+
+**Harmony was decided after the language was already underway, so the existing
+lexicon is stale rather than authoritative about it.** A disharmonic entry is an
+entry awaiting repair, not evidence about how harmony works.
+
+This matters because a stale entry is perfectly writable. Nothing in the font or
+the keyboard objects to `thino`, so it presents as current unless something says
+otherwise. Three states, not two:
+
+| state | writable | consistent with current decisions |
+|---|---|---|
+| canonical | yes | yes |
+| `[respell]` backlog | no | blocked on decision 1 and on `h`/`w` |
+| harmony-stale | **yes** | no |
+
+**The affixes look better than the roots.** Testing the 2023 corpus against the
+alternating set, taking the stem's first vowel as governor: `mirime`, `thinome`
+and `twame` all take the correct alternant, and only `rone` fails. The pronoun
+plurals are more striking still, marking `la`/`lo`, `na`/`no`, `ða`/`ðo` and
+`ya`/`yo` with a back vowel throughout.
+
+So the repair may fall mostly on roots, and the affix system may have been doing
+harmony intuitively before it was written down. One counterexample in four is
+not enough to call it.
+
+**Two corrections to the 2023 record**, which the transcription preserves
+faithfully and should keep preserving:
+
+- **Subject and object are separate particles**, not one particle with two
+  uses. `ju` marks the subject and `yi` marks the object.
+- **`Ðayi runeyi time` glosses `-yi` as a subject marker**, which is a mistake
+  in the source rather than an animacy rule. The current form takes the subject
+  particle and is therefore unwritable until the respelling lands.
+
+## 6. The autonym is repaired
+
+**`ronosathwasha`.** **Implemented**, in `data/script.toml` and
+`data/lexicon.toml`, in the commit for `32ea4c4`.
+
+The name is `rono` + `sa` + `thwasha`, "people's language", and `rono` is `ro`
+(back) plus the plural marker. The alternating set gives `-no` after a back
+stem, so the name repaired itself by derivation rather than being rechosen.
+Still five legal CV syllables, so it remains usable as the smoke test.
+
+**The disharmony came from an affix, not a root**, which is why this could be
+settled while the question under Open is still parked. `-ne/-no` alternates
+either way.
+
+`rone` ("people") became `rono` in the same change, as the first entry of the
+repair pass that decision 5 implies.
+
+**Still owed**: the font family name and the keyboard layout name are hardcoded
+in `tools/build_ufo.py` and `tools/build_keylayout.py` rather than read from
+`data/script.toml`, and the Python package, the UFO directory and the docs all
+still say `ronesathwasha`.
+
 ## Open
 
+- **Whether harmony is a constraint or a rule.** Decision 2 states it as a
+  property of every word: "a word's vowels agree on backness." The alternating
+  affix table implies instead that it governs affix selection, which is what
+  Finnish and Turkish actually do, and it is the only reading the current
+  lexicon satisfies. The two differ in how much of decision 5's repair pass
+  falls on roots.
 - **What else may flip the lean.** If a change of lean means negation, it must
   not also mean a compound boundary, or the signal is ambiguous. Recommendation:
-  give the flip one job, and let harmony span compounds.
+  give the flip one job, and let harmony span compounds. **Parked**: this needs
+  discussion and language work, and it sits downstream of the question above.
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
   Finnish and Japanese are heavily length-contrastive and neither is doing that
   work here. It would sit on the vowel marks, not the consonants.
