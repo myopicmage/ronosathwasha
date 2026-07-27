@@ -5,9 +5,9 @@ Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
 example sentences are transcribed in `data/examples.toml`. Those files are
 historical evidence; later decisions recorded here take precedence.
 
-Decisions 1 and 6 are implemented in the data files. The rest are decided in
-principle and not written into `data/script.toml`, because they are lexicon and
-grammar, and nothing in the font depends on them.
+Decisions 1, 6, 7, 9, 10 and 11 are implemented in the data files. The rest are
+decided in principle and not written into `data/script.toml`, because they are
+lexicon and grammar, and nothing in the font depends on them.
 
 ## 1. The affricates are gone
 
@@ -26,20 +26,10 @@ Two reasons, pointing the same way:
 It also repaired the script for free, which is written up in the commit for
 `df924f0`.
 
-**Owed: the closed class needs respelling.** The canonical backlog is
-`[respell]` in `data/lexicon.toml`, which currently holds seventeen entries and
-is the authority. It is deliberately not copied here, because a second copy is a
-second thing to get wrong.
-
-Two separate decisions feed that one table: the affricates above, and the `h`
-and `w` question still under Open. The entries that hurt are the structural
-ones rather than the vocabulary, because grammar cannot be exercised without
-them: `je` (past), `ji` (continuous), `hi` (towards), and the
-`chi`/`cha`/`chu` demonstratives.
-
-The subject particle is no longer a design question. Decision 7 replaces
-historical `ju` with `-ri/-ru`; moving that decision into the lexicon and
-generated examples is still owed.
+**The affricate repair is complete.** The canonical backlog is `[respell]` in
+`data/lexicon.toml`, which now holds only the separate `h`/`w` problem under
+Open. It is deliberately not copied here, because a second copy is a second
+thing to get wrong.
 
 ## 2. Vowel harmony, on backness
 
@@ -190,6 +180,8 @@ The choice does four jobs at once:
 That loop gives back-harmonic subjects a repeated visual ending without adding
 punctuation or another feature to the writing system.
 
+**Implemented** in `data/lexicon.toml` and the current sentence page.
+
 ## 8. The formal script resists handwriting
 
 **The script was designed for exact reproduction by the magical book network,
@@ -205,6 +197,73 @@ When the network failed, the script outlived the infrastructure it assumed.
 Hand-copying became necessary precisely when authoritative copies stopped
 appearing. Local shortcuts, degraded forms and incompatible cursive traditions
 therefore became another pressure toward the language's later fragmentation.
+
+## 9. Demonstratives deaffricate and move to mid vowels
+
+The historical `chi` / `cha` / `chu` series becomes **`she` / `sha` / `sho`**:
+
+| distance | current | historical |
+|---|---|---|
+| near the speaker | `she` | `chi` |
+| intermediate or near the listener | `sha` | `cha` |
+| far from both | `sho` | `chu` |
+
+The consonant change is deaffrication: /tʃ/ loses its stop closure and leaves
+/ʃ/. This preserves the original place of articulation while moving the series
+toward the language's fluid sound.
+
+The vowel change prevents proximal `shi` from colliding with the existing,
+high-frequency locative `shi` ("at"). Avoiding the collision is about surface
+texture as well as ambiguity: two common grammatical words should not make
+`shi` recur throughout ordinary speech.
+
+The new vowels also make deixis, contextual pointing, visible as a progression
+through the vowel space: front `e`, central `a`, back `o`. The derived time
+words follow mechanically:
+
+- `sheme`: today, this-now;
+- `shedwe`: today, this-day.
+
+**Implemented** in `data/lexicon.toml` and the current sentence page. The
+historical forms remain unchanged in `data/examples.toml` and the Scrivener
+transcription.
+
+## 10. Past, continuous and motion share new machinery
+
+Historical `-je` becomes the harmonic past marker **`-se/-so`**. Historical
+`-ji` becomes the continuous marker **`-di`**.
+
+The time vocabulary follows mechanically:
+
+- `seme`: recently, past-present;
+- `roroso`: far past;
+- `rorotwathaso`: ancient past.
+
+The old verb `jechi` is replaced rather than mechanically respelled.
+**`medi` means "go," lexicalized from `me` (now) plus `di` (continuous).**
+Its infinitive is `mediswe`.
+
+Inflecting the new stem in the present continuous produces `medimedi`:
+`medi-me-di`. The surface reduplication is not a separate rule. It is an
+accidental consequence of the root's derivation, which is why it stays.
+
+## 11. Affirmation answers the proposition
+
+The standalone `so` ("yes") is retired. It sounded uncomfortably close to
+Japanese *sō* in both form and conversational function, and `so` is now the
+back-harmonic past marker.
+
+**An ordinary affirmative repeats the predicate instead of returning a generic
+word for "yes."** A question equivalent to "Do you eat?" is answered with "I
+eat"; its negative answer repeats the negated predicate.
+
+A separate corrective affirmative will reject a negative premise, serving the
+role of French *si*. Its form remains open. This is a polarity correction, not
+a politeness level.
+
+The language has no grammatical politeness hierarchy. Its default register is
+socially unmarked; impoliteness requires an explicit lexical or grammatical
+choice, such as applying `ya` to a living person.
 
 ## Open
 
@@ -226,3 +285,6 @@ therefore became another pressure toward the language's later fragmentation.
   consonants; any of `t d th dh sh y` is free of collisions for the direction
   series, though `t` and `d` are a minimal pair and the other three directions
   are maximally distinct.
+- **The corrective affirmative.** The language will distinguish ordinary
+  affirmation from contradiction of a negative premise, as French distinguishes
+  *oui* from *si*. The grammatical job is settled; the form is not.

@@ -102,6 +102,12 @@
 "yo" = "they (not alive)"
 
 
+[demonstrative]
+"she" = "this"
+"sha" = "that"
+"sho" = "that over there"
+
+
 [noun]
 "nəla" = "ball"
 "sene" = "cat"
@@ -138,6 +144,8 @@
 "thwaswo" = "to like"
 "rorothwaswo" = "to love (very-like)"
 "miriswo" = "to teach"
+"medi" = "go (now-continuous)"
+"mediswe" = "to go (now-continuous)"
 "neswo" = "to use"
 "twaswo" = "to want"
 
@@ -145,6 +153,11 @@
 [time]
 "dwe" = "day"
 "me" = "now, present"
+"seme" = "recently (past-present)"
+"roroso" = "far past"
+"rorotwathaso" = "ancient past"
+"sheme" = "today (this-now)"
+"shedwe" = "today (this-day)"
 "the" = "future"
 "methe" = "soon"
 "rorothe" = "far future"
@@ -167,7 +180,9 @@
 "ne" = "plural, (noun)ne"
 "sa" = "possessive, (noun)sa"
 "me" = "present tense, (verb)me"
+"se" = "past tense, (verb)se"
 "the" = "future tense, (verb)the"
+"di" = "continuous, (verb)di"
 "yo" = "command, yo(verb)"
 "li" = "might, li(verb)"
 "ma" = "negation, ma (verb)"
@@ -178,13 +193,13 @@
 "shi" = "at"
 "thi" = "in"
 "mi" = "near"
+"ri" = "subject"
 "yi" = "object"
 
 
 [phrase]
 "narame" = "hello (good now)"
 "narathe" = "goodbye (good future)"
-"so" = "yes"
 "ma" = "no"
 "thino twa" = "I'm hungry (I want food)"
 "thina twa" = "I'm thirsty (I want drink)"
@@ -196,22 +211,9 @@
 # real entries blocked by two decisions, and each needs respelling rather than
 # inventing. The tests report these separately instead of failing on them.
 #
-#   ch and j were dropped from the inventory (2026-07-26)
-#   h was never in it, and w stopped being a consonant
+#   h was never in the inventory
+#   w stopped being a consonant and now exists only as a vowel glide
 [respell]
-"jechiswo" = "to go"
-"jechi" = "go (imperative)"
-"je" = "past tense, (verb)je"
-"ji" = "continuous, (verb)ji"
-"ju" = "subject particle"
-"jeme" = "recently"
-"roroje" = "far past"
-"rorotwathaje" = "ancient past"
-"chi" = "this"
-"cha" = "that"
-"chu" = "that over there"
-"chime" = "today"
-"chidwe" = "today (this-day)"
 "hiðə" = "right"
 "hwiðə" = "east"
 "hi" = "towards"
