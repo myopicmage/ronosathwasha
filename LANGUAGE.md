@@ -34,8 +34,12 @@ second thing to get wrong.
 Two separate decisions feed that one table: the affricates above, and the `h`
 and `w` question still under Open. The entries that hurt are the structural
 ones rather than the vocabulary, because grammar cannot be exercised without
-them: `ju` (subject particle), `je` (past), `ji` (continuous), `hi` (towards),
-and the `chi`/`cha`/`chu` demonstratives.
+them: `je` (past), `ji` (continuous), `hi` (towards), and the
+`chi`/`cha`/`chu` demonstratives.
+
+The subject particle is no longer a design question. Decision 7 replaces
+historical `ju` with `-ri/-ru`; moving that decision into the lexicon and
+generated examples is still owed.
 
 ## 2. Vowel harmony, on backness
 
@@ -141,10 +145,11 @@ not enough to call it.
 faithfully and should keep preserving:
 
 - **Subject and object are separate particles**, not one particle with two
-  uses. `ju` marks the subject and `yi` marks the object.
+  uses. Historical `ju` marks the subject and `yi` marks the object. Decision 7
+  replaces only the subject particle.
 - **`Ðayi runeyi time` glosses `-yi` as a subject marker**, which is a mistake
-  in the source rather than an animacy rule. The current form takes the subject
-  particle and is therefore unwritable until the respelling lands.
+  in the source rather than an animacy rule. The current subject form begins
+  `ðari`, not `ðayi`.
 
 ## 6. The autonym is repaired
 
@@ -167,6 +172,39 @@ repair pass that decision 5 implies.
 in `tools/build_ufo.py` and `tools/build_keylayout.py` rather than read from
 `data/script.toml`, and the Python package, the UFO directory and the docs all
 still say `ronesathwasha`.
+
+## 7. The subject particle is `-ri/-ru`
+
+Historical `-ju` is replaced by a harmonic pair: **`-ri` after front stems and
+`-ru` after back stems**. A stem containing only neutral vowels takes the front
+form. This gives the singular pronouns `lari`, `nari`, `ðari` and `yari`; the
+back-vowel plurals become `loru`, `noru`, `ðoru` and `yoru`.
+
+The choice does four jobs at once:
+
+- `r` is an approximant, preserving the fluid sound of the language;
+- the alternating vowel keeps the visible lean of a harmonic word;
+- it contrasts with object `-yi/-yu` and possessive `-sa`;
+- `-ru` closes into a recognizable loop in the formal script.
+
+That loop gives back-harmonic subjects a repeated visual ending without adding
+punctuation or another feature to the writing system.
+
+## 8. The formal script resists handwriting
+
+**The script was designed for exact reproduction by the magical book network,
+not for rapid handwriting.** Its geometric vowels, visible harmony and
+carefully derived consonants make phonology inspectable, but they make a page
+slow and awkward to produce with a pen.
+
+That tradeoff fit the civilization that standardized it. A central council
+could update the books directly, so faithful magical reproduction mattered more
+than scribal convenience.
+
+When the network failed, the script outlived the infrastructure it assumed.
+Hand-copying became necessary precisely when authoritative copies stopped
+appearing. Local shortcuts, degraded forms and incompatible cursive traditions
+therefore became another pressure toward the language's later fragmentation.
 
 ## Open
 
