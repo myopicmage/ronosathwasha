@@ -155,10 +155,12 @@ Everything is generated from one declaration, so nothing is stated twice.
 Makefile               every command worth running, and what it depends on
 data/script.toml       the inventory, the PUA block, the derivation rules
 data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
+data/examples.toml     attested examples transcribed from the historical notes
 ronesathwasha/         those files parsed into models that cannot hold a broken one
 sources/strokes.py     the consonant letterforms, as centrelines
 tools/                 the generators: UFO, font, keyboard layout, dictionary
 docs/                  hand-written pages; rebuilt into build/ with the font in them
+notes/                 historical source material preserved for archaeology
 layouts/               the generated .keylayout
 scripts/install.sh     build both and put them where macOS looks
 scripts/share.sh       serve build/ and open a public tunnel at it

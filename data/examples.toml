@@ -1,0 +1,143 @@
+schema_version = 1
+
+[source]
+project = "dnd - friends.scriv"
+binder_path = "Places / Ancient World / Language / Grammar / Examples"
+document_id = "FE98C8C7-0D9B-4752-92D9-343A2D118357"
+status = "historical"
+note = """
+These forms preserve the December 2023 Scrivener source. They are attested
+evidence, not claims of validity under later phonology and grammar decisions.
+"""
+
+[[example]]
+english = "I eat"
+ronesathwasha = "Laju thinome"
+analysis = [
+  "I (subject marker)",
+  "food (present tense)",
+]
+common = ["thinome"]
+common_note = "drop subject"
+
+[[example]]
+english = "I am eating"
+ronesathwasha = "Laju thinomeji"
+analysis = [
+  "I (subject marker)",
+  "food (present tense) (continuous)",
+]
+common = ["thinomeji"]
+
+[[example]]
+english = "I do not eat"
+ronesathwasha = "Laju ma thinome"
+analysis = [
+  "I (subject marker)",
+  "no food (present tense)",
+]
+common = ["ma thinome"]
+common_note = "drop grammar markers"
+
+[[example]]
+english = "The teacher teaches"
+ronesathwasha = "Miriroju mirime"
+analysis = [
+  "Teach-person (subject marker)",
+  "teach (present tense)",
+]
+
+[[example]]
+english = "The teacher is teaching me"
+ronesathwasha = "Miriroju layi mirimeji"
+analysis = [
+  "Teach-person (subject marker)",
+  "me (object marker)",
+  "teach (present tense) (continuous marker)",
+]
+
+[[example]]
+english = "(You) teach me (now)"
+ronesathwasha = "Layi yomirime"
+analysis = [
+  "I (object marker)",
+  "(command marker) teach (present tense)",
+]
+
+[[example]]
+english = "(I) eat that food (over there)"
+ronesathwasha = "Chu thinome"
+analysis = [
+  "That (over there)",
+  "food (present tense)",
+]
+
+[[example]]
+english = "I might eat that food"
+ronesathwasha = "Laju cha lithinome"
+analysis = [
+  "I (subject marker)",
+  "that (over there)",
+  "(might) food (present tense)",
+]
+common = [
+  "lithinome",
+  "cha lithinome",
+]
+
+[[example]]
+english = "My dog eats"
+ronesathwasha = "Lasa runeju thinome"
+analysis = [
+  "I (possessive)",
+  "dog (subject marker)",
+  "food (present tense)",
+]
+
+[[example]]
+english = "Do you eat?"
+ronesathwasha = "Naju thothinome?"
+analysis = [
+  "You (subject marker)",
+  "(question marker) food (present tense)",
+]
+
+[[example]]
+english = "(I) want to eat"
+ronesathwasha = "Thinoswo twame"
+analysis = [
+  "Food (infinitive)",
+  "want (present tense)",
+]
+common = ["thino twa"]
+common_note = "drop markers, becomes “I want food”"
+
+[[example]]
+english = "(I) want that (thing)"
+ronesathwasha = "Chamwuyi twame"
+analysis = [
+  "That-thing",
+  "want (present tense)",
+]
+common = ["chamwu twa"]
+common_note = "object and tense markers dropped, implied"
+
+[[example]]
+english = "I go home"
+ronesathwasha = "Layi tahi jechime"
+analysis = [
+  "I (subject marker)",
+  "home (towards)",
+  "go (present)",
+]
+common = ["ta jechi"]
+common_note = "drop subject, location marker, and tense marker"
+
+[[example]]
+english = "(Person) has a dog"
+ronesathwasha = "Ðayi runeyi time"
+analysis = [
+  "Alive-thing (subject marker)",
+  "dog (object marker)",
+  "have (present tense)",
+]

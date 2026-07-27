@@ -1,9 +1,9 @@
 # Language notes
 
-**Staging area, not the home.** These are decisions about ronesathwasha itself
-rather than about the font, and they belong in the Scrivener project
-(`~/code/writing/dnd - friends.scriv`, under Places / Ancient World / Language).
-They live here so they survive the night, and should be moved.
+**Current decisions about ronesathwasha itself.** The original December 2023
+Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
+example sentences are transcribed in `data/examples.toml`. Those files are
+historical evidence; later decisions recorded here take precedence.
 
 Only the first one is implemented. The rest are decided in principle and not
 written into `data/script.toml`, because they are lexicon and grammar, and
