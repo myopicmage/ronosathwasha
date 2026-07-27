@@ -215,6 +215,64 @@ combining mark that has nothing to attach to. Shapers insert it automatically
 for scripts they know about. For an unencoded script they don't, so the font
 does it itself.
 
+## Variable fonts
+
+**Variable font**: one font file that contains a continuous range of designs
+rather than a single one. Added in OpenType 1.8 (2016). Everything it adds sits
+on the glyph side of the `cmap`, so it changes no code points, no shaping logic
+and no keyboard: only the outlines and metrics that come out the other end.
+
+**Axis**: one dimension of that range, named by a four-character tag. `wght` for
+weight, `wdth` for width, `opsz` for optical size. An axis has a minimum,
+maximum and default.
+
+**`opsz` (optical size)**: the axis for drawing differently at different sizes,
+which is the old metal-type practice made continuous. A 6pt cut was never a
+shrunk 12pt cut: it had thicker strokes, looser spacing and less fine detail.
+Unlike every other axis, `opsz` is applied *automatically* by the renderer from
+the point size. CoreText will use it without being asked.
+
+**`fvar`**: the table declaring the axes and the named instances. **`gvar`**:
+the per-glyph outline deltas that do the actual interpolating. `HVAR` does the
+same for advance widths, and `GDEF`'s variation store does it for anchors, so
+mark attachment can move along an axis too.
+
+**Master**: one of the designs the font interpolates between, drawn at an
+extreme of an axis. One UFO each.
+
+**Designspace**: the `.designspace` file naming the axes and saying where each
+master sits on them. fontmake reads it and produces the variable font.
+
+**Interpolation compatibility**: the constraint that makes all of it work. Every
+master's version of a glyph must have the same number of contours, in the same
+order, with the same number of points, of the same on-curve and off-curve types,
+in the same order. Miss any of that and the glyph cannot interpolate, because
+there is nothing to interpolate *between*.
+
+This is the whole difficulty for a generated font like ours. We draw centrelines
+and stroke them with a nib, and a stroke is a boolean operation whose output
+topology depends on its input geometry, so two masters at different nib widths
+do not automatically agree. Measured on this repo, at nibs of 4.6 and 7.4
+specimen units:
+
+| pipeline | glyphs that interpolate |
+|---|---|
+| as shipped | 14 of 26 |
+| without `path.simplify()` | 22 of 26 |
+
+`simplify()` is the union that merges crossing strokes into one outline. It is
+also what makes the topology depend on the geometry, so it accounts for most of
+the incompatibility. Dropping it is not a hack: **variable fonts conventionally
+ship with overlapping contours**, because a boolean operation cannot be applied
+to an outline that has not been interpolated yet. Nonzero winding renders the
+overlaps correctly.
+
+What survives that is `c_th`, and `c_dh` because it derives from it. Its
+centrelines cross, and the stroker's own self-intersection handling changes with
+width before `simplify()` ever runs. The two remaining failures are contour
+*order*, which pathops does not promise to keep stable and a deterministic sort
+would fix.
+
 ## Vertical metrics
 
 Three separate sets of numbers claim to say how tall the font is, and different
