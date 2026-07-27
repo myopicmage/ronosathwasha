@@ -29,6 +29,56 @@ lacked the character.
 so a glyph named `m` is assumed to mean U+006D. It's why our glyphs are named
 `c_m` and `v_i`: the prefix opts out of the guess.
 
+**Precomposed**: one code point standing for a whole combination. Latin `é` is
+U+00E9, a single character with the accent already in it.
+
+**Decomposed**: the same text as a base plus separate combining characters. `é`
+again, as U+0065 `e` followed by U+0301 combining acute.
+
+Both are legal and both mean the same letter, which is the whole problem. The
+tradeoff is combinatorial: precomposed is trivial to shape and to compare, and
+costs a code point for every combination, so N independent features want 2^N
+characters. Decomposed stays linear at one character per feature and pays in
+mark positioning rules.
+
+We make the cut in one place: **the syllable is decomposed, everything below it
+is precomposed.** A syllable is two code points, a consonant then a vowel, and
+the vowel is a zero-width mark that the `mark` feature attaches to the consonant
+from the UFO anchors. We do not encode 132 syllable characters.
+
+Below that line nothing decomposes. Voicing, place and labialisation are already
+inside their code points: `v_wa` is one character, not `v_a` plus a glide mark,
+and `c_r` is one character, not `c_l` plus a crossbar. The `mk_stem`,
+`mk_crossbar` and `mk_glide` entries in `data/script.toml` describe how a glyph
+is *drawn* from its relative, which is derivation at build time and says nothing
+about encoding.
+
+Hangul is the same choice made twice. Unicode encodes Korean both ways: 11,172
+precomposed syllable blocks and a set of conjoining jamo that compose at render
+time. We took the jamo route, for the reason above: 11 + 12 code points instead
+of 132, and a keyboard that can refuse an illegal pair because it can still see
+two units.
+
+The cost of the line being where it is: any new vowel feature multiplies the
+vowel run rather than adding to it. Encoding length as a precomposed vowel takes
+12 vowels to 24. Encoding it as a combining mark leaves 12 and adds one.
+
+**Normalisation (NFC / NFD)**: Unicode's rules for converting between the two,
+so text that means the same thing compares equal. NFC composes wherever a
+precomposed character exists, NFD decomposes. Operating systems, editors and
+file systems apply it constantly and invisibly, which is why encoded scripts can
+mostly ignore the distinction.
+
+It does nothing for us. Normalisation works from Unicode's own decomposition
+data, and a PUA code point has none, so nothing will ever relate `c_n` `v_a` to
+a single character or tell anyone the pair belongs together. Every equivalence
+our script has is one we assert ourselves, in the font and in the keyboard. It
+is the clearest single case of what the Private Use Area leaves us to do alone.
+
+Worth knowing despite the name: our `ccmp` feature composes and decomposes
+nothing. It inserts a dotted circle around a vowel that has no consonant to sit
+on, which is the one illegal sequence the anchors cannot express.
+
 ## Drawing
 
 **UFO**: Unified Font Object. The source format: a directory of XML files, one
