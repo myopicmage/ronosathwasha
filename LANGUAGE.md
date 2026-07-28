@@ -427,6 +427,53 @@ context.
 
 **Implemented** in `data/lexicon.toml` and the current sentence page.
 
+## 17. The verb is final and everything before it is free
+
+**The verb comes last.** This was decided in the December 2023 notes, which
+record it twice as "SOV word order", and it has never appeared in this document
+until now. Promoting it here rather than leaving it in the historical material
+is the point of the entry: `notes/` is superseded by later decisions, so a rule
+that lives only there reads as a rule that might have been replaced.
+
+**Everything before the verb is free.** The particles carry the grammatical
+roles, so `Mirireri layi mirimedi` and `layi Mirireri mirimedi` are the same
+sentence. Nothing is recovered from position that a particle has not already
+said, which is what makes the freedom safe.
+
+The two halves depend on each other. Free order works because case is marked;
+the verb stays fixed because it is the one constituent no particle identifies.
+
+**Earlier position tends to read as topic. That is a tendency and not
+grammar.** A speaker fronting a constituent will often be signalling what the
+sentence is about, and listeners will often take it that way, but no rule
+attaches, nothing marks it, and no interpretation depends on it. This is the
+same status the recurring `-ya` has in decision 13: a pattern speakers may feel
+without it obligating anything.
+
+Two reasons for leaving it uncanonized rather than promoting it:
+
+- **The language drops arguments constantly.** Four of the fourteen current
+  examples have no subject at all. If initial position meant something
+  grammatically, omitting a subject would involuntarily promote whatever
+  followed it, and an effect a speaker cannot avoid is not an effect a speaker
+  can use.
+- **There is too little evidence.** Fourteen sentences is not enough to tell a
+  rule from a habit, and the chatbot exists to generate exactly this kind of
+  pressure. Deciding now would be deciding it on the smallest corpus this
+  question will ever have.
+
+The alternative considered and not taken was an immediately-preverbal focus
+position, which is what verb-final languages overwhelmingly do: Turkish,
+Hungarian, Korean and Japanese all place focus there rather than initially. It
+survives argument dropping, because it is defined relative to the verb rather
+than to the start of the sentence. It remains available if the tendency above
+ever needs to become a rule.
+
+**Implemented** as the verb-final constraint only. The freedom is the absence
+of a constraint and needs no code, and the topic tendency is deliberately
+absent from the semantic model: there is no topic dimension, and adding one
+would be canonizing it by the back door.
+
 ## Open
 
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both

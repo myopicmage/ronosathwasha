@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 9;
+plan $corpus.utterances.elems + 13;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -80,3 +80,19 @@ nok read('Lari thinəme').reading.ambiguous.elems,
 
 my $nope = read('Lari thothinəme');
 isa-ok $nope, NotUnderstood, 'a retired form stops the sentence being understood';
+
+# ------------------------------------------------------------------- decision 17 ---
+#
+# The verb is fixed and everything before it is free, because the particles say
+# what each constituent is and no particle identifies the verb.
+
+isa-ok read('layi Mirireri mirimedi'), Understood,
+    'a subject and object may swap, since their particles carry the roles';
+
+is-deeply read('layi Mirireri mirimedi').reading.arguments.sort.List,
+          read('Mirireri layi mirimedi').reading.arguments.sort.List,
+    'and the sentence means the same either way';
+
+my $backwards = read('mirimedi Mirireri layi');
+isa-ok $backwards, WrongOrder, 'but the verb may not leave the end';
+is $backwards.verb, 'mirimedi', 'and the offending word is named';

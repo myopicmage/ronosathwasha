@@ -73,6 +73,18 @@ class NotUnderstood does SentenceOutcome is export {
     method summary(--> Str) { "$!sentence: { $!because.summary }" }
 }
 
+#| Every word divided, and the verb is not last. Decision 17 fixes that
+#| position and frees every other, so this is the one ordering error the
+#| language has.
+class WrongOrder does SentenceOutcome is export {
+    has Str $.sentence is required;
+    has Str $.verb     is required;
+
+    method summary(--> Str) {
+        "$!sentence: the verb $!verb.raku() must come last"
+    }
+}
+
 #| Front is near, central is middle, back is far. See the module documentation:
 #| this is decision 9's vowel progression read back out of the script.
 sub deixis-of(Script:D $script, Str:D $stem --> Reference) {
@@ -120,8 +132,10 @@ sub read-sentence(
         }
     }
 
-    # The verb is whichever word carries a tense marker, not whichever word
-    # comes last.
+    # The verb is identified by its tense marker rather than by its position,
+    # and then its position is checked. Those are separate steps on purpose: a
+    # sentence with the verb in the wrong place is a well-formed sentence
+    # written wrongly, and saying so is more useful than failing to find a verb.
     my $verb = @divisions.first(*.has-role(MarksTense));
 
     return NotUnderstood.new(
@@ -129,6 +143,11 @@ sub read-sentence(
         :word($sentence),
         :because(UnknownStem.new(:word($sentence))),
     ) without $verb;
+
+    # Decision 17. Every other constituent is free, because the particles say
+    # what each one is; the verb is fixed because no particle identifies it.
+    return WrongOrder.new(:$sentence, :verb($verb.text))
+        unless @divisions.tail === $verb;
 
     my $tense-marker = $verb.with-role(MarksTense);
     my $aspect       = $verb.with-role(MarksAspect);
