@@ -189,8 +189,8 @@
 "ne" = "plural (front or neutral), (noun)ne"
 "no" = "plural (back), (noun)no"
 "sa" = "possessive, (noun)sa"
-"me" = "present tense (front or neutral), (verb)me"
-"mo" = "present tense (back), (verb)mo"
+"me" = "present tense (front or neutral), (verb)me; negation before back, me(verb)"
+"mo" = "present tense (back), (verb)mo; negation before front or neutral, mo(verb)"
 "se" = "past tense (front or neutral), (verb)se"
 "so" = "past tense (back), (verb)so"
 "the" = "future tense, (verb)the"
@@ -199,15 +199,23 @@
 "yo" = "command, yo(verb)"
 "li" = "might (front or neutral), li(verb)"
 "lu" = "might (back), lu(verb)"
-"ma" = "negation, ma (verb)"
+# Negation is anti-harmonic, so it takes the opposite class to the word it
+# attaches to: `mo` before a front or neutral word, `me` before a back one.
+# Both live on the tense entries above, because a TOML table cannot repeat a
+# key and the present tense already claims those two forms. Position separates
+# them: the negator is a prefix and the tense marker is a suffix.
 "tho" = "question, tho(verb)"
 
 
 [particle]
-"shi" = "at"
-"thi" = "in"
-"mi" = "near"
-"ði" = "towards"
+"shi" = "at (front or neutral)"
+"shu" = "at (back)"
+"thi" = "in (front or neutral)"
+"thu" = "in (back)"
+"mi" = "near (front or neutral)"
+"mu" = "near (back)"
+"ði" = "towards (front or neutral)"
+"ðu" = "towards (back)"
 "ri" = "subject (front or neutral)"
 "ru" = "subject (back)"
 "yi" = "object (front or neutral)"
