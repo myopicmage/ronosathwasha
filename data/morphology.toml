@@ -1,0 +1,289 @@
+# Every productive morpheme in the language.
+#
+# This file is the authority on what a morpheme *does*: its role, where it
+# attaches, how it alternates, and whether it is still current. `lexicon.toml`
+# remains the authority on words. Where the two overlap, a morpheme's surface
+# form appears in both, and nothing else does.
+#
+# **Keyed by identity, not by form.** A morpheme is named by the job it does,
+# and its spellings are fields. That is not a stylistic choice: `me` and `mo`
+# are the present tense and they are also the negator, and `tho` is the back
+# future today and was the question marker yesterday. Keying on the form makes
+# those collisions unrepresentable in a TOML table, which is why the lexicon
+# had to carry two of them in a comment. Keying on the job makes them ordinary.
+#
+# `front_stem` and `back_stem` name the form taken *with* a stem of that class,
+# never the form's own vowel class. For a harmonic morpheme the two coincide
+# and the distinction looks pedantic. For the anti-harmonic negator they are
+# deliberately crossed, and the same two field names still say the right thing.
+#
+# Neutral stems select the front alternant, so `front_stem` covers front and
+# neutral both. `alternation` names which rule produced the arrangement, so
+# nothing has to be inferred from comparing the two forms.
+
+# ---------------------------------------------------------------- current ---
+
+[[morpheme]]
+id = "infinitive"
+role = "nonfinite"
+attaches_to = "verb"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "swe"
+back_stem = "swo"
+status = "current"
+
+[[morpheme]]
+id = "plural"
+role = "number"
+attaches_to = "noun"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "ne"
+back_stem = "no"
+status = "current"
+
+[[morpheme]]
+id = "possessive"
+role = "possession"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "neutral"
+form = "sa"
+status = "current"
+
+[[morpheme]]
+id = "present"
+role = "tense"
+attaches_to = "verb"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "me"
+back_stem = "mo"
+status = "current"
+
+[[morpheme]]
+id = "past"
+role = "tense"
+attaches_to = "verb"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "se"
+back_stem = "so"
+status = "current"
+
+[[morpheme]]
+id = "future"
+role = "tense"
+attaches_to = "verb"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "the"
+back_stem = "tho"
+status = "current"
+
+[[morpheme]]
+id = "continuous"
+role = "aspect"
+attaches_to = "verb"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "di"
+back_stem = "du"
+status = "current"
+
+# The one licensed harmony violation. The forms are the present tense's, and
+# the classes are crossed against it: a front word takes `mo`, a back word
+# takes `me`, so the negator always leans the wrong way and is visible at a
+# glance without being stressed. Decision 3.
+[[morpheme]]
+id = "negation"
+role = "polarity"
+attaches_to = "verb"
+position = "prefix"
+alternation = "anti-harmonic"
+front_stem = "mo"
+back_stem = "me"
+status = "current"
+
+[[morpheme]]
+id = "question"
+role = "speech-act"
+attaches_to = "verb"
+position = "prefix"
+alternation = "harmonic"
+front_stem = "te"
+back_stem = "to"
+status = "current"
+
+[[morpheme]]
+id = "command"
+role = "speech-act"
+attaches_to = "verb"
+position = "prefix"
+alternation = "harmonic"
+front_stem = "de"
+back_stem = "do"
+status = "current"
+
+[[morpheme]]
+id = "potential"
+role = "modality"
+attaches_to = "verb"
+position = "prefix"
+alternation = "harmonic"
+front_stem = "li"
+back_stem = "lu"
+status = "current"
+
+[[morpheme]]
+id = "subject"
+role = "case"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "ri"
+back_stem = "ru"
+status = "current"
+
+[[morpheme]]
+id = "object"
+role = "case"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "yi"
+back_stem = "yu"
+status = "current"
+
+[[morpheme]]
+id = "locative-at"
+role = "locative"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "shi"
+back_stem = "shu"
+status = "current"
+
+[[morpheme]]
+id = "locative-in"
+role = "locative"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "thi"
+back_stem = "thu"
+status = "current"
+
+[[morpheme]]
+id = "locative-near"
+role = "locative"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "mi"
+back_stem = "mu"
+status = "current"
+
+[[morpheme]]
+id = "locative-towards"
+role = "locative"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "ði"
+back_stem = "ðu"
+status = "current"
+
+# ------------------------------------------------------------- superseded ---
+#
+# Retired, and kept because retirement is not deletion. Two of these are
+# still perfectly typeable, which is the whole hazard: nothing in the font or
+# the keyboard will object to `yomirime`, so a reader meets a command that has
+# not existed since decision 16 and has no way to tell.
+#
+# `writable` records whether the form can still be produced at all. `je`, `ji`
+# and `ju` cannot, because decision 1 dropped the affricates and took the
+# letter with them. Those are safe by accident. The rest are not.
+#
+# `alternation = "none"` is not the same as `"neutral"`. Neutral means the
+# morpheme legitimately has one form because it has no backness to agree
+# about, which is `sa` and was `ma`. None means one form where two were
+# needed, which is what made `yo`, `tho`, `ju`, `je` and `ji` replaceable in
+# the first place. Reading them as the same thing loses the reason.
+
+[[morpheme]]
+id = "negation-ma"
+role = "polarity"
+attaches_to = "verb"
+position = "prefix"
+alternation = "neutral"
+form = "ma"
+status = "superseded"
+superseded_by = "negation"
+decision = 3
+writable = true
+
+[[morpheme]]
+id = "command-yo"
+role = "speech-act"
+attaches_to = "verb"
+position = "prefix"
+alternation = "none"
+form = "yo"
+status = "superseded"
+superseded_by = "command"
+decision = 16
+writable = true
+
+# The form is current; this morpheme is not. `tho` is the back future today,
+# and asking the lexicon "what is `tho`" is the question that cannot be
+# answered without knowing the position it appeared in.
+[[morpheme]]
+id = "question-tho"
+role = "speech-act"
+attaches_to = "verb"
+position = "prefix"
+alternation = "none"
+form = "tho"
+status = "superseded"
+superseded_by = "question"
+decision = 15
+writable = true
+
+[[morpheme]]
+id = "subject-ju"
+role = "case"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "none"
+form = "ju"
+status = "superseded"
+superseded_by = "subject"
+decision = 7
+writable = false
+
+[[morpheme]]
+id = "past-je"
+role = "tense"
+attaches_to = "verb"
+position = "suffix"
+alternation = "none"
+form = "je"
+status = "superseded"
+superseded_by = "past"
+decision = 10
+writable = false
+
+[[morpheme]]
+id = "continuous-ji"
+role = "aspect"
+attaches_to = "verb"
+position = "suffix"
+alternation = "none"
+form = "ji"
+status = "superseded"
+superseded_by = "continuous"
+decision = 10
+writable = false
