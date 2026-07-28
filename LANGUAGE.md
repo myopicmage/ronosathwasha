@@ -346,7 +346,7 @@ grammar:
 - `thwashamwu`: language-expression, from `thwasha` (language) plus `mwu`
   (thing);
 - `thwashaswo`: to speak or say, the language noun made verbal;
-- `thoswo`: to ask, lexicalized from the historical question marker `tho`.
+- `teswe`: to ask, the front question marker `te` made verbal.
 
 `thwashamwu` denotes a bounded piece of language without specifying its size.
 In ordinary use, the smallest convenient language-thing is usually a word, so
@@ -376,9 +376,9 @@ For example:
 - `Nari tethinəme?`: do you eat?
 - `Ðari tororothwamo?`: does he, she, or it love?
 
-`thoswo` remains the word for "ask." Its historical derivation is now
-fossilized rather than forcing an established lexical verb to follow a later
-grammatical replacement.
+The question marker's front form becomes the lexical root `te` when made
+verbal. With no host selecting its conditioned back allomorph, the root takes
+front infinitive `-swe`, producing `teswe`.
 
 **Implemented** in `data/lexicon.toml` and the current sentence page.
 
