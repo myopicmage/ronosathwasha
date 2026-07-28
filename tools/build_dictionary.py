@@ -16,14 +16,21 @@ encoding behind the font renders as fluent nonsense rather than as an error.
 from __future__ import annotations
 
 import html
+import tomllib
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
-from ronesathwasha import Entry, Lexicon, Script, load, load_lexicon
+from ronesathwasha import Entry, Lexicon, ParseFailure, Script, load, load_lexicon
 from tools.webfont import FAMILY, compile_woff2, face
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 OUT: Final = ROOT / "build" / "dictionary.html"
+
+# Written by `tools/paradigms.raku`. Choosing `-se` over `-so` is morphology and
+# belongs to the Raku half; rendering a form as private-use text with a font
+# beside it is typography and belongs here. The file is a computed result rather
+# than a second copy of a declaration, so deleting it costs one build.
+PARADIGMS: Final = ROOT / "build" / "paradigms.toml"
 
 # The one non-ASCII romanisation. Folded so the search box is reachable from a
 # plain keyboard: nobody types a schwa to look up a word.
@@ -73,9 +80,85 @@ def section(script: Script, name: str, entries: tuple[Entry, ...]) -> str:
   </section>"""
 
 
+def native(script: Script, roman: str) -> str:
+    """One word as private-use text, or empty if it will not parse.
+
+    A form that fails here is a real defect rather than a display problem: the
+    realizer built it from declared morphemes, so it should be writable. Falling
+    back to nothing keeps the page honest instead of showing a romanisation
+    styled as if it were script.
+    """
+    parsed = script.parse(roman)
+    if isinstance(parsed, ParseFailure):
+        return ""
+
+    return "".join(chr(cp) for cp in script.encode(parsed))
+
+
+def paradigm_row(script: Script, cells: list[str], verb: dict[str, Any]) -> str:
+    columns = "\n".join(
+        f"""        <td>
+          <span class="script" lang="x-rsw" translate="no">"""
+        f"""{html.escape(native(script, verb[cell]))}</span>
+          <span class="roman">{html.escape(verb[cell])}</span>
+        </td>"""
+        for cell in cells
+    )
+    return f"""      <tr>
+        <th scope="row">
+          <span class="roman">{html.escape(verb["stem"])}</span>
+          <span class="gloss">{html.escape(verb["gloss"])}</span>
+        </th>
+{columns}
+      </tr>"""
+
+
+def paradigms(script: Script) -> str:
+    """The conjugation tables, from the file the Raku side computed.
+
+    Absent when only the Python half has been built, which is ordinary: the
+    section disappears rather than the build failing, because a dictionary
+    without paradigms is still a dictionary.
+    """
+    if not PARADIGMS.exists():
+        return ""
+
+    with PARADIGMS.open("rb") as handle:
+        data = tomllib.load(handle)
+
+    cells: list[str] = data["cells"]
+    verbs: list[dict[str, Any]] = data["verb"]
+
+    heads = "\n".join(f"        <th scope=\"col\">{html.escape(c)}</th>" for c in cells)
+    rows = "\n".join(paradigm_row(script, cells, v) for v in verbs)
+
+    return f"""  <section class="section paradigms" data-section="conjugation">
+    <h2>conjugation</h2>
+    <p class="note">
+      Every verb across the seven marked forms. A front stem and a back stem
+      differ in every column, because each affix agrees with the stem it
+      attaches to. The negative disagrees with both, on purpose.
+    </p>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">stem</th>
+{heads}
+          </tr>
+        </thead>
+        <tbody>
+{rows}
+        </tbody>
+      </table>
+    </div>
+  </section>"""
+
+
 def page(script: Script, lexicon: Lexicon, woff2: bytes) -> str:
     sections = "\n".join(
-        section(script, name, entries) for name, entries in lexicon.sections()
+        [section(script, name, entries) for name, entries in lexicon.sections()]
+        + [p for p in (paradigms(script),) if p]
     )
     return TEMPLATE.format(
         family=FAMILY,
@@ -213,6 +296,35 @@ h2 {{
 }}
 .roman {{ color: var(--muted); font-size: 0.9rem; }}
 .gloss {{ font-size: 1rem; }}
+
+.note {{ margin: 0 0 1rem; max-width: 46rem; color: var(--muted); line-height: 1.55; }}
+
+/* The table is wider than a phone and the script inside it does not wrap, so
+   the scrolling is put on a container rather than on the page. */
+.scroller {{ overflow-x: auto; }}
+
+.paradigms table {{ border-collapse: collapse; }}
+
+.paradigms th, .paradigms td {{
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: baseline;
+  white-space: nowrap;
+}}
+
+.paradigms thead th {{
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}}
+
+.paradigms tbody th {{ font-weight: 400; }}
+
+.paradigms td .script {{ display: block; font-size: 1.6rem; }}
+.paradigms th .gloss {{ display: block; }}
 
 .section[hidden], .entry[hidden] {{ display: none; }}
 .empty {{ color: var(--muted); padding: 2rem 0; }}

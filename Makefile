@@ -39,6 +39,7 @@ RAKU := $(RESHELL) env RAKULIB="$(RAKU_REPO)"
 MODEL := $(wildcard ronesathwasha/*.py)
 SCRIPT := data/script.toml
 LEXICON := data/lexicon.toml
+MORPHOLOGY := data/morphology.toml
 
 # The declaration plus everything that turns it into outlines. Any of these
 # moving changes the shapes, so anything carrying a font is out of date.
@@ -78,7 +79,16 @@ keylayout: $(KEYLAYOUT) ## Generate the macOS keyboard layout
 $(FONT): $(UFO) tools/build_font.py
 	$(PY) -m tools.build_font
 
-$(DICTIONARY): $(WEB) $(LEXICON) tools/build_dictionary.py
+# The conjugation tables. Raku chooses the alternants, because that is
+# morphology; Python renders them, because that is typography and the page it
+# goes on already carries the font. A computed result, not a second copy of a
+# declaration: delete it and the next build makes the same file.
+PARADIGMS := build/paradigms.toml
+
+$(PARADIGMS): $(RAKU_STAMP) $(MORPHOLOGY) $(LEXICON) $(SCRIPT) tools/paradigms.raku
+	$(RAKU) raku -I lib tools/paradigms.raku
+
+$(DICTIONARY): $(WEB) $(LEXICON) $(PARADIGMS) tools/build_dictionary.py
 	$(PY) -m tools.build_dictionary
 
 $(STAMP): $(WEB) $(PAGES) tools/build_docs.py

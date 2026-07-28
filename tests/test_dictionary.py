@@ -10,16 +10,30 @@ from __future__ import annotations
 import base64
 import html
 import re
+import tomllib
 from pathlib import Path
 
 import pytest
 
-from ronesathwasha import Lexicon, Script
+from ronesathwasha import Lexicon, ParseFailure, Script, load_lexicon
 from tools.build_dictionary import canonical, page, searchable
 from tools.webfont import compile_woff2
 
 SCRIPT_SPAN = re.compile(r'<span class="script"[^>]*>(?P<text>[^<]*)</span>')
 KEY = re.compile(r'data-key="(?P<key>[^"]*)"')
+
+# Script text now appears in two places: one span per lexicon entry, and seven
+# per verb in the conjugation tables. Tests that count spans against the lexicon
+# have to say which they mean, so the entry cards are matched on their own.
+ENTRY_CARD = re.compile(r'<li class="entry".*?</li>', re.S)
+
+
+def entry_spans(rendered: str) -> list[str]:
+    return [
+        html.unescape(span.group("text"))
+        for card in ENTRY_CARD.finditer(rendered)
+        for span in SCRIPT_SPAN.finditer(card.group(0))
+    ]
 
 # The private use area of the basic multilingual plane.
 PUA = range(0xE000, 0xF900)
@@ -37,7 +51,7 @@ def test_every_writable_entry_reaches_the_page(
     missing = [e.roman for e in lexicon.writable() if html.escape(e.gloss) not in rendered]
     assert not missing, f"entries absent from the page: {', '.join(missing)}"
 
-    assert len(SCRIPT_SPAN.findall(rendered)) == len(lexicon.writable())
+    assert len(entry_spans(rendered)) == len(lexicon.writable())
 
 
 def test_the_blocked_entries_stay_out_of_it(rendered: str, lexicon: Lexicon) -> None:
@@ -54,7 +68,7 @@ def test_rendered_text_is_the_encoding_the_font_expects(
     rendered: str, script: Script, lexicon: Lexicon
 ) -> None:
     """The page's own text, decoded back and compared with the model."""
-    found = [html.unescape(m.group("text")) for m in SCRIPT_SPAN.finditer(rendered)]
+    found = entry_spans(rendered)
     expected = [entry.text(script) for entry in lexicon.writable()]
     assert found == expected
 
@@ -117,3 +131,47 @@ def test_the_page_carries_the_font_it_was_built_against(
     built = page(script, lexicon, woff2)
     assert base64.b64encode(woff2).decode("ascii") in built
     assert "local(" not in built, "the installed font may be a different vintage"
+
+
+def test_the_conjugation_tables_are_present_and_readable(script: Script) -> None:
+    """The paradigms are computed in Raku and rendered here.
+
+    Not a duplicate of the Raku tests, which check that the forms are right.
+    This checks the handoff: that the file arrived, that every form in it is
+    writable in the script, and that the page shows it as script rather than as
+    romanisation wearing a script class.
+    """
+    from tools.build_dictionary import PARADIGMS
+
+    assert PARADIGMS.exists(), "run `make build/paradigms.toml` first"
+
+    with PARADIGMS.open("rb") as handle:
+        data = tomllib.load(handle)
+
+    assert data["verb"], "no verbs in the generated paradigms"
+    assert data["cells"] == [
+        "past", "present", "future", "command", "question", "might", "negative",
+    ]
+
+    for verb in data["verb"]:
+        for cell in data["cells"]:
+            form = verb[cell]
+            parsed = script.parse(form)
+            assert not isinstance(parsed, ParseFailure), f"{verb['stem']} {cell}: {parsed}"
+
+
+def test_every_conjugated_form_reaches_the_page(script: Script) -> None:
+    from tools.build_dictionary import PARADIGMS, page
+
+    with PARADIGMS.open("rb") as handle:
+        data = tomllib.load(handle)
+
+    rendered = page(script, load_lexicon(script), b"")
+
+    missing = [
+        f"{verb['stem']} {cell}"
+        for verb in data["verb"]
+        for cell in data["cells"]
+        if html.escape(verb[cell]) not in rendered
+    ]
+    assert not missing, f"conjugated forms absent from the page: {missing}"
