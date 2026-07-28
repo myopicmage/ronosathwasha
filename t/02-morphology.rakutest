@@ -1,0 +1,87 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Lexicon;
+
+plan 25;
+
+my IO::Path $data = repository-root.add('data');
+
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+
+isa-ok $morphology, Morphology, 'the morphology declaration parses';
+isa-ok $lexicon, Lexicon, 'the lexicon parses';
+
+# ------------------------------------------------- the two files must agree ---
+#
+# Both files hold the affix forms, and while that remains true the only thing
+# stopping them drifting is this pair of assertions. They failed in exactly this
+# way once already, between `data/examples.toml` and the sentence page.
+
+my Set $declared = $morphology.current-forms;
+my Set $written  = $lexicon.affixes.map(*.roman).Set;
+
+is-deeply ($declared (-) $written).keys.sort.List, (),
+    'every form the morphology declares is a word in the lexicon';
+
+is-deeply ($written (-) $declared).keys.sort.List, (),
+    'every affix in the lexicon is claimed by a current morpheme';
+
+is $morphology.current.elems, 17, 'seventeen current morphemes';
+
+# Thirty-one distinct forms from seventeen morphemes: fifteen alternating pairs
+# make thirty, `sa` makes thirty-one, and the negator adds none at all because
+# its two forms are the present tense's. Counting forms and counting morphemes
+# give different answers here, and the gap is precisely what a file keyed by
+# surface form could not have held.
+is $declared.elems, 31, 'covering thirty-one distinct surface forms';
+is $lexicon.affixes.elems, 31, 'which is every bound morpheme the lexicon lists';
+
+# --------------------------------------------------------- choosing a form ---
+#
+# One call answers this for every morpheme, which is what the crossed
+# declaration bought.
+
+my $present = $morphology.by-id('present');
+is $present.form-for(FrontWord),   'me', 'a front stem takes present -me';
+is $present.form-for(BackWord),    'mo', 'a back stem takes present -mo';
+is $present.form-for(NeutralWord), 'me', 'a neutral stem takes the front alternant';
+
+my $negation = $morphology.by-id('negation');
+is $negation.form-for(FrontWord), 'mo', 'a front stem takes negation mo-, the opposite class';
+is $negation.form-for(BackWord),  'me', 'a back stem takes negation me-';
+
+is $negation.alternation, AntiHarmonic, 'and the declaration says why';
+is $present.alternation, Alternating, 'while the tense it shares its forms with does not';
+
+# The point of the above: no branch anywhere asked whether this morpheme was
+# the negator. The two calls are identical and the answers are opposite.
+is $present.position, Suffix, 'present tense is a suffix';
+is $negation.position, Prefix, 'negation is a prefix, which is what separated them in the lexicon comment';
+
+my $possessive = $morphology.by-id('possessive');
+is $possessive.form-for(BackWord), 'sa', 'an invariant morpheme ignores the stem class';
+
+my $mixed = $present.form-for(MixedWord);
+nok $mixed.defined, 'a disharmonic stem selects nothing';
+isa-ok $mixed.self.exception, X::Morphology::MixedStem, 'and says so as a typed failure';
+
+# --------------------------------------------------------------- retirement ---
+
+my @tho = $morphology.claiming('tho');
+is @tho.elems, 2, 'two morphemes are spelled tho';
+is-deeply @tho.map(*.id).sort.List, ('future', 'question-tho'),
+    'the current back future, and the question marker decision 15 retired';
+
+is-deeply @tho.grep(*.is-current).map(*.id).List, ('future',),
+    'only one of them is current, which is the question a form alone cannot answer';
+
+my $yo = $morphology.by-id('command-yo');
+is $yo.orthography, Writable, 'a retired command marker is still perfectly typeable';
+is $yo.superseded-by, 'command', 'and names what replaced it';
+
+my $ju = $morphology.by-id('subject-ju');
+is $ju.orthography, NeedsRespelling, 'while the affricate loss made ju unwritable by accident';
