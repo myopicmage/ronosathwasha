@@ -16,7 +16,8 @@
     "Ronosathwasha::Morphology": "lib/Ronosathwasha/Morphology.rakumod",
     "Ronosathwasha::Harmony": "lib/Ronosathwasha/Harmony.rakumod",
     "Ronosathwasha::Semantics": "lib/Ronosathwasha/Semantics.rakumod",
-    "Ronosathwasha::Syllables": "lib/Ronosathwasha/Syllables.rakumod"
+    "Ronosathwasha::Syllables": "lib/Ronosathwasha/Syllables.rakumod",
+    "Ronosathwasha::Words": "lib/Ronosathwasha/Words.rakumod"
   },
   "depends": [
     "Config::TOML"

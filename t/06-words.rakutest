@@ -1,0 +1,88 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Words;
+
+plan 17;
+
+my IO::Path $data = repository-root.add('data');
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $corpus     = load-utterances($data.add('utterances.toml'));
+
+sub split(Str $w) { parse-word($lexicon, $morphology, $w) }
+
+# ------------------------------------------------------------ the simple cases ---
+
+my $eats = split('thinəme');
+is-deeply $eats.stems.List, ('thinə',), 'the stem is found';
+is-deeply $eats.suffixes.map(*.id).List, ('present',), 'and the tense after it';
+is-deeply $eats.prefixes.List, (), 'with nothing before it';
+
+my $eating = split('thinəmedi');
+is-deeply $eating.suffixes.map(*.id).List, ('present', 'continuous'),
+    'two suffixes in the order they are written';
+
+# --------------------------------------- position resolves the shared spellings ---
+#
+# This is what `data/morphology.toml` was restructured for. The letters are
+# identical and only the side of the stem differs.
+
+my $not-eat = split('mothinəme');
+is-deeply $not-eat.prefixes.map(*.id).List, ('negation',),
+    'mo before the stem is the negator';
+is-deeply $not-eat.suffixes.map(*.id).List, ('present',),
+    'while me after it is the tense';
+
+my $loves = split('rorothwamo');
+is-deeply $loves.suffixes.map(*.id).List, ('present',),
+    'and mo after a back stem is the tense, not the negator';
+is-deeply $loves.prefixes.List, (),
+    'with no prefix at all';
+
+# ------------------------------------------------------------- the full stack ---
+#
+# Decision 16's own example: modality, negation, speech act, predicate, tense.
+
+my $maybe-dont-love = split('lumedororothwamo');
+is-deeply $maybe-dont-love.prefixes.map(*.id).List,
+    ('potential', 'negation', 'command'),
+    'three prefixes in the order decision 16 fixed';
+is-deeply $maybe-dont-love.stems.List, ('rorothwa',),
+    'on a stem the lexicon lists only with its infinitive';
+is-deeply $maybe-dont-love.suffixes.map(*.id).List, ('present',),
+    'and the tense still lands after the stem';
+
+# ------------------------------------------------------ backtracking is needed ---
+#
+# `medi` is a stem and `me` is a legal prefix. A ratcheting token takes the
+# prefix, leaves `dime`, and fails. This passes only because TOP is a regex.
+
+my $goes = split('medime');
+is-deeply $goes.stems.List, ('medi',), 'a stem beginning with a prefix spelling is still the stem';
+is-deeply $goes.prefixes.List, (), 'and no prefix was taken from it';
+
+# ----------------------------------------------------------------- compounds ---
+
+my $that-thing = split('shamwuyi');
+is-deeply $that-thing.stems.List, ('sha', 'mwu'), 'a compound is two stems';
+is-deeply $that-thing.suffixes.map(*.id).List, ('object',), 'with one particle after both';
+
+# ------------------------------------------------------- against the corpus ---
+#
+# Every word of every current utterance must divide. This is the assertion that
+# makes the grammar answerable to the language rather than to its own tests.
+
+my @failed = $corpus.utterances.map({
+    .text.words.grep({ not split(.subst(/<[?.,!]>/, '', :g)).defined }).Slip
+});
+
+is-deeply @failed.sort.unique.List, (),
+    'every word in the corpus divides into declared morphemes';
+
+my $nonsense = split('thinəzzz');
+nok $nonsense.defined, 'a string that is not built from declared morphemes fails';
