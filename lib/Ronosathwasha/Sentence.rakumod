@@ -84,7 +84,17 @@ sub realize-sentence(
         :modality($reading.modality),
     );
 
-    return @words.join(' ');
+    # English punctuation, borrowed whole, because the script has no marks of
+    # its own. The question mark is redundant with the `te-/to-` prefix that
+    # already made this a question, and it is written anyway: a convention every
+    # reader can already parse costs nothing.
+    #
+    # Only the question mark, because only the question mark is attested. A
+    # declarative full stop would follow from the same borrowing and appears
+    # nowhere Kevin has written, so it is not invented here.
+    my Str $end = $reading.speech-act == Interrogative ?? '?' !! '';
+
+    return @words.join(' ') ~ $end;
 
     CATCH { default { .fail } }
 }

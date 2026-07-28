@@ -22,11 +22,13 @@ plan $corpus.utterances.elems + 7;
 sub read(Str $s)  { read-sentence($script, $lexicon, $morphology, $s) }
 sub write(Reading $r) { realize-sentence($script, $morphology, $r) }
 
-#| Punctuation and capitalisation are conventions of the romanisation, not of
-#| the language: the script has neither, and `README.md` says questions are
-#| marked morphologically rather than with a mark. So the round trip compares
-#| what the language actually encodes.
-sub bare(Str $s) { $s.lc.subst(/<[?.,!]>/, '', :g) }
+#| Only capitalisation is stripped, and the asymmetry is the point. Punctuation
+#| is part of the written language: the script borrows English marks, they
+#| appear in script runs on the page in a fallback font, and the realizer emits
+#| them. Case cannot be part of it, because the script has none: 132 syllable
+#| code points and no upper form among them, so a capital letter exists only in
+#| the romanisation and nowhere in the text itself.
+sub bare(Str $s) { $s.lc }
 
 # --------------------------------------------------------------- the round trip ---
 #

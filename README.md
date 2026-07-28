@@ -139,14 +139,19 @@ Two things that look like bugs and are not:
 
 ## Numbers and punctuation
 
-Latin, for now. The script has no numerals or punctuation of its own and is not
-getting any: questions, negation and commands are marked morphologically.
-Questions use `te-/to-`, negation uses anti-harmonic `me-/mo-`, and commands
-use `de-/do-`.
+Latin, for now, and that includes punctuation. **The script uses English
+punctuation** rather than marks of its own, and borrows the digits too.
 
-The font carries no glyphs for them either, so digits and stops come from
-whatever font the system falls back to. That works, and the only visible cost is
-that they will not match the script's weight.
+Grammar still does the work that punctuation does elsewhere: questions,
+negation and commands are all marked morphologically, with `te-/to-`,
+anti-harmonic `me-/mo-` and `de-/do-`. So a question mark is redundant with the
+prefix that already made the sentence a question, and it is written anyway,
+because a borrowed convention everyone can already read costs nothing while the
+script has no answer of its own.
+
+The font carries no glyphs for any of it, so stops and digits come from whatever
+font the system falls back to. That works, and the only visible cost is that
+they will not match the script's weight.
 
 ## How it fits together
 
