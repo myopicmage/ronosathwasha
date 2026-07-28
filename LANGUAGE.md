@@ -382,6 +382,36 @@ front infinitive `-swe`, producing `teswe`.
 
 **Implemented** in `data/lexicon.toml` and the current sentence page.
 
+## 16. Commands use `de-/do-` and stack compositionally
+
+The command prefix is **`de-` before front or neutral words and `do-` before
+back words**. Commands are basic and frequent, so the marker remains one
+syllable and participates in harmony:
+
+- `dethinəme`: eat;
+- `demedime`: go;
+- `dororothwamo`: love;
+- `Layi demirime`: teach me.
+
+Productive prefixes compose in the order **modality, negation, speech act,
+predicate**. The suffixal tense remains after the predicate. This makes the
+structure recoverable instead of lexicalizing each combination:
+
+```text
+lu + me + do + rorothwa + mo
+might + not + command + love + present
+```
+
+The resulting **`lumedororothwamo`** means "maybe don't love." The negator is
+the one licensed harmony violation: `lu-`, `do-`, the predicate and `-mo` are
+back harmonic, while anti-harmonic `me-` visibly and audibly refuses to agree.
+
+Predicate omission leaves **`mode`** or **`medo`** as a freestanding "don't,"
+with the form preserving the harmony class of the action understood from
+context.
+
+**Implemented** in `data/lexicon.toml` and the current sentence page.
+
 ## Open
 
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both

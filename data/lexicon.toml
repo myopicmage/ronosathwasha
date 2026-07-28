@@ -194,9 +194,10 @@
 "tho" = "future tense (back), (verb)tho"
 "te" = "question (front or neutral), te(verb)"
 "to" = "question (back), to(verb)"
+"de" = "command (front or neutral), de(verb)"
+"do" = "command (back), do(verb)"
 "di" = "continuous (front or neutral), (verb)di"
 "du" = "continuous (back), (verb)du"
-"yo" = "command, yo(verb)"
 "li" = "might (front or neutral), li(verb)"
 "lu" = "might (back), lu(verb)"
 # Negation is anti-harmonic, so it takes the opposite class to the word it

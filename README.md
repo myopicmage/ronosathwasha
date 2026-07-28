@@ -140,9 +140,9 @@ Two things that look like bugs and are not:
 ## Numbers and punctuation
 
 Latin, for now. The script has no numerals or punctuation of its own and is not
-getting any: questions and negation are marked morphologically, and commands
-will be once their replacement marker is settled. The question prefix is
-`te-/to-`.
+getting any: questions, negation and commands are marked morphologically.
+Questions use `te-/to-`, negation uses anti-harmonic `me-/mo-`, and commands
+use `de-/do-`.
 
 The font carries no glyphs for them either, so digits and stops come from
 whatever font the system falls back to. That works, and the only visible cost is
