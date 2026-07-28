@@ -1,9 +1,15 @@
 # Language notes
 
 **Current decisions about ronosathwasha itself.** The original December 2023
-Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
-example sentences are transcribed in `data/examples.toml`. Those files are
+Scrivener material is preserved in `notes/scrivener-language-notes.md`, which is
 historical evidence; later decisions recorded here take precedence.
+
+**Every file under `data/` states the language as it is now.** The Scrivener
+project holds the archaeology, so nothing here is frozen to preserve an earlier
+state. `data/examples.toml` was the exception until it stopped being one: it
+kept the 2023 forms while `docs/basic-sentences.html` rendered the same fourteen
+sentences brought current, and both looked authoritative. They are now checked
+against each other.
 
 Decisions 1, 5, 6, 7, 9, 10, 11, 12, 13 and 14 are implemented in the data files.
 The rest are decided in principle and not written into `data/script.toml`,
@@ -147,10 +153,10 @@ The remaining repairs followed mechanically from the alternating affixes:
 - phrases and current sentence examples inherit the repaired forms.
 
 The writable lexicon now contains no disharmonious entries, and the test suite
-enforces that invariant. The historical Scrivener transcription and
-`data/examples.toml` retain the attested forms unchanged.
+enforces that invariant. The Scrivener project retains the attested forms
+unchanged; `data/examples.toml` has been brought forward with everything else.
 
-**Two corrections to the 2023 record**, which the transcription preserves
+**Two corrections to the 2023 record**, which the Scrivener source preserves
 faithfully and should keep preserving:
 
 - **Subject and object are separate particles**, not one particle with two
@@ -242,9 +248,9 @@ words follow mechanically:
 - `sheme`: today, this-now;
 - `shedwe`: today, this-day.
 
-**Implemented** in `data/lexicon.toml` and the current sentence page. The
-historical forms remain unchanged in `data/examples.toml` and the Scrivener
-transcription.
+**Implemented** in `data/lexicon.toml`, the sentence page and
+`data/examples.toml`. The historical forms remain unchanged in the Scrivener
+project.
 
 ## 10. Past, continuous and motion share new machinery
 

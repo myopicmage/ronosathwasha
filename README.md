@@ -156,7 +156,7 @@ Everything is generated from one declaration, so nothing is stated twice.
 Makefile               every command worth running, and what it depends on
 data/script.toml       the inventory, the PUA block, the derivation rules
 data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
-data/examples.toml     attested examples transcribed from the historical notes
+data/examples.toml     the sentence examples, checked against the page that shows them
 ronesathwasha/         those files parsed into models that cannot hold a broken one
 sources/strokes.py     the consonant letterforms, as centrelines
 tools/                 the generators: UFO, font, keyboard layout, dictionary

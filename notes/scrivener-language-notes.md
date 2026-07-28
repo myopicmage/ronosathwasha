@@ -12,7 +12,9 @@ preserves that state of the language. It is evidence, not current canon:
 `LANGUAGE.md`, `data/script.toml`, and `data/lexicon.toml` contain later
 decisions.
 
-The Examples document is transcribed structurally in `data/examples.toml`.
+The Examples document was transcribed structurally into `data/examples.toml`,
+which has since been kept current rather than frozen. The attested 2023 forms
+are the ones below and the ones in the Scrivener project.
 
 ## Notes
 
