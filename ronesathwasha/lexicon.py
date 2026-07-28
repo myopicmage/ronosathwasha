@@ -34,11 +34,7 @@ class LexiconError(Exception):
 
 
 class Harmony(Enum):
-    """Which side of the vowel space a word sits on.
-
-    Disharmonic is legal and currently common: most of the lexicon predates the
-    harmony decision and has not been reconciled with it.
-    """
+    """Which side of the vowel space one word sits on."""
 
     FRONT = "front"
     BACK = "back"
@@ -75,19 +71,9 @@ class Entry:
         return tuple(s for word in self.words for s in word)
 
     @property
-    def harmony(self) -> Harmony:
-        sides = {
-            s.vowel.backness
-            for s in self.syllables
-            if s.vowel.backness is not Backness.CENTRAL
-        }
-        if not sides:
-            return Harmony.NEUTRAL
-
-        if len(sides) > 1:
-            return Harmony.DISHARMONIC
-
-        return Harmony[sides.pop().name]
+    def harmonies(self) -> tuple[Harmony, ...]:
+        """One harmony class per word, preserving phrase boundaries."""
+        return tuple(_harmony(word) for word in self.words)
 
     def text(self, script: Script) -> str:
         """The entry as private-use text: the string the font renders.
@@ -167,3 +153,18 @@ def _words(section: str, words: Mapping[str, object]) -> dict[str, str]:
 
         out[roman] = gloss
     return out
+
+
+def _harmony(word: tuple[Syllable, ...]) -> Harmony:
+    sides = {
+        syllable.vowel.backness
+        for syllable in word
+        if syllable.vowel.backness is not Backness.CENTRAL
+    }
+    if not sides:
+        return Harmony.NEUTRAL
+
+    if len(sides) > 1:
+        return Harmony.DISHARMONIC
+
+    return Harmony[sides.pop().name]

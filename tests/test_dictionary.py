@@ -92,7 +92,7 @@ def test_search_keys_carry_no_private_use_text(rendered: str) -> None:
 def test_search_finds_a_word_by_gloss_and_by_romanisation(lexicon: Lexicon) -> None:
     dog = next(e for e in lexicon.writable() if e.gloss == "dog")
     assert "dog" in searchable(dog)
-    assert "rune" in searchable(dog)
+    assert "runə" in searchable(dog)
 
 
 def test_a_non_ascii_romanisation_is_reachable_from_a_plain_keyboard(

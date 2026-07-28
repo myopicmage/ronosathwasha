@@ -5,7 +5,7 @@ Scrivener material is preserved in `notes/scrivener-language-notes.md`, and its
 example sentences are transcribed in `data/examples.toml`. Those files are
 historical evidence; later decisions recorded here take precedence.
 
-Decisions 1, 6, 7, 9, 10, 11, 12, 13 and 14 are implemented in the data files.
+Decisions 1, 5, 6, 7, 9, 10, 11, 12, 13 and 14 are implemented in the data files.
 The rest are decided in principle and not written into `data/script.toml`,
 because they are lexicon and grammar, and nothing in the font depends on them.
 
@@ -114,13 +114,13 @@ ordinary nouns. Those remain open.
 
 ## 5. The lexicon predates harmony
 
-**Harmony was decided after the language was already underway, so the existing
-lexicon is stale rather than authoritative about it.** A disharmonic entry is an
-entry awaiting repair, not evidence about how harmony works.
+**Harmony was decided after the language was already underway, so the inherited
+lexicon was stale rather than authoritative about it.** A disharmonic entry was
+an entry awaiting repair, not evidence about how harmony works.
 
-This matters because a stale entry is perfectly writable. Nothing in the font or
-the keyboard objects to `thino`, so it presents as current unless something says
-otherwise. Three states, not two:
+This mattered because a stale entry was perfectly writable. Nothing in the font
+or keyboard objected to `thino`, so it presented as current unless something
+else said otherwise. Three states were needed during the repair:
 
 | state | writable | consistent with current decisions |
 |---|---|---|
@@ -128,15 +128,21 @@ otherwise. Three states, not two:
 | `[respell]` backlog | no | blocked on a later inventory decision |
 | harmony-stale | **yes** | no |
 
-**The affixes look better than the roots.** Testing the 2023 corpus against the
-alternating set, taking the stem's first vowel as governor: `mirime`, `thinome`
-and `twame` all take the correct alternant, and only `rone` fails. The pronoun
-plurals are more striking still, marking `la`/`lo`, `na`/`no`, `ða`/`ðo` and
-`ya`/`yo` with a back vowel throughout.
+**The canonical lexicon repair is complete.** The two roots requiring judgement
+became `runə` ("dog") and `thinə` ("food"). `thinə` preserves the shape of
+historical `thino` without colliding with existing `thina` ("drink").
 
-So the repair may fall mostly on roots, and the affix system may have been doing
-harmony intuitively before it was written down. One counterexample in four is
-not enough to call it.
+The remaining repairs followed mechanically from the alternating affixes:
+
+- front infinitives take `-swe`: `thinaswe`, `thinəswe`, `tiswe`, `miriswe`
+  and `neswe`;
+- back `roro` takes future `-tho`, producing `rorotho`;
+- back `tuma` takes present `-mo`, producing `tumamo`;
+- phrases and current sentence examples inherit the repaired forms.
+
+The writable lexicon now contains no disharmonious entries, and the test suite
+enforces that invariant. The historical Scrivener transcription and
+`data/examples.toml` retain the attested forms unchanged.
 
 **Two corrections to the 2023 record**, which the transcription preserves
 faithfully and should keep preserving:

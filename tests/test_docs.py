@@ -8,17 +8,26 @@ private-use text closely enough to notice the difference.
 
 from __future__ import annotations
 
+import html
 import re
 from pathlib import Path
 
 import pytest
 
-from ronesathwasha import Script
+from ronesathwasha import ParseFailure, Script
 from tools.build_docs import DocError, inline, pages
 from tools.webfont import FAMILY, compile_woff2
 
 FACE_BLOCK = re.compile(r"@font-face\s*\{.*?\}", re.S)
 SOURCE = re.compile(r"local\(\s*[^)]*\)|url\(\s*[\"']?(?P<target>[^\"')]*)")
+WRITING = re.compile(
+    r'<p class="writing" aria-label="(?P<label>[^"]+)">(?P<body>.*?)</p>',
+    re.S,
+)
+TAG = re.compile(r"<[^>]+>")
+
+# The private use area of the basic multilingual plane.
+PUA = range(0xE000, 0xF900)
 
 
 def test_there_are_pages_to_build() -> None:
@@ -65,3 +74,31 @@ def test_the_built_pages_carry_every_font_they_name(script: Script) -> None:
                 target = match.group("target")
                 assert target is not None, f"{path.name}: local() survived inlining"
                 assert target.startswith("data:"), f"{path.name}: fetches {target}"
+
+
+def test_sentence_page_script_matches_its_romanisation(script: Script) -> None:
+    path = Path(__file__).resolve().parent.parent / "docs" / "basic-sentences.html"
+    source = path.read_text(encoding="utf-8")
+    matches = list(WRITING.finditer(source))
+    assert matches, "basic-sentences.html has no native-script lines"
+
+    for match in matches:
+        label = html.unescape(match.group("label"))
+        roman_words = [
+            word.removesuffix("?").lower()
+            for word in label.split()
+            if word != "or"
+        ]
+        expected: list[tuple[int, ...]] = []
+        for word in roman_words:
+            parsed = script.parse(word)
+            assert not isinstance(parsed, ParseFailure), f"{label}: {parsed}"
+            expected.append(script.encode(parsed))
+
+        body = html.unescape(TAG.sub("", match.group("body")))
+        found = [
+            tuple(ord(char) for char in token if ord(char) in PUA)
+            for token in body.split()
+            if any(ord(char) in PUA for char in token)
+        ]
+        assert found == expected, label

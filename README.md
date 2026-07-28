@@ -14,7 +14,7 @@ consonant and one vowel: no onsetless syllables, no codas, no clusters.
 nix develop 'path:.'   # or just cd in, direnv handles it
 make                   # list the targets
 make all               # font, dictionary, pages, keyboard layout
-make check             # 68 tests, then mypy strict
+make check             # 70 tests, then mypy strict
 ```
 
 `make` re-enters the dev shell itself if the toolchain is not already on PATH,

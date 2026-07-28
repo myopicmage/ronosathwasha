@@ -25,13 +25,20 @@ def test_the_pending_section_is_actually_pending(lexicon: Lexicon) -> None:
     assert not fixed, f"these are writable now, move them: {', '.join(fixed)}"
 
 
-def test_harmony_class_is_derivable_for_every_entry(lexicon: Lexicon) -> None:
-    """Front, back, neutral, or disharmonic. Computed, never stored.
-
-    Disharmonic words are legal and expected: the lexicon predates the harmony
-    decision, so most of it has not been reconciled yet. This asserts the
-    classification runs, not that the language is already harmonious.
-    """
-    classes = [e.harmony for e in lexicon.writable()]
-    assert len(classes) == len(lexicon.writable())
+def test_every_canonical_entry_is_harmonic(lexicon: Lexicon) -> None:
+    """The historical lexicon has now been reconciled with vowel harmony."""
+    classes = [
+        harmony
+        for entry in lexicon.writable()
+        for harmony in entry.harmonies
+    ]
+    assert len(classes) == sum(len(entry.words) for entry in lexicon.writable())
     assert Harmony.NEUTRAL in classes, "a language with no all-neutral words is suspicious"
+    assert Harmony.DISHARMONIC not in classes
+
+
+def test_phrases_preserve_word_level_harmony(lexicon: Lexicon) -> None:
+    fireball = next(
+        entry for entry in lexicon.writable() if entry.gloss == "I cast fireball"
+    )
+    assert fireball.harmonies == (Harmony.FRONT, Harmony.BACK)

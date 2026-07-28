@@ -2,7 +2,7 @@
 #
 # To add a word, type one line in the right section:
 #
-#     "rune" = "dog"
+#     "runə" = "dog"
 #
 # That is the whole format. Keys are quoted because ə, ð and θ are not valid
 # bare TOML keys, so quoting everything keeps one pattern instead of two.
@@ -108,13 +108,13 @@
 [noun]
 "nəla" = "ball"
 "sene" = "cat"
-"rune" = "dog"
+"runə" = "dog"
 "thina" = "drink"
 "shimi" = "family"
 "nishimi" = "parent (up-family)"
 "sishimi" = "child (down-family)"
 "thə" = "fire"
-"thino" = "food"
+"thinə" = "food"
 "ta" = "home"
 "thwasha" = "language, tongue"
 "thwashamwu" = "language-expression (usually word)"
@@ -138,15 +138,15 @@
 
 
 [verb]
-"thinaswo" = "to drink"
-"thinoswo" = "to eat (food-verb)"
-"tiswo" = "to have"
+"thinaswe" = "to drink"
+"thinəswe" = "to eat (food-verb)"
+"tiswe" = "to have"
 "thwaswo" = "to like"
 "rorothwaswo" = "to love (very-like)"
-"miriswo" = "to teach"
+"miriswe" = "to teach"
 "medi" = "go (now-continuous)"
 "mediswe" = "to go (now-continuous)"
-"neswo" = "to use"
+"neswe" = "to use"
 "twaswo" = "to want"
 "tonə" = "know"
 "tonədu" = "remember, retain (continue-knowing)"
@@ -167,7 +167,7 @@
 "shedwe" = "today (this-day)"
 "the" = "future"
 "methe" = "soon"
-"rorothe" = "far future"
+"rorotho" = "far future"
 
 
 [adjective]
@@ -210,10 +210,10 @@
 "narame" = "hello (good now)"
 "narathe" = "goodbye (good future)"
 "ma" = "no"
-"thino twa" = "I'm hungry (I want food)"
+"thinə twa" = "I'm hungry (I want food)"
 "thina twa" = "I'm thirsty (I want drink)"
 "thwame" = "I like"
-"thənəlayi tumame" = "I cast fireball"
+"thənəlayi tumamo" = "I cast fireball"
 
 
 # Attested but currently unwritable. Not a backlog of missing words: these are
