@@ -1,0 +1,94 @@
+=begin pod
+
+=head1 Ronosathwasha::Syllables
+
+The first grammar: a romanised word into its syllables.
+
+Every syllable is exactly one consonant and one vowel. There are no onsetless
+syllables, no codas and no clusters, so this grammar is almost the whole of the
+phonotactics, and a string that fails it is not a word of the language.
+
+=head2 The inventory comes from the declaration
+
+The tokens hold no letters. C<data/script.toml> lists the eleven consonants and
+six vowels, and the grammar reads them through a dynamic variable set by
+C<syllables-of>. Writing them out here would be the second copy this repository
+keeps deleting, and it would go stale the next time the inventory moves, as it
+did when the affricates were dropped.
+
+=head2 Longest match is free
+
+Raku's C<|> is longest-token matching rather than first-match, and interpolating
+an array into a regex uses it. So C<th> beats C<t> and C<wa> beats C<a> without
+the inventory being sorted, which the Python parser in C<ronesathwasha/script.py>
+has to do by hand with a comment explaining why. Ordering the declaration
+differently cannot break this grammar.
+
+Use C<||> and that guarantee disappears: it takes the first alternative that
+matches, so C<t> would shadow C<th> and every dental fricative would fail.
+
+=end pod
+
+unit module Ronosathwasha::Syllables;
+
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+
+#| A word that could not be read as syllables, with the offset reached. The
+#| position is the useful part: it says where the word stopped being writable,
+#| which is what a learner needs to see.
+#|
+#| Named `NotWritable` rather than `Unreadable` because `is export` on a nested
+#| class exports its leaf name into the importing scope, not its full path. A
+#| second `X::…::Unreadable` therefore collides with `X::Declaration::Unreadable`
+#| in any module using both, and the error names only the leaf.
+class X::Syllables::NotWritable is Exception is export {
+    has Str $.word     is required;
+    has Int $.position is required;
+
+    method message(--> Str) {
+        my $seen = $!word.substr(0, $!position);
+        my $rest = $!word.substr($!position);
+
+        "$!word is not writable: $seen.raku() parses, then $rest.raku() does not"
+    }
+}
+
+grammar Syllabary is export {
+    token TOP { <syllable>+ }
+
+    token syllable { <consonant> <vowel> }
+
+    token consonant { @*CONSONANTS }
+
+    #| The glide is written before the vowel it marks, so `wa` is one vowel
+    #| rather than a consonant and a vowel. It marks labialisation and does not
+    #| change which vowel it is, which is why harmony reads `thwa` as `a`.
+    token vowel { <glide>? @*VOWELS }
+
+    token glide { 'w' }
+}
+
+#| Split a word into syllables, each a pair of spellings as written.
+#|
+#| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
+sub syllables-of(Script:D $script, Str:D $word) is export {
+    my @*CONSONANTS = $script.consonant-spellings;
+    my @*VOWELS     = $script.vowel-spellings;
+
+    my $match = Syllabary.parse($word);
+
+    # `.parse` anchors to the whole string and returns Nil on failure, which
+    # says nothing about where it went wrong. `.subparse` matches as far as it
+    # can, so the offset it reached is the first position that is not writable.
+    without $match {
+        my $partial = Syllabary.subparse($word);
+
+        fail X::Syllables::NotWritable.new(
+            :$word,
+            :position($partial ?? $partial.to !! 0),
+        );
+    }
+
+    $match<syllable>.map({ ~.<consonant> => ~.<vowel> });
+}

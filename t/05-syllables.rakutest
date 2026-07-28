@@ -1,0 +1,80 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Syllables;
+
+plan 15;
+
+my IO::Path $data = repository-root.add('data');
+my $script  = load-script($data.add('script.toml'));
+my $lexicon = load-lexicon($data.add('lexicon.toml'));
+
+sub split(Str $word) { syllables-of($script, $word).List }
+
+# ------------------------------------------------------------------ splitting ---
+
+is-deeply split('thinəme'), ('th' => 'i', 'n' => 'ə', 'm' => 'e'),
+    'a digraph consonant is one consonant';
+
+# The trailing comma is load-bearing. In Raku the comma builds the list and the
+# parentheses only group, so `('s' => 'a')` is a single Pair and would not
+# compare equal to a one-element list containing one.
+is-deeply split('sa'), ('s' => 'a',),
+    'the shortest possible word is one syllable';
+
+is-deeply split('moluyo'), ('m' => 'o', 'l' => 'u', 'y' => 'o'),
+    'the crab is three syllables';
+
+# ----------------------------------------------------- longest match, for free ---
+
+is-deeply split('twa'), ('t' => 'wa',),
+    'the glide binds to its vowel rather than being read as a consonant';
+
+is-deeply split('thwasha'), ('th' => 'wa', 'sh' => 'a'),
+    'and a digraph and a glide can meet in one syllable';
+
+is-deeply split('tasa'), ('t' => 'a', 's' => 'a'),
+    'while a bare t before a is still a bare t';
+
+is-deeply split('sasha'), ('s' => 'a', 'sh' => 'a'),
+    'and s does not shadow sh';
+
+# The inventory is not sorted, and does not need to be. `t` precedes `th` in
+# `data/script.toml` and `s` precedes `sh`, so first-match semantics would fail
+# every one of the tests above.
+is $script.consonant-spellings.head, 'm',
+    'the declaration is in its own order, not sorted by length';
+
+# ------------------------------------------------------ the IPA spellings work ---
+
+is-deeply split('ðari'), ('ð' => 'a', 'r' => 'i'),
+    'the IPA spelling of a dental fricative is accepted';
+
+is-deeply split('ðiðə'), ('ð' => 'i', 'ð' => 'ə'),
+    'twice in one word';
+
+# ------------------------------------------------------------------- failures ---
+
+my $onsetless = syllables-of($script, 'ame');
+nok $onsetless.defined, 'a word starting with a vowel is not writable';
+is $onsetless.self.exception.position, 0, 'and it failed at the first character';
+
+my $coda = syllables-of($script, 'thinəm');
+nok $coda.defined, 'a trailing consonant with no vowel is not writable';
+is $coda.self.exception.position, 5, 'reported at the position it reached';
+
+# --------------------------------------------------- against the real lexicon ---
+#
+# Every writable word in the lexicon must split, which is the same invariant
+# `tests/test_lexicon.py` asserts through the Python parser. Two independent
+# implementations agreeing on all 104 entries is worth more than either alone.
+
+my @unsplittable = $lexicon.entries.grep({
+    .roman.words.first({ not syllables-of($script, $_).defined }).defined
+});
+
+is-deeply @unsplittable.map(*.roman).sort.List, (),
+    'every word in the lexicon splits into syllables';

@@ -24,6 +24,7 @@ class Vowel is export {
 
 class Consonant is export {
     has Str $.roman  is required;
+    has Str $.ipa    is required;
     has Int $.offset is required;
 }
 
@@ -45,6 +46,25 @@ class Script is export {
 
     method is-vowel(Str:D $roman --> Bool) {
         so @!vowels.first(*.roman eq $roman);
+    }
+
+    #| Every spelling a consonant may be written with.
+    #|
+    #| The IPA symbol is accepted alongside the romanisation, but only when it
+    #| is non-ASCII. The original notes write the dental fricatives as `ð` and
+    #| `θ`, and the lexicon still does. An ASCII IPA symbol would be a
+    #| collision rather than a convenience: /y/ carries the symbol `j`, and
+    #| accepting that would silently reinterpret every word spelled with a `j`
+    #| instead of reporting it as unwritable.
+    method consonant-spellings(--> Seq) {
+        (
+            @!consonants.map(*.roman),
+            @!consonants.map(*.ipa).grep({ .ords.grep(* > 127).elems > 0 }),
+        ).flat.unique;
+    }
+
+    method vowel-spellings(--> Seq) {
+        @!vowels.map(*.roman);
     }
 }
 
@@ -84,7 +104,7 @@ sub load-script(IO::Path:D $path) is export {
     }
 
     my Consonant @consonants = @(require-table($doc, 'consonant')).map: -> %c {
-        Consonant.new(:roman(~%c<roman>), :offset(%c<offset>.Int));
+        Consonant.new(:roman(~%c<roman>), :ipa(~%c<ipa>), :offset(%c<offset>.Int));
     }
 
     return Script.new(:@vowels, :@consonants);
