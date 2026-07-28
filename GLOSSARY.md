@@ -1,8 +1,13 @@
 # Glossary
 
-Font and typography terms as they're used in this repo. Ordered roughly by when
-you meet them, not alphabetically. Terms get added here the first time they're
+Terms of art as they're used in this repo, ordered roughly by when you meet
+them rather than alphabetically. Terms get added here the first time they're
 used in the work.
+
+Most of it is font and typography, which is where the unfamiliar vocabulary
+mostly lives. **Language construction** at the end is a separate vocabulary
+that arrived later, and is kept separate because the two rarely meet: a
+question about a mark class is never also a question about an auxlang.
 
 ## Characters and glyphs
 
@@ -357,3 +362,70 @@ else's letter instead of failing.
 itself, base64-encoded, instead of linking a file. Makes a page one
 self-contained file. For an encoded script this is a size tradeoff; for a PUA
 script it is the only way the page means anything on someone else's machine.
+
+## Language construction
+
+**Conlang**: a constructed language. One somebody designed, as against a
+natural language that nobody did. The three categories below are the community's
+usual division, and they name what a conlang is *for* rather than what it looks
+like.
+
+**Auxlang**: an auxiliary language, in full an international auxiliary language.
+Built so that people with different native languages can talk to each other, and
+meant to be everyone's second language and nobody's first. Optimised for ease of
+learning: a small sound inventory, regular morphology, no irregular verbs, and
+syllable shapes most people can already produce. Esperanto is the famous one;
+Interlingua, Ido and Lingua Franca Nova are others.
+
+**Artlang**: an artistic language, built for aesthetic or fictional purposes.
+Tolkien's Quenya, Klingon, Dothraki. Optimised for beauty, character, or fit to
+an invented culture, and irregularity is a feature here rather than a defect,
+because real languages have it.
+
+**Engelang**: an engineered language, built to test a hypothesis or satisfy a
+formal constraint. Lojban goes for syntactic unambiguity, Toki Pona for radical
+minimalism, Ithkuil for maximal precision. Optimised for the constraint, usually
+at the cost of being comfortably speakable.
+
+Ronosathwasha is an **artlang by construction and an auxlang by fiction**. The
+decisions in `LANGUAGE.md` are made on artlang criteria: decision 1 drops the
+affricates for fluidity and alienness, decision 3 gives negation anti-harmony
+partly because the morpheme that contradicts should be the one that refuses to
+agree. In the world it belongs to, it was built as an auxlang, to let speakers
+of different languages communicate.
+
+That gap is deliberate and worth keeping. A standards body that set out to build
+an auxlang and produced something optimised for how it sounded is a very
+ordinary committee, and it is roughly what happened to Esperanto.
+
+**Phonestheme**: a sound associated with a family of meanings without being a
+morpheme. English *gl-* in *glow*, *glint*, *gleam*, *glisten*. Speakers feel
+the connection, but *gl-* has no meaning of its own and attaching it to a root
+does not reliably make a word about light. Decision 13 uses this for the
+recurring `-ya` in the cognitive vocabulary.
+
+**Vowel harmony**: a rule requiring the vowels within some domain, usually the
+word, to agree on a feature. Finnish, Turkish and Hungarian all have it. Here
+the feature is backness and the domain is the phonological word, so a word's
+vowels are all front or all back, with the two central vowels transparent
+because they have no backness to agree about.
+
+**Anti-harmony**: a morpheme that takes the opposite class to its host rather
+than agreeing with it. Rare, and here it belongs to the negator alone.
+
+**Deixis**: pointing with language. Words whose reference depends on the
+situation rather than on their content: *this*, *that*, *here*, *now*, *you*.
+Ronosathwasha's `she`, `sha` and `sho` are the spatial series, and decision 9
+puts them on front, central and back vowels so the distance is readable from the
+vowel.
+
+**Pro-drop**: a language that lets you omit a pronoun the context supplies.
+Spanish, Japanese and Italian do it; English mostly does not. Four of the
+fourteen current examples here drop the subject, which is why decision 17
+declines to make sentence-initial position grammatically meaningful.
+
+**Agglutinative**: building words by stacking separable affixes, each carrying
+one piece of meaning, without fusing them. `lumedororothwamo` is five morphemes
+in a row and every boundary is findable. The opposite is fusional, where one
+ending carries several meanings at once, as Latin's `-ō` carries first person,
+singular, present, active and indicative together.
