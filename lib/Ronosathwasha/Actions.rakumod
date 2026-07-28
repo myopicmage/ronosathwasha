@@ -57,6 +57,18 @@ class Reading is export {
     #| Words that divided more than one way. The frugal reading was taken, and
     #| this records that a choice was made rather than hiding it.
     has Str @.ambiguous;
+
+    #| Every word except the verb, in the order it was written.
+    #|
+    #| The semantic fields above say a sentence had a subject; these say which
+    #| noun it was. Realization needs both, and the split is on purpose: a
+    #| model choosing what to say works in the fields, and only the realizer
+    #| needs the words.
+    #|
+    #| The order is kept although decision 17 makes it free, because it is the
+    #| order someone actually chose, and regenerating a sentence in a different
+    #| order than it was written would be a change nobody asked for.
+    has WordParse @.constituents;
 }
 
 role SentenceOutcome is export { }
@@ -188,5 +200,6 @@ sub read-sentence(
         :$reference,
         :locative($locative.defined ?? $locative.id !! Str),
         :@ambiguous,
+        :constituents(@divisions.grep({ $_ !=== $verb })),
     ));
 }

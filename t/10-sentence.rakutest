@@ -1,0 +1,84 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Words;
+use Ronosathwasha::Actions;
+use Ronosathwasha::Sentence;
+use Ronosathwasha::Realizer;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $corpus     = load-utterances($data.add('utterances.toml'));
+
+plan $corpus.utterances.elems + 7;
+
+sub read(Str $s)  { read-sentence($script, $lexicon, $morphology, $s) }
+sub write(Reading $r) { realize-sentence($script, $morphology, $r) }
+
+#| Punctuation and capitalisation are conventions of the romanisation, not of
+#| the language: the script has neither, and `README.md` says questions are
+#| marked morphologically rather than with a mark. So the round trip compares
+#| what the language actually encodes.
+sub bare(Str $s) { $s.lc.subst(/<[?.,!]>/, '', :g) }
+
+# --------------------------------------------------------------- the round trip ---
+#
+# Text to meaning to text, for every sentence in the corpus. Recognition and
+# realization are separate implementations reading the same declarations, so a
+# defect has to occur identically in both to survive this.
+
+for $corpus.utterances -> $u {
+    my $there = read($u.text);
+    my $back  = $there ~~ Understood ?? write($there.reading) !! Str;
+
+    is $back, bare($u.text), "{ $u.text } survives text to meaning to text";
+}
+
+# ------------------------------------------------ each word chooses its own class ---
+
+my $mine = read('Lasa runəru thinəme').reading;
+
+is-deeply $mine.constituents.map({ realize-constituent($script, $morphology, $_) }).List,
+    ('lasa', 'runəru'),
+    'a neutral word and a back word stand next to each other, each with its own particle';
+
+# The repaired case. `shamwu` is central then back, so the compound is back and
+# takes `yu`. Reading the class off the head `sha` alone would give `yi`.
+my $that = read('Shamwuyu twame').reading;
+
+is realize-constituent($script, $morphology, $that.constituents.head), 'shamwuyu',
+    'a compound takes its class from the whole compound, not from its head';
+
+# --------------------------------------------------------------- order is kept ---
+
+is write(read('layi Mirireri mirimedi').reading), 'layi mirireri mirimedi',
+    'the constituents come back in the order they were written';
+
+is write(read('Mirireri layi mirimedi').reading), 'mirireri layi mirimedi',
+    'and the other order comes back the other way';
+
+# ------------------------------------------------------------------- refusals ---
+
+# `miriroroyi` is `miri` (front) compounded with `roro` (back), carrying the
+# object particle. It divides perfectly well: both stems are real, the particle
+# is real, and the order is legal. It is the compound that has no harmony class,
+# so there is no alternant to choose.
+#
+# Which is a live constraint on the language rather than a limit of this code:
+# a front stem and a back stem cannot be compounded and then inflected. Nothing
+# in LANGUAGE.md decides that, and every attested compound happens to agree.
+my $crossed = parse-word($lexicon, $morphology, 'miriroroyi');
+
+is-deeply $crossed.stems.List, ('miri', 'roro'), 'a cross-class compound divides fine';
+
+my $broken = realize-constituent($script, $morphology, $crossed);
+
+nok $broken.defined, 'and then has no class for its particle to agree with';
+isa-ok $broken.self.exception, X::Realizer::NoClass, 'which it says rather than guessing';
