@@ -1,0 +1,76 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+
+plan 18;
+
+my IO::Path $data = repository-root.add('data');
+
+my $corpus     = load-utterances($data.add('utterances.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+isa-ok $corpus, Coverage, 'the corpus parses into typed meaning';
+
+is $corpus.utterances.elems, 19, 'nineteen utterances';
+
+my %counts = $corpus.counts;
+is %counts<Attested>, 14, 'fourteen attested, which is every sentence on the page';
+is %counts<Derived>, 5, 'five derived, filling what nothing attested reaches';
+nok %counts<Reviewed>, 'none reviewed yet';
+nok %counts<Rejected>, 'and none rejected yet';
+
+# ------------------------------------------------------------ meaning is typed ---
+
+my $question = $corpus.utterances.first(*.text eq 'Nari tethinəme?');
+is $question.speech-act, Interrogative, 'the question is interrogative';
+is $question.tense, Present, 'in the present';
+is $question.shape, SubjectOnly, 'with a subject and no object';
+
+my $teaching = $corpus.utterances.first(*.text eq 'Mirireri layi mirimedi');
+is $teaching.shape, Transitive, 'subject and object make a transitive shape';
+is $teaching.aspect, Continuous, 'and the continuous marker is read as aspect';
+
+# --------------------------------------------------- derivation is disciplined ---
+#
+# A derived sentence may only recombine what is already declared. This checks
+# the claim rather than trusting the comment: every predicate in the corpus is
+# a stem the lexicon knows.
+
+my Set $known = $lexicon.entries.map(*.roman).Set;
+
+my @unknown = $corpus.predicates.grep({
+    not ($known{$_} or $known{"{$_}swe"} or $known{"{$_}swo"})
+});
+
+is-deeply @unknown.List, (),
+    'every predicate is a lexicon stem, bare or with its infinitive';
+
+my @derived = $corpus.utterances.grep(*.status == Derived);
+
+is-deeply @derived.grep({ not .derived-from.defined }).map(*.text).List, (),
+    'every derived sentence names the attested one it came from';
+
+is-deeply @derived.grep({ not .derivation.defined }).map(*.text).List, (),
+    'and says which morpheme was substituted';
+
+ok $corpus.utterances.grep(*.status == Attested).all.source.defined,
+    'every attested sentence names where Kevin wrote it';
+
+# ------------------------------------------------------------- the stop 10 gate ---
+
+is-deeply $corpus.missing.List, (),
+    'the corpus reaches every stratum the model-selection gate requires';
+
+ok $corpus.has-locative, 'including one locative';
+
+# But the gate is only honestly met by sentences someone has read, and five of
+# these are unreviewed. This is the assertion that turns "unreviewed" from a
+# label into a consequence.
+is-deeply $corpus.missing-from-evidence.sort.List,
+    ('reference: Proximal', 'tense: Future', 'tense: Past'),
+    'and on evidence alone it does not, which is exactly the review Kevin owes';

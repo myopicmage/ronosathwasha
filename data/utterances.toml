@@ -1,0 +1,301 @@
+schema_version = 1
+
+# The executable corpus: sentences with their meaning stated as fields rather
+# than as an English gloss, so the realizer can be checked against them.
+#
+# `data/examples.toml` is the same sentences for a reader. This file is the
+# same sentences for a program, and only the settled subset of them.
+#
+# ## status
+#
+# Four values, and the distinction Kevin asked for on 2026-07-28:
+#
+#   attested   Kevin wrote this sentence. It is evidence about the language.
+#   derived    Composed mechanically from shipped declarations, not yet read
+#              by Kevin. Usable by the grammar; not evidence about anything.
+#   reviewed   Derived, and Kevin has accepted it as good Ronosathwasha.
+#   rejected   Derived, grammatical, and wrong. Kept with its reason, because a
+#              sentence the rules permit and a speaker would not is the most
+#              informative thing this project can produce.
+#
+# Derivation may only recombine morphemes that `data/morphology.toml` already
+# declares and stems the lexicon already lists. Coining a word, a rule, or a
+# form that does not follow from those is not derivation and does not belong
+# here.
+#
+# ## excluded on purpose
+#
+# Nothing is here that the language has not settled. Every construction below
+# uses only current morphemes; the retired ones live in `data/morphology.toml`
+# as history and never as corpus.
+
+# ---------------------------------------------------------------- attested ---
+
+[[utterance]]
+text = "Lari thinəme"
+english = "I eat"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari thinəmedi"
+english = "I am eating"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari mothinəme"
+english = "I do not eat"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Mirireri mirime"
+english = "The teacher teaches"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "miri"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Mirireri layi mirimedi"
+english = "The teacher is teaching me"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "miri"
+tense = "present"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject", "object"]
+
+[[utterance]]
+text = "Layi demirime"
+english = "(You) teach me (now)"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "imperative"
+predicate = "miri"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object"]
+
+[[utterance]]
+text = "Sho thinəme"
+english = "(I) eat that food (over there)"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = []
+reference = "distal"
+
+[[utterance]]
+text = "Lari sha lithinəme"
+english = "I might eat that food"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject"]
+reference = "medial"
+
+[[utterance]]
+text = "Lasa runəru thinəme"
+english = "My dog eats"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Nari tethinəme?"
+english = "Do you eat?"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "interrogative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Thinəswe twame"
+english = "(I) want to eat"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "twa"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = []
+complement = "infinitive"
+
+[[utterance]]
+text = "Shamwuyi twame"
+english = "(I) want that (thing)"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "twa"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object"]
+reference = "medial"
+
+[[utterance]]
+text = "Lari taði medime"
+english = "I go home"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "medi"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+locative = "locative-towards"
+
+[[utterance]]
+text = "Ðari runəyu time"
+english = "(Person) has a dog"
+status = "attested"
+source = "docs/basic-sentences.html"
+speech_act = "declarative"
+predicate = "ti"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject", "object"]
+
+# ----------------------------------------------------------------- derived ---
+#
+# Five sentences, filling the three strata nothing attested reaches: past
+# tense, future tense, and proximal reference. Two more exercise the back
+# alternants, which every attested sentence leaves untouched because every
+# attested predicate happens to be front or neutral.
+#
+# Each recombines a shipped morpheme with a shipped stem and nothing else.
+# `rorothwa` is the stem of `rorothwaswo`, "to love", with the back infinitive
+# removed; `LANGUAGE.md` decision 16 already writes `dororothwamo` from it.
+
+[[utterance]]
+text = "Lari thinəse"
+english = "I ate"
+status = "derived"
+derived_from = "Lari thinəme"
+derivation = "past -se in place of present -me, front stem"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari thinəthe"
+english = "I will eat"
+status = "derived"
+derived_from = "Lari thinəme"
+derivation = "future -the in place of present -me, front stem"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "future"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "She thinəme"
+english = "(I) eat this food"
+status = "derived"
+derived_from = "Sho thinəme"
+derivation = "proximal she in place of distal sho"
+speech_act = "declarative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = []
+reference = "proximal"
+
+[[utterance]]
+text = "Lari rorothwamo"
+english = "I love"
+status = "derived"
+derived_from = "Lari thinəme"
+derivation = "back stem rorothwa, which selects the back present -mo"
+speech_act = "declarative"
+predicate = "rorothwa"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari rorothwaso"
+english = "I loved"
+status = "derived"
+derived_from = "Lari rorothwamo"
+derivation = "back past -so, which the same stem selects"
+speech_act = "declarative"
+predicate = "rorothwa"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]

@@ -33,7 +33,7 @@ class X::Morphology::MixedStem is Exception is export {
 
 class Morpheme is export {
     has Str               $.id          is required;
-    has Role              $.role        is required;
+    has MorphemeRole      $.role        is required;
     has Host              $.host        is required;
     has Position          $.position    is required;
     has Alternation       $.alternation is required;
@@ -107,11 +107,11 @@ class Morphology is export {
 # says `Alternating` and `Invariant` because inside the program the useful
 # distinction is how many forms there are and what picks between them.
 my constant %ROLE = (
-    'tense'      => Tense,      'aspect'     => Aspect,
-    'polarity'   => Polarity,   'speech-act' => SpeechAct,
-    'modality'   => Modality,   'case'       => Case,
-    'number'     => Number,     'possession' => Possession,
-    'nonfinite'  => Nonfinite,  'locative'   => Locative,
+    'tense'      => MarksTense,      'aspect'     => MarksAspect,
+    'polarity'   => MarksPolarity,   'speech-act' => MarksSpeechAct,
+    'modality'   => MarksModality,   'case'       => MarksCase,
+    'number'     => MarksNumber,     'possession' => MarksPossession,
+    'nonfinite'  => MarksNonfinite,  'locative'   => MarksLocative,
 );
 
 my constant %HOST = (

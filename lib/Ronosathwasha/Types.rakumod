@@ -56,9 +56,16 @@ our enum Position is export <Prefix Suffix>;
 our enum Alternation is export <Alternating AntiHarmonic Invariant Unpaired>;
 
 #| What grammatical job a morpheme does.
-our enum Role is export <
-    Tense Aspect Polarity SpeechAct Modality
-    Case Number Possession Nonfinite Locative
+#|
+#| The values are verbs rather than the bare category names, because the
+#| categories themselves are enum types in `Ronosathwasha::Semantics`, where a
+#| tense is `Past`, `Present` or `Future`. Since Raku installs enum values as
+#| symbols in the importing scope, a value named `Tense` here would collide
+#| with the type named `Tense` there for any module using both, and that is
+#| every module downstream of this one.
+our enum MorphemeRole is export <
+    MarksTense MarksAspect MarksPolarity MarksSpeechAct MarksModality
+    MarksCase MarksNumber MarksPossession MarksNonfinite MarksLocative
 >;
 
 #| What a morpheme attaches to.

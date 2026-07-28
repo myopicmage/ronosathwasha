@@ -14,7 +14,8 @@
     "Ronosathwasha::Script": "lib/Ronosathwasha/Script.rakumod",
     "Ronosathwasha::Lexicon": "lib/Ronosathwasha/Lexicon.rakumod",
     "Ronosathwasha::Morphology": "lib/Ronosathwasha/Morphology.rakumod",
-    "Ronosathwasha::Harmony": "lib/Ronosathwasha/Harmony.rakumod"
+    "Ronosathwasha::Harmony": "lib/Ronosathwasha/Harmony.rakumod",
+    "Ronosathwasha::Semantics": "lib/Ronosathwasha/Semantics.rakumod"
   },
   "depends": [
     "Config::TOML"
