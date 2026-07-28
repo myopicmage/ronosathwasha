@@ -76,9 +76,14 @@ role LoadOutcome is export { }
 #| A load that did not happen, as a value rather than an exception. Reading a
 #| declaration is the one place this program touches the outside world, and a
 #| missing or malformed file is an ordinary thing for the outside world to be.
+#| `$.path` stays an `IO::Path` rather than a string. The narrower type is the
+#| one that was already in hand, and storing it means no call site has to
+#| stringify to construct a failure. Raku's other tool here is a coercion
+#| attribute, `has Str() $.path`, which accepts the `IO::Path` and stores the
+#| string; that is the right move when the string really is what you want.
 class LoadFailure does LoadOutcome is export {
-    has Str $.path   is required;
-    has Str $.reason is required;
+    has IO::Path $.path   is required;
+    has Str      $.reason is required;
 
     method gist(--> Str) { "could not load $!path: $!reason" }
     method Str(--> Str)  { self.gist }

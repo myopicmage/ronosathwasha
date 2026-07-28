@@ -74,7 +74,7 @@ sub load-script(IO::Path:D $path --> LoadOutcome) is export {
         my $backness = %BACKNESS{ %v<backness> // '' };
 
         return LoadFailure.new(
-            :path(~$path),
+            :$path,
             :reason("vowel { %v<roman> // '?' } has unknown backness { %v<backness>.raku }"),
         ) without $backness;
 

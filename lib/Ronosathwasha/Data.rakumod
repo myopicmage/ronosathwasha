@@ -29,9 +29,9 @@ class RawDocument does LoadOutcome is export {
 #| thrown exception and never a partly populated hash.
 sub read-toml(IO::Path:D $path --> LoadOutcome) is export {
 
-    return LoadFailure.new(:path(~$path), :reason('no such file')) unless $path.e;
+    return LoadFailure.new(:$path, :reason('no such file')) unless $path.e;
 
-    return LoadFailure.new(:path(~$path), :reason('not a file')) unless $path.f;
+    return LoadFailure.new(:$path, :reason('not a file')) unless $path.f;
 
     my %data;
 
@@ -45,7 +45,7 @@ sub read-toml(IO::Path:D $path --> LoadOutcome) is export {
         # through to the success path with `%data` empty.
         CATCH {
             default {
-                return LoadFailure.new(:path(~$path), :reason(.message.lines.head // ~$_));
+                return LoadFailure.new(:$path, :reason(.message.lines.head // ~$_));
             }
         }
     }
@@ -56,7 +56,7 @@ sub read-toml(IO::Path:D $path --> LoadOutcome) is export {
 #| Look up a required key, reporting the file and the key when it is absent
 #| rather than returning an undefined value that fails somewhere else later.
 sub require-key(RawDocument:D $doc, Str:D $key --> Any) is export {
-    return LoadFailure.new(:path(~$doc.path), :reason("missing [$key]"))
+    return LoadFailure.new(:path($doc.path), :reason("missing [$key]"))
         unless $doc.data{$key}:exists;
 
     $doc.data{$key};
