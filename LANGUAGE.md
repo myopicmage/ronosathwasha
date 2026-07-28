@@ -38,6 +38,10 @@ second thing to get wrong.
 **Front `i e`, back `u o`, neutral `ə a`.** A word's vowels agree on backness;
 the central pair are transparent and appear in either class.
 
+**The harmony domain is the phonological word, not the phrase or sentence.**
+Independent words choose their classes independently. Harmony spans compounds
+and bound morphology; negation is the sole deliberate exception.
+
 Finnish's neutral vowels are front vowels behaving as transparent for
 historical reasons, and everyone has to memorise that. **Here the neutrals are
 neutral because they are actually central**, with no backness to agree about.
@@ -359,16 +363,11 @@ decision rather than an English gloss silently merging them.
 
 ## Open
 
-- **Whether harmony is a constraint or a rule.** Decision 2 states it as a
-  property of every word: "a word's vowels agree on backness." The alternating
-  affix table implies instead that it governs affix selection, which is what
-  Finnish and Turkish actually do, and it is the only reading the current
-  lexicon satisfies. The two differ in how much of decision 5's repair pass
-  falls on roots.
-- **What else may flip the lean.** If a change of lean means negation, it must
-  not also mean a compound boundary, or the signal is ambiguous. Recommendation:
-  give the flip one job, and let harmony span compounds. **Parked**: this needs
-  discussion and language work, and it sits downstream of the question above.
+- **Question marker harmony.** Current `tho-` breaks harmony before a front
+  verb, as in `thothinəme`. The mechanical repair is the prefix pair
+  `the-/tho-`, but those forms are identical to future `-the/-tho` and differ
+  only by position. The structure is unambiguous, but the homophony needs
+  review before the canonical question forms change.
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
   Finnish and Japanese are heavily length-contrastive and neither is doing that
   work here. It would sit on the vowel marks, not the consonants.
