@@ -6,6 +6,7 @@ use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Harmony;
+use Ronosathwasha::Semantics;
 
 # Harmony moved here from `ronesathwasha/lexicon.py`, which computed the same
 # four classes and was used by nothing but its own tests. The invariants those
@@ -13,13 +14,14 @@ use Ronosathwasha::Harmony;
 # the writable lexicon contains no disharmonious word, and a phrase harmonises
 # word by word rather than as a whole.
 
-plan 21;
+plan 22;
 
 my IO::Path $data = repository-root.add('data');
 
 my $script     = load-script($data.add('script.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # ----------------------------------------------------------- vowels of a word ---
 
@@ -97,3 +99,20 @@ my @bad-phrases = @phrases.grep({ judge-phrase($script, $morphology, .roman).fir
 
 is-deeply @bad-phrases.map(*.roman).sort.List, (),
     'and no phrase contains a disharmonious word';
+
+# ------------------------------------------------------------ and the corpus ---
+#
+# The lexicon holds words; sentences build new ones from them, and an affix
+# chosen against the wrong stem class produces a word that exists nowhere to be
+# checked. `shamwuyi` survived that way from December 2023 until this test: it
+# is `sha` plus back `mwu` plus the front object marker, and repairing the
+# demonstrative `cha` to `sha` left the particle behind.
+
+my @bad-corpus = $corpus.utterances.map({
+    .text.lc.subst(/<[?.,!]>/, '', :g).words.grep({
+        judge($script, $morphology, $_) == Violates
+    }).Slip
+});
+
+is-deeply @bad-corpus.sort.unique.List, (),
+    'no word built in the corpus violates harmony either';

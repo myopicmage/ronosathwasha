@@ -178,7 +178,7 @@ arguments = []
 complement = "infinitive"
 
 [[utterance]]
-text = "Shamwuyi twame"
+text = "Shamwuyu twame"
 english = "(I) want that (thing)"
 status = "attested"
 source = "docs/basic-sentences.html"
