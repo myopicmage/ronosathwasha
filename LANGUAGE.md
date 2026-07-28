@@ -58,12 +58,15 @@ root feels right without obligating future vocabulary, assigning neutral roots
 to an awkward third class, or turning exceptions into problems that need
 explanations.
 
-Roughly half the affixes would alternate:
+Roughly half the affixes alternate. **An affix is either wholly neutral or has
+both a front and a back form**: `-sa`, and anything whose only vowel is `ə` or
+`a`, stand alone, and everything else comes in a pair.
 
-```
-alternating   -swo/-swe   -me/-mo   -the/-tho   -ne/-no   -di/-du   -yi/-yu   li-/lu-
-neutral       -sa   ma-   anything whose only vowel is ə or a
-```
+The pairs are deliberately not enumerated here. `data/lexicon.toml` records
+every member with the harmony class it serves, and a second copy is a second
+thing to get wrong. This paragraph used to be that second copy, and it drifted
+twice over: it listed seven pairs of the fifteen now shipped, and it named
+`ma-` as a neutral affix after decision 3 had already replaced it.
 
 ## 3. Negation is anti-harmonic
 
@@ -272,6 +275,12 @@ back-harmonic past marker.
 **An ordinary affirmative repeats the predicate instead of returning a generic
 word for "yes."** A question equivalent to "Do you eat?" is answered with "I
 eat"; its negative answer repeats the negated predicate.
+
+**Standalone `ma` ("no") is retired for the same reason**, and the symmetry is
+the point: a language that answers a proposition rather than returning a
+particle cannot keep a generic particle on one pole only. `Nari tethinəme?` is
+answered `mothinəme`, not `ma`. The negator survives as the bound anti-harmonic
+prefix of decision 3, which is where the meaning was already living.
 
 A separate corrective affirmative will reject a negative premise, serving the
 role of French *si*. Its form remains open. This is a polarity correction, not
