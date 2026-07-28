@@ -19,7 +19,8 @@
     "Ronosathwasha::Syllables": "lib/Ronosathwasha/Syllables.rakumod",
     "Ronosathwasha::Words": "lib/Ronosathwasha/Words.rakumod",
     "Ronosathwasha::ParseResult": "lib/Ronosathwasha/ParseResult.rakumod",
-    "Ronosathwasha::Actions": "lib/Ronosathwasha/Actions.rakumod"
+    "Ronosathwasha::Actions": "lib/Ronosathwasha/Actions.rakumod",
+    "Ronosathwasha::Realizer": "lib/Ronosathwasha/Realizer.rakumod"
   },
   "depends": [
     "Config::TOML"

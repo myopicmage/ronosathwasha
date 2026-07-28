@@ -1,0 +1,81 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Realizer;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $corpus     = load-utterances($data.add('utterances.toml'));
+
+plan $corpus.utterances.elems + 14;
+
+sub verb(Str $stem, *%f) { realize-verb($script, $morphology, $stem, |%f) }
+
+# ------------------------------------------------ every corpus verb regenerates ---
+#
+# For each sentence, build the verb from the meaning Kevin declared and assert
+# the result is a word he actually wrote. Recognition already checks the other
+# direction, so together these close the round trip on the morphology.
+
+for $corpus.utterances -> $u {
+    my $built = verb(
+        $u.predicate,
+        :speech-act($u.speech-act),
+        :tense($u.tense),
+        :aspect($u.aspect),
+        :polarity($u.polarity),
+        :modality($u.modality),
+    );
+
+    ok $built.defined && $u.text.lc.words.first({ .subst(/<[?.,!]>+$/, '') eq $built }).defined,
+        "{ $u.text } contains the verb built from its meaning ({ $built // 'failed' })";
+}
+
+# ----------------------------------------------------------- harmony is chosen ---
+
+is verb('thinə'), 'thinəme', 'a front stem takes the front present';
+is verb('rorothwa'), 'rorothwamo', 'a back stem takes the back present';
+is verb('twa'), 'twame', 'a neutral stem takes the front alternant';
+
+is verb('thinə', :tense(Past)), 'thinəse', 'front past';
+is verb('rorothwa', :tense(Past)), 'rorothwaso', 'back past';
+is verb('rorothwa', :tense(Future)), 'rorothwatho', 'back future, both halves of the pair now shipped';
+
+# ------------------------------------------------- anti-harmony, with no branch ---
+#
+# The negator disagrees with its host on purpose, and nothing in the realizer
+# knows that. The declaration crossed the alternants and `form-for` does the
+# rest, so these two lines run the same code as the tense marker above.
+
+is verb('thinə', :polarity(Negative)), 'mothinəme',
+    'a front stem takes the back-looking negator';
+is verb('rorothwa', :polarity(Negative)), 'merorothwamo',
+    'and a back stem takes the front-looking one';
+
+# ----------------------------------------------------------- the whole stack ---
+#
+# Decision 16 writes this word out by hand. Nothing seeded it here.
+
+is verb('rorothwa', :modality(Potential), :polarity(Negative), :speech-act(Imperative)),
+    'lumedororothwamo',
+    'modality, negation, speech act, predicate, tense, in decision 16 order';
+
+# ------------------------------------------------------------------ paradigm ---
+
+my %front = paradigm($script, $morphology, 'thinə').Hash;
+is %front<command>, 'dethinəme', 'the command cell';
+is %front<question>, 'tethinəme', 'the question cell, which the page also writes';
+
+my %back = paradigm($script, $morphology, 'rorothwa').Hash;
+is %back<command>, 'dororothwamo', 'and decision 16 writes this one too';
+
+# ---------------------------------------------------------------- refusals ---
+
+my $mixed = verb('thino');
+nok $mixed.defined, 'a disharmonic stem cannot be inflected';
+isa-ok $mixed.self.exception, X::Realizer::NoClass, 'and says why rather than guessing an alternant';
