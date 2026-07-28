@@ -1,0 +1,85 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::ParseResult;
+
+plan 18;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $corpus     = load-utterances($data.add('utterances.toml'));
+
+sub read(Str $w) { classify($script, $lexicon, $morphology, $w) }
+
+# ---------------------------------------------------------------- recognised ---
+
+my $ok = read('mothinəme');
+isa-ok $ok, Recognised, 'a current word is recognised';
+is $ok.summary, 'mothinəme: negation + [thinə] + present',
+    'and the summary names morphemes rather than letters';
+
+isa-ok read('Nari'), Recognised, 'capitalisation does not matter';
+isa-ok read('Nari tethinəme?'.words[1] ~ '?'), Recognised,
+    'nor does trailing punctuation';
+
+# ---------------------------------------------------------------- unwritable ---
+
+my $bad = read('ame');
+isa-ok $bad, Unwritable, 'an onsetless string is not writable';
+is $bad.position, 0, 'reported at the character where it stops';
+
+isa-ok read('thinəm'), Unwritable, 'and so is a trailing consonant';
+
+# --------------------------------------------------------------- retirement ---
+#
+# The outcome worth having: writable, stem known, and a morpheme that has not
+# existed since decision 15.
+
+my $old = read('thothinəme');
+isa-ok $old, RetiredForm, 'a word using a retired morpheme says so';
+is $old.morpheme.id, 'question-tho', 'naming the morpheme';
+is $old.morpheme.decision, 15, 'and the decision that retired it';
+is $old.replaced-by.id, 'question', 'and what replaced it';
+like $old.summary, /'retired by decision 15'/, 'in one readable line';
+
+# A retired form that cannot be written is reported as unwritable rather than
+# as retired, which is the right order: you cannot have used a spelling the
+# script has no letters for. Decision 1 took `j` with the affricates.
+isa-ok read('laju'), Unwritable, 'a retired form that is also unspellable is unwritable first';
+
+# Retiring `yo` as the command marker did not retire the spelling, because it
+# is still the pronoun "they (not alive)". So `yomirime` is not a clean
+# historical form; it is a current word several times over.
+isa-ok read('yomirime'), Ambiguous,
+    'a retired prefix whose letters survive as a stem is ambiguous, not retired';
+
+# --------------------------------------------------------------- ambiguity ---
+#
+# Deferred from the word grammar, which picks the frugal reading. Here the two
+# readings are compared and the caller is told rather than quietly given one.
+
+my $both = read('thinəmedi');
+isa-ok $both, Ambiguous, 'a word that divides two ways is reported as such';
+is $both.divisions.elems, 2, 'with both divisions kept';
+like $both.summary, /'[thinə] + present + continuous'/,
+    'the inflected reading among them';
+
+# ------------------------------------------------------- the corpus survives ---
+#
+# Every word Kevin has written must classify as something other than a failure.
+# Ambiguity is allowed: `thinəmedi` is attested and genuinely ambiguous, and
+# pretending otherwise would be the grammar lying to keep a test green.
+
+my @unreadable = $corpus.utterances.map({
+    .text.words.grep({ read($_) ~~ UnknownStem | Unwritable }).Slip
+});
+
+is-deeply @unreadable.sort.unique.List, (),
+    'no word in the corpus is unwritable or built on an unknown stem';

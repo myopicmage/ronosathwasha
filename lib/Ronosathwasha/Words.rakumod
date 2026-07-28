@@ -120,10 +120,15 @@ sub stems-from(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
 #| Split one word into its morphemes.
 #|
 #| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
+#| `$grammar` exists so a caller can divide the same word under a different
+#| rule and compare. `Morphemes` is frugal with stems; a greedy subclass gives
+#| the other reading of an ambiguous word, and two answers that differ are how
+#| ambiguity is detected rather than assumed.
 sub parse-word(
     Lexicon:D     $lexicon,
     Morphology:D  $morphology,
     Str:D         $word,
+    Mu           :$grammar = Morphemes,
 ) is export {
     my @current = $morphology.current;
 
@@ -135,7 +140,7 @@ sub parse-word(
     my @*STEMS    = stems-from($lexicon, $morphology);
 
     my $text = $word.lc;
-    my $match = Morphemes.parse($text);
+    my $match = $grammar.parse($text);
 
     fail X::Words::Unrecognised.new(:word($word)) without $match;
 
