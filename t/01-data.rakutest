@@ -6,38 +6,69 @@ use Ronosathwasha::Data;
 use Ronosathwasha::Script;
 
 # The boundary, tested from both sides: a real declaration becomes typed
-# values, and every way of failing produces a value that says so rather than an
-# exception or a half-populated hash.
+# values, and every way of failing produces an inert `Failure` carrying a typed
+# exception that says which file and which way.
+#
+# `.defined` is the safe question. Asking it also marks the `Failure` handled,
+# so these tests do not detonate on the way out of scope.
 
-plan 16;
+plan 23;
 
 my IO::Path $root = repository-root;
 my IO::Path $data = $root.add('data');
 
+#| Recover the typed exception from an inert failure without throwing it.
+sub exception-from($failure) {
+    $failure.self.exception;
+}
+
 # ---------------------------------------------------------------- reading ---
 
 my $missing = read-toml($data.add('no-such-file.toml'));
-isa-ok $missing, LoadFailure, 'a missing file is a value, not an exception';
-like $missing.reason, /'no such file'/, 'and it says which way it failed';
+nok $missing.defined, 'a missing file returns an inert failure rather than throwing';
+isa-ok exception-from($missing), X::Declaration::Unreadable, 'carrying a typed exception';
+is exception-from($missing).reason, 'no such file', 'that names the reason as a field';
+is exception-from($missing).path.basename, 'no-such-file.toml', 'and the file as a path';
 
 my $directory = read-toml($data);
-isa-ok $directory, LoadFailure, 'a directory where a file was expected fails cleanly';
+nok $directory.defined, 'a directory where a file was expected fails cleanly';
+is exception-from($directory).reason, 'not a file', 'distinguishing it from absence';
 
 my $malformed = $*TMPDIR.add("ronosathwasha-malformed-{$*PID}.toml");
 $malformed.spurt("this is not = = toml\n");
 LEAVE { $malformed.unlink if $malformed.e }
 
 my $broken = read-toml($malformed);
-isa-ok $broken, LoadFailure, 'malformed TOML fails as a value';
-ok $broken.reason.chars, 'and carries a reason worth printing';
+nok $broken.defined, 'malformed TOML becomes the same kind of failure as a missing file';
+isa-ok exception-from($broken), X::Declaration::Unreadable, 'from the parser, via CATCH';
 
 my $lexicon = read-toml($data.add('lexicon.toml'));
 isa-ok $lexicon, RawDocument, 'a real declaration reads';
 ok $lexicon.data<marker>:exists, 'and its tables are present';
 
-my $absent = require-key($lexicon, 'no-such-table');
-isa-ok $absent, LoadFailure, 'a missing table is reported against the file';
-like $absent.reason, /'no-such-table'/, 'naming the table that was wanted';
+my $absent = require-table($lexicon, 'no-such-table');
+nok $absent.defined, 'a missing table is a failure against the file';
+is exception-from($absent).table, 'no-such-table', 'naming the table as a field, not in prose';
+
+# The propagation this design is for, in both of its halves.
+#
+# Bare, a chained call throws: `require-table` is handed the inert failure from
+# an unreadable file, its `RawDocument:D` parameter refuses it, and the
+# *original* exception surfaces. No guard was written between the two calls and
+# none was needed. Note which exception arrives: the first one, not a complaint
+# about a missing table in a document that never existed.
+my $chained = try require-table(read-toml($data.add('nothing-here.toml')), 'vowel');
+nok $chained.defined, 'a chained call does not produce a value';
+isa-ok $!, X::Declaration::Unreadable,
+    'the first failure propagates through the intermediate step untouched';
+
+# Inside a sub that ends in `CATCH { default { .fail } }`, that same throw goes
+# back to being an inert value, so the two-track contract survives the call
+# boundary instead of ending at it.
+my $no-script = load-script($data.add('nothing-here.toml'));
+nok $no-script.defined, 'a loader re-emits a propagated throw as an inert failure';
+isa-ok exception-from($no-script), X::Declaration::Unreadable,
+    'still carrying the exception that started it';
 
 # ----------------------------------------------------------------- script ---
 
@@ -47,9 +78,6 @@ isa-ok $script, Script, 'the script declaration parses into typed values';
 is $script.vowels.elems, 6, 'six declared vowels, before the glides are derived';
 is $script.consonants.elems, 11, 'eleven consonants, the affricates having gone';
 
-# Backness is the whole reason this module reads the file at all. `i` and `u`
-# are the two poles, and the central pair is what makes harmony transparent
-# rather than something to memorise.
 is $script.backness-of('i'), Front,   'i is front';
 is $script.backness-of('u'), Back,    'u is back';
 is $script.backness-of('ə'), Central, 'schwa is central, which is why it is neutral';
