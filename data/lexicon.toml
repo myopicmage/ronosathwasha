@@ -122,6 +122,7 @@
 "ro" = "person"
 "rono" = "people"
 "shwi" = "rabbit"
+"mirire" = "teacher (teach-person)"
 "mwu" = "thing"
 
 
@@ -183,16 +184,21 @@
 
 # Affixes. Position is in the gloss: (verb) marks where the stem goes.
 [marker]
-"swo" = "infinitive, (verb)swo"
-"ne" = "plural, (noun)ne"
+"swe" = "infinitive (front or neutral), (verb)swe"
+"swo" = "infinitive (back), (verb)swo"
+"ne" = "plural (front or neutral), (noun)ne"
+"no" = "plural (back), (noun)no"
 "sa" = "possessive, (noun)sa"
-"me" = "present tense, (verb)me"
-"se" = "past tense, (verb)se"
+"me" = "present tense (front or neutral), (verb)me"
+"mo" = "present tense (back), (verb)mo"
+"se" = "past tense (front or neutral), (verb)se"
+"so" = "past tense (back), (verb)so"
 "the" = "future tense, (verb)the"
 "di" = "continuous (front or neutral), (verb)di"
 "du" = "continuous (back), (verb)du"
 "yo" = "command, yo(verb)"
-"li" = "might, li(verb)"
+"li" = "might (front or neutral), li(verb)"
+"lu" = "might (back), lu(verb)"
 "ma" = "negation, ma (verb)"
 "tho" = "question, tho(verb)"
 
@@ -202,8 +208,10 @@
 "thi" = "in"
 "mi" = "near"
 "ði" = "towards"
-"ri" = "subject"
-"yi" = "object"
+"ri" = "subject (front or neutral)"
+"ru" = "subject (back)"
+"yi" = "object (front or neutral)"
+"yu" = "object (back)"
 
 
 [phrase]
