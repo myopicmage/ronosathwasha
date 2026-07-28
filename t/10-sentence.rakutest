@@ -60,10 +60,10 @@ is realize-constituent($script, $morphology, $that.constituents.head), 'shamwuyu
 
 # --------------------------------------------------------------- order is kept ---
 
-is write(read('layi Mirireri mirimedi').reading), 'layi mirireri mirimedi',
+is write(read('layi Mirireri mirimedi.').reading), 'layi mirireri mirimedi.',
     'the constituents come back in the order they were written';
 
-is write(read('Mirireri layi mirimedi').reading), 'mirireri layi mirimedi',
+is write(read('Mirireri layi mirimedi.').reading), 'mirireri layi mirimedi.',
     'and the other order comes back the other way';
 
 # ------------------------------------------------------------------- refusals ---

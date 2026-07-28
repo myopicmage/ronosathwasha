@@ -32,7 +32,7 @@ schema_version = 1
 # ---------------------------------------------------------------- attested ---
 
 [[utterance]]
-text = "Lari thinəme"
+text = "Lari thinəme."
 english = "I eat"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -45,7 +45,7 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Lari thinəmedi"
+text = "Lari thinəmedi."
 english = "I am eating"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -58,7 +58,7 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Lari mothinəme"
+text = "Lari mothinəme."
 english = "I do not eat"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -71,7 +71,7 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Mirireri mirime"
+text = "Mirireri mirime."
 english = "The teacher teaches"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -84,7 +84,7 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Mirireri layi mirimedi"
+text = "Mirireri layi mirimedi."
 english = "The teacher is teaching me"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -97,7 +97,7 @@ modality = "asserted"
 arguments = ["subject", "object"]
 
 [[utterance]]
-text = "Layi demirime"
+text = "Layi demirime."
 english = "(You) teach me (now)"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -110,7 +110,7 @@ modality = "asserted"
 arguments = ["object"]
 
 [[utterance]]
-text = "Sho thinəme"
+text = "Sho thinəme."
 english = "(I) eat that food (over there)"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -124,7 +124,7 @@ arguments = []
 reference = "distal"
 
 [[utterance]]
-text = "Lari sha lithinəme"
+text = "Lari sha lithinəme."
 english = "I might eat that food"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -138,7 +138,7 @@ arguments = ["subject"]
 reference = "medial"
 
 [[utterance]]
-text = "Lasa runəru thinəme"
+text = "Lasa runəru thinəme."
 english = "My dog eats"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -164,7 +164,7 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Thinəswe twame"
+text = "Thinəswe twame."
 english = "(I) want to eat"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -178,7 +178,7 @@ arguments = []
 complement = "infinitive"
 
 [[utterance]]
-text = "Shamwuyu twame"
+text = "Shamwuyu twame."
 english = "(I) want that (thing)"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -192,7 +192,7 @@ arguments = ["object"]
 reference = "medial"
 
 [[utterance]]
-text = "Lari taði medime"
+text = "Lari taði medime."
 english = "I go home"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -206,7 +206,7 @@ arguments = ["subject"]
 locative = "locative-towards"
 
 [[utterance]]
-text = "Ðari runəyu time"
+text = "Ðari runəyu time."
 english = "(Person) has a dog"
 status = "attested"
 source = "docs/basic-sentences.html"
@@ -230,10 +230,10 @@ arguments = ["subject", "object"]
 # removed; `LANGUAGE.md` decision 16 already writes `dororothwamo` from it.
 
 [[utterance]]
-text = "Lari thinəse"
+text = "Lari thinəse."
 english = "I ate"
 status = "derived"
-derived_from = "Lari thinəme"
+derived_from = "Lari thinəme."
 derivation = "past -se in place of present -me, front stem"
 speech_act = "declarative"
 predicate = "thinə"
@@ -244,10 +244,10 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Lari thinəthe"
+text = "Lari thinəthe."
 english = "I will eat"
 status = "derived"
-derived_from = "Lari thinəme"
+derived_from = "Lari thinəme."
 derivation = "future -the in place of present -me, front stem"
 speech_act = "declarative"
 predicate = "thinə"
@@ -258,10 +258,10 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "She thinəme"
+text = "She thinəme."
 english = "(I) eat this food"
 status = "derived"
-derived_from = "Sho thinəme"
+derived_from = "Sho thinəme."
 derivation = "proximal she in place of distal sho"
 speech_act = "declarative"
 predicate = "thinə"
@@ -273,10 +273,10 @@ arguments = []
 reference = "proximal"
 
 [[utterance]]
-text = "Lari rorothwamo"
+text = "Lari rorothwamo."
 english = "I love"
 status = "derived"
-derived_from = "Lari thinəme"
+derived_from = "Lari thinəme."
 derivation = "back stem rorothwa, which selects the back present -mo"
 speech_act = "declarative"
 predicate = "rorothwa"
@@ -287,10 +287,10 @@ modality = "asserted"
 arguments = ["subject"]
 
 [[utterance]]
-text = "Lari rorothwaso"
+text = "Lari rorothwaso."
 english = "I loved"
 status = "derived"
-derived_from = "Lari rorothwamo"
+derived_from = "Lari rorothwamo."
 derivation = "back past -so, which the same stem selects"
 speech_act = "declarative"
 predicate = "rorothwa"

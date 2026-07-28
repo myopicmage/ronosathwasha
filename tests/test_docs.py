@@ -85,7 +85,7 @@ def test_sentence_page_script_matches_its_romanisation(script: Script) -> None:
     for match in matches:
         label = html.unescape(match.group("label"))
         roman_words = [
-            word.removesuffix("?").lower()
+            word.rstrip("?.,!").lower()
             for word in label.split()
             if word != "or"
         ]

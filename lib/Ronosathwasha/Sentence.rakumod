@@ -84,15 +84,16 @@ sub realize-sentence(
         :modality($reading.modality),
     );
 
-    # English punctuation, borrowed whole, because the script has no marks of
-    # its own. The question mark is redundant with the `te-/to-` prefix that
-    # already made this a question, and it is written anyway: a convention every
-    # reader can already parse costs nothing.
+    # English punctuation, borrowed whole, because the script has none of its
+    # own. The marks are redundant with the morphology, since `te-/to-` already
+    # made this a question, and they are written anyway: a convention every
+    # reader can parse costs nothing while the script has no answer of its own.
     #
-    # Only the question mark, because only the question mark is attested. A
-    # declarative full stop would follow from the same borrowing and appears
-    # nowhere Kevin has written, so it is not invented here.
-    my Str $end = $reading.speech-act == Interrogative ?? '?' !! '';
+    # A command takes a full stop rather than an exclamation mark. English uses
+    # `!` for force rather than for the imperative itself, and this language
+    # marks no such thing, so inventing an emphasis distinction here would put
+    # a dimension in the punctuation that the grammar does not have.
+    my Str $end = $reading.speech-act == Interrogative ?? '?' !! '.';
 
     return @words.join(' ') ~ $end;
 

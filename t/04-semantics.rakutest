@@ -31,7 +31,7 @@ is $question.speech-act, Interrogative, 'the question is interrogative';
 is $question.tense, Present, 'in the present';
 is $question.shape, SubjectOnly, 'with a subject and no object';
 
-my $teaching = $corpus.utterances.first(*.text eq 'Mirireri layi mirimedi');
+my $teaching = $corpus.utterances.first(*.text eq 'Mirireri layi mirimedi.');
 is $teaching.shape, Transitive, 'subject and object make a transitive shape';
 is $teaching.aspect, Continuous, 'and the continuous marker is read as aspect';
 
