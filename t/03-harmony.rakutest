@@ -1,0 +1,99 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Harmony;
+
+# Harmony moved here from `ronesathwasha/lexicon.py`, which computed the same
+# four classes and was used by nothing but its own tests. The invariants those
+# tests protected are the last two blocks of this file, unchanged in substance:
+# the writable lexicon contains no disharmonious word, and a phrase harmonises
+# word by word rather than as a whole.
+
+plan 21;
+
+my IO::Path $data = repository-root.add('data');
+
+my $script     = load-script($data.add('script.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+
+# ----------------------------------------------------------- vowels of a word ---
+
+is-deeply vowels-of($script, 'thinəme').List, ('i', 'ə', 'e'),
+    'digraph consonants do not contribute vowels';
+
+is-deeply vowels-of($script, 'thwasha').List, ('a', 'a'),
+    'a glide marks the vowel it precedes rather than being one';
+
+is-deeply vowels-of($script, 'ðiðə').List, ('i', 'ə'),
+    'the IPA spelling of a dental fricative is not mistaken for a letter';
+
+# ------------------------------------------------------------------- profiles ---
+
+is profile-of($script, 'thinəme'),   FrontWord,   'front vowels with a central one are front';
+is profile-of($script, 'rorothwa'),  BackWord,    'back vowels with a central one are back';
+is profile-of($script, 'twa'),       NeutralWord, 'a word of only central vowels is neutral, not exempt';
+is profile-of($script, 'sa'),        NeutralWord, 'as is the possessive';
+is profile-of($script, 'thino'),     MixedWord,   'the pre-repair spelling of food is mixed';
+
+# --------------------------------------------------------------- the judgment ---
+
+is judge($script, $morphology, 'thinəme'), Harmonic,
+    'a harmonic word is harmonic';
+
+is judge($script, $morphology, 'twa'), Harmonic,
+    'an all-neutral word is harmonic rather than a fourth thing';
+
+is judge($script, $morphology, 'thino'), Violates,
+    'a genuinely disharmonic word violates';
+
+is judge($script, $morphology, 'mothinəme'), LicensedDisharmony,
+    'the negator leaning against a front word is licensed, not a violation';
+
+is judge($script, $morphology, 'merorothwamo'), LicensedDisharmony,
+    'and so is the back case';
+
+# The licence is checked, not assumed from the first two letters. `moluyo` is
+# the crab: all back, no negator, and it begins with `mo`.
+is judge($script, $morphology, 'moluyo'), Harmonic,
+    'a word that merely starts with mo is not claiming the licence';
+
+# `melika` is invented for this test: `me` followed by a front remainder, which
+# is the wrong negator for that stem. Front takes `mo`, so nothing licenses it.
+is judge($script, $morphology, 'melito'), Violates,
+    'the wrong negator for the stem earns no licence';
+
+# Stated so it is not mistaken for a gap: harmony cannot catch a correctly
+# harmonic word built from the wrong morpheme.
+is judge($script, $morphology, 'methinəme'), Harmonic,
+    'the wrong negator that happens to agree is invisible to harmony alone';
+
+# ------------------------------------------------- the invariants from Python ---
+
+my @writable = $lexicon.entries.grep({ .section ne 'phrase' });
+
+my @bad = @writable.grep({ judge($script, $morphology, .roman) == Violates });
+
+is-deeply @bad.map(*.roman).sort.List, (),
+    'no writable lexicon entry violates harmony';
+
+ok @writable.grep({ profile-of($script, .roman) == NeutralWord }),
+    'a language with no all-neutral words would be suspicious';
+
+my $fireball = $lexicon.in-section('phrase').first(*.gloss eq 'I cast fireball');
+
+is-deeply profiles-of-phrase($script, $fireball.roman).List, (FrontWord, BackWord),
+    'a phrase harmonises word by word, not as a whole';
+
+is-deeply judge-phrase($script, $morphology, $fireball.roman).List, (Harmonic, Harmonic),
+    'so both of its words are harmonic despite disagreeing with each other';
+
+my @phrases = $lexicon.in-section('phrase');
+my @bad-phrases = @phrases.grep({ judge-phrase($script, $morphology, .roman).first(* == Violates) });
+
+is-deeply @bad-phrases.map(*.roman).sort.List, (),
+    'and no phrase contains a disharmonious word';

@@ -3,11 +3,16 @@
 The point is the feedback loop. Add a word, run pytest, and find out
 immediately whether it is writable rather than discovering it when you try to
 set it in the font. Nothing here validates meaning; only form.
+
+Harmony is checked in `t/03-harmony.rakutest` rather than here. Writability is
+a question about the script, which is this pipeline's subject; harmony is a
+rule of the language, and it now lives with the grammar that has to apply it.
+`make check` runs both suites, so the invariant is enforced exactly as before.
 """
 
 from __future__ import annotations
 
-from ronesathwasha import Harmony, Lexicon, ParseFailure
+from ronesathwasha import Lexicon, ParseFailure
 
 
 def test_every_entry_is_writable(lexicon: Lexicon) -> None:
@@ -25,20 +30,3 @@ def test_the_pending_section_is_actually_pending(lexicon: Lexicon) -> None:
     assert not fixed, f"these are writable now, move them: {', '.join(fixed)}"
 
 
-def test_every_canonical_entry_is_harmonic(lexicon: Lexicon) -> None:
-    """The historical lexicon has now been reconciled with vowel harmony."""
-    classes = [
-        harmony
-        for entry in lexicon.writable()
-        for harmony in entry.harmonies
-    ]
-    assert len(classes) == sum(len(entry.words) for entry in lexicon.writable())
-    assert Harmony.NEUTRAL in classes, "a language with no all-neutral words is suspicious"
-    assert Harmony.DISHARMONIC not in classes
-
-
-def test_phrases_preserve_word_level_harmony(lexicon: Lexicon) -> None:
-    fireball = next(
-        entry for entry in lexicon.writable() if entry.gloss == "I cast fireball"
-    )
-    assert fireball.harmonies == (Harmony.FRONT, Harmony.BACK)

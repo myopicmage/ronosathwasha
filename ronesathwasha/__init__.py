@@ -2,7 +2,6 @@
 
 from ronesathwasha.lexicon import (
     Entry,
-    Harmony,
     Lexicon,
     LexiconError,
 )
@@ -28,7 +27,6 @@ __all__ = [
     "Derivation",
     "Direction",
     "Entry",
-    "Harmony",
     "Height",
     "Lexicon",
     "LexiconError",

@@ -2,8 +2,14 @@
 
 `data/lexicon.toml` stores the two things that cannot be computed, a
 romanisation and a gloss. Everything else about an entry (its syllables, its
-code points, whether it is writable at all, its harmony class) falls out of
-`script.toml`, so it is derived here and never stored there.
+code points, whether it is writable at all) falls out of `script.toml`, so it is
+derived here and never stored there.
+
+Harmony is deliberately not here. Whether a word can be written is an
+orthography question and belongs to this pipeline; whether its vowels agree is
+a rule of the language and lives in `lib/Ronosathwasha/Harmony.rakumod`, which
+is where the grammar that needs it also lives. Both halves read the same TOML,
+and `make check` runs both suites.
 
 An entry that does not parse is not an error. `[respell]` holds words that are
 attested in the original notes and blocked by a later inventory decision, and
@@ -17,11 +23,10 @@ from __future__ import annotations
 import tomllib
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import Final
 
-from ronesathwasha.script import Backness, ParseFailure, Script, Syllable
+from ronesathwasha.script import ParseFailure, Script, Syllable
 
 DATA: Final = Path(__file__).resolve().parent.parent / "data" / "lexicon.toml"
 
@@ -31,15 +36,6 @@ PENDING: Final = "respell"
 
 class LexiconError(Exception):
     """The file is malformed. Raised at load and nowhere else."""
-
-
-class Harmony(Enum):
-    """Which side of the vowel space one word sits on."""
-
-    FRONT = "front"
-    BACK = "back"
-    NEUTRAL = "neutral"
-    DISHARMONIC = "disharmonic"
 
 
 @dataclass(frozen=True)
@@ -69,11 +65,6 @@ class Entry:
     def syllables(self) -> tuple[Syllable, ...]:
         """The parse, flattened. Word breaks are not syllable boundaries."""
         return tuple(s for word in self.words for s in word)
-
-    @property
-    def harmonies(self) -> tuple[Harmony, ...]:
-        """One harmony class per word, preserving phrase boundaries."""
-        return tuple(_harmony(word) for word in self.words)
 
     def text(self, script: Script) -> str:
         """The entry as private-use text: the string the font renders.
@@ -155,16 +146,3 @@ def _words(section: str, words: Mapping[str, object]) -> dict[str, str]:
     return out
 
 
-def _harmony(word: tuple[Syllable, ...]) -> Harmony:
-    sides = {
-        syllable.vowel.backness
-        for syllable in word
-        if syllable.vowel.backness is not Backness.CENTRAL
-    }
-    if not sides:
-        return Harmony.NEUTRAL
-
-    if len(sides) > 1:
-        return Harmony.DISHARMONIC
-
-    return Harmony[sides.pop().name]
