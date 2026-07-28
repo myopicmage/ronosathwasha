@@ -1,0 +1,82 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Actions;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $corpus     = load-utterances($data.add('utterances.toml'));
+
+# One test per corpus sentence, plus the checks below.
+plan $corpus.utterances.elems + 9;
+
+sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
+
+# --------------------------------------------------- the corpus, sentence by sentence ---
+#
+# The strongest assertion available: every sentence Kevin declared the meaning
+# of is read back to the same meaning by the grammar. The corpus states it and
+# the code derives it, independently.
+
+for $corpus.utterances -> $declared {
+    my $outcome = read($declared.text);
+
+    subtest "{ $declared.text } means what it is declared to mean" => {
+        plan 8;
+
+        isa-ok $outcome, Understood, 'it is understood at all';
+
+        my $got = $outcome ~~ Understood ?? $outcome.reading !! Reading;
+
+        is $got.speech-act, $declared.speech-act, 'speech act';
+        is $got.predicate,  $declared.predicate,  'predicate';
+        is $got.tense,      $declared.tense,      'tense';
+        is $got.aspect,     $declared.aspect,     'aspect';
+        is $got.polarity,   $declared.polarity,   'polarity';
+        is $got.modality,   $declared.modality,   'modality';
+
+        is-deeply $got.arguments.sort.List, $declared.arguments.sort.List, 'arguments';
+    }
+}
+
+# ------------------------------------------------------- the predicate is found ---
+
+my $wants = read('Thinəswe twame').reading;
+is $wants.predicate, 'twa',
+    'the verb is the word carrying tense, not the last word';
+
+my $eats = read('Sho thinəme').reading;
+is $eats.predicate, 'thinə',
+    'nor the first, when a demonstrative opens the sentence';
+
+# ----------------------------------------------------------- deixis from vowels ---
+#
+# Never declared anywhere. Decision 9 put the three demonstratives on front,
+# central and back vowels, and this reads the distance back out of the script.
+
+is read('Sho thinəme').reading.reference, Distal,   'back o is far';
+is read('Lari sha lithinəme').reading.reference, Medial, 'central a is middle';
+is read('She thinəme').reading.reference, Proximal, 'front e is near';
+
+# ------------------------------------------------------------------ the extras ---
+
+is read('Lari taði medime').reading.locative, 'locative-towards',
+    'the locative particle is reported by identity';
+
+ok read('Lari thinəmedi').reading.ambiguous.elems,
+    'an ambiguous word is used and recorded rather than silently resolved';
+
+nok read('Lari thinəme').reading.ambiguous.elems,
+    'while an unambiguous sentence records none';
+
+# ----------------------------------------------------------------- not understood ---
+
+my $nope = read('Lari thothinəme');
+isa-ok $nope, NotUnderstood, 'a retired form stops the sentence being understood';
