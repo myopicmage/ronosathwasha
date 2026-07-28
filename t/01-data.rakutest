@@ -1,0 +1,57 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Data;
+use Ronosathwasha::Script;
+
+# The boundary, tested from both sides: a real declaration becomes typed
+# values, and every way of failing produces a value that says so rather than an
+# exception or a half-populated hash.
+
+plan 16;
+
+my IO::Path $root = repository-root;
+my IO::Path $data = $root.add('data');
+
+# ---------------------------------------------------------------- reading ---
+
+my $missing = read-toml($data.add('no-such-file.toml'));
+isa-ok $missing, LoadFailure, 'a missing file is a value, not an exception';
+like $missing.reason, /'no such file'/, 'and it says which way it failed';
+
+my $directory = read-toml($data);
+isa-ok $directory, LoadFailure, 'a directory where a file was expected fails cleanly';
+
+my $malformed = $*TMPDIR.add("ronosathwasha-malformed-{$*PID}.toml");
+$malformed.spurt("this is not = = toml\n");
+LEAVE { $malformed.unlink if $malformed.e }
+
+my $broken = read-toml($malformed);
+isa-ok $broken, LoadFailure, 'malformed TOML fails as a value';
+ok $broken.reason.chars, 'and carries a reason worth printing';
+
+my $lexicon = read-toml($data.add('lexicon.toml'));
+isa-ok $lexicon, RawDocument, 'a real declaration reads';
+ok $lexicon.data<marker>:exists, 'and its tables are present';
+
+my $absent = require-key($lexicon, 'no-such-table');
+isa-ok $absent, LoadFailure, 'a missing table is reported against the file';
+like $absent.reason, /'no-such-table'/, 'naming the table that was wanted';
+
+# ----------------------------------------------------------------- script ---
+
+my $script = load-script($data.add('script.toml'));
+isa-ok $script, Script, 'the script declaration parses into typed values';
+
+is $script.vowels.elems, 6, 'six declared vowels, before the glides are derived';
+is $script.consonants.elems, 11, 'eleven consonants, the affricates having gone';
+
+# Backness is the whole reason this module reads the file at all. `i` and `u`
+# are the two poles, and the central pair is what makes harmony transparent
+# rather than something to memorise.
+is $script.backness-of('i'), Front,   'i is front';
+is $script.backness-of('u'), Back,    'u is back';
+is $script.backness-of('ə'), Central, 'schwa is central, which is why it is neutral';
+
+nok $script.backness-of('k').defined, 'a letter this language does not have has no backness';
