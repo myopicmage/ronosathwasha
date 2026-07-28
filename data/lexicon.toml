@@ -190,7 +190,10 @@
 "mo" = "present tense (back), (verb)mo; negation before front or neutral, mo(verb)"
 "se" = "past tense (front or neutral), (verb)se"
 "so" = "past tense (back), (verb)so"
-"the" = "future tense, (verb)the"
+"the" = "future tense (front or neutral), (verb)the"
+"tho" = "future tense (back), (verb)tho"
+"te" = "question (front or neutral), te(verb)"
+"to" = "question (back), to(verb)"
 "di" = "continuous (front or neutral), (verb)di"
 "du" = "continuous (back), (verb)du"
 "yo" = "command, yo(verb)"
@@ -201,7 +204,6 @@
 # Both live on the tense entries above, because a TOML table cannot repeat a
 # key and the present tense already claims those two forms. Position separates
 # them: the negator is a prefix and the tense marker is a suffix.
-"tho" = "question, tho(verb)"
 
 
 [particle]

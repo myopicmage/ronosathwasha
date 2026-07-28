@@ -167,9 +167,8 @@ The name is `rono` + `sa` + `thwasha`, "people's language", and `rono` is `ro`
 stem, so the name repaired itself by derivation rather than being rechosen.
 Still five legal CV syllables, so it remains usable as the smoke test.
 
-**The disharmony came from an affix, not a root**, which is why this could be
-settled while the question under Open is still parked. `-ne/-no` alternates
-either way.
+**The disharmony came from an affix, not a root.** `-ne/-no` alternates either
+way, so repairing the autonym did not require settling the question marker.
 
 `rone` ("people") became `rono` in the same change, as the first entry of the
 repair pass that decision 5 implies.
@@ -347,7 +346,7 @@ grammar:
 - `thwashamwu`: language-expression, from `thwasha` (language) plus `mwu`
   (thing);
 - `thwashaswo`: to speak or say, the language noun made verbal;
-- `thoswo`: to ask, the question marker `tho` made verbal.
+- `thoswo`: to ask, lexicalized from the historical question marker `tho`.
 
 `thwashamwu` denotes a bounded piece of language without specifying its size.
 In ordinary use, the smallest convenient language-thing is usually a word, so
@@ -360,13 +359,31 @@ decision rather than an English gloss silently merging them.
 
 **Implemented** in `data/lexicon.toml`.
 
+## 15. Questions use `te-/to-`
+
+The question prefix is **`te-` before front or neutral words and `to-` before
+back words**. Questions are basic and frequent, so the marker remains one
+syllable rather than avoiding a crowded grammatical namespace by becoming
+longer.
+
+The pair is distinct from future **`-the/-tho`**, whose suffix position and
+dental fricative distinguish it structurally and audibly. This also gives the
+future pair both of its authoritative declarations instead of leaving
+back-harmonic `-tho` implicit in derived words such as `rorotho`.
+
+For example:
+
+- `Nari tethinəme?`: do you eat?
+- `Ðari tororothwamo?`: does he, she, or it love?
+
+`thoswo` remains the word for "ask." Its historical derivation is now
+fossilized rather than forcing an established lexical verb to follow a later
+grammatical replacement.
+
+**Implemented** in `data/lexicon.toml` and the current sentence page.
+
 ## Open
 
-- **Question marker harmony.** Current `tho-` breaks harmony before a front
-  verb, as in `thothinəme`. The mechanical repair is the prefix pair
-  `the-/tho-`, but those forms are identical to future `-the/-tho` and differ
-  only by position. The structure is unambiguous, but the homophony needs
-  review before the canonical question forms change.
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
   Finnish and Japanese are heavily length-contrastive and neither is doing that
   work here. It would sit on the vowel marks, not the consonants.
