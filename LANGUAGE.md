@@ -26,10 +26,9 @@ Two reasons, pointing the same way:
 It also repaired the script for free, which is written up in the commit for
 `df924f0`.
 
-**The affricate repair is complete.** The canonical backlog is `[respell]` in
-`data/lexicon.toml`, which now holds only the separate consonantal `w` problem
-under Open. It is deliberately not copied here, because a second copy is a
-second thing to get wrong.
+**The affricate repair is complete.** The canonical `[respell]` backlog in
+`data/lexicon.toml` is currently empty. It remains the place for attested but
+unwritable forms, because a second backlog is a second thing to get wrong.
 
 ## 2. Vowel harmony, on backness
 
@@ -371,8 +370,6 @@ decision rather than an English gloss silently merging them.
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
   Finnish and Japanese are heavily length-contrastive and neither is doing that
   work here. It would sit on the vowel marks, not the consonants.
-- **`yəwə`.** Still unwritable because `w` stopped being a consonant and now
-  exists only as a vowel glide. The attested word for "crab" needs respelling.
 - **The corrective affirmative.** The language will distinguish ordinary
   affirmation from contradiction of a negative premise, as French distinguishes
   *oui* from *si*. The grammatical job is settled; the form is not.

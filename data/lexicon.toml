@@ -84,10 +84,6 @@
 #   place
 #   water
 #
-# Unassigned valid forms worth keeping for later suggestions
-#   moluyo: back-harmonic; wrong for "believe", but not wrong in Ronesathwasha
-
-
 [pronoun]
 "la" = "I"
 "lo" = "we"
@@ -122,6 +118,7 @@
 "ro" = "person"
 "rono" = "people"
 "shwi" = "rabbit"
+"moluyo" = "crab"
 "mirire" = "teacher (teach-person)"
 "mwu" = "thing"
 
@@ -230,12 +227,3 @@
 "thina twa" = "I'm thirsty (I want drink)"
 "thwame" = "I like"
 "thənəlayi tumamo" = "I cast fireball"
-
-
-# Attested but currently unwritable. Not a backlog of missing words: these are
-# real entries blocked by an inventory decision, and each needs respelling
-# rather than inventing. The tests report these separately instead of failing
-# on them. Here `w` stopped being a consonant and now exists only as a vowel
-# glide.
-[respell]
-"yəwə" = "crab"
