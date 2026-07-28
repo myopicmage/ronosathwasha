@@ -32,6 +32,22 @@ HTML, ordinary Python or XML, or build wiring. Kevin can still opt any task into
 explicitly. In font work, do call out gnarly library idioms in `fontTools` / `fontmake`
 where they are genuinely non-obvious.
 
+**A stop here is one file, not one logical unit.** The skill's default unit is
+calibrated to repositories where Kevin can already see the shape of a change: many
+near-identical edits across files, or a familiar pattern repeating. Raku and text
+technology are both unfamiliar territory, so a stop that spans several files hides
+exactly the structure he is trying to learn.
+
+So: one production file per gate, plus whatever test proves it. The test is
+verification rather than a second lesson, and shipping an unverified module to
+respect a file count would be the wrong trade. Where a single file is large enough
+that it is really several ideas, say so before starting and split it.
+
+Revisit this once Kevin says he has the lay of the land. It is a scaffold for
+unfamiliarity, not a permanent property of the repository. Plans written elsewhere,
+including the shared-work plan for the chatbot, use much coarser stops; treat those
+as the work breakdown and this as the gate size.
+
 **Define font vocabulary the first time it appears.** Kevin is fluent in the languages
 and new to type. Any term of art from typography, font engineering or OpenType gets a
 short gloss inline the first time it comes up in a turn, and an entry in `GLOSSARY.md`.
