@@ -1,0 +1,22 @@
+{
+  "name": "Ronosathwasha",
+  "description": "A language-development environment for Ronosathwasha, disguised as a conversation",
+  "version": "0.0.1",
+  "raku": "6.d",
+  "authors": [
+    "Kevin Bernfeld"
+  ],
+  "license": "NONE",
+  "provides": {
+    "Ronosathwasha::Chatbot": "lib/Ronosathwasha/Chatbot.rakumod"
+  },
+  "depends": [
+    "Config::TOML"
+  ],
+  "test-depends": [],
+  "source-url": "",
+  "tags": [
+    "conlang",
+    "linguistics"
+  ]
+}

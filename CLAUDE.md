@@ -43,7 +43,30 @@ without explanation is the one thing that reliably makes this work opaque.
 
 - Python, with `fontTools` + `fontmake`, sources in UFO. This is the Google Fonts pipeline
   and the de facto standard for open font development.
+- Raku, for the chatbot. `META6.json` declares the distribution, `lib/Ronosathwasha/`
+  holds the modules and `t/*.rakutest` the tests. Run them with `make raku-test`, which
+  `make check` includes.
 - A nix flake provides the dev shell. Enter it with `nix develop 'path:.'`.
+
+**nixpkgs packages no Raku modules at all**, so every ecosystem dependency comes from
+`zef` rather than from the flake. `META6.json` is the declaration and `.raku/` is the
+installed copy, untracked and rebuilt by `make`. Raku names a module repository by a
+spec rather than a path, so the two halves are `zef install --to="inst#.raku"` and
+`RAKULIB="inst#.raku"`. zef cannot install into rakudo's own repository because it lives
+in the read-only nix store.
+
+Two traps, both already worked around in the `Makefile` and both invisible until they
+bite:
+
+- **`zef install --deps-only` exits nonzero when every dependency is already
+  installed**, reporting the skips as install failures. No recipe may gate on its
+  status; the target checks for the repository directory instead, and `make raku-test`
+  is the real verification.
+- **`#` opens a comment in a `Makefile` even inside quotes**, so a repository spec has
+  to be escaped. It behaves differently in the two places it can appear: `\#` in a
+  variable assignment yields a literal `#`, while `\#` written directly in a recipe
+  passes the backslash through to the shell and zef then reads `inst\` as an unknown
+  repository type. Build the spec once in a variable and use that variable everywhere.
 
 **The flake uses `mkShellNoCC`, and must keep doing so.** `mkShell` pulls in nix's C
 compiler wrapper, which sets `SDKROOT` and `DEVELOPER_DIR` to a nixpkgs `apple-sdk`. On

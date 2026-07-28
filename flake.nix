@@ -36,6 +36,18 @@
               ps.pytest
             ]))
 
+            # The chatbot half. Rakudo is the compiler; zef is the package
+            # manager, packaged separately because Raku ships no bundled one.
+            #
+            # zef cannot install into rakudo's own module repository, because
+            # that lives in the nix store and the store is read-only. Raku
+            # addresses repositories by a spec rather than a directory, so the
+            # fix is to name a writable one: `zef install --to="inst#.raku"`
+            # and then `RAKULIB="inst#.raku"` to find it again. That path is
+            # generated and untracked, the way `build/` is.
+            pkgs.rakudo
+            pkgs.zef
+
             # hb-shape answers the only question that matters when debugging a
             # feature file: given this codepoint sequence, which glyphs come out
             # and where do they sit. nixpkgs ships the harfbuzz command line

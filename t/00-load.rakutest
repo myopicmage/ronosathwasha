@@ -1,0 +1,16 @@
+use Test;
+use Ronosathwasha::Chatbot;
+
+# Stop 1 proves the arrangement, not behaviour. Everything here is about
+# resolution: the distribution's own `lib/` on one side, and the project-local
+# zef repository on the other. If this file passes, later stops can assume both
+# and only ever debug their own code.
+
+plan 3;
+
+use-ok 'Config::TOML', 'the TOML dependency resolves from the project-local zef root';
+
+my IO::Path $root = repository-root;
+
+ok $root.d, "the repository root is a directory: $root";
+ok $root.add('data').add('script.toml').f, 'the declarations sit where the module expects them';

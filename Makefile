@@ -14,8 +14,27 @@ PORT ?= 8000
 # PATH. Outside it, every recipe re-enters the dev shell, the way
 # scripts/install.sh does. `path:.` copies the working tree into the store on
 # each evaluation, so avoid writing into it from elsewhere while this runs.
-RESHELL := $(shell command -v fontmake >/dev/null 2>&1 || echo "nix develop 'path:.' --command")
+# Probes one tool per half of the toolchain. Checking only fontmake was enough
+# until Raku arrived, and then a direnv shell cached from before that change
+# passed the test while missing half of what the recipes call.
+RESHELL := $(shell { command -v fontmake && command -v raku; } >/dev/null 2>&1 || echo "nix develop 'path:.' --command")
 PY := $(RESHELL) python3
+
+# Raku addresses module repositories by a spec rather than a path, and zef
+# cannot write to rakudo's own repository because it lives in the read-only nix
+# store. So the distribution's dependencies go into a project-local one and
+# every Raku command names it.
+#
+# The `\#` is not decoration, and the spec is built here exactly once because
+# the escape does not behave the same way in both places. An unescaped `#`
+# opens a comment even inside a quoted assignment, truncating this to `inst`.
+# Escaping it in an assignment yields a literal `#`, but escaping it in a
+# recipe leaves the backslash in place for the shell, and zef reads `inst\` as
+# an unknown repository type.
+RAKU_DEPS := .raku
+RAKU_REPO := inst\#$(RAKU_DEPS)
+RAKU_STAMP := $(RAKU_DEPS)/.deps.stamp
+RAKU := $(RESHELL) env RAKULIB="$(RAKU_REPO)"
 
 MODEL := $(wildcard ronesathwasha/*.py)
 SCRIPT := data/script.toml
@@ -38,7 +57,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict pages keylayout serve share test typecheck check install clean
+.PHONY: help all site font dict pages keylayout serve share test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -78,10 +97,27 @@ share: site ## Serve build/ through a public cloudflared tunnel
 test: ## Run the test suite
 	$(PY) -m pytest
 
+# zef exits nonzero when every dependency is already installed, reporting the
+# skips as failures, so this recipe cannot gate on its status. It distinguishes
+# the two cases by result instead: a repository directory exists either way
+# after a real install, and does not exist at all after a genuine failure on a
+# clean tree.
+#
+# The stamp is what make tracks, not the directory. A directory's timestamp
+# moves whenever anything inside it does, so declaring the target against
+# `.raku` itself would reinstall on the next run after any zef activity.
+$(RAKU_STAMP): META6.json
+	-$(RESHELL) zef install --to="$(RAKU_REPO)" --deps-only .
+	@test -d $(RAKU_DEPS) || { echo "zef could not create $(RAKU_DEPS)"; exit 1; }
+	@touch $@
+
+raku-test: $(RAKU_STAMP) ## Run the Raku test suite
+	$(RAKU) zef test .
+
 typecheck: ## Type-check, strict
 	$(PY) -m mypy
 
-check: test typecheck ## Test and type-check
+check: test raku-test typecheck ## Test and type-check
 
 install: ## Build both halves and install them (macOS)
 	./scripts/install.sh

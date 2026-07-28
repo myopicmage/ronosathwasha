@@ -18,3 +18,10 @@ build/
 
 # fontmake writes here; the UFO in sources/ is what's tracked.
 !sources/*.ufo
+
+# The project-local Raku module repository. zef fills it from META6.json, which
+# is the tracked declaration; this is the installed copy.
+.raku/
+
+# Raku precompilation cache.
+.precomp/
