@@ -560,16 +560,92 @@ applies.
 **Implemented** in `tools/speak.py`, which now speaks the rule rather than
 taking stress as an open parameter.
 
+## 20. Vowels have length, drawn by doubling the mark
+
+**Every vowel has a short and a long form, and length is contrastive.** The mark
+doubles: a long vowel is its chevron drawn twice, and long `ə` is a concentric
+ring rather than a single one. Romanised by doubling the letter, as Finnish
+does: `aa`, `ii`, `əə`.
+
+This is the answer to harmony halving the working inventory. A word gets two
+harmonic vowels plus the two neutrals, and length doubles what each of those
+can do without adding a letter anyone has to learn.
+
+**The alternative was more vowels**, filling the three empty cells of the
+trapezoid, sketched in `notes/nine-vowels.html`. Declined. It needed three new
+letters with no ASCII home on a keyboard whose whole virtue is that every
+consonant sits on the letter it is romanised with, and it made the inventory
+larger where length makes it deeper.
+
+### It only works because stress is fixed
+
+Decision 19 is a prerequisite rather than a neighbour. English uses duration as
+a stress cue and has no phonemic length, so a held vowel reads as an emphasised
+one, and both being free at once is the arrangement that produces the confusion.
+
+Finnish carries fixed initial stress, vowel harmony and phonemic length
+together, which is why it is the model for all three. Long vowels in unstressed
+syllables are ordinary there: `vapaa` is stressed on `va` and holds the `aa`
+after it.
+
+### Harmony is unaffected
+
+A long vowel is one vowel held longer, with one backness. `oo` is back, `ee` is
+front, `əə` is neutral. Nothing about agreement changes and no rule needs a
+special case.
+
+### The discipline that comes with it
+
+**Length must never be the sole contrast between two semantically adjacent
+words.**
+
+This is the rule decision 18 was already applying. `thinə` and `thina` failed it
+and drink moved to `tono`. Japanese `obasan` and `obaasan` fail it too, and are
+error-prone for exactly that reason even though the lengthening there is
+systematic rather than arbitrary.
+
+Fire against wind, Finnish `tuli` and `tuuli`, passes easily. Nothing about a
+sentence disambiguates aunt from grandmother; plenty disambiguates fire from
+wind.
+
+The script mitigates what speech risks, which is the same two-channel
+arrangement decision 19 gave the negator. A doubled chevron is a visibly
+different shape, where `おばさん` and `おばあさん` differ by one small kana.
+
+### Not decided here
+
+- **Whether length carries grammar.** Finnish uses it inflectionally: the
+  illative case lengthens the final vowel, so `talo` becomes `taloon`. Every
+  affix in this language is currently a full CV syllable, and length would be a
+  marker costing no syllable at all. That is a real opening and it is not taken.
+- **Consonant length.** Finnish has both axes and uses both. This takes one.
+
+### What implementation touches
+
+Not yet implemented. In rough order of difficulty:
+
+- `data/script.toml`: twelve vowels become twenty-four. The syllable stays two
+  code points, because length is precomposed into the vowel exactly as the glide
+  already is, which `GLOSSARY.md` predicted when it noted that a new vowel
+  feature multiplies the run rather than adding to it. Two offsets rather than
+  one: `glide_offset` at 6 and a length offset at 12, giving plain short, glide
+  short, plain long, glide long. The run grows to `E020..E037`.
+- `sources/strokes.py`: the doubled chevron and the concentric ring.
+- The keyboard: `Option` becomes the length modifier, `Shift` stays the glide,
+  and `Shift+Option` is a long glide. Four states per vowel key, each modifier
+  meaning one thing everywhere.
+- `lib/Ronosathwasha/Syllables.rakumod` needs nothing: it reads its inventory
+  from the declaration.
+- `tools/speak.py` needs nothing: it already takes length as a parameter.
+
 ## Open
 
-- **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
-  Finnish and Japanese are heavily length-contrastive and neither is doing that
-  work here. **No longer blocked**: decision 19 fixed stress initially, which
-  removes the competition that made a long vowel sound like an emphasised one.
-  The mark would be a doubled chevron, with a concentric ring for long `ə`,
-  which keeps the script's rule that the mark is a picture of the vowel. The
-  cost is the vowel run doubling again, on the axis the nine-vowel sketch in
-  `notes/` uses for the other direction.
+- **Whether vowel length carries grammar.** Decision 20 takes length; it does
+  not say whether an affix may be a lengthening rather than a syllable. Finnish
+  does this, and every affix here is currently a full CV syllable, so it would
+  be a genuinely new kind of marker rather than more of an existing one.
+- **Consonant length.** Finnish carries both axes. Decision 20 takes one, and
+  says nothing about the other.
 - **The corrective affirmative.** The language will distinguish ordinary
   affirmation from contradiction of a negative premise, as French distinguishes
   *oui* from *si*. The grammatical job is settled; the form is not.
