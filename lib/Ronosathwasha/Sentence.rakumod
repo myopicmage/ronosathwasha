@@ -56,13 +56,28 @@ sub realize-constituent(
     Morphology:D $morphology,
     WordParse:D  $word,
 ) is export {
-    my Str $stem = $word.stems.join;
+    realize-word($script, $morphology, $word.stems, $word.suffixes);
+}
+
+#| The same thing without a parse to read it from.
+#|
+#| Rebuilding a sentence has a `WordParse` for every word, because it came from
+#| one. Generating a sentence from a model's intent does not: the model names a
+#| role and a stem, and there is nothing to divide. So the actual work lives
+#| here and both callers reach it.
+sub realize-word(
+    Script:D     $script,
+    Morphology:D $morphology,
+    @stems,
+    @suffixes,
+) is export {
+    my Str $stem = @stems.join;
 
     my $class = profile-of($script, $stem);
 
     fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
-    $stem ~ $word.suffixes.map({ .form-for($class) }).join;
+    $stem ~ @suffixes.map({ .form-for($class) }).join;
 }
 
 #| Build a whole sentence from a reading.
