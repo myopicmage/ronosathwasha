@@ -58,7 +58,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict pages keylayout serve share test raku-test typecheck check install clean
+.PHONY: help all site font dict pages keylayout serve share speak test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -97,6 +97,11 @@ $(STAMP): $(WEB) $(PAGES) tools/build_docs.py
 
 $(KEYLAYOUT): $(MODEL) $(SCRIPT) tools/build_keylayout.py
 	$(PY) -m tools.build_keylayout
+
+# The language, heard. Not part of `all`, because it writes audio nobody is
+# waiting on and the questions it answers are asked rarely.
+speak: ## Speak the language into build/speech
+	$(PY) -m tools.speak --demo
 
 serve: site ## Serve build/ over HTTP
 	$(PY) -m http.server -d build $(PORT)

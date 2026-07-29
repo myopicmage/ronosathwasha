@@ -48,6 +48,16 @@
             pkgs.rakudo
             pkgs.zef
 
+            # `make speak`. The language has an IPA transcription and had never
+            # been heard, which matters for decisions that are about sound
+            # rather than about shape: whether vowel length is distinguishable
+            # from stress cannot be settled by looking at a chevron.
+            #
+            # espeak-ng rather than macOS `say`, because it accepts phonemes
+            # directly. `say` would have to be given romanisation and would read
+            # it as English.
+            pkgs.espeak-ng
+
             # hb-shape answers the only question that matters when debugging a
             # feature file: given this codepoint sequence, which glyphs come out
             # and where do they sit. nixpkgs ships the harfbuzz command line
