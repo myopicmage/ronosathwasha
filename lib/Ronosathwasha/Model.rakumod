@@ -1,0 +1,209 @@
+=begin pod
+
+=head1 Ronosathwasha::Model
+
+What a model is allowed to return, and the role any model must satisfy.
+
+=head2 The model does not write Ronosathwasha
+
+It chooses a meaning. C<Ronosathwasha::Sentence> writes the text. That is the
+architectural commitment of the whole project and this file is where it becomes
+a type rather than a promise: there is no field anywhere in C<ResponseIntent>
+that holds Ronosathwasha, so a model cannot put a word on the screen even if it
+invents a very convincing one.
+
+Everything it names is checked against the declarations before it is accepted.
+A predicate the lexicon does not list is rejected here, with the value it sent,
+and never reaches the realizer.
+
+=head2 Failing is a first-class answer
+
+C<Gap> is not an error path. C<CHATBOT.md> says the model's confusion is the
+useful part, and a learner who wants to say something the language cannot
+express has produced the most valuable output this system has: evidence about
+what is missing.
+
+Every instinct in a chat model resists this. It will paper over a gap with an
+approximation given any opening, so the type gives it somewhere better to go and
+the prompt will have to keep pointing at it.
+
+=end pod
+
+unit module Ronosathwasha::Model;
+
+use Ronosathwasha::Types;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+
+#| The model named something the declarations do not contain. Carries what it
+#| sent, because that string is evidence: a model reaching repeatedly for a word
+#| that does not exist is telling you the lexicon has a hole.
+class X::Model::Unknown is Exception is export {
+    has Str $.field is required;
+    has     $.value;
+
+    method message(--> Str) {
+        "the model gave $!field as { $!value.raku }, which is not declared"
+    }
+}
+
+class X::Model::Malformed is Exception is export {
+    has Str $.reason is required;
+
+    method message(--> Str) { "the model's answer was malformed: $!reason" }
+}
+
+#| One argument: which role it fills and which stem fills it.
+class Participant is export {
+    has Argument $.role is required;
+    has Str      $.stem is required;
+}
+
+role ResponseIntent is export {
+    method summary(--> Str) { ... }
+}
+
+#| Say this. Every field is a meaning; none of them is text.
+class Express does ResponseIntent is export {
+    has Str       $.predicate  is required;
+    has SpeechAct $.speech-act is required;
+    has Tense     $.tense      is required;
+    has Aspect    $.aspect     is required;
+    has Polarity  $.polarity   is required;
+    has Modality  $.modality   is required;
+    has Participant @.participants;
+
+    method summary(--> Str) {
+        my @parts = ($!tense.key, $!aspect.key, $!polarity.key, $!modality.key);
+        "{ $!speech-act.key } { $!predicate } ({ @parts.join(', ') })"
+    }
+}
+
+#| I want to say this and the language cannot. The output worth having.
+class Gap does ResponseIntent is export {
+    has Str $.wanted  is required;
+    has Str $.missing is required;
+
+    method summary(--> Str) { "gap: $!wanted, needs $!missing" }
+}
+
+#| The interface a model satisfies. One method, so a fake and a local server are
+#| interchangeable and the dialogue loop can be tested without either.
+role Model is export {
+    method respond($context --> ResponseIntent) { ... }
+}
+
+my constant %SPEECH-ACT = (
+    declarative => Declarative, interrogative => Interrogative, imperative => Imperative,
+);
+my constant %TENSE    = (past => Past, present => Present, future => Future);
+my constant %ASPECT   = (simple => Simple, continuous => Continuous);
+my constant %POLARITY = (affirmative => Affirmative, negative => Negative);
+my constant %MODALITY = (asserted => Asserted, potential => Potential);
+my constant %ROLE     = (subject => Subject, object => Object);
+
+#| Raises rather than failing. A `Failure` handed to a constrained attribute
+#| is type-checked, and the type-check error replaces the domain exception with
+#| one about binding, so the caller learns nothing about what the model sent.
+#| `intent-from` converts at its own edge instead.
+sub pick(%table, $sent, Str:D $field) {
+    my $value = %table{ $sent // '' };
+
+    die X::Model::Unknown.new(:$field, :value($sent)) without $value;
+
+    $value;
+}
+
+#| Every stem a model may name.
+#|
+#| The lexicon's words minus its bound morphology, plus the verb stems recovered
+#| from their infinitives. Exactly the set `Ronosathwasha::Words` will divide a
+#| word into, because a model naming something the grammar cannot then assemble
+#| would be a gap that only appears at realization.
+sub nameable(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
+    my @markers = $morphology.by-id('infinitive').forms;
+    my $affixes = $lexicon.affixes.map(*.roman).Set;
+
+    my @listed = $lexicon.entries
+        .map(*.roman)
+        .grep({ not $affixes{$_} and not .contains(' ') });
+
+    my @bare = @listed.map(-> $form {
+        with @markers.first({ $form.ends-with($_) && $form.chars > .chars }) -> $marker {
+            $form.substr(0, $form.chars - $marker.chars)
+        } else {
+            Empty
+        }
+    });
+
+    (@listed, @bare).flat.Set;
+}
+
+#| Turn what a model sent into an intent, or refuse it.
+#|
+#| No return type, so a refusal stays inert; see `Ronosathwasha::Types`. The
+#| checking is deliberately not trusting: a schema-constrained decoder can
+#| guarantee the shape of the JSON and cannot guarantee that `thinu` is a word.
+sub intent-from(
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    %raw,
+) is export {
+    my Str $kind = ~(%raw<kind> // '');
+
+    if $kind eq 'gap' {
+        for <wanted missing> -> $field {
+            die X::Model::Malformed.new(:reason("gap without $field"))
+                unless %raw{$field}.defined && ~%raw{$field}.chars;
+        }
+
+        return Gap.new(:wanted(~%raw<wanted>), :missing(~%raw<missing>));
+    }
+
+    die X::Model::Malformed.new(:reason("unknown kind { $kind.raku }"))
+        unless $kind eq 'express';
+
+    my Set $known = nameable($lexicon, $morphology);
+
+    my Str $predicate = ~(%raw<predicate> // '');
+
+    die X::Model::Unknown.new(:field<predicate>, :value(%raw<predicate>))
+        unless $known{$predicate};
+
+    my Participant @participants = @(%raw<arguments> // []).map: -> $a {
+
+        # Checked rather than assumed, because the shape is easy to get subtly
+        # wrong and the symptom is misleading. A hash written straight into an
+        # array literal flattens into its pairs, so `[ %( role => ... ) ]` is
+        # two Pairs and not one argument, and every field then reads as
+        # undefined rather than as absent.
+        die X::Model::Malformed.new(:reason('an argument is not an object'))
+            unless $a ~~ Associative;
+
+        my %a := $a;
+        my Str $stem = ~(%a<stem> // '');
+
+        # `:field('argument stem')`, not `:field<argument stem>`. The angle
+        # brackets are the word-quoting construct, so a space inside them makes
+        # a two-element List rather than a string with a space in it.
+        die X::Model::Unknown.new(:field('argument stem'), :value(%a<stem>))
+            unless $known{$stem};
+
+        Participant.new(:role(pick(%ROLE, %a<role>, 'argument role')), :$stem);
+    }
+
+    # `return`, because the `CATCH` below is the last statement of the sub and
+    # would otherwise supply its value.
+    return Express.new(
+        :$predicate,
+        :speech-act(pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act')),
+        :tense(pick(%TENSE, %raw<tense>, 'tense')),
+        :aspect(pick(%ASPECT, %raw<aspect>, 'aspect')),
+        :polarity(pick(%POLARITY, %raw<polarity>, 'polarity')),
+        :modality(pick(%MODALITY, %raw<modality>, 'modality')),
+        :@participants,
+    );
+
+    CATCH { default { .fail } }
+}

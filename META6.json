@@ -21,7 +21,8 @@
     "Ronosathwasha::ParseResult": "lib/Ronosathwasha/ParseResult.rakumod",
     "Ronosathwasha::Actions": "lib/Ronosathwasha/Actions.rakumod",
     "Ronosathwasha::Realizer": "lib/Ronosathwasha/Realizer.rakumod",
-    "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod"
+    "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod",
+    "Ronosathwasha::Model": "lib/Ronosathwasha/Model.rakumod"
   },
   "depends": [
     "Config::TOML"

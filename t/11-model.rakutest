@@ -1,0 +1,91 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Model;
+
+plan 19;
+
+my IO::Path $data = repository-root.add('data');
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+sub intent(%raw) { intent-from($lexicon, $morphology, %raw) }
+
+my %eat =
+    kind       => 'express',
+    predicate  => 'thinə',
+    speech_act => 'declarative',
+    tense      => 'present',
+    aspect     => 'simple',
+    polarity   => 'affirmative',
+    modality   => 'asserted',
+    arguments  => [ $%( 'role' => 'subject', stem => 'la' ) ];
+
+# ----------------------------------------------------------------- accepted ---
+
+my $ok = intent(%eat);
+isa-ok $ok, Express, 'a well-formed intent is accepted';
+is $ok.predicate, 'thinə', 'the predicate survives';
+is $ok.tense, Present, 'and the features are typed rather than strings';
+is $ok.participants.head.role, Subject, 'as are the argument roles';
+is $ok.participants.head.stem, 'la', 'with their stems';
+
+# ------------------------------------------------- the model cannot invent ---
+#
+# The whole point. A schema-constrained decoder can guarantee the shape of the
+# JSON and cannot guarantee that a word exists, so the check is here.
+
+my $invented = intent(%( %eat, predicate => 'thinu' ));
+nok $invented.defined, 'a predicate the lexicon does not list is refused';
+isa-ok $invented.self.exception, X::Model::Unknown, 'as an unknown value';
+is $invented.self.exception.value, 'thinu',
+    'and the refusal carries what the model actually sent';
+
+my $badarg = intent(%( %eat, arguments => [ $%( 'role' => 'subject', stem => 'zzz' ) ] ));
+nok $badarg.defined, 'an argument stem it does not list is refused too';
+
+my $badrole = intent(%( %eat, arguments => [ $%( 'role' => 'indirect', stem => 'la' ) ] ));
+nok $badrole.defined, 'and a role the language does not mark';
+
+my $badtense = intent(%( %eat, tense => 'pluperfect' ));
+nok $badtense.defined, 'a tense the language does not have is refused';
+is $badtense.self.exception.field, 'tense', 'naming the field it came from';
+
+# A verb stem the lexicon lists only with its infinitive is nameable, because
+# the grammar can divide a word built on it. `rorothwaswo` is listed;
+# `rorothwa` is what gets inflected.
+ok intent(%( %eat, predicate => 'rorothwa' )).defined,
+    'a stem recovered from an infinitive is nameable';
+
+nok intent(%( %eat, predicate => 'me' )).defined,
+    'while an affix is not a predicate, however real it is';
+
+# ---------------------------------------------------------------------- gaps ---
+#
+# Not an error path. This is the output the project exists to collect.
+
+my $gap = intent(%(
+    kind    => 'gap',
+    wanted  => 'I usually eat',
+    missing => 'habitual aspect',
+));
+
+isa-ok $gap, Gap, 'a gap is an ordinary intent';
+is $gap.missing, 'habitual aspect', 'carrying what the language lacks';
+
+nok intent(%( kind => 'gap', wanted => 'something' )).defined,
+    'but a gap must say what is missing';
+
+# ------------------------------------------------------------------ malformed ---
+
+nok intent(%( kind => 'chat', predicate => 'thinə' )).defined,
+    'a kind outside the two is refused rather than guessed at';
+
+# There is no field anywhere in an intent that could hold Ronosathwasha, which
+# is the architectural commitment stated as a type rather than as a promise.
+is-deeply Express.^attributes.map(*.name).grep(*.contains('text')).List, (),
+    'no intent carries text for the realizer to trust';
