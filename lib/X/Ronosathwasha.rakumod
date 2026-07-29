@@ -49,6 +49,24 @@ unit module X::Ronosathwasha;
 # `Form::MixedStem` are the same problem reached from realization and from
 # lookup, and nothing about them is per-module.
 
+# --------------------------------------------------------------- programming ---
+
+#| A functional update named a field that does not exist. Not a domain failure
+#| at all: it is a typo, and it is here because Raku's own `.clone` would have
+#| accepted it silently and produced a copy with nothing changed.
+#|
+#| Ungrouped, unlike everything below, because it is a mistake in the code
+#| rather than a thing the language or a model can do wrong.
+class NoSuchAttribute is Exception {
+    has Str $.type   is required;
+    has     @.wanted is required;
+    has     @.known  is required;
+
+    method message(--> Str) {
+        "$!type has no attribute { @!wanted.join(', ') }; it has { @!known.join(', ') }"
+    }
+}
+
 # ------------------------------------------------------------- declarations ---
 
 #| Base for anything wrong with a declaration file. Catching this catches every

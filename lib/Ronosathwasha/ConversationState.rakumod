@@ -32,13 +32,16 @@ means a context policy can try a fold, measure the result, and discard it
 without having damaged anything.
 
 Raku spells this C<.clone(:attr(...))>, which is F#'s C<{ r with X = 1 }> with
-a longer name and no compiler check that you spelled the attribute right.
+a longer name and no check that the field exists. So this class uses C<.with>
+from L<Ronosathwasha::Checked> instead, which refuses a name it does not have
+rather than returning a copy with nothing changed.
 
 =end pod
 
 unit module Ronosathwasha::ConversationState;
 
 use Ronosathwasha::Types;
+use Ronosathwasha::Checked;
 use Ronosathwasha::Model;
 
 our enum Speaker is export <Human Bot>;
@@ -55,7 +58,7 @@ class Turn is export {
     method gist(--> Str) { "{ $!speaker.key.lc }: $!text" }
 }
 
-class ConversationState is export {
+class ConversationState does Checked is export {
     has Turn @.turns;
 
     #| What older turns established, after their text was discarded. Prose on
@@ -63,7 +66,7 @@ class ConversationState is export {
     has Str @.folded;
 
     method add(Turn:D $turn --> ConversationState) {
-        self.clone(:turns([|@!turns, $turn]));
+        self.with(:turns([|@!turns, $turn]));
     }
 
     method said(Speaker:D $speaker, Str:D $text, $meaning = Nil --> ConversationState) {
@@ -89,7 +92,7 @@ class ConversationState is export {
         my @old = @!turns.head(@!turns.elems - $keep);
         my @new = @!turns.tail($keep);
 
-        self.clone(
+        self.with(
             :turns(@new),
             :folded([|@!folded, |@old.map({ summarise($_) })]),
         );

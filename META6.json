@@ -25,7 +25,8 @@
     "Ronosathwasha::Model": "lib/Ronosathwasha/Model.rakumod",
     "X::Ronosathwasha": "lib/X/Ronosathwasha.rakumod",
     "Ronosathwasha::TestModel": "lib/Ronosathwasha/TestModel.rakumod",
-    "Ronosathwasha::ConversationState": "lib/Ronosathwasha/ConversationState.rakumod"
+    "Ronosathwasha::ConversationState": "lib/Ronosathwasha/ConversationState.rakumod",
+    "Ronosathwasha::Checked": "lib/Ronosathwasha/Checked.rakumod"
   },
   "depends": [
     "Config::TOML"

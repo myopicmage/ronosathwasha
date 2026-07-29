@@ -5,8 +5,9 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Model;
 use Ronosathwasha::ConversationState;
+use X::Ronosathwasha;
 
-plan 16;
+plan 22;
 
 sub express(Str $predicate, Tense $tense = Present) {
     Express.new(
@@ -64,3 +65,20 @@ is $after.gaps.elems, 0,
     'and folding destroys it, which is why a caller harvests first';
 like $after.folded.grep(*.contains('could not say')).head, /'I usually eat'/,
     'the summary remembers that it happened and not what it was';
+
+# ------------------------------------------------------------------- .with ---
+#
+# `.clone` accepts any name, because its signature is a bare capture, so a
+# misspelled field is a copy with nothing changed and no signal at all.
+
+is $one.with(:turns([])).depth, 0, 'a correct field updates';
+
+my $typo = try $one.with(:trns([]));
+nok $typo.defined, 'a misspelled one raises instead of quietly doing nothing';
+isa-ok $!, X::Ronosathwasha::NoSuchAttribute, 'saying which';
+like $!.message, /'trns'/, 'and naming what was asked for';
+like $!.message, /'turns'/, 'alongside what it actually has';
+
+# The behaviour being replaced, shown once so the difference is on the record.
+is $one.clone(:trns([])).depth, 1,
+    'while clone accepts the same typo and changes nothing';
