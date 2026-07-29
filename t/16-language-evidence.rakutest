@@ -1,0 +1,87 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Model;
+use Ronosathwasha::ParseResult;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::LanguageEvidence;
+
+plan 17;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+sub read(Str $w) { classify($script, $lexicon, $morphology, $w) }
+
+my $none = LanguageEvidence.new;
+
+# --------------------------------------------------------------- recording ---
+
+is $none.elems, 0, 'nothing is known to begin with';
+is $none.report, 'nothing found yet', 'and it says so';
+
+my $one = $none.note(Gap.new(:wanted('I usually eat'), :missing('habitual aspect')));
+
+is $one.elems, 1, 'a gap is recorded';
+is $none.elems, 0, 'without touching the evidence it came from';
+is $one.findings.head.kind, MissingMeaning, 'as a missing meaning';
+is $one.findings.head.detail, 'habitual aspect', 'with what the language lacks';
+
+# --------------------------------------------------- repetition is the signal ---
+#
+# The whole reason this counts rather than appending. One hit is a phrasing
+# accident; twelve is a hole.
+
+my $again = $one
+    .note(Gap.new(:wanted('I usually eat'), :missing('habitual aspect')))
+    .note(Gap.new(:wanted('I usually eat'), :missing('habitual aspect')));
+
+is $again.elems, 1, 'the same gap does not accumulate entries';
+is $again.findings.head.seen, 3, 'it accumulates a count';
+like $again.report, /'(x3)'/, 'which the report leads with';
+
+my $other = $again.note(Gap.new(:wanted('stop eating'), :missing('a cessative')));
+is $other.elems, 2, 'a different gap is a different finding';
+is $other.by-weight.head.seen, 3, 'and the repeated one sorts first';
+
+# ------------------------------------------------- multi dispatch on outcomes ---
+#
+# Four things are worth noticing and two are not. Dispatch rather than a chain
+# of type tests, so a fifth is a new candidate and not an edit to a conditional.
+
+my $seen = $none
+    .note(read('thothinəme'))     # retired: the question marker decision 15 moved
+    .note(read('thinəmedi'))      # ambiguous: inflection or compound
+    .note(read('Lari'))           # recognised: nothing to learn
+    .note(read('ame'));           # unwritable: a typo, not a finding
+
+is $seen.elems, 2, 'only the informative outcomes are recorded';
+is $seen.of(RetiredUsage).elems, 1, 'a retired form is noticed';
+is $seen.of(Ambiguity).elems, 1, 'so is a word that divides two ways';
+like $seen.of(RetiredUsage).head.detail, /'decision 15'/,
+    'and the retired one carries which decision retired it';
+
+# --------------------------------------------- it survives what folding destroys ---
+#
+# The reason this class exists. `ConversationState` loses a gap at the next
+# fold, on purpose; harvesting first is what makes that safe.
+
+my $gap = Gap.new(:wanted('I usually eat'), :missing('habitual aspect'));
+
+my $conversation = ConversationState.new
+    .said(Human, 'how do I say that?')
+    .said(Bot, '', $gap)
+    .said(Human, 'ok')
+    .said(Bot, 'lari thinəme.');
+
+my $harvested = $none.note($conversation.gaps.head);
+my $folded    = $conversation.fold(2);
+
+is $folded.gaps.elems, 0, 'the conversation has forgotten the gap';
+is $harvested.elems, 1, 'and the evidence has not';

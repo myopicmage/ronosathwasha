@@ -28,7 +28,8 @@
     "Ronosathwasha::ConversationState": "lib/Ronosathwasha/ConversationState.rakumod",
     "Ronosathwasha::Checked": "lib/Ronosathwasha/Checked.rakumod",
     "Ronosathwasha::Dialogue": "lib/Ronosathwasha/Dialogue.rakumod",
-    "Ronosathwasha::TokenCounter": "lib/Ronosathwasha/TokenCounter.rakumod"
+    "Ronosathwasha::TokenCounter": "lib/Ronosathwasha/TokenCounter.rakumod",
+    "Ronosathwasha::LanguageEvidence": "lib/Ronosathwasha/LanguageEvidence.rakumod"
   },
   "depends": [
     "Config::TOML"
