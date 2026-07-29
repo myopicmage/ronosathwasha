@@ -24,6 +24,7 @@
       <string>v_o</string>
       <string>v_a</string>
       <string>v_schwa</string>
+      <string>v_schwa_long</string>
       <string>v_wi</string>
       <string>v_wu</string>
       <string>v_we</string>
@@ -68,6 +69,8 @@
       <key>v_o</key>
       <string>mark</string>
       <key>v_schwa</key>
+      <string>mark</string>
+      <key>v_schwa_long</key>
       <string>mark</string>
       <key>v_u</key>
       <string>mark</string>

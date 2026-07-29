@@ -52,7 +52,16 @@ KAPPA = 0.5522847498
 # The ring has no bearing to move along, and two rings at the same radius are
 # one ring. It goes downward instead, which is the direction the schwa's glide
 # tick already takes by convention for the same reason.
-LENGTH_STEP = 30.0
+LENGTH_STEP = 8.0
+
+# The ring is the one mark doubling cannot express by moving, because two rings
+# of one radius in one place are one ring and a mark cannot draw a smaller copy
+# of itself. So a doubled schwa substitutes *both* marks for a smaller variant
+# and stacks them, which keeps a long vowel inside one mark's footprint instead
+# of sprawling into two.
+RING_LONG_RADIUS = 20.0
+RING_LONG_STEP = 22.0
+SCHWA_LONG = "v_schwa_long"
 
 
 def ink(glyph: Glyph, centrelines: list[str]) -> None:
@@ -125,7 +134,7 @@ def length_anchor(direction: Direction) -> dict[str, float]:
     if (x, y) == (0, 0):
         # A ring, with no bearing. Downward, matching the glide tick's own
         # convention for the same vowel.
-        return {"x": 0.0, "y": -LENGTH_STEP * SCALE}
+        return {"x": 0.0, "y": -RING_LONG_STEP * SCALE}
 
     length = math.hypot(x, y)
     ux, uy = x / length, -y / length
@@ -200,6 +209,8 @@ def features(script: Script) -> str:
     # The second mark is always the plain vowel. A long glide is the glide mark
     # then the plain one, matching the romanisation `waa`, because the
     # labialisation happens once at the start and the vowel is what continues.
+    schwa = next(v for v in script.vowels if v.direction is Direction.CENTRE and not v.glide)
+
     plain = {v.roman: v for v in script.vowels if not v.glide}
     lengths = "\n".join(
         f"    ignore sub {before.glyph} {plain[roman].glyph}';"
@@ -230,7 +241,24 @@ lookup orphan_vowel {{
 {inserts}
 }} orphan_vowel;
 
+# A ring cannot nest inside itself the way a chevron nests inside itself, so a
+# long schwa shrinks both of its marks instead and stacks them. One substitution
+# applied twice, in context, because a rule cannot rewrite two glyphs at once.
+lookup shrink_schwa {{
+    sub {schwa.glyph} by {SCHWA_LONG};
+}} shrink_schwa;
+
 feature ccmp {{
+    # The long schwa comes first, because everything below it is an `ignore` and
+    # an ignore that matches stops the rules after it from being tried. Put
+    # after them, this never fires: `ignore sub @consonant @vowel'` claims the
+    # first mark of `thəə` before anything can shrink it.
+    #
+    # The first rule catches the leading mark; the second catches the trailing
+    # one, by which point the leader has already changed and can be matched on.
+    sub {schwa.glyph}' lookup shrink_schwa {schwa.glyph};
+    sub {SCHWA_LONG} {schwa.glyph}' lookup shrink_schwa;
+
     # Everything a consonant introduces is well formed; leave it alone.
     ignore sub @consonant @vowel';
 
@@ -342,6 +370,20 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
         g.appendAnchor({"name": "vowel", **length_anchor(v.direction)})
         order.append(v.glyph)
         categories[v.glyph] = "mark"
+
+        # The schwa's long variant: a smaller ring, substituted in for both
+        # marks when one follows the other. No code point, because it is not a
+        # letter; `ccmp` is the only thing that can produce it.
+        if v.direction is Direction.CENTRE and not v.glide:
+            small = font.newGlyph(SCHWA_LONG)
+            small.width = 0
+            ink(small, [circle(*CENTRE, RING_LONG_RADIUS)])
+            small.appendAnchor({"name": "_vowel", "x": 0, "y": 0})
+            small.appendAnchor(
+                {"name": "vowel", "x": 0.0, "y": -RING_LONG_STEP * SCALE}
+            )
+            order.append(SCHWA_LONG)
+            categories[SCHWA_LONG] = "mark"
 
     font.features.text = features(script)
     font.lib["public.glyphOrder"] = order

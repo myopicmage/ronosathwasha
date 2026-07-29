@@ -197,9 +197,14 @@ def test_a_repeated_vowel_is_length_rather_than_an_orphan(built: Built) -> None:
 
         (run,) = built.shape([c + v + v])
 
-        assert [p.glyph for p in run] == [
-            consonant.glyph, vowel.glyph, vowel.glyph,
-        ], vowel.roman
+        # Three glyphs, and the two marks identical to each other. Not named,
+        # because the schwa substitutes both of its rings for a smaller variant:
+        # a ring cannot nest inside itself the way a chevron can, so it shrinks
+        # instead. What matters is that it is one mark twice and not an orphan.
+        assert len(run) == 3, vowel.roman
+        assert run[0].glyph == consonant.glyph, vowel.roman
+        assert run[1].glyph == run[2].glyph, vowel.roman
+        assert "dottedcircle" not in [p.glyph for p in run], vowel.roman
 
         first, second = run[1], run[2]
         assert (second.dx, second.dy) != (first.dx, first.dy), (
