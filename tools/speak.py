@@ -39,19 +39,29 @@ ESPEAK: Final = {
     "i": "i", "u": "u", "e": "e", "o": "o", "a": "a", "ə": "@",
 }
 
-# Where the language has not decided. Stress is not in `LANGUAGE.md` at all, and
-# vowel length is an open question, so both are parameters rather than defaults:
-# the point of this tool is to vary them and listen.
-NO_STRESS: Final = -1
+# Decision 19: every word is stressed on its first syllable, always, including
+# when a prefix supplies it. So stress is a default rather than a question, and
+# the parameter survives only so that the demo can still show what varying it
+# sounds like.
+INITIAL: Final = 0
+
+# Length is still open. It is a parameter with no default because there is no
+# rule to default to.
+NO_LENGTH: Final = None
 
 
 def phonemes(
     script: Script,
     word: str,
-    stress: int = 0,
-    long_at: int | None = None,
+    stress: int = INITIAL,
+    long_at: int | None = NO_LENGTH,
 ) -> str:
-    """One romanised word as espeak phonemes."""
+    """One romanised word as espeak phonemes.
+
+    `stress` defaults to decision 19 and is only worth passing to demonstrate
+    what the rule rules out. `long_at` has no default because vowel length has
+    no rule yet.
+    """
     parsed = script.parse(word)
     if isinstance(parsed, ParseFailure):
         raise SystemExit(f"{word}: {parsed}")
@@ -90,10 +100,14 @@ def render(name: str, parts: list[str], speed: int = 130) -> Path:
 def demo(script: Script) -> None:
     """The set worth having, including the two open questions.
 
-    Files 4 to 6 exist to answer whether vowel length is distinguishable from
-    stress. English has no phonemic length and uses duration as a stress cue, so
-    an English ear hears a long vowel as a stressed one. Holding one still while
-    varying the other is the only way to find out whether that survives here.
+    Files 4 to 6 were the experiment that produced decision 19. English has no
+    phonemic length and uses duration as a stress cue, so an English ear hears a
+    long vowel as a stressed one; holding one still while varying the other is
+    how you find out whether that survives.
+
+    They are kept rather than deleted. File 5 now demonstrates something the
+    language forbids, which is worth being able to hear: fixed initial stress is
+    only a decision if you can tell what the alternative sounded like.
     """
     cons = "".join(f"'{ESPEAK[c.ipa]}a " for c in script.consonants)
     vows = "".join(f"'t{ESPEAK[v.ipa]} " for v in script.vowels if not v.glide)
@@ -113,7 +127,8 @@ def demo(script: Script) -> None:
             phonemes(script, "tono", stress=0, long_at=0),
             phonemes(script, "tono", stress=0, long_at=1),
         ], speed=110),
-        # stress varied, no length
+        # stress varied, which decision 19 now forbids: kept so the rule can
+        # be heard as a choice rather than as the only thing that was tried
         render("05-stress", [
             phonemes(script, "tono", stress=0),
             phonemes(script, "tono", stress=1),

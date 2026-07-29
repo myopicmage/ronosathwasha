@@ -508,11 +508,68 @@ slots. Context separates them; food and drink it never did.
 
 **Implemented** in `data/lexicon.toml`.
 
+## 19. Stress is fixed on the first syllable
+
+**Every word is stressed on its first syllable.** Stress is never lexical, never
+contrastive, and never has to be learned per word.
+
+Finnish is the model, and deliberately: it is already the language decision 2
+reasons from about harmony, and it carries fixed initial stress, vowel harmony
+and phonemic vowel length together without any of the three interfering. Copying
+the whole arrangement rather than one part of it is the point.
+
+Stress had never been decided. It appears twice in this document before now,
+both times in passing, and never placed. That gap was blocking a different
+question.
+
+Three things this buys:
+
+- **Word boundaries become audible.** With stress fixed at the start, a stressed
+  syllable marks where a word begins, which is real help when parsing running
+  speech. Finnish, Hungarian and Czech all work this way.
+- **Nothing has to be memorised.** In English or Russian, stress is a property
+  of each word and a learner must acquire it one word at a time. Here it follows
+  from the word's edges. For a language whose in-world purpose is that outsiders
+  can learn it, that is the largest accessibility gain available for no cost.
+- **It unblocks vowel length**, which is why it came up. See below.
+
+**Prefixes take the stress**, because it is the first syllable of the word and
+not of the stem. `dethinəme` is stressed on `de`, `lumedororothwamo` on `lu`.
+Hungarian does exactly this: its verbal prefixes bear the stress and pull it off
+the root.
+
+That gives decision 3 a second mechanism it did not ask for. The negator is
+anti-harmonic so a reader can see it, and now, whenever no modality precedes it,
+it is also stressed so a listener can hear it. The two protect the same morpheme
+through different channels, one written and one spoken.
+
+### What this means for vowel length
+
+Length was parked because it sounds like a change of stress. It does, to an
+English ear, and correctly: English has no phonemic length and uses duration as
+one of its stress cues, so a held vowel reads as an emphasised one.
+
+Every language that carries phonemic length removes that competition first.
+Finnish fixes stress initially, Japanese uses pitch accent rather than stress,
+and Latin let length determine where stress fell. None of them leaves both free.
+
+With stress fixed, length has nowhere to be misread. **The objection to vowel
+length was an objection to taking it before this decision**, and it no longer
+applies.
+
+**Implemented** in `tools/speak.py`, which now speaks the rule rather than
+taking stress as an open parameter.
+
 ## Open
 
 - **Vowel length.** Untaken, and the largest remaining fluidity lever. Both
   Finnish and Japanese are heavily length-contrastive and neither is doing that
-  work here. It would sit on the vowel marks, not the consonants.
+  work here. **No longer blocked**: decision 19 fixed stress initially, which
+  removes the competition that made a long vowel sound like an emphasised one.
+  The mark would be a doubled chevron, with a concentric ring for long `ə`,
+  which keeps the script's rule that the mark is a picture of the vowel. The
+  cost is the vowel run doubling again, on the axis the nine-vowel sketch in
+  `notes/` uses for the other direction.
 - **The corrective affirmative.** The language will distinguish ordinary
   affirmation from contradiction of a negative premise, as French distinguishes
   *oui* from *si*. The grammatical job is settled; the form is not.
