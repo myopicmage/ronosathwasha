@@ -1,5 +1,7 @@
 use Test;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Lexicon;
@@ -41,7 +43,7 @@ is $ok.participants.head.stem, 'la', 'with their stems';
 
 my $invented = intent(%( %eat, predicate => 'thinu' ));
 nok $invented.defined, 'a predicate the lexicon does not list is refused';
-isa-ok $invented.self.exception, X::Model::Unknown, 'as an unknown value';
+isa-ok $invented.self.exception, X::Ronosathwasha::Answer::Unknown, 'as an unknown value';
 is $invented.self.exception.value, 'thinu',
     'and the refusal carries what the model actually sent';
 

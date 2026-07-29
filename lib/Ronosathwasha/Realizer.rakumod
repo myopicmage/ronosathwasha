@@ -31,27 +31,15 @@ language costs no branch anywhere in this module.
 
 unit module Ronosathwasha::Realizer;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Harmony;
 use Ronosathwasha::Semantics;
 
-#| A stem with no harmony class cannot select an alternant, so a disharmonic
-#| stem is not something to be realized around. It is a broken word.
-class X::Realizer::NoClass is Exception is export {
-    has Str $.stem is required;
 
-    method message(--> Str) {
-        "$!stem is neither front nor back, so no affix can agree with it"
-    }
-}
-
-class X::Realizer::NoSuchMorpheme is Exception is export {
-    has Str $.wanted is required;
-
-    method message(--> Str) { "the declaration has no current morpheme $!wanted.raku()" }
-}
 
 #| Decision 16's order, stated once. The prefixes attach outermost first, so
 #| this list is read left to right and the results concatenate in the same
@@ -84,12 +72,12 @@ sub realize-verb(
     # documentation for why this cannot be done later.
     my $class = profile-of($script, $stem);
 
-    fail X::Realizer::NoClass.new(:$stem) if $class == MixedWord;
+    fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
     my sub form(Str $id) {
         my $morpheme = $morphology.by-id($id);
 
-        fail X::Realizer::NoSuchMorpheme.new(:wanted($id)) without $morpheme;
+        fail X::Ronosathwasha::Form::NoSuchMorpheme.new(:wanted($id)) without $morpheme;
 
         $morpheme.form-for($class);
     }

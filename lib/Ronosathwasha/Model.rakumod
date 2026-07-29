@@ -31,28 +31,14 @@ the prompt will have to keep pointing at it.
 
 unit module Ronosathwasha::Model;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 
-#| The model named something the declarations do not contain. Carries what it
-#| sent, because that string is evidence: a model reaching repeatedly for a word
-#| that does not exist is telling you the lexicon has a hole.
-class X::Model::Unknown is Exception is export {
-    has Str $.field is required;
-    has     $.value;
 
-    method message(--> Str) {
-        "the model gave $!field as { $!value.raku }, which is not declared"
-    }
-}
-
-class X::Model::Malformed is Exception is export {
-    has Str $.reason is required;
-
-    method message(--> Str) { "the model's answer was malformed: $!reason" }
-}
 
 #| One argument: which role it fills and which stem fills it.
 class Participant is export {
@@ -110,7 +96,7 @@ my constant %ROLE     = (subject => Subject, object => Object);
 sub pick(%table, $sent, Str:D $field) {
     my $value = %table{ $sent // '' };
 
-    die X::Model::Unknown.new(:$field, :value($sent)) without $value;
+    die X::Ronosathwasha::Answer::Unknown.new(:$field, :value($sent)) without $value;
 
     $value;
 }
@@ -154,21 +140,21 @@ sub intent-from(
 
     if $kind eq 'gap' {
         for <wanted missing> -> $field {
-            die X::Model::Malformed.new(:reason("gap without $field"))
+            die X::Ronosathwasha::Answer::Malformed.new(:reason("gap without $field"))
                 unless %raw{$field}.defined && ~%raw{$field}.chars;
         }
 
         return Gap.new(:wanted(~%raw<wanted>), :missing(~%raw<missing>));
     }
 
-    die X::Model::Malformed.new(:reason("unknown kind { $kind.raku }"))
+    die X::Ronosathwasha::Answer::Malformed.new(:reason("unknown kind { $kind.raku }"))
         unless $kind eq 'express';
 
     my Set $known = nameable($lexicon, $morphology);
 
     my Str $predicate = ~(%raw<predicate> // '');
 
-    die X::Model::Unknown.new(:field<predicate>, :value(%raw<predicate>))
+    die X::Ronosathwasha::Answer::Unknown.new(:field<predicate>, :value(%raw<predicate>))
         unless $known{$predicate};
 
     my Participant @participants = @(%raw<arguments> // []).map: -> $a {
@@ -178,7 +164,7 @@ sub intent-from(
         # array literal flattens into its pairs, so `[ %( role => ... ) ]` is
         # two Pairs and not one argument, and every field then reads as
         # undefined rather than as absent.
-        die X::Model::Malformed.new(:reason('an argument is not an object'))
+        die X::Ronosathwasha::Answer::Malformed.new(:reason('an argument is not an object'))
             unless $a ~~ Associative;
 
         my %a := $a;
@@ -187,7 +173,7 @@ sub intent-from(
         # `:field('argument stem')`, not `:field<argument stem>`. The angle
         # brackets are the word-quoting construct, so a space inside them makes
         # a two-element List rather than a string with a space in it.
-        die X::Model::Unknown.new(:field('argument stem'), :value(%a<stem>))
+        die X::Ronosathwasha::Answer::Unknown.new(:field('argument stem'), :value(%a<stem>))
             unless $known{$stem};
 
         Participant.new(:role(pick(%ROLE, %a<role>, 'argument role')), :$stem);

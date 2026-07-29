@@ -1,5 +1,7 @@
 use Test;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
@@ -78,4 +80,4 @@ is %back<command>, 'dororothwamo', 'and decision 16 writes this one too';
 
 my $mixed = verb('thino');
 nok $mixed.defined, 'a disharmonic stem cannot be inflected';
-isa-ok $mixed.self.exception, X::Realizer::NoClass, 'and says why rather than guessing an alternant';
+isa-ok $mixed.self.exception, X::Ronosathwasha::Form::NoClass, 'and says why rather than guessing an alternant';

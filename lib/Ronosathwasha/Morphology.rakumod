@@ -17,19 +17,11 @@ alternants and the same lookup therefore gives the right form for all of them.
 
 unit module Ronosathwasha::Morphology;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Data;
 
-#| Asking which alternant a disharmonic stem selects has no answer, because
-#| such a stem has no harmony class to select with. That is a question about a
-#| broken word rather than a broken declaration, so it gets its own type.
-class X::Morphology::MixedStem is Exception is export {
-    has Str $.morpheme is required;
-
-    method message(--> Str) {
-        "$!morpheme has no alternant for a stem that is neither front nor back"
-    }
-}
 
 class Morpheme is export {
     has Str               $.id          is required;
@@ -66,7 +58,7 @@ class Morpheme is export {
 
         return $!form with $!form;
 
-        fail X::Morphology::MixedStem.new(:morpheme($!id)) if $profile == MixedWord;
+        fail X::Ronosathwasha::Form::MixedStem.new(:morpheme($!id)) if $profile == MixedWord;
 
         $profile == BackWord ?? $!back-stem !! $!front-stem;
     }
@@ -139,7 +131,7 @@ my constant %STATUS = (
 sub decode(%table, $found, Str:D $field, Str:D $subject, IO::Path:D $path) {
     my $value = %table{ $found // '' };
 
-    fail X::Declaration::BadValue.new(:$path, :$field, :$subject, :$found)
+    fail X::Ronosathwasha::Declaration::BadValue.new(:$path, :$field, :$subject, :$found)
         without $value;
 
     $value;
@@ -152,7 +144,7 @@ sub load-morphology(IO::Path:D $path) is export {
     my Morpheme @morphemes = @(require-table($doc, 'morpheme')).map: -> %m {
         my Str $id = ~(%m<id> // '');
 
-        fail X::Declaration::BadValue.new(
+        fail X::Ronosathwasha::Declaration::BadValue.new(
             :$path, :field<id>, :subject('a morpheme'), :found(%m<id>),
         ) unless $id.chars;
 
@@ -164,7 +156,7 @@ sub load-morphology(IO::Path:D $path) is export {
         # as an undefined form in the middle of a realized word.
         my $paired = $alternation == Alternating | AntiHarmonic;
 
-        fail X::Declaration::BadValue.new(
+        fail X::Ronosathwasha::Declaration::BadValue.new(
             :$path,
             :field($paired ?? 'front_stem and back_stem' !! 'form'),
             :subject($id),

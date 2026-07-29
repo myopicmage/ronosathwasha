@@ -33,18 +33,13 @@ grammar tries the other division.
 
 unit module Ronosathwasha::Words;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 
-class X::Words::Unrecognised is Exception is export {
-    has Str $.word is required;
-
-    method message(--> Str) {
-        "$!word is writable but is not a word this grammar recognises"
-    }
-}
 
 #| One word, divided. The morphemes are named by identity rather than by form,
 #| so a caller never has to ask what a `me` was doing.
@@ -142,7 +137,7 @@ sub parse-word(
     my $text = $word.lc;
     my $match = $grammar.parse($text);
 
-    fail X::Words::Unrecognised.new(:word($word)) without $match;
+    fail X::Ronosathwasha::Word::Unrecognised.new(:word($word)) without $match;
 
     # Resolving a form to a morpheme is a lookup restricted by position, which
     # is the whole reason the declaration records position at all. Without it

@@ -14,6 +14,8 @@ here would make the copy load-bearing rather than merely present.
 
 unit module Ronosathwasha::Lexicon;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Data;
 
@@ -57,7 +59,7 @@ sub load-lexicon(IO::Path:D $path) is export {
     # the sections it expects.
     for $doc.data.kv -> $section, $words {
 
-        fail X::Declaration::BadValue.new(
+        fail X::Ronosathwasha::Declaration::BadValue.new(
             :$path,
             :field<section>,
             :subject("[$section]"),
@@ -66,7 +68,7 @@ sub load-lexicon(IO::Path:D $path) is export {
 
         for $words.kv -> $roman, $gloss {
 
-            fail X::Declaration::BadValue.new(
+            fail X::Ronosathwasha::Declaration::BadValue.new(
                 :$path,
                 :field<gloss>,
                 :subject("[$section] $roman"),

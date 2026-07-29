@@ -33,6 +33,8 @@ job and will need a canonical order. It does not need one yet.
 
 unit module Ronosathwasha::Sentence;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 use Ronosathwasha::Morphology;
@@ -58,7 +60,7 @@ sub realize-constituent(
 
     my $class = profile-of($script, $stem);
 
-    fail X::Realizer::NoClass.new(:$stem) if $class == MixedWord;
+    fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
     $stem ~ $word.suffixes.map({ .form-for($class) }).join;
 }

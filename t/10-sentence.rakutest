@@ -1,5 +1,7 @@
 use Test;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
@@ -83,4 +85,4 @@ is-deeply $crossed.stems.List, ('miri', 'roro'), 'a cross-class compound divides
 my $broken = realize-constituent($script, $morphology, $crossed);
 
 nok $broken.defined, 'and then has no class for its particle to agree with';
-isa-ok $broken.self.exception, X::Realizer::NoClass, 'which it says rather than guessing';
+isa-ok $broken.self.exception, X::Ronosathwasha::Form::NoClass, 'which it says rather than guessing';

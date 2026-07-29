@@ -13,6 +13,8 @@ made of.
 
 unit module Ronosathwasha::Script;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Data;
 
@@ -93,7 +95,7 @@ sub load-script(IO::Path:D $path) is export {
     my Vowel @vowels = @(require-table($doc, 'vowel')).map: -> %v {
         my $backness = %BACKNESS{ %v<backness> // '' };
 
-        fail X::Declaration::BadValue.new(
+        fail X::Ronosathwasha::Declaration::BadValue.new(
             :$path,
             :field<backness>,
             :subject("vowel { %v<roman> // '?' }"),

@@ -1,5 +1,7 @@
 use Test;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Morphology;
@@ -67,7 +69,7 @@ is $possessive.form-for(BackWord), 'sa', 'an invariant morpheme ignores the stem
 
 my $mixed = $present.form-for(MixedWord);
 nok $mixed.defined, 'a disharmonic stem selects nothing';
-isa-ok $mixed.self.exception, X::Morphology::MixedStem, 'and says so as a typed failure';
+isa-ok $mixed.self.exception, X::Ronosathwasha::Form::MixedStem, 'and says so as a typed failure';
 
 # --------------------------------------------------------------- retirement ---
 

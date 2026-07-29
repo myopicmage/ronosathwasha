@@ -17,6 +17,8 @@ work and the one that would silently break it.
 
 unit module Ronosathwasha::Data;
 
+use X::Ronosathwasha;
+
 use Config::TOML;
 use Ronosathwasha::Types;
 
@@ -36,9 +38,9 @@ class RawDocument is export {
 #| this is written to avoid.
 sub read-toml(IO::Path:D $path) is export {
 
-    fail X::Declaration::Unreadable.new(:$path, :reason('no such file')) unless $path.e;
+    fail X::Ronosathwasha::Declaration::Unreadable.new(:$path, :reason('no such file')) unless $path.e;
 
-    fail X::Declaration::Unreadable.new(:$path, :reason('not a file')) unless $path.f;
+    fail X::Ronosathwasha::Declaration::Unreadable.new(:$path, :reason('not a file')) unless $path.f;
 
     my %data;
 
@@ -51,7 +53,7 @@ sub read-toml(IO::Path:D $path) is export {
         # looks identical to a caller.
         CATCH {
             default {
-                fail X::Declaration::Unreadable.new(
+                fail X::Ronosathwasha::Declaration::Unreadable.new(
                     :$path,
                     :reason(.message.lines.head // ~$_),
                 );
@@ -75,7 +77,7 @@ sub read-toml(IO::Path:D $path) is export {
 #| reliable in both cases.
 sub require-table($doc, Str:D $table) is export {
 
-    fail X::Declaration::MissingTable.new(:path($doc.path), :$table)
+    fail X::Ronosathwasha::Declaration::MissingTable.new(:path($doc.path), :$table)
         unless $doc.data{$table}:exists;
 
     $doc.data{$table};

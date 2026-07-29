@@ -24,6 +24,8 @@ that finding away.
 
 unit module Ronosathwasha::Semantics;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Data;
 
@@ -166,7 +168,7 @@ my constant %STATUS    = (
 sub decode(%table, $found, Str:D $field, Str:D $subject, IO::Path:D $path) {
     my $value = %table{ $found // '' };
 
-    fail X::Declaration::BadValue.new(:$path, :$field, :$subject, :$found)
+    fail X::Ronosathwasha::Declaration::BadValue.new(:$path, :$field, :$subject, :$found)
         without $value;
 
     $value;
@@ -179,7 +181,7 @@ sub load-utterances(IO::Path:D $path) is export {
     my Utterance @utterances = @(require-table($doc, 'utterance')).map: -> %u {
         my Str $text = ~(%u<text> // '');
 
-        fail X::Declaration::BadValue.new(
+        fail X::Ronosathwasha::Declaration::BadValue.new(
             :$path, :field<text>, :subject('an utterance'), :found(%u<text>),
         ) unless $text.chars;
 

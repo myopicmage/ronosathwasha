@@ -1,5 +1,7 @@
 use Test;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Data;
@@ -26,7 +28,7 @@ sub exception-from($failure) {
 
 my $missing = read-toml($data.add('no-such-file.toml'));
 nok $missing.defined, 'a missing file returns an inert failure rather than throwing';
-isa-ok exception-from($missing), X::Declaration::Unreadable, 'carrying a typed exception';
+isa-ok exception-from($missing), X::Ronosathwasha::Declaration::Unreadable, 'carrying a typed exception';
 is exception-from($missing).reason, 'no such file', 'that names the reason as a field';
 is exception-from($missing).path.basename, 'no-such-file.toml', 'and the file as a path';
 
@@ -40,7 +42,7 @@ LEAVE { $malformed.unlink if $malformed.e }
 
 my $broken = read-toml($malformed);
 nok $broken.defined, 'malformed TOML becomes the same kind of failure as a missing file';
-isa-ok exception-from($broken), X::Declaration::Unreadable, 'from the parser, via CATCH';
+isa-ok exception-from($broken), X::Ronosathwasha::Declaration::Unreadable, 'from the parser, via CATCH';
 
 my $lexicon = read-toml($data.add('lexicon.toml'));
 isa-ok $lexicon, RawDocument, 'a real declaration reads';
@@ -59,7 +61,7 @@ is exception-from($absent).table, 'no-such-table', 'naming the table as a field,
 # about a missing table in a document that never existed.
 my $chained = try require-table(read-toml($data.add('nothing-here.toml')), 'vowel');
 nok $chained.defined, 'a chained call does not produce a value';
-isa-ok $!, X::Declaration::Unreadable,
+isa-ok $!, X::Ronosathwasha::Declaration::Unreadable,
     'the first failure propagates through the intermediate step untouched';
 
 # Inside a sub that ends in `CATCH { default { .fail } }`, that same throw goes
@@ -67,7 +69,7 @@ isa-ok $!, X::Declaration::Unreadable,
 # boundary instead of ending at it.
 my $no-script = load-script($data.add('nothing-here.toml'));
 nok $no-script.defined, 'a loader re-emits a propagated throw as an inert failure';
-isa-ok exception-from($no-script), X::Declaration::Unreadable,
+isa-ok exception-from($no-script), X::Ronosathwasha::Declaration::Unreadable,
     'still carrying the exception that started it';
 
 # ----------------------------------------------------------------- script ---

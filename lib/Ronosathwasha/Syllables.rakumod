@@ -31,28 +31,11 @@ matches, so C<t> would shadow C<th> and every dental fricative would fail.
 
 unit module Ronosathwasha::Syllables;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 
-#| A word that could not be read as syllables, with the offset reached. The
-#| position is the useful part: it says where the word stopped being writable,
-#| which is what a learner needs to see.
-#|
-#| Named `NotWritable` rather than `Unreadable` because `is export` on a nested
-#| class exports its leaf name into the importing scope, not its full path. A
-#| second `X::…::Unreadable` therefore collides with `X::Declaration::Unreadable`
-#| in any module using both, and the error names only the leaf.
-class X::Syllables::NotWritable is Exception is export {
-    has Str $.word     is required;
-    has Int $.position is required;
-
-    method message(--> Str) {
-        my $seen = $!word.substr(0, $!position);
-        my $rest = $!word.substr($!position);
-
-        "$!word is not writable: $seen.raku() parses, then $rest.raku() does not"
-    }
-}
 
 grammar Syllabary is export {
     token TOP { <syllable>+ }
@@ -84,7 +67,7 @@ sub syllables-of(Script:D $script, Str:D $word) is export {
     without $match {
         my $partial = Syllabary.subparse($word);
 
-        fail X::Syllables::NotWritable.new(
+        fail X::Ronosathwasha::Word::NotWritable.new(
             :$word,
             :position($partial ?? $partial.to !! 0),
         );
