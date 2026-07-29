@@ -97,6 +97,16 @@ Worth knowing despite the name: our `ccmp` feature composes and decomposes
 nothing. It inserts a dotted circle around a vowel that has no consonant to sit
 on, which is the one illegal sequence the anchors cannot express.
 
+**Counter**: the white a stroke encloses. The hole in an `o`, the two in a `B`,
+the three gaps between `n`'s horizontals here. Counters are what keep a letter
+legible when it gets small, because they are the first thing to close up.
+
+This matters more here than in most fonts, because our letters are stroked at a
+fixed nib. Scaling a letter down does not scale its nib with it, so shrinking a
+multi-stroke letter makes it *darker*, not lighter. `c_n` went from counters of
+about 13 units to about 7.4 that way. The lever for the whole font's colour is
+`PEN` in `sources/strokes.py`, not the letter sizes.
+
 ### What kind of script this is
 
 **Alphabet**: consonants and vowels are letters of equal standing, written in

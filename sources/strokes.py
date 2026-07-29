@@ -38,7 +38,10 @@ CONSONANTS: dict[str, list[str]] = {
     # A single horizontal. The most featureless glyph in the set, and the one
     # that borrows its silhouette from whichever vowel it meets.
     "c_m": ["M30,50 L70,50"],
-    "c_n": ["M30,32 L70,32", "M50,32 L50,68", "M30,68 L70,68"],
+    # Scaled to about two thirds about the centre, with `c_y`. The nib does not
+    # scale with them, so both letters are darker for their size than they were
+    # and `n`'s three horizontals are 12 apart rather than 18.
+    "c_n": ["M36,38 L64,38", "M50,38 L50,62", "M36,62 L64,62"],
     # Two chevrons driven into each other until their vertices pass, then cut
     # off where they cross: 24,50 and 76,50 are the vertices, 50,36.5 and
     # 50,63.5 are the crossings. So this is still the vowels' own primitive,
@@ -61,6 +64,9 @@ CONSONANTS: dict[str, list[str]] = {
     # chevron, so it stays clear of the vowels.
     "c_l": [HOOK],
     "c_r": [HOOK, CROSSBAR],
-    # _|- : low arm left, up the stem, high arm right.
-    "c_y": ["M26,72 L50,72 L50,28 L74,28"],
+    # _|- : low arm left, up the stem, high arm right. It used to span 48 by 44,
+    # which made it the largest letter in the script that was not the diamond,
+    # and the diamond at least is flat. At 32 by 30 it leaves the room the marks
+    # want without giving up the shape.
+    "c_y": ["M34,65 L50,65 L50,35 L66,35"],
 }
