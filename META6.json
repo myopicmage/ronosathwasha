@@ -23,7 +23,8 @@
     "Ronosathwasha::Realizer": "lib/Ronosathwasha/Realizer.rakumod",
     "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod",
     "Ronosathwasha::Model": "lib/Ronosathwasha/Model.rakumod",
-    "X::Ronosathwasha": "lib/X/Ronosathwasha.rakumod"
+    "X::Ronosathwasha": "lib/X/Ronosathwasha.rakumod",
+    "Ronosathwasha::TestModel": "lib/Ronosathwasha/TestModel.rakumod"
   },
   "depends": [
     "Config::TOML"

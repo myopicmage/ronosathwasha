@@ -160,3 +160,15 @@ class Answer::Malformed is Exception {
 
     method message(--> Str) { "the model's answer was malformed: $!reason" }
 }
+
+#| A scripted model was asked for more answers than it was given. Only a fake
+#| can raise this, and it is a fault in a test rather than in the language: a
+#| dialogue that ran longer than its script means the test was not describing
+#| what it thought it was.
+class Answer::Exhausted is Exception {
+    has Int $.given is required;
+
+    method message(--> Str) {
+        "the scripted model has only $!given answer{ $!given == 1 ?? '' !! 's' }"
+    }
+}
