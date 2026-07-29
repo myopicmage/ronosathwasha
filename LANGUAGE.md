@@ -142,12 +142,13 @@ else said otherwise. Three states were needed during the repair:
 
 **The canonical lexicon repair is complete.** The two roots requiring judgement
 became `runə` ("dog") and `thinə` ("food"). `thinə` preserves the shape of
-historical `thino` without colliding with existing `thina` ("drink").
+historical `thino`, which at the time required not colliding with `thina`
+("drink"). Decision 18 has since moved drink to `tono`, so the constraint that
+shaped this choice no longer exists.
 
 The remaining repairs followed mechanically from the alternating affixes:
 
-- front infinitives take `-swe`: `thinaswe`, `thinəswe`, `tiswe`, `miriswe`
-  and `neswe`;
+- front infinitives take `-swe`: `thinəswe`, `tiswe`, `miriswe` and `neswe`;
 - back `roro` takes future `-tho`, producing `rorotho`;
 - back `tuma` takes present `-mo`, producing `tumamo`;
 - phrases and current sentence examples inherit the repaired forms.
@@ -473,6 +474,39 @@ ever needs to become a rule.
 of a constraint and needs no code, and the topic tendency is deliberately
 absent from the semantic model: there is no topic dimension, and adding one
 would be canonizing it by the back door.
+
+## 18. Drink becomes `tono`
+
+**`thina` ("drink") becomes `tono`.** Its infinitive follows mechanically:
+`tono` is back-harmonic, so it takes `-swo` and becomes `tonoswo`, where the
+old form took the front `-swe`.
+
+The problem was `thinə` ("food") beside `thina` ("drink"). They differed in one
+vowel, that vowel was the `ə`/`a` contrast, and the two words are semantically
+adjacent and both very common. Nothing in context separates them, so a
+mishearing produces a sentence that is grammatical, plausible, and about the
+wrong thing.
+
+Two independent reasons, pointing the same way:
+
+- **It is the language's worst accessibility failure.** The `ə`/`a` distinction
+  is the hardest in the inventory, and the whole point of the in-world language
+  is that speakers of unrelated languages can learn it.
+- **A model cannot be trusted with it either.** Sub-word detail is where
+  language models are least reliable, and the chatbot validates that a predicate
+  exists rather than that it was the intended one. Both `thinə` and `thina`
+  exist, so confusing them produces a valid intent, a correct sentence, and the
+  wrong meaning, with nothing anywhere able to catch it.
+
+`tono` also removes a schwa from a high-frequency word, which is a small
+independent gain.
+
+**Known and accepted**: `tonə` ("know") now differs from `tono` in its final
+vowel alone. That is the same shape of contrast, and it is tolerable where
+`thinə`/`thina` was not, because knowing and drinking do not appear in the same
+slots. Context separates them; food and drink it never did.
+
+**Implemented** in `data/lexicon.toml`.
 
 ## Open
 

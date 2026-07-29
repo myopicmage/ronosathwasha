@@ -105,7 +105,7 @@
 "nəla" = "ball"
 "sene" = "cat"
 "runə" = "dog"
-"thina" = "drink"
+"tono" = "drink"
 "shimi" = "family"
 "nishimi" = "parent (up-family)"
 "sishimi" = "child (down-family)"
@@ -136,7 +136,7 @@
 
 
 [verb]
-"thinaswe" = "to drink"
+"tonoswo" = "to drink"
 "thinəswe" = "to eat (food-verb)"
 "tiswe" = "to have"
 "thwaswo" = "to like"
@@ -226,6 +226,6 @@
 "narame" = "hello (good now)"
 "narathe" = "goodbye (good future)"
 "thinə twa" = "I'm hungry (I want food)"
-"thina twa" = "I'm thirsty (I want drink)"
+"tono twa" = "I'm thirsty (I want drink)"
 "thwame" = "I like"
 "thənəlayi tumamo" = "I cast fireball"
