@@ -45,10 +45,16 @@ class PerWord does TokenCounter is export {
 #| The four-characters-per-token rule of thumb, kept because it is what people
 #| reach for, and named so that reaching for it is visible in a diff.
 #|
-#| It is wrong here in a specific direction. Ronosathwasha is written in the
-#| private use area, and a code point no tokenizer has seen becomes several
-#| tokens rather than part of one, so this underestimates the text that matters
-#| most and overestimates the English around it.
+#| It is wrong here in a specific direction, and not the one it first appears.
+#| The model never sees the private use area: everything from `read-sentence` to
+#| the realizer works in romanisation, and the PUA exists only for the font.
+#|
+#| What it does see is invented words in a mostly-Latin alphabet, which is worse
+#| for the estimate than it sounds. A tokenizer's merges were learned from a
+#| corpus that has never contained `rorothwamo`, so the word fragments rather
+#| than combining, and `ə` and `ð` are non-ASCII on top of that. Ronosathwasha
+#| costs several times what English of the same length costs, and this charges
+#| the same for both.
 class Approximate does TokenCounter is export {
     has Numeric:D $.chars-per-token = 4;
 

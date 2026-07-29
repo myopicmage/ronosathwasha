@@ -18,11 +18,12 @@ my $guess = Approximate.new;
 is $guess.count('abcd'), 1, 'the rule of thumb is four characters';
 is $guess.count('abcde'), 2, 'rounding up, because a partial token is a token';
 
-# The estimate is wrong in a direction worth pinning down. Ronosathwasha is
-# private-use text, which no tokenizer has seen, so its code points fragment
-# rather than combining. The rule of thumb charges the same for both.
-is $guess.count('Lari thinəme.'), $guess.count('Xyzw abcdefgh.'),
-    'and it cannot tell private-use script from English of the same length';
+# The estimate is wrong in a direction worth pinning down. A tokenizer's merges
+# were learned from a corpus containing no Ronosathwasha, so its words fragment
+# instead of combining, and `ə` and `ð` are non-ASCII on top of that. The rule
+# of thumb charges the same for both anyway.
+is $guess.count('Lari thinəme.'), $guess.count('Word sentence.'),
+    'and it cannot tell an invented word from English of the same length';
 
 # ------------------------------------------------------------------- budgets ---
 
