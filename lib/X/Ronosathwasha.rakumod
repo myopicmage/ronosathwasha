@@ -67,6 +67,18 @@ class NoSuchAttribute is Exception {
     }
 }
 
+#| A budget that reserves as much as it has, or more. Not a runtime condition to
+#| be handled: it is a configuration that cannot mean anything, so it fails when
+#| the budget is built rather than when a prompt first fails to fit.
+class Budget::Impossible is Exception {
+    has Int $.total    is required;
+    has Int $.reserved is required;
+
+    method message(--> Str) {
+        "a budget of $!total reserving $!reserved leaves nothing for a prompt"
+    }
+}
+
 # ------------------------------------------------------------- declarations ---
 
 #| Base for anything wrong with a declaration file. Catching this catches every
