@@ -1,0 +1,66 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Model;
+use Ronosathwasha::ConversationState;
+
+plan 16;
+
+sub express(Str $predicate, Tense $tense = Present) {
+    Express.new(
+        :$predicate, :$tense,
+        :speech-act(Declarative), :aspect(Simple),
+        :polarity(Affirmative), :modality(Asserted),
+    );
+}
+
+# --------------------------------------------------------------- accumulating ---
+
+my $empty = ConversationState.new;
+is $empty.depth, 0, 'a new conversation has no turns';
+nok $empty.last-turn.defined, 'and no last turn';
+
+my $one = $empty.said(Human, 'Lari thinəme.');
+is $one.depth, 1, 'a turn is added';
+is $empty.depth, 0, 'and the state it came from is untouched';
+
+is $one.last-turn.speaker, Human, 'the speaker is kept';
+is $one.last-turn.text, 'Lari thinəme.', 'and the text';
+
+# --------------------------------------------------------------- folding ---
+
+my $long = $empty;
+$long = $long.said(Bot, "turn $_", express('thinə')) for 1..6;
+
+is $long.depth, 6, 'six turns';
+
+my $folded = $long.fold(2);
+is $folded.depth, 2, 'folding keeps the newest two verbatim';
+is $folded.turns.head.text, 'turn 5', 'and they are the newest';
+is $folded.folded.elems, 4, 'while the other four became summaries';
+like $folded.folded.head, /'expressed thinə'/, 'which name what the turn did';
+
+is $long.fold(10).depth, 6, 'folding below the depth is a no-op';
+
+# ------------------------------------------------- folding is lossy, and shows it ---
+#
+# The behaviour this class exists to make visible. A gap is the most valuable
+# thing a conversation produces, and a fold destroys it, so a caller has to
+# harvest before folding rather than trusting the state to be careful.
+
+my $with-gap = $empty
+    .said(Human, 'how do I say I usually eat?')
+    .said(Bot, '', Gap.new(:wanted('I usually eat'), :missing('habitual aspect')))
+    .said(Human, 'ok')
+    .said(Bot, 'Lari thinəme.', express('thinə'));
+
+is $with-gap.gaps.elems, 1, 'the gap is reachable while the turn is present';
+is $with-gap.gaps.head.missing, 'habitual aspect', 'with what was missing';
+
+my $after = $with-gap.fold(2);
+is $after.gaps.elems, 0,
+    'and folding destroys it, which is why a caller harvests first';
+like $after.folded.grep(*.contains('could not say')).head, /'I usually eat'/,
+    'the summary remembers that it happened and not what it was';

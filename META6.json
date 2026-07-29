@@ -24,7 +24,8 @@
     "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod",
     "Ronosathwasha::Model": "lib/Ronosathwasha/Model.rakumod",
     "X::Ronosathwasha": "lib/X/Ronosathwasha.rakumod",
-    "Ronosathwasha::TestModel": "lib/Ronosathwasha/TestModel.rakumod"
+    "Ronosathwasha::TestModel": "lib/Ronosathwasha/TestModel.rakumod",
+    "Ronosathwasha::ConversationState": "lib/Ronosathwasha/ConversationState.rakumod"
   },
   "depends": [
     "Config::TOML"
