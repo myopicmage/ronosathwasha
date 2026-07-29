@@ -21,6 +21,7 @@ PEN = 4.6  # nib width, specimen units
 STEM = "M50,25 L50,75"                      # voicing:  t->d, th->dh
 CROSSBAR = "M27,56 L72,46"                  # place:    s->sh, l->r
 WAVE = "M30,70 Q34,30 48,48 Q62,66 70,30"
+DIAMOND = "M24,50 L50,36.5 L76,50 L50,63.5 Z"  # place: t, and d over it
 # Two, not three. `sh` is the tally plus a crossbar, so a third stroke here made
 # it the heaviest letter in the script at four, and it had to hold a vowel mark
 # and sometimes a glide tick on top of that. Dropped from `s` rather than from
@@ -38,10 +39,20 @@ CONSONANTS: dict[str, list[str]] = {
     # that borrows its silhouette from whichever vowel it meets.
     "c_m": ["M30,50 L70,50"],
     "c_n": ["M30,32 L70,32", "M50,32 L50,68", "M30,68 L70,68"],
-    # Two chevrons driven into each other until their vertices pass and the
-    # arms cross twice. The same primitive the vowels are built from.
-    "c_t": ["M74,24 L24,50 L74,76", "M26,24 L76,50 L26,76"],
-    "c_d": ["M74,24 L24,50 L74,76", "M26,24 L76,50 L26,76", STEM],
+    # Two chevrons driven into each other until their vertices pass, then cut
+    # off where they cross: 24,50 and 76,50 are the vertices, 50,36.5 and
+    # 50,63.5 are the crossings. So this is still the vowels' own primitive,
+    # doubled and closed, and nothing about it was chosen for its own sake.
+    #
+    # The arms were what made this the worst letter to add a vowel to. They
+    # reached back out to 24 and 76 in both directions, which is precisely
+    # where the vowel marks now sit, so `t` grew a third and a fourth chevron
+    # every time it was written. Closed, it keeps to the middle.
+    "c_t": [DIAMOND],
+    # 25 to 75 against a diamond 36.5 to 63.5, so the stem overshoots by 11 at
+    # each end and reads as a needle through it. A taller diamond would swallow
+    # the stem, and the stem cannot move: `dh` shares it.
+    "c_d": [DIAMOND, STEM],
     "c_th": [WAVE],
     "c_dh": [WAVE, STEM],
     "c_s": list(TALLY),

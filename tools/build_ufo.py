@@ -58,20 +58,30 @@ KAPPA = 0.5522847498
 # keeps the letter pointing where the vowel sits in the mouth and reads as one
 # doubled mark rather than two crowded ones.
 #
-# The ring has no bearing to move along, and two rings at the same radius are
-# one ring. It goes downward instead, which is the direction the schwa's glide
-# tick already takes by convention for the same reason.
+# The ring has no bearing to move along, so it is not doubled by moving at all.
+# See the schwa note below.
 LENGTH_STEP = 11.0
 
-# The ring is the one mark doubling cannot express by moving. A chevron nests
-# inside itself; two rings of one radius do not, and stacking them puts two eyes
-# in the middle of a consonant and turns every long schwa into a face.
+# Decision 21: schwa is the vowel that is not written, and the ring is what
+# doubling it looks like.
 #
-# So it ligates. Two code points, one glyph, drawn as the concentric rings the
-# doubling was always meant to look like. The writing system still writes the
-# mark twice; the font draws the combination, which is what `fi` does and is not
-# a special case anyone has to learn.
-RING_INNER_RADIUS = 19.0
+# The ring is the one mark that cannot double by moving. It has no bearing, and
+# two rings of one radius are one ring, so every way of drawing a second one
+# puts an eye inside the consonant. Starting schwa at nothing dissolves that
+# instead of working around it, and the length rule comes out simpler than it
+# was: a long vowel is one more copy of the mark than a short one. Chevrons go
+# one to two. Schwa goes none to one. Same rule, different floor.
+#
+# It ligates rather than being one code point, because the writing system still
+# writes the mark twice and the font is the only thing that should know the pair
+# is drawn as a single ring. That is what `fi` does, and nothing above the font
+# has to learn it.
+#
+# The look is an abugida's, where a bare letter carries an inherent vowel. The
+# encoding is not: schwa keeps its code point and renders as no ink. Devanagari
+# does encode the inherent vowel's absence, which is why it needs a virama to
+# say "no vowel here"; a strict CV script has no bare consonants to disambiguate
+# and so needs nothing.
 SCHWA_LONG = "v_schwa_long"
 SCHWA_GLIDE_LONG = "v_wschwa_long"
 
@@ -160,6 +170,10 @@ def tick(direction: Direction) -> list[str]:
 
     A ring has no tail, so the schwa's tick is placed by convention, straight
     down. That case is the model telling us CENTRE is its own opposite.
+
+    It stays clear of the ring even though short schwa no longer draws one, so
+    that `wə` and `wəə` are the same tick with a ring added rather than a tick
+    that shifts when the vowel lengthens.
     """
     tail = direction.opposite
     if tail is Direction.CENTRE:
@@ -371,15 +385,15 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
         g.width = 0  # a mark advances nothing; the consonant owns the width
         g.unicode = script.codepoint(v)
 
-        if v.direction is Direction.CENTRE:
-            centrelines = [circle(*CENTRE, RING_RADIUS)]
-        else:
-            centrelines = chevron(v.direction)
+        # Short schwa is the one vowel with no mark of its own, so a plain one
+        # draws nothing at all and a glide one is its tick and nothing else.
+        centrelines = [] if v.direction is Direction.CENTRE else chevron(v.direction)
 
         if v.glide:
             centrelines += tick(v.direction)
 
-        ink(g, centrelines)
+        if centrelines:
+            ink(g, centrelines)
 
         # `_vowel` attaches this mark to a consonant; `vowel` is where the next
         # mark attaches to this one, which is what makes `mkmk` possible and so
@@ -389,18 +403,15 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
         order.append(v.glyph)
         categories[v.glyph] = "mark"
 
-        # The schwa's long form: one glyph for the pair, drawn concentric. No
-        # code point, because it is not a letter; the ligature in `ccmp` is the
-        # only thing that can produce it.
+        # The schwa's long form: one glyph for the pair, and the only place the
+        # ring is drawn at all. No code point, because it is not a letter; the
+        # ligature in `ccmp` is the only thing that can produce it.
         if v.direction is Direction.CENTRE:
             name = SCHWA_GLIDE_LONG if v.glide else SCHWA_LONG
             long = font.newGlyph(name)
             long.width = 0
 
-            rings = [
-                circle(*CENTRE, RING_RADIUS),
-                circle(*CENTRE, RING_INNER_RADIUS),
-            ]
+            rings = [circle(*CENTRE, RING_RADIUS)]
             if v.glide:
                 rings += tick(v.direction)
 

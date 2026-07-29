@@ -97,6 +97,30 @@ Worth knowing despite the name: our `ccmp` feature composes and decomposes
 nothing. It inserts a dotted circle around a vowel that has no consonant to sit
 on, which is the one illegal sequence the anchors cannot express.
 
+### What kind of script this is
+
+**Alphabet**: consonants and vowels are letters of equal standing, written in
+sequence. Latin, Greek, Cyrillic.
+
+**Syllabary**: one symbol per syllable, with no way to write a consonant or a
+vowel on its own. Japanese kana. Ours is a syllabary that happens to build each
+syllable from two pieces, which is why the pieces are marks on a base rather
+than letters in a row.
+
+**Abugida**: a consonant letter already carries a vowel, and the other vowels
+are written as marks on it. Devanagari's क is `/kə/`, not `/k/`.
+
+**Virama**: the mark an abugida needs to say *no vowel here*, cancelling the
+inherent one. Devanagari's ् . It is where most of the complexity of rendering
+an abugida comes from, because a consonant followed by a virama followed by
+another consonant usually has to become a single conjunct glyph, and there are
+hundreds of them.
+
+Decision 21 makes our script *look* like an abugida, since a bare consonant now
+reads as `Cə`. It is not encoded like one: schwa keeps its code point and draws
+no ink. A strict syllabary has no bare consonants for a virama to disambiguate,
+so we take the appearance and none of the machinery.
+
 ## Drawing
 
 **UFO**: Unified Font Object. The source format: a directory of XML files, one

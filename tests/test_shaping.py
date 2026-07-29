@@ -16,7 +16,7 @@ import pytest
 
 from ronesathwasha import Consonant, Direction, Syllable, Vowel
 from tests.harness import Built, Placed
-from tools.build_ufo import ADVANCE
+from tools.build_ufo import ADVANCE, SCHWA_GLIDE_LONG, SCHWA_LONG
 
 
 @pytest.fixture(scope="session")
@@ -86,20 +86,21 @@ def test_marks_land_where_the_trapezoid_says(built: Built) -> None:
     by construction. That balance is the antipodal rule showing up as a
     measurement, and it is what the next test checks; asserting a bearing on it
     here would be asserting against our own design.
+
+    Schwa is excluded because it has no bearing to check and, since decision 21,
+    no ink to check it with. The test below covers it instead.
     """
     consonant = built.script.consonants[0]
     c_box = built.bounds(consonant.glyph)
     assert c_box is not None
     c_mid = ((c_box[0] + c_box[2]) / 2, (c_box[1] + c_box[3]) / 2)
 
-    for vowel in (v for v in built.script.vowels if not v.glide):
+    for vowel in built.script.vowels:
+        if vowel.glide or vowel.direction is Direction.CENTRE:
+            continue
+
         v_box = built.bounds(vowel.glyph)
         assert v_box is not None, vowel.glyph
-
-        if vowel.direction is Direction.CENTRE:
-            # The ring is the one vowel that surrounds rather than sits beside.
-            assert v_box[0] < c_box[0] and v_box[2] > c_box[2], vowel.roman
-            continue
 
         dx, dy = vowel.direction.value
         v_mid = ((v_box[0] + v_box[2]) / 2, (v_box[1] + v_box[3]) / 2)
@@ -116,15 +117,42 @@ def test_marks_land_where_the_trapezoid_says(built: Built) -> None:
                 )
 
 
+def test_schwa_is_written_by_not_being_written(built: Built) -> None:
+    """Decision 21, as the outlines see it.
+
+    Short schwa draws nothing, so its glyph has no ink at all and `bounds`
+    returns nothing to measure. That is the assertion, not an inconvenience
+    around one: an empty glyph is the whole of how the vowel is written, and a
+    ring reappearing there is exactly the regression worth catching.
+
+    The ring moves to the long form, where it keeps the property the short one
+    used to have: it surrounds the consonant rather than sitting beside it,
+    which is what makes it legible on a letter of any width.
+    """
+    c_box = built.bounds(built.script.consonants[0].glyph)
+    assert c_box is not None
+
+    for vowel in (v for v in built.script.vowels if v.direction is Direction.CENTRE):
+        if not vowel.glide:
+            assert built.bounds(vowel.glyph) is None, vowel.roman
+
+        long = built.bounds(SCHWA_GLIDE_LONG if vowel.glide else SCHWA_LONG)
+        assert long is not None, vowel.roman
+        assert long[0] < c_box[0] and long[2] > c_box[2], vowel.roman
+
+
 def test_glide_tick_is_on_the_far_side_from_the_chevron(built: Built) -> None:
     """The antipodal rule surviving all the way into outlines.
 
     If a tick were drawn on the same side as its chevron's point, the glyph
     would still compile, still shape, and still position. Only the shape would
     be wrong, so the box has to be what notices.
+
+    Schwa has no bearing, so there is no far side to be on and nothing here
+    would assert anything about it.
     """
     plain = {v.roman: v for v in built.script.vowels if not v.glide}
-    for glide in (v for v in built.script.vowels if v.glide):
+    for glide in (v for v in built.script.vowels if v.glide and any(v.direction.value)):
         base = plain[glide.roman.removeprefix("w")]
         p_box, g_box = built.bounds(base.glyph), built.bounds(glide.glyph)
         assert p_box is not None and g_box is not None

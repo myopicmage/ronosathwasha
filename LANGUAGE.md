@@ -650,7 +650,8 @@ this is more of that, but it is worth saying out loud rather than discovering.
   to the consonant, nesting inward along the same bearing. The ring cannot do
   that: two rings of one radius in one place are one ring, and stacking them
   draws a face inside the consonant. So the ring pair **ligates** into a single
-  concentric glyph. Two code points, one drawing, the way `fi` is.
+  glyph. Two code points, one drawing, the way `fi` is. What that glyph is drawn
+  as was still wrong here, and decision 21 fixes it.
 - **The marks moved to the rim to make room for any of this.** The chevron used
   to reach 48 with arms of 22 that landed back at about 35, drawing every vowel
   straight through its own consonant, and `c_t` is itself two crossed chevrons.
@@ -672,6 +673,74 @@ this is more of that, but it is worth saying out loud rather than discovering.
   itself, with a backreference to the vowel's own base rather than a second
   `<vowel>` and a check afterwards.
 - `tools/speak.py` needed nothing. It already took length as a parameter.
+
+## 21. Schwa is the vowel that is not written
+
+A syllable whose vowel is schwa is written as the bare consonant. The ring that
+used to mean schwa now means a long one.
+
+This is an orthographic decision and nothing else. The phoneme inventory is
+unchanged, the romanisation is unchanged, and the encoding is unchanged: schwa
+keeps its code point and the font draws no ink for it.
+
+### The length rule gets simpler, not more complicated
+
+Decision 20 said a long vowel is its mark written twice. That was true of every
+vowel except the one it could not be true of, because the ring has no bearing to
+nest along and two rings of one radius are one ring. Every fix was a workaround:
+shrink the second ring, offset it, fake a concentric pair.
+
+Starting schwa at nothing dissolves the problem instead of routing around it,
+and leaves a rule with no exception in it:
+
+> A long vowel is one more copy of the mark than a short one.
+
+Chevrons go one to two. Schwa goes none to one. Same rule, counted from a
+different floor.
+
+### It looks like an abugida and is not encoded like one
+
+An **abugida** is a script where a bare consonant letter already carries a
+vowel, and other vowels are written as marks on it. Devanagari is the familiar
+one: क is not `/k/` but `/kə/`.
+
+The price Devanagari pays is that it needs a way to say *no vowel here*, which
+is the **virama**, and the virama is the single largest source of complexity in
+rendering the script. A strict CV syllabary has no bare consonants to
+disambiguate, so it needs nothing.
+
+So this takes the abugida's appearance and none of its encoding debt. The text
+is still exactly as many code points as it was; one of them just draws nothing.
+
+### The argument against, which is real
+
+Schwa is **9.4% of syllables** in the current corpus, fifth of the six plain
+vowels. An inherent vowel is normally the commonest one, which is exactly why
+Devanagari's is schwa and not something else.
+
+Taken anyway, because the case for this is about shape rather than frequency.
+The ring is the only mark with nowhere to double to, and it is the mark this
+removes.
+
+### What implementation touches
+
+- `tools/build_ufo.py`. `v_schwa` draws no centrelines at all, and `v_wschwa` is
+  its glide tick and nothing else. `RING_RADIUS` is now referenced only from the
+  ligature.
+- `RING_INNER_RADIUS` is gone. It existed solely for the concentric pair.
+- The glide tick stays where it was, clear of a ring that short schwa no longer
+  draws, so that `wə` and `wəə` are the same tick with a ring added rather than
+  a tick that moves when the vowel lengthens.
+- Nothing else. Not the parser, not the grammar, not the keyboard, not
+  `data/script.toml`, not the corpus, not speech. An orthographic decision that
+  reaches only the font is the shape a decision should have when it is only
+  about drawing.
+
+### The one wart
+
+Pressing the schwa key produces no visible change, because the character it
+emits has no ink. The keyboard could terminate a bare consonant to `Cə` on its
+own, so that the key is rarely needed. Not done, and not decided.
 
 ## Open
 
