@@ -299,3 +299,54 @@ aspect = "simple"
 polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject"]
+
+# ------------------------------------------------------- attested, 2026-07-29 ---
+#
+# Kevin's, written in conversation rather than onto the page. They close the
+# coverage gate with attested material: proximal reference, past and future had
+# only derived examples, so the stop 10 floor was met on paper and not on
+# evidence.
+#
+# They are also the first attested sentences built on a back-harmonic predicate.
+# Every earlier one uses a front or neutral stem, so `-mo`, `-so` and `-tho` had
+# never appeared in material Kevin wrote.
+
+[[utterance]]
+text = "Lari she runəyu rorothwamo."
+english = "I love this dog"
+status = "attested"
+source = "Kevin, 2026-07-29"
+speech_act = "declarative"
+predicate = "rorothwa"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject", "object"]
+reference = "proximal"
+
+[[utterance]]
+text = "Lari runəyu rorothwaso."
+english = "I loved the dog"
+status = "attested"
+source = "Kevin, 2026-07-29"
+speech_act = "declarative"
+predicate = "rorothwa"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject", "object"]
+
+[[utterance]]
+text = "Lari runəyu rorothwatho."
+english = "I will love the dog"
+status = "attested"
+source = "Kevin, 2026-07-29"
+speech_act = "declarative"
+predicate = "rorothwa"
+tense = "future"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject", "object"]

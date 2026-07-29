@@ -16,10 +16,10 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 
 isa-ok $corpus, Coverage, 'the corpus parses into typed meaning';
 
-is $corpus.utterances.elems, 19, 'nineteen utterances';
+is $corpus.utterances.elems, 22, 'twenty-two utterances';
 
 my %counts = $corpus.counts;
-is %counts<Attested>, 14, 'fourteen attested, which is every sentence on the page';
+is %counts<Attested>, 17, 'seventeen attested: the page, plus the three Kevin wrote on 2026-07-29';
 is %counts<Derived>, 5, 'five derived, filling what nothing attested reaches';
 nok %counts<Reviewed>, 'none reviewed yet';
 nok %counts<Rejected>, 'and none rejected yet';
@@ -68,9 +68,12 @@ is-deeply $corpus.missing.List, (),
 
 ok $corpus.has-locative, 'including one locative';
 
-# But the gate is only honestly met by sentences someone has read, and five of
-# these are unreviewed. This is the assertion that turns "unreviewed" from a
-# label into a consequence.
-is-deeply $corpus.missing-from-evidence.sort.List,
-    ('reference: Proximal', 'tense: Future', 'tense: Past'),
-    'and on evidence alone it does not, which is exactly the review Kevin owes';
+# And on evidence alone, which is the question that matters. A gate satisfied by
+# sentences nobody has read is satisfied on paper.
+#
+# This asserted three missing strata until 2026-07-29: proximal reference, past
+# and future reached the floor only through derived sentences. Kevin wrote three
+# about dogs and closed it, which is also how the corpus got its first attested
+# back-harmonic predicate.
+is-deeply $corpus.missing-from-evidence.List, (),
+    'and on evidence alone as well, which is the only way it counts';
