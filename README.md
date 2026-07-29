@@ -166,7 +166,7 @@ ronesathwasha/         those files parsed into models that cannot hold a broken 
 sources/strokes.py     the consonant letterforms, as centrelines
 tools/                 the generators: UFO, font, keyboard layout, dictionary
 docs/                  hand-written pages; rebuilt into build/ with the font in them
-notes/                 historical source material preserved for archaeology
+notes/                 material that is not a declaration: source history, design sketches
 layouts/               the generated .keylayout
 scripts/install.sh     build both and put them where macOS looks
 scripts/share.sh       serve build/ and open a public tunnel at it

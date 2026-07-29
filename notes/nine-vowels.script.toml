@@ -1,0 +1,252 @@
+# The script, declared once.
+#
+# The UFO sources, the feature file, the keyboard layout and the shaping tests
+# are all generated from this file. Nothing downstream restates it.
+#
+# Two things are deliberately absent, because they are derivable and a second
+# copy is a second thing to get wrong:
+#
+#   - The six w-glide vowels. A glide vowel is its plain vowel plus a tick, at
+#     a fixed codepoint offset, so it is computed rather than listed.
+#   - Every vowel's chevron direction. It falls out of height and backness. A
+#     vowel whose glyph disagrees with its own phonology is unwritable here.
+
+[language]
+# ro.no.sa.thwa.sha, five legal syllables. The autonym is itself a well-formed
+# string in this encoding, which makes it the obvious smoke test: if the font
+# cannot render the language's own name, nothing else is worth checking.
+#
+# rono.sa.thwasha, "people's language". The plural was `ne` until harmony landed:
+# `ro` is back, and the alternating set gives `-no` after a back stem, so the name
+# repaired itself rather than being rechosen.
+name = "ronosathwasha"
+syllable = "CV"
+
+[phonotactics]
+# Every syllable is exactly one consonant plus one vowel. No onsetless
+# syllables, no codas, no clusters. This is what makes the inventory exactly
+# 11 x 12 = 132, and what lets a dead-key layout make illegal input untypeable.
+onset_required = true
+coda_allowed = false
+
+
+[block]
+# Private Use Area, two aligned runs with room to grow between them.
+consonant_base = 0xE000     # E000..E00A
+vowel_base = 0xE020         # E020..E028 plain, E029..E031 glide
+
+# A glide vowel always sits exactly this far above its plain vowel. One
+# subtraction recovers the base, which is all that ccmp decomposition and the
+# keyboard layout need in order to stay in step with each other.
+glide_offset = 9
+
+
+# Glyph names carry a c_/v_/mk_ prefix on purpose. A glyph named bare "m" or
+# "a" collides with the Adobe Glyph List, and parts of the fontTools stack will
+# helpfully infer a Latin codepoint for it. Prefixing opts out of that guess.
+
+[mark.stem]
+glyph = "mk_stem"
+feature = "voicing"
+description = "vertical stroke through the host, 50 units"
+
+[mark.crossbar]
+glyph = "mk_crossbar"
+feature = "place"
+description = "alveolar shifted back to post-alveolar"
+
+[mark.glide]
+glyph = "mk_glide"
+feature = "labialisation"
+description = "tick at the tail of the vowel chevron, antipodal to its point"
+
+
+# ---------------------------------------------------------------- consonants
+
+[[consonant]]
+offset = 0
+glyph = "c_m"
+roman = "m"
+ipa = "m"
+place = "labial"
+manner = "nasal"
+voiced = true
+
+[[consonant]]
+offset = 1
+glyph = "c_n"
+roman = "n"
+ipa = "n"
+place = "alveolar"
+manner = "nasal"
+voiced = true
+
+[[consonant]]
+offset = 2
+glyph = "c_t"
+roman = "t"
+ipa = "t"
+place = "alveolar"
+manner = "plosive"
+voiced = false
+
+[[consonant]]
+offset = 3
+glyph = "c_d"
+roman = "d"
+ipa = "d"
+place = "alveolar"
+manner = "plosive"
+voiced = true
+derives_from = "c_t"
+mark = "stem"
+
+[[consonant]]
+offset = 4
+glyph = "c_th"
+roman = "th"
+ipa = "θ"
+place = "dental"
+manner = "fricative"
+voiced = false
+
+[[consonant]]
+offset = 5
+glyph = "c_dh"
+roman = "dh"
+ipa = "ð"
+place = "dental"
+manner = "fricative"
+voiced = true
+derives_from = "c_th"
+mark = "stem"
+
+[[consonant]]
+offset = 6
+glyph = "c_s"
+roman = "s"
+ipa = "s"
+place = "alveolar"
+manner = "fricative"
+voiced = false
+
+[[consonant]]
+offset = 7
+glyph = "c_sh"
+roman = "sh"
+ipa = "ʃ"
+place = "post-alveolar"
+manner = "fricative"
+voiced = false
+derives_from = "c_s"
+mark = "crossbar"
+
+[[consonant]]
+offset = 8
+glyph = "c_l"
+roman = "l"
+ipa = "l"
+place = "alveolar"
+manner = "approximant"
+voiced = true
+
+[[consonant]]
+offset = 9
+glyph = "c_r"
+roman = "r"
+ipa = "ɹ"
+place = "post-alveolar"
+manner = "approximant"
+voiced = true
+derives_from = "c_l"
+mark = "crossbar"
+
+[[consonant]]
+offset = 10
+glyph = "c_y"
+roman = "y"
+ipa = "j"
+place = "palatal-velar"
+manner = "approximant"
+voiced = true
+
+
+# -------------------------------------------------------------------- vowels
+#
+# Six entries, twelve vowels. The chevron points at where the vowel sits in the
+# trapezoid, so `height` and `backness` are the geometry as well as the
+# phonology: close/mid/open is up/level/down, front/central/back is
+# left/centre/right. The centre-of-both case has nowhere to point and is drawn
+# as a ring instead.
+
+[[vowel]]
+offset = 0
+glyph = "v_i"
+roman = "i"
+ipa = "i"
+height = "close"
+backness = "front"
+
+[[vowel]]
+offset = 1
+glyph = "v_u"
+roman = "u"
+ipa = "u"
+height = "close"
+backness = "back"
+
+[[vowel]]
+offset = 2
+glyph = "v_e"
+roman = "e"
+ipa = "e"
+height = "mid"
+backness = "front"
+
+[[vowel]]
+offset = 3
+glyph = "v_o"
+roman = "o"
+ipa = "o"
+height = "mid"
+backness = "back"
+
+[[vowel]]
+offset = 4
+glyph = "v_a"
+roman = "a"
+ipa = "a"
+height = "open"
+backness = "central"
+
+[[vowel]]
+offset = 5
+glyph = "v_schwa"
+roman = "ə"
+ipa = "ə"
+height = "mid"
+backness = "central"
+
+[[vowel]]
+offset = 6
+glyph = "v_ae"
+roman = "æ"
+ipa = "æ"
+height = "open"
+backness = "front"
+
+[[vowel]]
+offset = 7
+glyph = "v_aa"
+roman = "å"
+ipa = "ɑ"
+height = "open"
+backness = "back"
+
+[[vowel]]
+offset = 8
+glyph = "v_barredi"
+roman = "ɨ"
+ipa = "ɨ"
+height = "close"
+backness = "central"
