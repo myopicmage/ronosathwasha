@@ -30,23 +30,23 @@ lookup orphan_vowel {
     sub v_wschwa by dottedcircle v_wschwa;
 } orphan_vowel;
 
-# A ring cannot nest inside itself the way a chevron nests inside itself, so a
-# long schwa shrinks both of its marks instead and stacks them. One substitution
-# applied twice, in context, because a rule cannot rewrite two glyphs at once.
-lookup shrink_schwa {
-    sub v_schwa by v_schwa_long;
-} shrink_schwa;
+# A chevron nests inside itself; a ring does not. Stacking two rings inside a
+# consonant draws a face, so the pair ligates into one glyph with the rings
+# concentric, which is what the doubling was always meant to look like.
+#
+# The encoding is unchanged: still two code points, still the mark written
+# twice. Only the drawing combines, the way `fi` does.
+lookup long_ring {
+    sub v_schwa v_schwa by v_schwa_long;
+    sub v_wschwa v_schwa by v_wschwa_long;
+} long_ring;
 
 feature ccmp {
-    # The long schwa comes first, because everything below it is an `ignore` and
+    # The long ring comes first, because everything below it is an `ignore` and
     # an ignore that matches stops the rules after it from being tried. Put
-    # after them, this never fires: `ignore sub @consonant @vowel'` claims the
-    # first mark of `thəə` before anything can shrink it.
-    #
-    # The first rule catches the leading mark; the second catches the trailing
-    # one, by which point the leader has already changed and can be matched on.
-    sub v_schwa' lookup shrink_schwa v_schwa;
-    sub v_schwa_long v_schwa' lookup shrink_schwa;
+    # after them this never fires, since `ignore sub @consonant @vowel'` claims
+    # the first mark of `thəə` before anything can reach it.
+    lookup long_ring;
 
     # Everything a consonant introduces is well formed; leave it alone.
     ignore sub @consonant @vowel';

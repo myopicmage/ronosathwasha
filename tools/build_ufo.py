@@ -37,8 +37,17 @@ TRANSFORM = Transform(SCALE, 0, 0, -SCALE, 0, BASELINE * SCALE)
 NIB = PEN * SCALE
 
 CENTRE = (50.0, 50.0)
-CHEVRON_REACH = 44.0
-CHEVRON_ARM = 22.0
+
+# The marks live on the rim and the consonants own the middle. Before this the
+# chevron reached 44 and threw its arms 22 back inward, landing them at about 35
+# and drawing every vowel straight through its own consonant. `c_t` is two
+# crossed chevrons spanning 24 to 76, so a vowel chevron on it produced a third
+# and a fourth, and adding length to that produced a face.
+#
+# Out at 48 with arms of 10, a vowel is a tick in the corner of a square whose
+# centre belongs to the letter. Doubling then has somewhere to go.
+CHEVRON_REACH = 48.0
+CHEVRON_ARM = 10.0
 TICK_REACH = 38.0
 TICK_ARM = 11.0
 RING_RADIUS = 34.0
@@ -52,16 +61,19 @@ KAPPA = 0.5522847498
 # The ring has no bearing to move along, and two rings at the same radius are
 # one ring. It goes downward instead, which is the direction the schwa's glide
 # tick already takes by convention for the same reason.
-LENGTH_STEP = 8.0
+LENGTH_STEP = 11.0
 
-# The ring is the one mark doubling cannot express by moving, because two rings
-# of one radius in one place are one ring and a mark cannot draw a smaller copy
-# of itself. So a doubled schwa substitutes *both* marks for a smaller variant
-# and stacks them, which keeps a long vowel inside one mark's footprint instead
-# of sprawling into two.
-RING_LONG_RADIUS = 20.0
-RING_LONG_STEP = 22.0
+# The ring is the one mark doubling cannot express by moving. A chevron nests
+# inside itself; two rings of one radius do not, and stacking them puts two eyes
+# in the middle of a consonant and turns every long schwa into a face.
+#
+# So it ligates. Two code points, one glyph, drawn as the concentric rings the
+# doubling was always meant to look like. The writing system still writes the
+# mark twice; the font draws the combination, which is what `fi` does and is not
+# a special case anyone has to learn.
+RING_INNER_RADIUS = 19.0
 SCHWA_LONG = "v_schwa_long"
+SCHWA_GLIDE_LONG = "v_wschwa_long"
 
 
 def ink(glyph: Glyph, centrelines: list[str]) -> None:
@@ -132,9 +144,10 @@ def length_anchor(direction: Direction) -> dict[str, float]:
     x, y = direction.value
 
     if (x, y) == (0, 0):
-        # A ring, with no bearing. Downward, matching the glide tick's own
-        # convention for the same vowel.
-        return {"x": 0.0, "y": -RING_LONG_STEP * SCALE}
+        # A ring never carries a second mark: its long form is a ligature, so
+        # nothing ever attaches to it. The anchor exists because every mark has
+        # one and is deliberately at the origin.
+        return {"x": 0.0, "y": 0.0}
 
     length = math.hypot(x, y)
     ux, uy = x / length, -y / length
@@ -209,7 +222,12 @@ def features(script: Script) -> str:
     # The second mark is always the plain vowel. A long glide is the glide mark
     # then the plain one, matching the romanisation `waa`, because the
     # labialisation happens once at the start and the vowel is what continues.
-    schwa = next(v for v in script.vowels if v.direction is Direction.CENTRE and not v.glide)
+    schwa = next(
+        v for v in script.vowels if v.direction is Direction.CENTRE and not v.glide
+    )
+    glide_schwa = next(
+        v for v in script.vowels if v.direction is Direction.CENTRE and v.glide
+    )
 
     plain = {v.roman: v for v in script.vowels if not v.glide}
     lengths = "\n".join(
@@ -241,23 +259,23 @@ lookup orphan_vowel {{
 {inserts}
 }} orphan_vowel;
 
-# A ring cannot nest inside itself the way a chevron nests inside itself, so a
-# long schwa shrinks both of its marks instead and stacks them. One substitution
-# applied twice, in context, because a rule cannot rewrite two glyphs at once.
-lookup shrink_schwa {{
-    sub {schwa.glyph} by {SCHWA_LONG};
-}} shrink_schwa;
+# A chevron nests inside itself; a ring does not. Stacking two rings inside a
+# consonant draws a face, so the pair ligates into one glyph with the rings
+# concentric, which is what the doubling was always meant to look like.
+#
+# The encoding is unchanged: still two code points, still the mark written
+# twice. Only the drawing combines, the way `fi` does.
+lookup long_ring {{
+    sub {schwa.glyph} {schwa.glyph} by {SCHWA_LONG};
+    sub {glide_schwa.glyph} {schwa.glyph} by {SCHWA_GLIDE_LONG};
+}} long_ring;
 
 feature ccmp {{
-    # The long schwa comes first, because everything below it is an `ignore` and
+    # The long ring comes first, because everything below it is an `ignore` and
     # an ignore that matches stops the rules after it from being tried. Put
-    # after them, this never fires: `ignore sub @consonant @vowel'` claims the
-    # first mark of `thəə` before anything can shrink it.
-    #
-    # The first rule catches the leading mark; the second catches the trailing
-    # one, by which point the leader has already changed and can be matched on.
-    sub {schwa.glyph}' lookup shrink_schwa {schwa.glyph};
-    sub {SCHWA_LONG} {schwa.glyph}' lookup shrink_schwa;
+    # after them this never fires, since `ignore sub @consonant @vowel'` claims
+    # the first mark of `thəə` before anything can reach it.
+    lookup long_ring;
 
     # Everything a consonant introduces is well formed; leave it alone.
     ignore sub @consonant @vowel';
@@ -371,19 +389,25 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
         order.append(v.glyph)
         categories[v.glyph] = "mark"
 
-        # The schwa's long variant: a smaller ring, substituted in for both
-        # marks when one follows the other. No code point, because it is not a
-        # letter; `ccmp` is the only thing that can produce it.
-        if v.direction is Direction.CENTRE and not v.glide:
-            small = font.newGlyph(SCHWA_LONG)
-            small.width = 0
-            ink(small, [circle(*CENTRE, RING_LONG_RADIUS)])
-            small.appendAnchor({"name": "_vowel", "x": 0, "y": 0})
-            small.appendAnchor(
-                {"name": "vowel", "x": 0.0, "y": -RING_LONG_STEP * SCALE}
-            )
-            order.append(SCHWA_LONG)
-            categories[SCHWA_LONG] = "mark"
+        # The schwa's long form: one glyph for the pair, drawn concentric. No
+        # code point, because it is not a letter; the ligature in `ccmp` is the
+        # only thing that can produce it.
+        if v.direction is Direction.CENTRE:
+            name = SCHWA_GLIDE_LONG if v.glide else SCHWA_LONG
+            long = font.newGlyph(name)
+            long.width = 0
+
+            rings = [
+                circle(*CENTRE, RING_RADIUS),
+                circle(*CENTRE, RING_INNER_RADIUS),
+            ]
+            if v.glide:
+                rings += tick(v.direction)
+
+            ink(long, rings)
+            long.appendAnchor({"name": "_vowel", "x": 0, "y": 0})
+            order.append(name)
+            categories[name] = "mark"
 
     font.features.text = features(script)
     font.lib["public.glyphOrder"] = order

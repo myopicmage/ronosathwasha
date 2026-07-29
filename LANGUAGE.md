@@ -646,11 +646,20 @@ a stated invariant. A long syllable is three. It goes in the direction the
 glossary already sanctions, since the syllable is the level that decomposes and
 this is more of that, but it is worth saying out loud rather than discovering.
 
-- The font gained `mkmk`, so the second mark anchors to the first rather than to
-  the consonant. It moves inward along the same bearing, which keeps the letter
-  pointing where the vowel sits in the mouth. The ring has no bearing and no
-  smaller copy of itself available, so long `ə` sets its second ring below,
-  which is the direction the schwa's glide tick already takes by convention.
+- The font gained `mkmk`, so a second chevron anchors to the first rather than
+  to the consonant, nesting inward along the same bearing. The ring cannot do
+  that: two rings of one radius in one place are one ring, and stacking them
+  draws a face inside the consonant. So the ring pair **ligates** into a single
+  concentric glyph. Two code points, one drawing, the way `fi` is.
+- **The marks moved to the rim to make room for any of this.** The chevron used
+  to reach 48 with arms of 22 that landed back at about 35, drawing every vowel
+  straight through its own consonant, and `c_t` is itself two crossed chevrons.
+  Out at 48 with arms of 10, a vowel is a tick in the corner and the middle of
+  the square belongs to the letter. Nothing was redrawn to achieve it.
+- **`s` lost a stroke**, and `sh` with it, since `sh` is `s` plus a crossbar.
+  Four strokes plus a vowel plus sometimes a glide was the densest thing the
+  script could produce and it was unreadable. Two tallies, centred under the
+  shared bar.
 - `ccmp` names each legal pair rather than allowing any vowel after any vowel.
   Only a repetition is a word: `thii` is one and `thie` is two vowels, and the
   loose rule would have rendered both without complaint.

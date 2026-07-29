@@ -21,7 +21,16 @@ PEN = 4.6  # nib width, specimen units
 STEM = "M50,25 L50,75"                      # voicing:  t->d, th->dh
 CROSSBAR = "M27,56 L72,46"                  # place:    s->sh, l->r
 WAVE = "M30,70 Q34,30 48,48 Q62,66 70,30"
-TALLY = ["M34,70 L43,31", "M49,70 L58,31", "M64,70 L73,31"]
+# Two, not three. `sh` is the tally plus a crossbar, so a third stroke here made
+# it the heaviest letter in the script at four, and it had to hold a vowel mark
+# and sometimes a glide tick on top of that. Dropped from `s` rather than from
+# `sh`, which is the only way `sh` stays `s` plus its crossbar.
+#
+# Centred on 50 rather than on 54, where the three-stroke version sat. The
+# crossbar is shared with `r` and its centre is already the midpoint between
+# this and the hook, so it cannot move to suit one of them; a narrower tally off
+# to one side under a wide bar reads as crooked rather than as crossed.
+TALLY = ["M38,70 L47,31", "M53,70 L62,31"]
 HOOK = "M62,24 L62,56 C62,70 50,78 39,73 C30,69 29,58 36,52"
 
 CONSONANTS: dict[str, list[str]] = {

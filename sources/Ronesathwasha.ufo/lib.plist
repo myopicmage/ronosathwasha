@@ -31,6 +31,7 @@
       <string>v_wo</string>
       <string>v_wa</string>
       <string>v_wschwa</string>
+      <string>v_wschwa_long</string>
     </array>
     <key>public.openTypeCategories</key>
     <dict>
@@ -83,6 +84,8 @@
       <key>v_wo</key>
       <string>mark</string>
       <key>v_wschwa</key>
+      <string>mark</string>
+      <key>v_wschwa_long</key>
       <string>mark</string>
       <key>v_wu</key>
       <string>mark</string>
