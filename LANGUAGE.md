@@ -562,10 +562,22 @@ taking stress as an open parameter.
 
 ## 20. Vowels have length, drawn by doubling the mark
 
-**Every vowel has a short and a long form, and length is contrastive.** The mark
-doubles: a long vowel is its chevron drawn twice, and long `ə` is a concentric
-ring rather than a single one. Romanised by doubling the letter, as Finnish
-does: `aa`, `ii`, `əə`.
+**Every vowel has a short and a long form, and length is contrastive.** A long
+vowel is its mark written twice: the chevron drawn twice, or two concentric
+rings for `əə`. Romanised by doubling the letter, as Finnish does.
+
+**It is written twice, not modified.** Japanese settles this: `おばあさん` is
+five kana and the length is its own あ, and katakana's ー is likewise a separate
+character. Nothing goes back and alters what was already written.
+
+That makes one rule serve four representations, with no exceptions anywhere:
+
+```text
+romanisation   thii      the letter twice
+typing         I I       the key twice
+encoding       th i i    the code point twice
+the glyph      the chevron twice
+```
 
 This is the answer to harmony halving the working inventory. A word gets two
 harmonic vowels plus the two neutrals, and length doubles what each of those
@@ -622,21 +634,30 @@ different shape, where `おばさん` and `おばあさん` differ by one small 
 
 ### What implementation touches
 
-Not yet implemented. In rough order of difficulty:
+Not yet implemented, and cheaper than the first draft of this decision assumed.
 
-- `data/script.toml`: twelve vowels become twenty-four. The syllable stays two
-  code points, because length is precomposed into the vowel exactly as the glide
-  already is, which `GLOSSARY.md` predicted when it noted that a new vowel
-  feature multiplies the run rather than adding to it. Two offsets rather than
-  one: `glide_offset` at 6 and a length offset at 12, giving plain short, glide
-  short, plain long, glide long. The run grows to `E020..E037`.
-- `sources/strokes.py`: the doubled chevron and the concentric ring.
-- The keyboard: `Option` becomes the length modifier, `Shift` stays the glide,
-  and `Shift+Option` is a long glide. Four states per vowel key, each modifier
-  meaning one thing everywhere.
-- `lib/Ronosathwasha/Syllables.rakumod` needs nothing: it reads its inventory
-  from the declaration.
-- `tools/speak.py` needs nothing: it already takes length as a parameter.
+**No new code points.** Twelve vowels stay twelve. `GLOSSARY.md` weighed
+precomposing length, which takes twelve to twenty-four, against a combining
+mark, which leaves twelve and adds one. Writing the vowel twice adds none.
+
+**The syllable stops being exactly two code points**, which is a real change to
+a stated invariant. A long syllable is three. It goes in the direction the
+glossary already sanctions, since the syllable is the level that decomposes and
+this is more of that, but it is worth saying out loud rather than discovering.
+
+- The font gains mark-to-mark attachment, `mkmk`, so the second chevron anchors
+  to the first rather than to the consonant. Only `mark` exists today.
+- `ccmp` currently inserts a dotted circle around a vowel with no consonant to
+  sit on. A doubled vowel is now a legal sequence and must not trip it.
+- The keyboard needs no modifier and no new keys. `Shift` stays the glide, and
+  fifteen keys stays fifteen. A vowel emits its syllable and enters a
+  post-vowel state; the same vowel again in that state emits a second mark.
+  Every keypress still produces output immediately.
+- `data/script.toml` needs no new letters, only whatever says that a vowel may
+  follow a vowel.
+- `lib/Ronosathwasha/Syllables.rakumod`: the syllable rule becomes
+  `<consonant> <vowel> <vowel>?`.
+- `tools/speak.py` needs nothing. It already takes length as a parameter.
 
 ## Open
 

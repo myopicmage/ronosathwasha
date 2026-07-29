@@ -68,6 +68,19 @@ The cost of the line being where it is: any new vowel feature multiplies the
 vowel run rather than adding to it. Encoding length as a precomposed vowel takes
 12 vowels to 24. Encoding it as a combining mark leaves 12 and adds one.
 
+**Length took a third option this paragraph did not consider**, and the
+paragraph is kept because being shown the option you missed is the useful part.
+Decision 20 writes a long vowel as the vowel's own mark twice, which adds no
+code point at all. Japanese does this and it is why: `おばあさん` is five kana
+and the length is its own あ, so nothing ever goes back to modify a character
+already written.
+
+The price is paid on the other side of the line. **A syllable is no longer
+always two code points**; a long one is three, and the second mark attaches to
+the first rather than to the consonant, which needs `mkmk` as well as `mark`.
+That is more decomposition rather than less, so it moves the same way the line
+already leans.
+
 **Normalisation (NFC / NFD)**: Unicode's rules for converting between the two,
 so text that means the same thing compares equal. NFC composes wherever a
 precomposed character exists, NFD decomposes. Operating systems, editors and
