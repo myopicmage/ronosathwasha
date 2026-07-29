@@ -2,6 +2,7 @@
 <glyph name="v_o" format="2">
   <unicode hex="E023"/>
   <anchor x="0" y="0" name="_vowel"/>
+  <anchor x="-300.0" y="0.0" name="vowel"/>
   <outline>
     <contour>
       <point x="956.263427734375" y="256.2634582519531" type="qcurve" smooth="yes"/>

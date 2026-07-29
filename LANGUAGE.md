@@ -634,7 +634,8 @@ different shape, where `おばさん` and `おばあさん` differ by one small 
 
 ### What implementation touches
 
-Not yet implemented, and cheaper than the first draft of this decision assumed.
+**Implemented** in the font, the keyboard and the Raku grammar. Cheaper than
+the first draft of this decision assumed.
 
 **No new code points.** Twelve vowels stay twelve. `GLOSSARY.md` weighed
 precomposing length, which takes twelve to twenty-four, against a combining
@@ -645,19 +646,23 @@ a stated invariant. A long syllable is three. It goes in the direction the
 glossary already sanctions, since the syllable is the level that decomposes and
 this is more of that, but it is worth saying out loud rather than discovering.
 
-- The font gains mark-to-mark attachment, `mkmk`, so the second chevron anchors
-  to the first rather than to the consonant. Only `mark` exists today.
-- `ccmp` currently inserts a dotted circle around a vowel with no consonant to
-  sit on. A doubled vowel is now a legal sequence and must not trip it.
-- The keyboard needs no modifier and no new keys. `Shift` stays the glide, and
-  fifteen keys stays fifteen. A vowel emits its syllable and enters a
-  post-vowel state; the same vowel again in that state emits a second mark.
-  Every keypress still produces output immediately.
-- `data/script.toml` needs no new letters, only whatever says that a vowel may
-  follow a vowel.
-- `lib/Ronosathwasha/Syllables.rakumod`: the syllable rule becomes
-  `<consonant> <vowel> <vowel>?`.
-- `tools/speak.py` needs nothing. It already takes length as a parameter.
+- The font gained `mkmk`, so the second mark anchors to the first rather than to
+  the consonant. It moves inward along the same bearing, which keeps the letter
+  pointing where the vowel sits in the mouth. The ring has no bearing and no
+  smaller copy of itself available, so long `ə` sets its second ring below,
+  which is the direction the schwa's glide tick already takes by convention.
+- `ccmp` names each legal pair rather than allowing any vowel after any vowel.
+  Only a repetition is a word: `thii` is one and `thie` is two vowels, and the
+  loose rule would have rendered both without complaint.
+- The keyboard needed no modifier and no new keys. A vowel emits its syllable
+  and enters a state naming what it wrote; the same vowel again in that state
+  writes a second mark. Every keypress still produces output, so nothing lags
+  waiting to see whether a longer vowel is coming.
+- `data/script.toml` needed nothing at all. Twelve vowels, unchanged.
+- `lib/Ronosathwasha/Syllables.rakumod` enforces the agreement in the pattern
+  itself, with a backreference to the vowel's own base rather than a second
+  `<vowel>` and a check afterwards.
+- `tools/speak.py` needed nothing. It already took length as a parameter.
 
 ## Open
 

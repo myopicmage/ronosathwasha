@@ -40,14 +40,24 @@ use Ronosathwasha::Script;
 grammar Syllabary is export {
     token TOP { <syllable>+ }
 
-    token syllable { <consonant> <vowel> }
+    #| Decision 20: a long vowel is its mark written twice, so the optional
+    #| tail is a backreference to the vowel's own base rather than another
+    #| `<vowel>`. That enforces agreement in the grammar itself: `thii` is a
+    #| word and `thie` is two vowels and not one.
+    #|
+    #| The base, not the whole vowel, because a long glide is `waa`. The
+    #| labialisation happens once at the onset and the vowel is what continues.
+    #| `<{ ... }>` evaluates the block and matches its result as a pattern.
+    #| Plain `$<vowel><base>` in regex position parses as a method call on the
+    #| grammar, which is a confusing error rather than a subtle one.
+    token syllable { <consonant> <vowel> $<long>=[ <{ ~$<vowel><base> }> ]? }
 
     token consonant { @*CONSONANTS }
 
     #| The glide is written before the vowel it marks, so `wa` is one vowel
     #| rather than a consonant and a vowel. It marks labialisation and does not
     #| change which vowel it is, which is why harmony reads `thwa` as `a`.
-    token vowel { <glide>? @*VOWELS }
+    token vowel { <glide>? $<base>=[ @*VOWELS ] }
 
     token glide { 'w' }
 }
@@ -73,5 +83,7 @@ sub syllables-of(Script:D $script, Str:D $word) is export {
         );
     }
 
-    $match<syllable>.map({ ~.<consonant> => ~.<vowel> });
+    #| Each syllable as consonant to vowel, with the vowel carrying its own
+    #| length: `thii` gives `th => ii`.
+    $match<syllable>.map({ ~.<consonant> => ~.<vowel> ~ (.<long> // '') });
 }

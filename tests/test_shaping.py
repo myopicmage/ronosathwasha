@@ -158,11 +158,17 @@ def test_orphaned_vowels_get_a_dotted_circle(built: Built) -> None:
     vowel = built.script.vowels[0]
     c, v = chr(built.script.codepoint(consonant)), chr(built.script.codepoint(vowel))
 
-    alone, doubled, leading = built.shape([v, c + v + v, v + c + v])
+    # A *different* vowel after a vowel, which is still an error. Repeating the
+    # same one is how decision 20 writes length and is checked below.
+    other = chr(built.script.codepoint(
+        next(x for x in built.script.vowels if not x.glide and x is not vowel)
+    ))
+
+    alone, mismatched, leading = built.shape([v, c + v + other, v + c + v])
 
     assert [p.glyph for p in alone] == ["dottedcircle", vowel.glyph]
-    assert [p.glyph for p in doubled] == [
-        consonant.glyph, vowel.glyph, "dottedcircle", vowel.glyph,
+    assert [p.glyph for p in mismatched][:3] == [
+        consonant.glyph, vowel.glyph, "dottedcircle",
     ]
     assert [p.glyph for p in leading] == [
         "dottedcircle", vowel.glyph, consonant.glyph, vowel.glyph,
@@ -170,10 +176,53 @@ def test_orphaned_vowels_get_a_dotted_circle(built: Built) -> None:
 
     # The circle exists to be attached to. An orphan that sails past it and
     # lands on the next glyph is the bug this rule was written to fix.
-    for run in (alone, doubled, leading):
+    for run in (alone, mismatched, leading):
         for previous, current in zip(run, run[1:], strict=False):
             if previous.glyph == "dottedcircle":
                 assert current.dx == -ADVANCE
+
+
+def test_a_repeated_vowel_is_length_rather_than_an_orphan(built: Built) -> None:
+    """Decision 20: a long vowel is its mark written twice.
+
+    The second mark is a legal continuation rather than a stray, so no dotted
+    circle, and `mkmk` moves it off the first rather than stacking it exactly
+    where nobody could see it.
+    """
+    consonant = built.script.consonants[0]
+
+    for vowel in (v for v in built.script.vowels if not v.glide):
+        c = chr(built.script.codepoint(consonant))
+        v = chr(built.script.codepoint(vowel))
+
+        (run,) = built.shape([c + v + v])
+
+        assert [p.glyph for p in run] == [
+            consonant.glyph, vowel.glyph, vowel.glyph,
+        ], vowel.roman
+
+        first, second = run[1], run[2]
+        assert (second.dx, second.dy) != (first.dx, first.dy), (
+            f"{vowel.roman}: both marks land in the same place"
+        )
+
+
+def test_a_long_glide_is_the_glide_then_the_plain_vowel(built: Built) -> None:
+    """`waa` rather than `wawa`: the labialisation happens once at the onset."""
+    consonant = built.script.consonants[0]
+    c = chr(built.script.codepoint(consonant))
+
+    for glide in (v for v in built.script.vowels if v.glide):
+        plain = next(
+            v for v in built.script.vowels
+            if not v.glide and glide.roman == f"w{v.roman}"
+        )
+        run, = built.shape([
+            c + chr(built.script.codepoint(glide)) + chr(built.script.codepoint(plain))
+        ])
+        assert [p.glyph for p in run] == [
+            consonant.glyph, glide.glyph, plain.glyph,
+        ], glide.roman
 
 
 def test_a_legal_syllable_never_triggers_the_orphan_rule(

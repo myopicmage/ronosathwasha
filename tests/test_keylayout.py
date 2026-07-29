@@ -34,6 +34,10 @@ class Keyboard:
     """The layout as an executable machine."""
 
     keymaps: dict[int, dict[int, str]]
+
+    # Per action, per state: what it writes and where it leaves the machine. A
+    # `when` may do both, which is how a vowel emits its syllable and still
+    # remembers what it was so a repeat of it can lengthen it.
     actions: dict[str, dict[str, tuple[str, str]]]
     terminators: dict[str, str]
     state: str = "none"
@@ -51,9 +55,8 @@ class Keyboard:
         actions = {
             a.attrib["id"]: {
                 w.attrib["state"]: (
-                    ("next", w.attrib["next"])
-                    if "next" in w.attrib
-                    else ("output", unshift_controls(w.attrib.get("output", "")))
+                    unshift_controls(w.attrib.get("output", "")),
+                    w.attrib.get("next", "none"),
                 )
                 for w in a.findall("when")
             }
@@ -70,12 +73,10 @@ class Keyboard:
         if action is None:
             return self  # unmapped key: nothing happens at all
 
-        kind, value = self.actions[action][self.state]
-        if kind == "next":
-            self.state = value
-        else:
-            self.typed.append(value)
-            self.state = "none"
+        output, following = self.actions[action][self.state]
+        if output:
+            self.typed.append(output)
+        self.state = following
         return self
 
     def finish(self) -> str:
@@ -99,6 +100,7 @@ def xml(script: Script) -> str:
 @pytest.fixture
 def keyboard(xml: str) -> Keyboard:
     return Keyboard.parse(xml)
+
 
 
 def keystrokes(script: Script, letter: Consonant | Vowel) -> list[tuple[int, bool]]:
@@ -259,3 +261,59 @@ def test_no_two_keystrokes_can_produce_illegal_text(script: Script, xml: str) ->
 
     assert checked == len(presses) ** 2
     assert checked > 1000, f"only {checked} combinations swept"
+
+
+def test_a_repeated_vowel_lengthens_it(xml: str, script: Script) -> None:
+    """Decision 20, typed. Pressing the vowel again writes its mark again.
+
+    The second press emits immediately, like every other. Nothing waits to find
+    out whether a longer vowel is coming, which was the cost of the modifier-free
+    design that used a terminator instead.
+    """
+    consonant = script.consonants[0]
+    for vowel in (v for v in script.vowels if not v.glide):
+        board = Keyboard.parse(xml)
+        for code, shift in keystrokes(script, consonant):
+            board.press(code, shift)
+        code, shift = keystrokes(script, vowel)[0]
+        board.press(code, shift)
+        board.press(code, shift)
+
+        want = "".join(chr(script.codepoint(x)) for x in (consonant, vowel, vowel))
+        assert board.finish() == want, vowel.roman
+
+
+def test_a_long_glide_is_the_glide_then_the_plain_vowel(
+    xml: str, script: Script
+) -> None:
+    """Shift then unshifted, matching the romanisation `waa`."""
+    consonant = script.consonants[0]
+    glide = next(v for v in script.vowels if v.glide)
+    plain = next(v for v in script.vowels if not v.glide and glide.roman == f"w{v.roman}")
+
+    board = Keyboard.parse(xml)
+    for code, shift in keystrokes(script, consonant):
+        board.press(code, shift)
+    board.press(*keystrokes(script, glide)[0])
+    board.press(*keystrokes(script, plain)[0])
+
+    want = "".join(chr(script.codepoint(x)) for x in (consonant, glide, plain))
+    assert board.finish() == want
+
+
+def test_a_different_vowel_after_a_vowel_writes_nothing(
+    xml: str, script: Script
+) -> None:
+    """There are still no onsetless syllables, and length is not a licence."""
+    consonant, (first, second) = script.consonants[0], [
+        v for v in script.vowels if not v.glide
+    ][:2]
+
+    board = Keyboard.parse(xml)
+    for code, shift in keystrokes(script, consonant):
+        board.press(code, shift)
+    board.press(*keystrokes(script, first)[0])
+    board.press(*keystrokes(script, second)[0])
+
+    want = "".join(chr(script.codepoint(x)) for x in (consonant, first))
+    assert board.finish() == want

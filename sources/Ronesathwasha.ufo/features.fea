@@ -34,6 +34,21 @@ feature ccmp {
     # Everything a consonant introduces is well formed; leave it alone.
     ignore sub @consonant @vowel';
 
+    # So is a vowel repeated after itself, which is how length is written. Each
+    # pair is named: a vowel after a *different* vowel is still an error.
+    ignore sub v_i v_i';
+    ignore sub v_wi v_i';
+    ignore sub v_u v_u';
+    ignore sub v_wu v_u';
+    ignore sub v_e v_e';
+    ignore sub v_we v_e';
+    ignore sub v_o v_o';
+    ignore sub v_wo v_o';
+    ignore sub v_a v_a';
+    ignore sub v_wa v_a';
+    ignore sub v_schwa v_schwa';
+    ignore sub v_wschwa v_schwa';
+
     # Anything else reaching a vowel means no onset, which this language
     # does not have.
     sub @vowel' lookup orphan_vowel;

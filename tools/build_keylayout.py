@@ -162,10 +162,22 @@ def _plan(script: Script) -> tuple[
     return consonants, digraphs, vowels
 
 
+def after(vowel: Vowel) -> str:
+    """The state a vowel leaves behind, so a repeat of it can lengthen it."""
+    return f"after_{vowel.glyph}"
+
+
 def build(script: Script) -> str:
     consonants, digraphs, vowels = _plan(script)
     letters = {c.glyph: c for c in (*consonants.values(), *digraphs.values())}
-    states = list(letters)
+
+    # Two kinds of state, and the difference matters for delete. An armed
+    # consonant has written nothing yet, so backspacing it cancels the dead key;
+    # a post-vowel state has already written its syllable, so backspacing is
+    # ordinary. Everything else treats a post-vowel state exactly like `none`.
+    armed = list(letters)
+    written = [after(v) for _, pair in sorted(vowels.items()) for v in pair]
+    states = [*armed, *written]
 
     def key_rows(shifted: bool) -> str:
         rows: list[str] = []
@@ -209,7 +221,13 @@ def build(script: Script) -> str:
     # A vowel completes the pending syllable. In state none it emits nothing at
     # all, which is what makes an onsetless syllable untypeable rather than
     # merely wrong.
+    #
+    # Decision 20: it also enters a state naming what was just written, so that
+    # pressing the same vowel again lengthens it. Emitting happens on every
+    # press, so nothing lags waiting to find out whether a second one is coming.
     for _, pair in sorted(vowels.items()):
+        plain = pair[0]
+
         for vowel in pair:
             whens = ['      <when state="none" output=""/>']
             for state, consonant in letters.items():
@@ -217,8 +235,29 @@ def build(script: Script) -> str:
                     chr(script.codepoint(x)) for x in (consonant, vowel)
                 )
                 whens.append(
-                    f'      <when state={quoteattr(state)} output="{_hex(text)}"/>'
+                    f'      <when state={quoteattr(state)} output="{_hex(text)}"'
+                    f' next="{after(vowel)}"/>'
                 )
+
+            # The second mark, and only after the vowel it lengthens. A long
+            # glide is the glide then the plain one, matching `waa`, so both
+            # post-vowel states of a pair accept the plain key.
+            if vowel is plain:
+                for previous in pair:
+                    whens.append(
+                        f'      <when state="{after(previous)}"'
+                        f' output="{_hex(chr(script.codepoint(plain)))}"/>'
+                    )
+
+            # After some other vowel this is an onsetless syllable, which this
+            # language does not have.
+            whens += [
+                f'      <when state="{after(other)}" output=""/>'
+                for _, others in sorted(vowels.items())
+                for other in others
+                if not (vowel is plain and other in pair)
+            ]
+
             body = "\n".join(whens)
             actions.append(
                 f'    <action id="press_{vowel.glyph}">\n{body}\n    </action>'
@@ -229,20 +268,23 @@ def build(script: Script) -> str:
     # the typist is concerned, so backspacing it should undo that keystroke
     # rather than also eating the character before it.
     for code, (plain_out, shift_out) in sorted(PASSTHROUGH.items()):
-        armed = "" if code == 51 else plain_out
+        pending = "" if code == 51 else plain_out
         whens = [f'      <when state="none" output="{_hex(plain_out)}"/>']
         whens += [
-            f'      <when state={quoteattr(s)} output="{_hex(armed)}"/>'
-            for s in states
+            f'      <when state={quoteattr(s)} output="{_hex(pending)}"/>'
+            for s in armed
+        ]
+        whens += [
+            f'      <when state={quoteattr(s)} output="{_hex(plain_out)}"/>'
+            for s in written
         ]
         actions.append(
             f'    <action id="press_{code}">\n' + "\n".join(whens) + "\n    </action>"
         )
         if shift_out != plain_out:
-            armed = shift_out
             whens = [f'      <when state="none" output="{_hex(shift_out)}"/>']
             whens += [
-                f'      <when state={quoteattr(s)} output="{_hex(armed)}"/>'
+                f'      <when state={quoteattr(s)} output="{_hex(shift_out)}"/>'
                 for s in states
             ]
             actions.append(

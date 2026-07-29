@@ -6,7 +6,7 @@ use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Syllables;
 
-plan 15;
+plan 20;
 
 my IO::Path $data = repository-root.add('data');
 my $script  = load-script($data.add('script.toml'));
@@ -78,3 +78,24 @@ my @unsplittable = $lexicon.entries.grep({
 
 is-deeply @unsplittable.map(*.roman).sort.List, (),
     'every word in the lexicon splits into syllables';
+
+# ------------------------------------------------------------ decision 20 ---
+#
+# A long vowel is its mark written twice. The grammar enforces agreement with a
+# backreference rather than accepting any second vowel, so the rule lives in the
+# shape of the pattern rather than in a check somewhere after it.
+
+is-deeply split('thii'), ('th' => 'ii',),
+    'a repeated vowel is one long syllable, not two';
+
+is-deeply split('twaa'), ('t' => 'waa',),
+    'a long glide is the glide once and the vowel twice, matching waa';
+
+is-deeply split('tonoo'), ('t' => 'o', 'n' => 'oo'),
+    'length lands on the syllable whose vowel it repeats';
+
+nok syllables-of($script, 'thie').defined,
+    'a different vowel after a vowel is not length';
+
+nok syllables-of($script, 'thiii').defined,
+    'and there is no third degree of it';

@@ -142,6 +142,18 @@
       <when state="c_th" next="c_m"/>
       <when state="c_dh" next="c_m"/>
       <when state="c_sh" next="c_m"/>
+      <when state="after_v_a" next="c_m"/>
+      <when state="after_v_wa" next="c_m"/>
+      <when state="after_v_e" next="c_m"/>
+      <when state="after_v_we" next="c_m"/>
+      <when state="after_v_o" next="c_m"/>
+      <when state="after_v_wo" next="c_m"/>
+      <when state="after_v_u" next="c_m"/>
+      <when state="after_v_wu" next="c_m"/>
+      <when state="after_v_i" next="c_m"/>
+      <when state="after_v_wi" next="c_m"/>
+      <when state="after_v_schwa" next="c_m"/>
+      <when state="after_v_wschwa" next="c_m"/>
     </action>
     <action id="press_c_n">
       <when state="none" next="c_n"/>
@@ -156,6 +168,18 @@
       <when state="c_th" next="c_n"/>
       <when state="c_dh" next="c_n"/>
       <when state="c_sh" next="c_n"/>
+      <when state="after_v_a" next="c_n"/>
+      <when state="after_v_wa" next="c_n"/>
+      <when state="after_v_e" next="c_n"/>
+      <when state="after_v_we" next="c_n"/>
+      <when state="after_v_o" next="c_n"/>
+      <when state="after_v_wo" next="c_n"/>
+      <when state="after_v_u" next="c_n"/>
+      <when state="after_v_wu" next="c_n"/>
+      <when state="after_v_i" next="c_n"/>
+      <when state="after_v_wi" next="c_n"/>
+      <when state="after_v_schwa" next="c_n"/>
+      <when state="after_v_wschwa" next="c_n"/>
     </action>
     <action id="press_c_t">
       <when state="none" next="c_t"/>
@@ -170,6 +194,18 @@
       <when state="c_th" next="c_t"/>
       <when state="c_dh" next="c_t"/>
       <when state="c_sh" next="c_t"/>
+      <when state="after_v_a" next="c_t"/>
+      <when state="after_v_wa" next="c_t"/>
+      <when state="after_v_e" next="c_t"/>
+      <when state="after_v_we" next="c_t"/>
+      <when state="after_v_o" next="c_t"/>
+      <when state="after_v_wo" next="c_t"/>
+      <when state="after_v_u" next="c_t"/>
+      <when state="after_v_wu" next="c_t"/>
+      <when state="after_v_i" next="c_t"/>
+      <when state="after_v_wi" next="c_t"/>
+      <when state="after_v_schwa" next="c_t"/>
+      <when state="after_v_wschwa" next="c_t"/>
     </action>
     <action id="press_c_d">
       <when state="none" next="c_d"/>
@@ -184,6 +220,18 @@
       <when state="c_th" next="c_d"/>
       <when state="c_dh" next="c_d"/>
       <when state="c_sh" next="c_d"/>
+      <when state="after_v_a" next="c_d"/>
+      <when state="after_v_wa" next="c_d"/>
+      <when state="after_v_e" next="c_d"/>
+      <when state="after_v_we" next="c_d"/>
+      <when state="after_v_o" next="c_d"/>
+      <when state="after_v_wo" next="c_d"/>
+      <when state="after_v_u" next="c_d"/>
+      <when state="after_v_wu" next="c_d"/>
+      <when state="after_v_i" next="c_d"/>
+      <when state="after_v_wi" next="c_d"/>
+      <when state="after_v_schwa" next="c_d"/>
+      <when state="after_v_wschwa" next="c_d"/>
     </action>
     <action id="press_c_s">
       <when state="none" next="c_s"/>
@@ -198,6 +246,18 @@
       <when state="c_th" next="c_s"/>
       <when state="c_dh" next="c_s"/>
       <when state="c_sh" next="c_s"/>
+      <when state="after_v_a" next="c_s"/>
+      <when state="after_v_wa" next="c_s"/>
+      <when state="after_v_e" next="c_s"/>
+      <when state="after_v_we" next="c_s"/>
+      <when state="after_v_o" next="c_s"/>
+      <when state="after_v_wo" next="c_s"/>
+      <when state="after_v_u" next="c_s"/>
+      <when state="after_v_wu" next="c_s"/>
+      <when state="after_v_i" next="c_s"/>
+      <when state="after_v_wi" next="c_s"/>
+      <when state="after_v_schwa" next="c_s"/>
+      <when state="after_v_wschwa" next="c_s"/>
     </action>
     <action id="press_c_l">
       <when state="none" next="c_l"/>
@@ -212,6 +272,18 @@
       <when state="c_th" next="c_l"/>
       <when state="c_dh" next="c_l"/>
       <when state="c_sh" next="c_l"/>
+      <when state="after_v_a" next="c_l"/>
+      <when state="after_v_wa" next="c_l"/>
+      <when state="after_v_e" next="c_l"/>
+      <when state="after_v_we" next="c_l"/>
+      <when state="after_v_o" next="c_l"/>
+      <when state="after_v_wo" next="c_l"/>
+      <when state="after_v_u" next="c_l"/>
+      <when state="after_v_wu" next="c_l"/>
+      <when state="after_v_i" next="c_l"/>
+      <when state="after_v_wi" next="c_l"/>
+      <when state="after_v_schwa" next="c_l"/>
+      <when state="after_v_wschwa" next="c_l"/>
     </action>
     <action id="press_c_r">
       <when state="none" next="c_r"/>
@@ -226,6 +298,18 @@
       <when state="c_th" next="c_r"/>
       <when state="c_dh" next="c_r"/>
       <when state="c_sh" next="c_r"/>
+      <when state="after_v_a" next="c_r"/>
+      <when state="after_v_wa" next="c_r"/>
+      <when state="after_v_e" next="c_r"/>
+      <when state="after_v_we" next="c_r"/>
+      <when state="after_v_o" next="c_r"/>
+      <when state="after_v_wo" next="c_r"/>
+      <when state="after_v_u" next="c_r"/>
+      <when state="after_v_wu" next="c_r"/>
+      <when state="after_v_i" next="c_r"/>
+      <when state="after_v_wi" next="c_r"/>
+      <when state="after_v_schwa" next="c_r"/>
+      <when state="after_v_wschwa" next="c_r"/>
     </action>
     <action id="press_c_y">
       <when state="none" next="c_y"/>
@@ -240,6 +324,18 @@
       <when state="c_th" next="c_y"/>
       <when state="c_dh" next="c_y"/>
       <when state="c_sh" next="c_y"/>
+      <when state="after_v_a" next="c_y"/>
+      <when state="after_v_wa" next="c_y"/>
+      <when state="after_v_e" next="c_y"/>
+      <when state="after_v_we" next="c_y"/>
+      <when state="after_v_o" next="c_y"/>
+      <when state="after_v_wo" next="c_y"/>
+      <when state="after_v_u" next="c_y"/>
+      <when state="after_v_wu" next="c_y"/>
+      <when state="after_v_i" next="c_y"/>
+      <when state="after_v_wi" next="c_y"/>
+      <when state="after_v_schwa" next="c_y"/>
+      <when state="after_v_wschwa" next="c_y"/>
     </action>
     <action id="press_c_th">
       <when state="none" next="c_th"/>
@@ -254,6 +350,18 @@
       <when state="c_th" next="c_th"/>
       <when state="c_dh" next="c_th"/>
       <when state="c_sh" next="c_th"/>
+      <when state="after_v_a" next="c_th"/>
+      <when state="after_v_wa" next="c_th"/>
+      <when state="after_v_e" next="c_th"/>
+      <when state="after_v_we" next="c_th"/>
+      <when state="after_v_o" next="c_th"/>
+      <when state="after_v_wo" next="c_th"/>
+      <when state="after_v_u" next="c_th"/>
+      <when state="after_v_wu" next="c_th"/>
+      <when state="after_v_i" next="c_th"/>
+      <when state="after_v_wi" next="c_th"/>
+      <when state="after_v_schwa" next="c_th"/>
+      <when state="after_v_wschwa" next="c_th"/>
     </action>
     <action id="press_c_dh">
       <when state="none" next="c_dh"/>
@@ -268,6 +376,18 @@
       <when state="c_th" next="c_dh"/>
       <when state="c_dh" next="c_dh"/>
       <when state="c_sh" next="c_dh"/>
+      <when state="after_v_a" next="c_dh"/>
+      <when state="after_v_wa" next="c_dh"/>
+      <when state="after_v_e" next="c_dh"/>
+      <when state="after_v_we" next="c_dh"/>
+      <when state="after_v_o" next="c_dh"/>
+      <when state="after_v_wo" next="c_dh"/>
+      <when state="after_v_u" next="c_dh"/>
+      <when state="after_v_wu" next="c_dh"/>
+      <when state="after_v_i" next="c_dh"/>
+      <when state="after_v_wi" next="c_dh"/>
+      <when state="after_v_schwa" next="c_dh"/>
+      <when state="after_v_wschwa" next="c_dh"/>
     </action>
     <action id="press_c_sh">
       <when state="none" next="c_sh"/>
@@ -282,6 +402,330 @@
       <when state="c_th" next="c_sh"/>
       <when state="c_dh" next="c_sh"/>
       <when state="c_sh" next="c_sh"/>
+      <when state="after_v_a" next="c_sh"/>
+      <when state="after_v_wa" next="c_sh"/>
+      <when state="after_v_e" next="c_sh"/>
+      <when state="after_v_we" next="c_sh"/>
+      <when state="after_v_o" next="c_sh"/>
+      <when state="after_v_wo" next="c_sh"/>
+      <when state="after_v_u" next="c_sh"/>
+      <when state="after_v_wu" next="c_sh"/>
+      <when state="after_v_i" next="c_sh"/>
+      <when state="after_v_wi" next="c_sh"/>
+      <when state="after_v_schwa" next="c_sh"/>
+      <when state="after_v_wschwa" next="c_sh"/>
+    </action>
+    <action id="press_after_v_a">
+      <when state="none" next="after_v_a"/>
+      <when state="c_m" next="after_v_a"/>
+      <when state="c_n" next="after_v_a"/>
+      <when state="c_t" next="after_v_a"/>
+      <when state="c_d" next="after_v_a"/>
+      <when state="c_s" next="after_v_a"/>
+      <when state="c_l" next="after_v_a"/>
+      <when state="c_r" next="after_v_a"/>
+      <when state="c_y" next="after_v_a"/>
+      <when state="c_th" next="after_v_a"/>
+      <when state="c_dh" next="after_v_a"/>
+      <when state="c_sh" next="after_v_a"/>
+      <when state="after_v_a" next="after_v_a"/>
+      <when state="after_v_wa" next="after_v_a"/>
+      <when state="after_v_e" next="after_v_a"/>
+      <when state="after_v_we" next="after_v_a"/>
+      <when state="after_v_o" next="after_v_a"/>
+      <when state="after_v_wo" next="after_v_a"/>
+      <when state="after_v_u" next="after_v_a"/>
+      <when state="after_v_wu" next="after_v_a"/>
+      <when state="after_v_i" next="after_v_a"/>
+      <when state="after_v_wi" next="after_v_a"/>
+      <when state="after_v_schwa" next="after_v_a"/>
+      <when state="after_v_wschwa" next="after_v_a"/>
+    </action>
+    <action id="press_after_v_wa">
+      <when state="none" next="after_v_wa"/>
+      <when state="c_m" next="after_v_wa"/>
+      <when state="c_n" next="after_v_wa"/>
+      <when state="c_t" next="after_v_wa"/>
+      <when state="c_d" next="after_v_wa"/>
+      <when state="c_s" next="after_v_wa"/>
+      <when state="c_l" next="after_v_wa"/>
+      <when state="c_r" next="after_v_wa"/>
+      <when state="c_y" next="after_v_wa"/>
+      <when state="c_th" next="after_v_wa"/>
+      <when state="c_dh" next="after_v_wa"/>
+      <when state="c_sh" next="after_v_wa"/>
+      <when state="after_v_a" next="after_v_wa"/>
+      <when state="after_v_wa" next="after_v_wa"/>
+      <when state="after_v_e" next="after_v_wa"/>
+      <when state="after_v_we" next="after_v_wa"/>
+      <when state="after_v_o" next="after_v_wa"/>
+      <when state="after_v_wo" next="after_v_wa"/>
+      <when state="after_v_u" next="after_v_wa"/>
+      <when state="after_v_wu" next="after_v_wa"/>
+      <when state="after_v_i" next="after_v_wa"/>
+      <when state="after_v_wi" next="after_v_wa"/>
+      <when state="after_v_schwa" next="after_v_wa"/>
+      <when state="after_v_wschwa" next="after_v_wa"/>
+    </action>
+    <action id="press_after_v_e">
+      <when state="none" next="after_v_e"/>
+      <when state="c_m" next="after_v_e"/>
+      <when state="c_n" next="after_v_e"/>
+      <when state="c_t" next="after_v_e"/>
+      <when state="c_d" next="after_v_e"/>
+      <when state="c_s" next="after_v_e"/>
+      <when state="c_l" next="after_v_e"/>
+      <when state="c_r" next="after_v_e"/>
+      <when state="c_y" next="after_v_e"/>
+      <when state="c_th" next="after_v_e"/>
+      <when state="c_dh" next="after_v_e"/>
+      <when state="c_sh" next="after_v_e"/>
+      <when state="after_v_a" next="after_v_e"/>
+      <when state="after_v_wa" next="after_v_e"/>
+      <when state="after_v_e" next="after_v_e"/>
+      <when state="after_v_we" next="after_v_e"/>
+      <when state="after_v_o" next="after_v_e"/>
+      <when state="after_v_wo" next="after_v_e"/>
+      <when state="after_v_u" next="after_v_e"/>
+      <when state="after_v_wu" next="after_v_e"/>
+      <when state="after_v_i" next="after_v_e"/>
+      <when state="after_v_wi" next="after_v_e"/>
+      <when state="after_v_schwa" next="after_v_e"/>
+      <when state="after_v_wschwa" next="after_v_e"/>
+    </action>
+    <action id="press_after_v_we">
+      <when state="none" next="after_v_we"/>
+      <when state="c_m" next="after_v_we"/>
+      <when state="c_n" next="after_v_we"/>
+      <when state="c_t" next="after_v_we"/>
+      <when state="c_d" next="after_v_we"/>
+      <when state="c_s" next="after_v_we"/>
+      <when state="c_l" next="after_v_we"/>
+      <when state="c_r" next="after_v_we"/>
+      <when state="c_y" next="after_v_we"/>
+      <when state="c_th" next="after_v_we"/>
+      <when state="c_dh" next="after_v_we"/>
+      <when state="c_sh" next="after_v_we"/>
+      <when state="after_v_a" next="after_v_we"/>
+      <when state="after_v_wa" next="after_v_we"/>
+      <when state="after_v_e" next="after_v_we"/>
+      <when state="after_v_we" next="after_v_we"/>
+      <when state="after_v_o" next="after_v_we"/>
+      <when state="after_v_wo" next="after_v_we"/>
+      <when state="after_v_u" next="after_v_we"/>
+      <when state="after_v_wu" next="after_v_we"/>
+      <when state="after_v_i" next="after_v_we"/>
+      <when state="after_v_wi" next="after_v_we"/>
+      <when state="after_v_schwa" next="after_v_we"/>
+      <when state="after_v_wschwa" next="after_v_we"/>
+    </action>
+    <action id="press_after_v_o">
+      <when state="none" next="after_v_o"/>
+      <when state="c_m" next="after_v_o"/>
+      <when state="c_n" next="after_v_o"/>
+      <when state="c_t" next="after_v_o"/>
+      <when state="c_d" next="after_v_o"/>
+      <when state="c_s" next="after_v_o"/>
+      <when state="c_l" next="after_v_o"/>
+      <when state="c_r" next="after_v_o"/>
+      <when state="c_y" next="after_v_o"/>
+      <when state="c_th" next="after_v_o"/>
+      <when state="c_dh" next="after_v_o"/>
+      <when state="c_sh" next="after_v_o"/>
+      <when state="after_v_a" next="after_v_o"/>
+      <when state="after_v_wa" next="after_v_o"/>
+      <when state="after_v_e" next="after_v_o"/>
+      <when state="after_v_we" next="after_v_o"/>
+      <when state="after_v_o" next="after_v_o"/>
+      <when state="after_v_wo" next="after_v_o"/>
+      <when state="after_v_u" next="after_v_o"/>
+      <when state="after_v_wu" next="after_v_o"/>
+      <when state="after_v_i" next="after_v_o"/>
+      <when state="after_v_wi" next="after_v_o"/>
+      <when state="after_v_schwa" next="after_v_o"/>
+      <when state="after_v_wschwa" next="after_v_o"/>
+    </action>
+    <action id="press_after_v_wo">
+      <when state="none" next="after_v_wo"/>
+      <when state="c_m" next="after_v_wo"/>
+      <when state="c_n" next="after_v_wo"/>
+      <when state="c_t" next="after_v_wo"/>
+      <when state="c_d" next="after_v_wo"/>
+      <when state="c_s" next="after_v_wo"/>
+      <when state="c_l" next="after_v_wo"/>
+      <when state="c_r" next="after_v_wo"/>
+      <when state="c_y" next="after_v_wo"/>
+      <when state="c_th" next="after_v_wo"/>
+      <when state="c_dh" next="after_v_wo"/>
+      <when state="c_sh" next="after_v_wo"/>
+      <when state="after_v_a" next="after_v_wo"/>
+      <when state="after_v_wa" next="after_v_wo"/>
+      <when state="after_v_e" next="after_v_wo"/>
+      <when state="after_v_we" next="after_v_wo"/>
+      <when state="after_v_o" next="after_v_wo"/>
+      <when state="after_v_wo" next="after_v_wo"/>
+      <when state="after_v_u" next="after_v_wo"/>
+      <when state="after_v_wu" next="after_v_wo"/>
+      <when state="after_v_i" next="after_v_wo"/>
+      <when state="after_v_wi" next="after_v_wo"/>
+      <when state="after_v_schwa" next="after_v_wo"/>
+      <when state="after_v_wschwa" next="after_v_wo"/>
+    </action>
+    <action id="press_after_v_u">
+      <when state="none" next="after_v_u"/>
+      <when state="c_m" next="after_v_u"/>
+      <when state="c_n" next="after_v_u"/>
+      <when state="c_t" next="after_v_u"/>
+      <when state="c_d" next="after_v_u"/>
+      <when state="c_s" next="after_v_u"/>
+      <when state="c_l" next="after_v_u"/>
+      <when state="c_r" next="after_v_u"/>
+      <when state="c_y" next="after_v_u"/>
+      <when state="c_th" next="after_v_u"/>
+      <when state="c_dh" next="after_v_u"/>
+      <when state="c_sh" next="after_v_u"/>
+      <when state="after_v_a" next="after_v_u"/>
+      <when state="after_v_wa" next="after_v_u"/>
+      <when state="after_v_e" next="after_v_u"/>
+      <when state="after_v_we" next="after_v_u"/>
+      <when state="after_v_o" next="after_v_u"/>
+      <when state="after_v_wo" next="after_v_u"/>
+      <when state="after_v_u" next="after_v_u"/>
+      <when state="after_v_wu" next="after_v_u"/>
+      <when state="after_v_i" next="after_v_u"/>
+      <when state="after_v_wi" next="after_v_u"/>
+      <when state="after_v_schwa" next="after_v_u"/>
+      <when state="after_v_wschwa" next="after_v_u"/>
+    </action>
+    <action id="press_after_v_wu">
+      <when state="none" next="after_v_wu"/>
+      <when state="c_m" next="after_v_wu"/>
+      <when state="c_n" next="after_v_wu"/>
+      <when state="c_t" next="after_v_wu"/>
+      <when state="c_d" next="after_v_wu"/>
+      <when state="c_s" next="after_v_wu"/>
+      <when state="c_l" next="after_v_wu"/>
+      <when state="c_r" next="after_v_wu"/>
+      <when state="c_y" next="after_v_wu"/>
+      <when state="c_th" next="after_v_wu"/>
+      <when state="c_dh" next="after_v_wu"/>
+      <when state="c_sh" next="after_v_wu"/>
+      <when state="after_v_a" next="after_v_wu"/>
+      <when state="after_v_wa" next="after_v_wu"/>
+      <when state="after_v_e" next="after_v_wu"/>
+      <when state="after_v_we" next="after_v_wu"/>
+      <when state="after_v_o" next="after_v_wu"/>
+      <when state="after_v_wo" next="after_v_wu"/>
+      <when state="after_v_u" next="after_v_wu"/>
+      <when state="after_v_wu" next="after_v_wu"/>
+      <when state="after_v_i" next="after_v_wu"/>
+      <when state="after_v_wi" next="after_v_wu"/>
+      <when state="after_v_schwa" next="after_v_wu"/>
+      <when state="after_v_wschwa" next="after_v_wu"/>
+    </action>
+    <action id="press_after_v_i">
+      <when state="none" next="after_v_i"/>
+      <when state="c_m" next="after_v_i"/>
+      <when state="c_n" next="after_v_i"/>
+      <when state="c_t" next="after_v_i"/>
+      <when state="c_d" next="after_v_i"/>
+      <when state="c_s" next="after_v_i"/>
+      <when state="c_l" next="after_v_i"/>
+      <when state="c_r" next="after_v_i"/>
+      <when state="c_y" next="after_v_i"/>
+      <when state="c_th" next="after_v_i"/>
+      <when state="c_dh" next="after_v_i"/>
+      <when state="c_sh" next="after_v_i"/>
+      <when state="after_v_a" next="after_v_i"/>
+      <when state="after_v_wa" next="after_v_i"/>
+      <when state="after_v_e" next="after_v_i"/>
+      <when state="after_v_we" next="after_v_i"/>
+      <when state="after_v_o" next="after_v_i"/>
+      <when state="after_v_wo" next="after_v_i"/>
+      <when state="after_v_u" next="after_v_i"/>
+      <when state="after_v_wu" next="after_v_i"/>
+      <when state="after_v_i" next="after_v_i"/>
+      <when state="after_v_wi" next="after_v_i"/>
+      <when state="after_v_schwa" next="after_v_i"/>
+      <when state="after_v_wschwa" next="after_v_i"/>
+    </action>
+    <action id="press_after_v_wi">
+      <when state="none" next="after_v_wi"/>
+      <when state="c_m" next="after_v_wi"/>
+      <when state="c_n" next="after_v_wi"/>
+      <when state="c_t" next="after_v_wi"/>
+      <when state="c_d" next="after_v_wi"/>
+      <when state="c_s" next="after_v_wi"/>
+      <when state="c_l" next="after_v_wi"/>
+      <when state="c_r" next="after_v_wi"/>
+      <when state="c_y" next="after_v_wi"/>
+      <when state="c_th" next="after_v_wi"/>
+      <when state="c_dh" next="after_v_wi"/>
+      <when state="c_sh" next="after_v_wi"/>
+      <when state="after_v_a" next="after_v_wi"/>
+      <when state="after_v_wa" next="after_v_wi"/>
+      <when state="after_v_e" next="after_v_wi"/>
+      <when state="after_v_we" next="after_v_wi"/>
+      <when state="after_v_o" next="after_v_wi"/>
+      <when state="after_v_wo" next="after_v_wi"/>
+      <when state="after_v_u" next="after_v_wi"/>
+      <when state="after_v_wu" next="after_v_wi"/>
+      <when state="after_v_i" next="after_v_wi"/>
+      <when state="after_v_wi" next="after_v_wi"/>
+      <when state="after_v_schwa" next="after_v_wi"/>
+      <when state="after_v_wschwa" next="after_v_wi"/>
+    </action>
+    <action id="press_after_v_schwa">
+      <when state="none" next="after_v_schwa"/>
+      <when state="c_m" next="after_v_schwa"/>
+      <when state="c_n" next="after_v_schwa"/>
+      <when state="c_t" next="after_v_schwa"/>
+      <when state="c_d" next="after_v_schwa"/>
+      <when state="c_s" next="after_v_schwa"/>
+      <when state="c_l" next="after_v_schwa"/>
+      <when state="c_r" next="after_v_schwa"/>
+      <when state="c_y" next="after_v_schwa"/>
+      <when state="c_th" next="after_v_schwa"/>
+      <when state="c_dh" next="after_v_schwa"/>
+      <when state="c_sh" next="after_v_schwa"/>
+      <when state="after_v_a" next="after_v_schwa"/>
+      <when state="after_v_wa" next="after_v_schwa"/>
+      <when state="after_v_e" next="after_v_schwa"/>
+      <when state="after_v_we" next="after_v_schwa"/>
+      <when state="after_v_o" next="after_v_schwa"/>
+      <when state="after_v_wo" next="after_v_schwa"/>
+      <when state="after_v_u" next="after_v_schwa"/>
+      <when state="after_v_wu" next="after_v_schwa"/>
+      <when state="after_v_i" next="after_v_schwa"/>
+      <when state="after_v_wi" next="after_v_schwa"/>
+      <when state="after_v_schwa" next="after_v_schwa"/>
+      <when state="after_v_wschwa" next="after_v_schwa"/>
+    </action>
+    <action id="press_after_v_wschwa">
+      <when state="none" next="after_v_wschwa"/>
+      <when state="c_m" next="after_v_wschwa"/>
+      <when state="c_n" next="after_v_wschwa"/>
+      <when state="c_t" next="after_v_wschwa"/>
+      <when state="c_d" next="after_v_wschwa"/>
+      <when state="c_s" next="after_v_wschwa"/>
+      <when state="c_l" next="after_v_wschwa"/>
+      <when state="c_r" next="after_v_wschwa"/>
+      <when state="c_y" next="after_v_wschwa"/>
+      <when state="c_th" next="after_v_wschwa"/>
+      <when state="c_dh" next="after_v_wschwa"/>
+      <when state="c_sh" next="after_v_wschwa"/>
+      <when state="after_v_a" next="after_v_wschwa"/>
+      <when state="after_v_wa" next="after_v_wschwa"/>
+      <when state="after_v_e" next="after_v_wschwa"/>
+      <when state="after_v_we" next="after_v_wschwa"/>
+      <when state="after_v_o" next="after_v_wschwa"/>
+      <when state="after_v_wo" next="after_v_wschwa"/>
+      <when state="after_v_u" next="after_v_wschwa"/>
+      <when state="after_v_wu" next="after_v_wschwa"/>
+      <when state="after_v_i" next="after_v_wschwa"/>
+      <when state="after_v_wi" next="after_v_wschwa"/>
+      <when state="after_v_schwa" next="after_v_wschwa"/>
+      <when state="after_v_wschwa" next="after_v_wschwa"/>
     </action>
     <action id="press_digraph">
       <when state="none" output=""/>
@@ -296,174 +740,330 @@
       <when state="c_th" output=""/>
       <when state="c_dh" output=""/>
       <when state="c_sh" output=""/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_a">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE024;"/>
-      <when state="c_n" output="&#xE001;&#xE024;"/>
-      <when state="c_t" output="&#xE002;&#xE024;"/>
-      <when state="c_d" output="&#xE003;&#xE024;"/>
-      <when state="c_s" output="&#xE006;&#xE024;"/>
-      <when state="c_l" output="&#xE008;&#xE024;"/>
-      <when state="c_r" output="&#xE009;&#xE024;"/>
-      <when state="c_y" output="&#xE00A;&#xE024;"/>
-      <when state="c_th" output="&#xE004;&#xE024;"/>
-      <when state="c_dh" output="&#xE005;&#xE024;"/>
-      <when state="c_sh" output="&#xE007;&#xE024;"/>
+      <when state="c_m" output="&#xE000;&#xE024;" next="after_v_a"/>
+      <when state="c_n" output="&#xE001;&#xE024;" next="after_v_a"/>
+      <when state="c_t" output="&#xE002;&#xE024;" next="after_v_a"/>
+      <when state="c_d" output="&#xE003;&#xE024;" next="after_v_a"/>
+      <when state="c_s" output="&#xE006;&#xE024;" next="after_v_a"/>
+      <when state="c_l" output="&#xE008;&#xE024;" next="after_v_a"/>
+      <when state="c_r" output="&#xE009;&#xE024;" next="after_v_a"/>
+      <when state="c_y" output="&#xE00A;&#xE024;" next="after_v_a"/>
+      <when state="c_th" output="&#xE004;&#xE024;" next="after_v_a"/>
+      <when state="c_dh" output="&#xE005;&#xE024;" next="after_v_a"/>
+      <when state="c_sh" output="&#xE007;&#xE024;" next="after_v_a"/>
+      <when state="after_v_a" output="&#xE024;"/>
+      <when state="after_v_wa" output="&#xE024;"/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_wa">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE02A;"/>
-      <when state="c_n" output="&#xE001;&#xE02A;"/>
-      <when state="c_t" output="&#xE002;&#xE02A;"/>
-      <when state="c_d" output="&#xE003;&#xE02A;"/>
-      <when state="c_s" output="&#xE006;&#xE02A;"/>
-      <when state="c_l" output="&#xE008;&#xE02A;"/>
-      <when state="c_r" output="&#xE009;&#xE02A;"/>
-      <when state="c_y" output="&#xE00A;&#xE02A;"/>
-      <when state="c_th" output="&#xE004;&#xE02A;"/>
-      <when state="c_dh" output="&#xE005;&#xE02A;"/>
-      <when state="c_sh" output="&#xE007;&#xE02A;"/>
+      <when state="c_m" output="&#xE000;&#xE02A;" next="after_v_wa"/>
+      <when state="c_n" output="&#xE001;&#xE02A;" next="after_v_wa"/>
+      <when state="c_t" output="&#xE002;&#xE02A;" next="after_v_wa"/>
+      <when state="c_d" output="&#xE003;&#xE02A;" next="after_v_wa"/>
+      <when state="c_s" output="&#xE006;&#xE02A;" next="after_v_wa"/>
+      <when state="c_l" output="&#xE008;&#xE02A;" next="after_v_wa"/>
+      <when state="c_r" output="&#xE009;&#xE02A;" next="after_v_wa"/>
+      <when state="c_y" output="&#xE00A;&#xE02A;" next="after_v_wa"/>
+      <when state="c_th" output="&#xE004;&#xE02A;" next="after_v_wa"/>
+      <when state="c_dh" output="&#xE005;&#xE02A;" next="after_v_wa"/>
+      <when state="c_sh" output="&#xE007;&#xE02A;" next="after_v_wa"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_e">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE022;"/>
-      <when state="c_n" output="&#xE001;&#xE022;"/>
-      <when state="c_t" output="&#xE002;&#xE022;"/>
-      <when state="c_d" output="&#xE003;&#xE022;"/>
-      <when state="c_s" output="&#xE006;&#xE022;"/>
-      <when state="c_l" output="&#xE008;&#xE022;"/>
-      <when state="c_r" output="&#xE009;&#xE022;"/>
-      <when state="c_y" output="&#xE00A;&#xE022;"/>
-      <when state="c_th" output="&#xE004;&#xE022;"/>
-      <when state="c_dh" output="&#xE005;&#xE022;"/>
-      <when state="c_sh" output="&#xE007;&#xE022;"/>
+      <when state="c_m" output="&#xE000;&#xE022;" next="after_v_e"/>
+      <when state="c_n" output="&#xE001;&#xE022;" next="after_v_e"/>
+      <when state="c_t" output="&#xE002;&#xE022;" next="after_v_e"/>
+      <when state="c_d" output="&#xE003;&#xE022;" next="after_v_e"/>
+      <when state="c_s" output="&#xE006;&#xE022;" next="after_v_e"/>
+      <when state="c_l" output="&#xE008;&#xE022;" next="after_v_e"/>
+      <when state="c_r" output="&#xE009;&#xE022;" next="after_v_e"/>
+      <when state="c_y" output="&#xE00A;&#xE022;" next="after_v_e"/>
+      <when state="c_th" output="&#xE004;&#xE022;" next="after_v_e"/>
+      <when state="c_dh" output="&#xE005;&#xE022;" next="after_v_e"/>
+      <when state="c_sh" output="&#xE007;&#xE022;" next="after_v_e"/>
+      <when state="after_v_e" output="&#xE022;"/>
+      <when state="after_v_we" output="&#xE022;"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_we">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE028;"/>
-      <when state="c_n" output="&#xE001;&#xE028;"/>
-      <when state="c_t" output="&#xE002;&#xE028;"/>
-      <when state="c_d" output="&#xE003;&#xE028;"/>
-      <when state="c_s" output="&#xE006;&#xE028;"/>
-      <when state="c_l" output="&#xE008;&#xE028;"/>
-      <when state="c_r" output="&#xE009;&#xE028;"/>
-      <when state="c_y" output="&#xE00A;&#xE028;"/>
-      <when state="c_th" output="&#xE004;&#xE028;"/>
-      <when state="c_dh" output="&#xE005;&#xE028;"/>
-      <when state="c_sh" output="&#xE007;&#xE028;"/>
+      <when state="c_m" output="&#xE000;&#xE028;" next="after_v_we"/>
+      <when state="c_n" output="&#xE001;&#xE028;" next="after_v_we"/>
+      <when state="c_t" output="&#xE002;&#xE028;" next="after_v_we"/>
+      <when state="c_d" output="&#xE003;&#xE028;" next="after_v_we"/>
+      <when state="c_s" output="&#xE006;&#xE028;" next="after_v_we"/>
+      <when state="c_l" output="&#xE008;&#xE028;" next="after_v_we"/>
+      <when state="c_r" output="&#xE009;&#xE028;" next="after_v_we"/>
+      <when state="c_y" output="&#xE00A;&#xE028;" next="after_v_we"/>
+      <when state="c_th" output="&#xE004;&#xE028;" next="after_v_we"/>
+      <when state="c_dh" output="&#xE005;&#xE028;" next="after_v_we"/>
+      <when state="c_sh" output="&#xE007;&#xE028;" next="after_v_we"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_o">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE023;"/>
-      <when state="c_n" output="&#xE001;&#xE023;"/>
-      <when state="c_t" output="&#xE002;&#xE023;"/>
-      <when state="c_d" output="&#xE003;&#xE023;"/>
-      <when state="c_s" output="&#xE006;&#xE023;"/>
-      <when state="c_l" output="&#xE008;&#xE023;"/>
-      <when state="c_r" output="&#xE009;&#xE023;"/>
-      <when state="c_y" output="&#xE00A;&#xE023;"/>
-      <when state="c_th" output="&#xE004;&#xE023;"/>
-      <when state="c_dh" output="&#xE005;&#xE023;"/>
-      <when state="c_sh" output="&#xE007;&#xE023;"/>
+      <when state="c_m" output="&#xE000;&#xE023;" next="after_v_o"/>
+      <when state="c_n" output="&#xE001;&#xE023;" next="after_v_o"/>
+      <when state="c_t" output="&#xE002;&#xE023;" next="after_v_o"/>
+      <when state="c_d" output="&#xE003;&#xE023;" next="after_v_o"/>
+      <when state="c_s" output="&#xE006;&#xE023;" next="after_v_o"/>
+      <when state="c_l" output="&#xE008;&#xE023;" next="after_v_o"/>
+      <when state="c_r" output="&#xE009;&#xE023;" next="after_v_o"/>
+      <when state="c_y" output="&#xE00A;&#xE023;" next="after_v_o"/>
+      <when state="c_th" output="&#xE004;&#xE023;" next="after_v_o"/>
+      <when state="c_dh" output="&#xE005;&#xE023;" next="after_v_o"/>
+      <when state="c_sh" output="&#xE007;&#xE023;" next="after_v_o"/>
+      <when state="after_v_o" output="&#xE023;"/>
+      <when state="after_v_wo" output="&#xE023;"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_wo">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE029;"/>
-      <when state="c_n" output="&#xE001;&#xE029;"/>
-      <when state="c_t" output="&#xE002;&#xE029;"/>
-      <when state="c_d" output="&#xE003;&#xE029;"/>
-      <when state="c_s" output="&#xE006;&#xE029;"/>
-      <when state="c_l" output="&#xE008;&#xE029;"/>
-      <when state="c_r" output="&#xE009;&#xE029;"/>
-      <when state="c_y" output="&#xE00A;&#xE029;"/>
-      <when state="c_th" output="&#xE004;&#xE029;"/>
-      <when state="c_dh" output="&#xE005;&#xE029;"/>
-      <when state="c_sh" output="&#xE007;&#xE029;"/>
+      <when state="c_m" output="&#xE000;&#xE029;" next="after_v_wo"/>
+      <when state="c_n" output="&#xE001;&#xE029;" next="after_v_wo"/>
+      <when state="c_t" output="&#xE002;&#xE029;" next="after_v_wo"/>
+      <when state="c_d" output="&#xE003;&#xE029;" next="after_v_wo"/>
+      <when state="c_s" output="&#xE006;&#xE029;" next="after_v_wo"/>
+      <when state="c_l" output="&#xE008;&#xE029;" next="after_v_wo"/>
+      <when state="c_r" output="&#xE009;&#xE029;" next="after_v_wo"/>
+      <when state="c_y" output="&#xE00A;&#xE029;" next="after_v_wo"/>
+      <when state="c_th" output="&#xE004;&#xE029;" next="after_v_wo"/>
+      <when state="c_dh" output="&#xE005;&#xE029;" next="after_v_wo"/>
+      <when state="c_sh" output="&#xE007;&#xE029;" next="after_v_wo"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_u">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE021;"/>
-      <when state="c_n" output="&#xE001;&#xE021;"/>
-      <when state="c_t" output="&#xE002;&#xE021;"/>
-      <when state="c_d" output="&#xE003;&#xE021;"/>
-      <when state="c_s" output="&#xE006;&#xE021;"/>
-      <when state="c_l" output="&#xE008;&#xE021;"/>
-      <when state="c_r" output="&#xE009;&#xE021;"/>
-      <when state="c_y" output="&#xE00A;&#xE021;"/>
-      <when state="c_th" output="&#xE004;&#xE021;"/>
-      <when state="c_dh" output="&#xE005;&#xE021;"/>
-      <when state="c_sh" output="&#xE007;&#xE021;"/>
+      <when state="c_m" output="&#xE000;&#xE021;" next="after_v_u"/>
+      <when state="c_n" output="&#xE001;&#xE021;" next="after_v_u"/>
+      <when state="c_t" output="&#xE002;&#xE021;" next="after_v_u"/>
+      <when state="c_d" output="&#xE003;&#xE021;" next="after_v_u"/>
+      <when state="c_s" output="&#xE006;&#xE021;" next="after_v_u"/>
+      <when state="c_l" output="&#xE008;&#xE021;" next="after_v_u"/>
+      <when state="c_r" output="&#xE009;&#xE021;" next="after_v_u"/>
+      <when state="c_y" output="&#xE00A;&#xE021;" next="after_v_u"/>
+      <when state="c_th" output="&#xE004;&#xE021;" next="after_v_u"/>
+      <when state="c_dh" output="&#xE005;&#xE021;" next="after_v_u"/>
+      <when state="c_sh" output="&#xE007;&#xE021;" next="after_v_u"/>
+      <when state="after_v_u" output="&#xE021;"/>
+      <when state="after_v_wu" output="&#xE021;"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_wu">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE027;"/>
-      <when state="c_n" output="&#xE001;&#xE027;"/>
-      <when state="c_t" output="&#xE002;&#xE027;"/>
-      <when state="c_d" output="&#xE003;&#xE027;"/>
-      <when state="c_s" output="&#xE006;&#xE027;"/>
-      <when state="c_l" output="&#xE008;&#xE027;"/>
-      <when state="c_r" output="&#xE009;&#xE027;"/>
-      <when state="c_y" output="&#xE00A;&#xE027;"/>
-      <when state="c_th" output="&#xE004;&#xE027;"/>
-      <when state="c_dh" output="&#xE005;&#xE027;"/>
-      <when state="c_sh" output="&#xE007;&#xE027;"/>
+      <when state="c_m" output="&#xE000;&#xE027;" next="after_v_wu"/>
+      <when state="c_n" output="&#xE001;&#xE027;" next="after_v_wu"/>
+      <when state="c_t" output="&#xE002;&#xE027;" next="after_v_wu"/>
+      <when state="c_d" output="&#xE003;&#xE027;" next="after_v_wu"/>
+      <when state="c_s" output="&#xE006;&#xE027;" next="after_v_wu"/>
+      <when state="c_l" output="&#xE008;&#xE027;" next="after_v_wu"/>
+      <when state="c_r" output="&#xE009;&#xE027;" next="after_v_wu"/>
+      <when state="c_y" output="&#xE00A;&#xE027;" next="after_v_wu"/>
+      <when state="c_th" output="&#xE004;&#xE027;" next="after_v_wu"/>
+      <when state="c_dh" output="&#xE005;&#xE027;" next="after_v_wu"/>
+      <when state="c_sh" output="&#xE007;&#xE027;" next="after_v_wu"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_i">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE020;"/>
-      <when state="c_n" output="&#xE001;&#xE020;"/>
-      <when state="c_t" output="&#xE002;&#xE020;"/>
-      <when state="c_d" output="&#xE003;&#xE020;"/>
-      <when state="c_s" output="&#xE006;&#xE020;"/>
-      <when state="c_l" output="&#xE008;&#xE020;"/>
-      <when state="c_r" output="&#xE009;&#xE020;"/>
-      <when state="c_y" output="&#xE00A;&#xE020;"/>
-      <when state="c_th" output="&#xE004;&#xE020;"/>
-      <when state="c_dh" output="&#xE005;&#xE020;"/>
-      <when state="c_sh" output="&#xE007;&#xE020;"/>
+      <when state="c_m" output="&#xE000;&#xE020;" next="after_v_i"/>
+      <when state="c_n" output="&#xE001;&#xE020;" next="after_v_i"/>
+      <when state="c_t" output="&#xE002;&#xE020;" next="after_v_i"/>
+      <when state="c_d" output="&#xE003;&#xE020;" next="after_v_i"/>
+      <when state="c_s" output="&#xE006;&#xE020;" next="after_v_i"/>
+      <when state="c_l" output="&#xE008;&#xE020;" next="after_v_i"/>
+      <when state="c_r" output="&#xE009;&#xE020;" next="after_v_i"/>
+      <when state="c_y" output="&#xE00A;&#xE020;" next="after_v_i"/>
+      <when state="c_th" output="&#xE004;&#xE020;" next="after_v_i"/>
+      <when state="c_dh" output="&#xE005;&#xE020;" next="after_v_i"/>
+      <when state="c_sh" output="&#xE007;&#xE020;" next="after_v_i"/>
+      <when state="after_v_i" output="&#xE020;"/>
+      <when state="after_v_wi" output="&#xE020;"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_wi">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE026;"/>
-      <when state="c_n" output="&#xE001;&#xE026;"/>
-      <when state="c_t" output="&#xE002;&#xE026;"/>
-      <when state="c_d" output="&#xE003;&#xE026;"/>
-      <when state="c_s" output="&#xE006;&#xE026;"/>
-      <when state="c_l" output="&#xE008;&#xE026;"/>
-      <when state="c_r" output="&#xE009;&#xE026;"/>
-      <when state="c_y" output="&#xE00A;&#xE026;"/>
-      <when state="c_th" output="&#xE004;&#xE026;"/>
-      <when state="c_dh" output="&#xE005;&#xE026;"/>
-      <when state="c_sh" output="&#xE007;&#xE026;"/>
+      <when state="c_m" output="&#xE000;&#xE026;" next="after_v_wi"/>
+      <when state="c_n" output="&#xE001;&#xE026;" next="after_v_wi"/>
+      <when state="c_t" output="&#xE002;&#xE026;" next="after_v_wi"/>
+      <when state="c_d" output="&#xE003;&#xE026;" next="after_v_wi"/>
+      <when state="c_s" output="&#xE006;&#xE026;" next="after_v_wi"/>
+      <when state="c_l" output="&#xE008;&#xE026;" next="after_v_wi"/>
+      <when state="c_r" output="&#xE009;&#xE026;" next="after_v_wi"/>
+      <when state="c_y" output="&#xE00A;&#xE026;" next="after_v_wi"/>
+      <when state="c_th" output="&#xE004;&#xE026;" next="after_v_wi"/>
+      <when state="c_dh" output="&#xE005;&#xE026;" next="after_v_wi"/>
+      <when state="c_sh" output="&#xE007;&#xE026;" next="after_v_wi"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_v_schwa">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE025;"/>
-      <when state="c_n" output="&#xE001;&#xE025;"/>
-      <when state="c_t" output="&#xE002;&#xE025;"/>
-      <when state="c_d" output="&#xE003;&#xE025;"/>
-      <when state="c_s" output="&#xE006;&#xE025;"/>
-      <when state="c_l" output="&#xE008;&#xE025;"/>
-      <when state="c_r" output="&#xE009;&#xE025;"/>
-      <when state="c_y" output="&#xE00A;&#xE025;"/>
-      <when state="c_th" output="&#xE004;&#xE025;"/>
-      <when state="c_dh" output="&#xE005;&#xE025;"/>
-      <when state="c_sh" output="&#xE007;&#xE025;"/>
+      <when state="c_m" output="&#xE000;&#xE025;" next="after_v_schwa"/>
+      <when state="c_n" output="&#xE001;&#xE025;" next="after_v_schwa"/>
+      <when state="c_t" output="&#xE002;&#xE025;" next="after_v_schwa"/>
+      <when state="c_d" output="&#xE003;&#xE025;" next="after_v_schwa"/>
+      <when state="c_s" output="&#xE006;&#xE025;" next="after_v_schwa"/>
+      <when state="c_l" output="&#xE008;&#xE025;" next="after_v_schwa"/>
+      <when state="c_r" output="&#xE009;&#xE025;" next="after_v_schwa"/>
+      <when state="c_y" output="&#xE00A;&#xE025;" next="after_v_schwa"/>
+      <when state="c_th" output="&#xE004;&#xE025;" next="after_v_schwa"/>
+      <when state="c_dh" output="&#xE005;&#xE025;" next="after_v_schwa"/>
+      <when state="c_sh" output="&#xE007;&#xE025;" next="after_v_schwa"/>
+      <when state="after_v_schwa" output="&#xE025;"/>
+      <when state="after_v_wschwa" output="&#xE025;"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
     </action>
     <action id="press_v_wschwa">
       <when state="none" output=""/>
-      <when state="c_m" output="&#xE000;&#xE02B;"/>
-      <when state="c_n" output="&#xE001;&#xE02B;"/>
-      <when state="c_t" output="&#xE002;&#xE02B;"/>
-      <when state="c_d" output="&#xE003;&#xE02B;"/>
-      <when state="c_s" output="&#xE006;&#xE02B;"/>
-      <when state="c_l" output="&#xE008;&#xE02B;"/>
-      <when state="c_r" output="&#xE009;&#xE02B;"/>
-      <when state="c_y" output="&#xE00A;&#xE02B;"/>
-      <when state="c_th" output="&#xE004;&#xE02B;"/>
-      <when state="c_dh" output="&#xE005;&#xE02B;"/>
-      <when state="c_sh" output="&#xE007;&#xE02B;"/>
+      <when state="c_m" output="&#xE000;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_n" output="&#xE001;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_t" output="&#xE002;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_d" output="&#xE003;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_s" output="&#xE006;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_l" output="&#xE008;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_r" output="&#xE009;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_y" output="&#xE00A;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_th" output="&#xE004;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_dh" output="&#xE005;&#xE02B;" next="after_v_wschwa"/>
+      <when state="c_sh" output="&#xE007;&#xE02B;" next="after_v_wschwa"/>
+      <when state="after_v_a" output=""/>
+      <when state="after_v_wa" output=""/>
+      <when state="after_v_e" output=""/>
+      <when state="after_v_we" output=""/>
+      <when state="after_v_o" output=""/>
+      <when state="after_v_wo" output=""/>
+      <when state="after_v_u" output=""/>
+      <when state="after_v_wu" output=""/>
+      <when state="after_v_i" output=""/>
+      <when state="after_v_wi" output=""/>
+      <when state="after_v_schwa" output=""/>
+      <when state="after_v_wschwa" output=""/>
     </action>
     <action id="press_18">
       <when state="none" output="&#x0031;"/>
@@ -478,6 +1078,18 @@
       <when state="c_th" output="&#x0031;"/>
       <when state="c_dh" output="&#x0031;"/>
       <when state="c_sh" output="&#x0031;"/>
+      <when state="after_v_a" output="&#x0031;"/>
+      <when state="after_v_wa" output="&#x0031;"/>
+      <when state="after_v_e" output="&#x0031;"/>
+      <when state="after_v_we" output="&#x0031;"/>
+      <when state="after_v_o" output="&#x0031;"/>
+      <when state="after_v_wo" output="&#x0031;"/>
+      <when state="after_v_u" output="&#x0031;"/>
+      <when state="after_v_wu" output="&#x0031;"/>
+      <when state="after_v_i" output="&#x0031;"/>
+      <when state="after_v_wi" output="&#x0031;"/>
+      <when state="after_v_schwa" output="&#x0031;"/>
+      <when state="after_v_wschwa" output="&#x0031;"/>
     </action>
     <action id="shift_18">
       <when state="none" output="&#x0021;"/>
@@ -492,6 +1104,18 @@
       <when state="c_th" output="&#x0021;"/>
       <when state="c_dh" output="&#x0021;"/>
       <when state="c_sh" output="&#x0021;"/>
+      <when state="after_v_a" output="&#x0021;"/>
+      <when state="after_v_wa" output="&#x0021;"/>
+      <when state="after_v_e" output="&#x0021;"/>
+      <when state="after_v_we" output="&#x0021;"/>
+      <when state="after_v_o" output="&#x0021;"/>
+      <when state="after_v_wo" output="&#x0021;"/>
+      <when state="after_v_u" output="&#x0021;"/>
+      <when state="after_v_wu" output="&#x0021;"/>
+      <when state="after_v_i" output="&#x0021;"/>
+      <when state="after_v_wi" output="&#x0021;"/>
+      <when state="after_v_schwa" output="&#x0021;"/>
+      <when state="after_v_wschwa" output="&#x0021;"/>
     </action>
     <action id="press_19">
       <when state="none" output="&#x0032;"/>
@@ -506,6 +1130,18 @@
       <when state="c_th" output="&#x0032;"/>
       <when state="c_dh" output="&#x0032;"/>
       <when state="c_sh" output="&#x0032;"/>
+      <when state="after_v_a" output="&#x0032;"/>
+      <when state="after_v_wa" output="&#x0032;"/>
+      <when state="after_v_e" output="&#x0032;"/>
+      <when state="after_v_we" output="&#x0032;"/>
+      <when state="after_v_o" output="&#x0032;"/>
+      <when state="after_v_wo" output="&#x0032;"/>
+      <when state="after_v_u" output="&#x0032;"/>
+      <when state="after_v_wu" output="&#x0032;"/>
+      <when state="after_v_i" output="&#x0032;"/>
+      <when state="after_v_wi" output="&#x0032;"/>
+      <when state="after_v_schwa" output="&#x0032;"/>
+      <when state="after_v_wschwa" output="&#x0032;"/>
     </action>
     <action id="shift_19">
       <when state="none" output="&#x0040;"/>
@@ -520,6 +1156,18 @@
       <when state="c_th" output="&#x0040;"/>
       <when state="c_dh" output="&#x0040;"/>
       <when state="c_sh" output="&#x0040;"/>
+      <when state="after_v_a" output="&#x0040;"/>
+      <when state="after_v_wa" output="&#x0040;"/>
+      <when state="after_v_e" output="&#x0040;"/>
+      <when state="after_v_we" output="&#x0040;"/>
+      <when state="after_v_o" output="&#x0040;"/>
+      <when state="after_v_wo" output="&#x0040;"/>
+      <when state="after_v_u" output="&#x0040;"/>
+      <when state="after_v_wu" output="&#x0040;"/>
+      <when state="after_v_i" output="&#x0040;"/>
+      <when state="after_v_wi" output="&#x0040;"/>
+      <when state="after_v_schwa" output="&#x0040;"/>
+      <when state="after_v_wschwa" output="&#x0040;"/>
     </action>
     <action id="press_20">
       <when state="none" output="&#x0033;"/>
@@ -534,6 +1182,18 @@
       <when state="c_th" output="&#x0033;"/>
       <when state="c_dh" output="&#x0033;"/>
       <when state="c_sh" output="&#x0033;"/>
+      <when state="after_v_a" output="&#x0033;"/>
+      <when state="after_v_wa" output="&#x0033;"/>
+      <when state="after_v_e" output="&#x0033;"/>
+      <when state="after_v_we" output="&#x0033;"/>
+      <when state="after_v_o" output="&#x0033;"/>
+      <when state="after_v_wo" output="&#x0033;"/>
+      <when state="after_v_u" output="&#x0033;"/>
+      <when state="after_v_wu" output="&#x0033;"/>
+      <when state="after_v_i" output="&#x0033;"/>
+      <when state="after_v_wi" output="&#x0033;"/>
+      <when state="after_v_schwa" output="&#x0033;"/>
+      <when state="after_v_wschwa" output="&#x0033;"/>
     </action>
     <action id="shift_20">
       <when state="none" output="&#x0023;"/>
@@ -548,6 +1208,18 @@
       <when state="c_th" output="&#x0023;"/>
       <when state="c_dh" output="&#x0023;"/>
       <when state="c_sh" output="&#x0023;"/>
+      <when state="after_v_a" output="&#x0023;"/>
+      <when state="after_v_wa" output="&#x0023;"/>
+      <when state="after_v_e" output="&#x0023;"/>
+      <when state="after_v_we" output="&#x0023;"/>
+      <when state="after_v_o" output="&#x0023;"/>
+      <when state="after_v_wo" output="&#x0023;"/>
+      <when state="after_v_u" output="&#x0023;"/>
+      <when state="after_v_wu" output="&#x0023;"/>
+      <when state="after_v_i" output="&#x0023;"/>
+      <when state="after_v_wi" output="&#x0023;"/>
+      <when state="after_v_schwa" output="&#x0023;"/>
+      <when state="after_v_wschwa" output="&#x0023;"/>
     </action>
     <action id="press_21">
       <when state="none" output="&#x0034;"/>
@@ -562,6 +1234,18 @@
       <when state="c_th" output="&#x0034;"/>
       <when state="c_dh" output="&#x0034;"/>
       <when state="c_sh" output="&#x0034;"/>
+      <when state="after_v_a" output="&#x0034;"/>
+      <when state="after_v_wa" output="&#x0034;"/>
+      <when state="after_v_e" output="&#x0034;"/>
+      <when state="after_v_we" output="&#x0034;"/>
+      <when state="after_v_o" output="&#x0034;"/>
+      <when state="after_v_wo" output="&#x0034;"/>
+      <when state="after_v_u" output="&#x0034;"/>
+      <when state="after_v_wu" output="&#x0034;"/>
+      <when state="after_v_i" output="&#x0034;"/>
+      <when state="after_v_wi" output="&#x0034;"/>
+      <when state="after_v_schwa" output="&#x0034;"/>
+      <when state="after_v_wschwa" output="&#x0034;"/>
     </action>
     <action id="shift_21">
       <when state="none" output="&#x0024;"/>
@@ -576,6 +1260,18 @@
       <when state="c_th" output="&#x0024;"/>
       <when state="c_dh" output="&#x0024;"/>
       <when state="c_sh" output="&#x0024;"/>
+      <when state="after_v_a" output="&#x0024;"/>
+      <when state="after_v_wa" output="&#x0024;"/>
+      <when state="after_v_e" output="&#x0024;"/>
+      <when state="after_v_we" output="&#x0024;"/>
+      <when state="after_v_o" output="&#x0024;"/>
+      <when state="after_v_wo" output="&#x0024;"/>
+      <when state="after_v_u" output="&#x0024;"/>
+      <when state="after_v_wu" output="&#x0024;"/>
+      <when state="after_v_i" output="&#x0024;"/>
+      <when state="after_v_wi" output="&#x0024;"/>
+      <when state="after_v_schwa" output="&#x0024;"/>
+      <when state="after_v_wschwa" output="&#x0024;"/>
     </action>
     <action id="press_22">
       <when state="none" output="&#x0036;"/>
@@ -590,6 +1286,18 @@
       <when state="c_th" output="&#x0036;"/>
       <when state="c_dh" output="&#x0036;"/>
       <when state="c_sh" output="&#x0036;"/>
+      <when state="after_v_a" output="&#x0036;"/>
+      <when state="after_v_wa" output="&#x0036;"/>
+      <when state="after_v_e" output="&#x0036;"/>
+      <when state="after_v_we" output="&#x0036;"/>
+      <when state="after_v_o" output="&#x0036;"/>
+      <when state="after_v_wo" output="&#x0036;"/>
+      <when state="after_v_u" output="&#x0036;"/>
+      <when state="after_v_wu" output="&#x0036;"/>
+      <when state="after_v_i" output="&#x0036;"/>
+      <when state="after_v_wi" output="&#x0036;"/>
+      <when state="after_v_schwa" output="&#x0036;"/>
+      <when state="after_v_wschwa" output="&#x0036;"/>
     </action>
     <action id="shift_22">
       <when state="none" output="&#x005E;"/>
@@ -604,6 +1312,18 @@
       <when state="c_th" output="&#x005E;"/>
       <when state="c_dh" output="&#x005E;"/>
       <when state="c_sh" output="&#x005E;"/>
+      <when state="after_v_a" output="&#x005E;"/>
+      <when state="after_v_wa" output="&#x005E;"/>
+      <when state="after_v_e" output="&#x005E;"/>
+      <when state="after_v_we" output="&#x005E;"/>
+      <when state="after_v_o" output="&#x005E;"/>
+      <when state="after_v_wo" output="&#x005E;"/>
+      <when state="after_v_u" output="&#x005E;"/>
+      <when state="after_v_wu" output="&#x005E;"/>
+      <when state="after_v_i" output="&#x005E;"/>
+      <when state="after_v_wi" output="&#x005E;"/>
+      <when state="after_v_schwa" output="&#x005E;"/>
+      <when state="after_v_wschwa" output="&#x005E;"/>
     </action>
     <action id="press_23">
       <when state="none" output="&#x0035;"/>
@@ -618,6 +1338,18 @@
       <when state="c_th" output="&#x0035;"/>
       <when state="c_dh" output="&#x0035;"/>
       <when state="c_sh" output="&#x0035;"/>
+      <when state="after_v_a" output="&#x0035;"/>
+      <when state="after_v_wa" output="&#x0035;"/>
+      <when state="after_v_e" output="&#x0035;"/>
+      <when state="after_v_we" output="&#x0035;"/>
+      <when state="after_v_o" output="&#x0035;"/>
+      <when state="after_v_wo" output="&#x0035;"/>
+      <when state="after_v_u" output="&#x0035;"/>
+      <when state="after_v_wu" output="&#x0035;"/>
+      <when state="after_v_i" output="&#x0035;"/>
+      <when state="after_v_wi" output="&#x0035;"/>
+      <when state="after_v_schwa" output="&#x0035;"/>
+      <when state="after_v_wschwa" output="&#x0035;"/>
     </action>
     <action id="shift_23">
       <when state="none" output="&#x0025;"/>
@@ -632,6 +1364,18 @@
       <when state="c_th" output="&#x0025;"/>
       <when state="c_dh" output="&#x0025;"/>
       <when state="c_sh" output="&#x0025;"/>
+      <when state="after_v_a" output="&#x0025;"/>
+      <when state="after_v_wa" output="&#x0025;"/>
+      <when state="after_v_e" output="&#x0025;"/>
+      <when state="after_v_we" output="&#x0025;"/>
+      <when state="after_v_o" output="&#x0025;"/>
+      <when state="after_v_wo" output="&#x0025;"/>
+      <when state="after_v_u" output="&#x0025;"/>
+      <when state="after_v_wu" output="&#x0025;"/>
+      <when state="after_v_i" output="&#x0025;"/>
+      <when state="after_v_wi" output="&#x0025;"/>
+      <when state="after_v_schwa" output="&#x0025;"/>
+      <when state="after_v_wschwa" output="&#x0025;"/>
     </action>
     <action id="press_24">
       <when state="none" output="&#x003D;"/>
@@ -646,6 +1390,18 @@
       <when state="c_th" output="&#x003D;"/>
       <when state="c_dh" output="&#x003D;"/>
       <when state="c_sh" output="&#x003D;"/>
+      <when state="after_v_a" output="&#x003D;"/>
+      <when state="after_v_wa" output="&#x003D;"/>
+      <when state="after_v_e" output="&#x003D;"/>
+      <when state="after_v_we" output="&#x003D;"/>
+      <when state="after_v_o" output="&#x003D;"/>
+      <when state="after_v_wo" output="&#x003D;"/>
+      <when state="after_v_u" output="&#x003D;"/>
+      <when state="after_v_wu" output="&#x003D;"/>
+      <when state="after_v_i" output="&#x003D;"/>
+      <when state="after_v_wi" output="&#x003D;"/>
+      <when state="after_v_schwa" output="&#x003D;"/>
+      <when state="after_v_wschwa" output="&#x003D;"/>
     </action>
     <action id="shift_24">
       <when state="none" output="&#x002B;"/>
@@ -660,6 +1416,18 @@
       <when state="c_th" output="&#x002B;"/>
       <when state="c_dh" output="&#x002B;"/>
       <when state="c_sh" output="&#x002B;"/>
+      <when state="after_v_a" output="&#x002B;"/>
+      <when state="after_v_wa" output="&#x002B;"/>
+      <when state="after_v_e" output="&#x002B;"/>
+      <when state="after_v_we" output="&#x002B;"/>
+      <when state="after_v_o" output="&#x002B;"/>
+      <when state="after_v_wo" output="&#x002B;"/>
+      <when state="after_v_u" output="&#x002B;"/>
+      <when state="after_v_wu" output="&#x002B;"/>
+      <when state="after_v_i" output="&#x002B;"/>
+      <when state="after_v_wi" output="&#x002B;"/>
+      <when state="after_v_schwa" output="&#x002B;"/>
+      <when state="after_v_wschwa" output="&#x002B;"/>
     </action>
     <action id="press_25">
       <when state="none" output="&#x0039;"/>
@@ -674,6 +1442,18 @@
       <when state="c_th" output="&#x0039;"/>
       <when state="c_dh" output="&#x0039;"/>
       <when state="c_sh" output="&#x0039;"/>
+      <when state="after_v_a" output="&#x0039;"/>
+      <when state="after_v_wa" output="&#x0039;"/>
+      <when state="after_v_e" output="&#x0039;"/>
+      <when state="after_v_we" output="&#x0039;"/>
+      <when state="after_v_o" output="&#x0039;"/>
+      <when state="after_v_wo" output="&#x0039;"/>
+      <when state="after_v_u" output="&#x0039;"/>
+      <when state="after_v_wu" output="&#x0039;"/>
+      <when state="after_v_i" output="&#x0039;"/>
+      <when state="after_v_wi" output="&#x0039;"/>
+      <when state="after_v_schwa" output="&#x0039;"/>
+      <when state="after_v_wschwa" output="&#x0039;"/>
     </action>
     <action id="shift_25">
       <when state="none" output="&#x0028;"/>
@@ -688,6 +1468,18 @@
       <when state="c_th" output="&#x0028;"/>
       <when state="c_dh" output="&#x0028;"/>
       <when state="c_sh" output="&#x0028;"/>
+      <when state="after_v_a" output="&#x0028;"/>
+      <when state="after_v_wa" output="&#x0028;"/>
+      <when state="after_v_e" output="&#x0028;"/>
+      <when state="after_v_we" output="&#x0028;"/>
+      <when state="after_v_o" output="&#x0028;"/>
+      <when state="after_v_wo" output="&#x0028;"/>
+      <when state="after_v_u" output="&#x0028;"/>
+      <when state="after_v_wu" output="&#x0028;"/>
+      <when state="after_v_i" output="&#x0028;"/>
+      <when state="after_v_wi" output="&#x0028;"/>
+      <when state="after_v_schwa" output="&#x0028;"/>
+      <when state="after_v_wschwa" output="&#x0028;"/>
     </action>
     <action id="press_26">
       <when state="none" output="&#x0037;"/>
@@ -702,6 +1494,18 @@
       <when state="c_th" output="&#x0037;"/>
       <when state="c_dh" output="&#x0037;"/>
       <when state="c_sh" output="&#x0037;"/>
+      <when state="after_v_a" output="&#x0037;"/>
+      <when state="after_v_wa" output="&#x0037;"/>
+      <when state="after_v_e" output="&#x0037;"/>
+      <when state="after_v_we" output="&#x0037;"/>
+      <when state="after_v_o" output="&#x0037;"/>
+      <when state="after_v_wo" output="&#x0037;"/>
+      <when state="after_v_u" output="&#x0037;"/>
+      <when state="after_v_wu" output="&#x0037;"/>
+      <when state="after_v_i" output="&#x0037;"/>
+      <when state="after_v_wi" output="&#x0037;"/>
+      <when state="after_v_schwa" output="&#x0037;"/>
+      <when state="after_v_wschwa" output="&#x0037;"/>
     </action>
     <action id="shift_26">
       <when state="none" output="&#x0026;"/>
@@ -716,6 +1520,18 @@
       <when state="c_th" output="&#x0026;"/>
       <when state="c_dh" output="&#x0026;"/>
       <when state="c_sh" output="&#x0026;"/>
+      <when state="after_v_a" output="&#x0026;"/>
+      <when state="after_v_wa" output="&#x0026;"/>
+      <when state="after_v_e" output="&#x0026;"/>
+      <when state="after_v_we" output="&#x0026;"/>
+      <when state="after_v_o" output="&#x0026;"/>
+      <when state="after_v_wo" output="&#x0026;"/>
+      <when state="after_v_u" output="&#x0026;"/>
+      <when state="after_v_wu" output="&#x0026;"/>
+      <when state="after_v_i" output="&#x0026;"/>
+      <when state="after_v_wi" output="&#x0026;"/>
+      <when state="after_v_schwa" output="&#x0026;"/>
+      <when state="after_v_wschwa" output="&#x0026;"/>
     </action>
     <action id="press_27">
       <when state="none" output="&#x002D;"/>
@@ -730,6 +1546,18 @@
       <when state="c_th" output="&#x002D;"/>
       <when state="c_dh" output="&#x002D;"/>
       <when state="c_sh" output="&#x002D;"/>
+      <when state="after_v_a" output="&#x002D;"/>
+      <when state="after_v_wa" output="&#x002D;"/>
+      <when state="after_v_e" output="&#x002D;"/>
+      <when state="after_v_we" output="&#x002D;"/>
+      <when state="after_v_o" output="&#x002D;"/>
+      <when state="after_v_wo" output="&#x002D;"/>
+      <when state="after_v_u" output="&#x002D;"/>
+      <when state="after_v_wu" output="&#x002D;"/>
+      <when state="after_v_i" output="&#x002D;"/>
+      <when state="after_v_wi" output="&#x002D;"/>
+      <when state="after_v_schwa" output="&#x002D;"/>
+      <when state="after_v_wschwa" output="&#x002D;"/>
     </action>
     <action id="shift_27">
       <when state="none" output="&#x005F;"/>
@@ -744,6 +1572,18 @@
       <when state="c_th" output="&#x005F;"/>
       <when state="c_dh" output="&#x005F;"/>
       <when state="c_sh" output="&#x005F;"/>
+      <when state="after_v_a" output="&#x005F;"/>
+      <when state="after_v_wa" output="&#x005F;"/>
+      <when state="after_v_e" output="&#x005F;"/>
+      <when state="after_v_we" output="&#x005F;"/>
+      <when state="after_v_o" output="&#x005F;"/>
+      <when state="after_v_wo" output="&#x005F;"/>
+      <when state="after_v_u" output="&#x005F;"/>
+      <when state="after_v_wu" output="&#x005F;"/>
+      <when state="after_v_i" output="&#x005F;"/>
+      <when state="after_v_wi" output="&#x005F;"/>
+      <when state="after_v_schwa" output="&#x005F;"/>
+      <when state="after_v_wschwa" output="&#x005F;"/>
     </action>
     <action id="press_28">
       <when state="none" output="&#x0038;"/>
@@ -758,6 +1598,18 @@
       <when state="c_th" output="&#x0038;"/>
       <when state="c_dh" output="&#x0038;"/>
       <when state="c_sh" output="&#x0038;"/>
+      <when state="after_v_a" output="&#x0038;"/>
+      <when state="after_v_wa" output="&#x0038;"/>
+      <when state="after_v_e" output="&#x0038;"/>
+      <when state="after_v_we" output="&#x0038;"/>
+      <when state="after_v_o" output="&#x0038;"/>
+      <when state="after_v_wo" output="&#x0038;"/>
+      <when state="after_v_u" output="&#x0038;"/>
+      <when state="after_v_wu" output="&#x0038;"/>
+      <when state="after_v_i" output="&#x0038;"/>
+      <when state="after_v_wi" output="&#x0038;"/>
+      <when state="after_v_schwa" output="&#x0038;"/>
+      <when state="after_v_wschwa" output="&#x0038;"/>
     </action>
     <action id="shift_28">
       <when state="none" output="&#x002A;"/>
@@ -772,6 +1624,18 @@
       <when state="c_th" output="&#x002A;"/>
       <when state="c_dh" output="&#x002A;"/>
       <when state="c_sh" output="&#x002A;"/>
+      <when state="after_v_a" output="&#x002A;"/>
+      <when state="after_v_wa" output="&#x002A;"/>
+      <when state="after_v_e" output="&#x002A;"/>
+      <when state="after_v_we" output="&#x002A;"/>
+      <when state="after_v_o" output="&#x002A;"/>
+      <when state="after_v_wo" output="&#x002A;"/>
+      <when state="after_v_u" output="&#x002A;"/>
+      <when state="after_v_wu" output="&#x002A;"/>
+      <when state="after_v_i" output="&#x002A;"/>
+      <when state="after_v_wi" output="&#x002A;"/>
+      <when state="after_v_schwa" output="&#x002A;"/>
+      <when state="after_v_wschwa" output="&#x002A;"/>
     </action>
     <action id="press_29">
       <when state="none" output="&#x0030;"/>
@@ -786,6 +1650,18 @@
       <when state="c_th" output="&#x0030;"/>
       <when state="c_dh" output="&#x0030;"/>
       <when state="c_sh" output="&#x0030;"/>
+      <when state="after_v_a" output="&#x0030;"/>
+      <when state="after_v_wa" output="&#x0030;"/>
+      <when state="after_v_e" output="&#x0030;"/>
+      <when state="after_v_we" output="&#x0030;"/>
+      <when state="after_v_o" output="&#x0030;"/>
+      <when state="after_v_wo" output="&#x0030;"/>
+      <when state="after_v_u" output="&#x0030;"/>
+      <when state="after_v_wu" output="&#x0030;"/>
+      <when state="after_v_i" output="&#x0030;"/>
+      <when state="after_v_wi" output="&#x0030;"/>
+      <when state="after_v_schwa" output="&#x0030;"/>
+      <when state="after_v_wschwa" output="&#x0030;"/>
     </action>
     <action id="shift_29">
       <when state="none" output="&#x0029;"/>
@@ -800,6 +1676,18 @@
       <when state="c_th" output="&#x0029;"/>
       <when state="c_dh" output="&#x0029;"/>
       <when state="c_sh" output="&#x0029;"/>
+      <when state="after_v_a" output="&#x0029;"/>
+      <when state="after_v_wa" output="&#x0029;"/>
+      <when state="after_v_e" output="&#x0029;"/>
+      <when state="after_v_we" output="&#x0029;"/>
+      <when state="after_v_o" output="&#x0029;"/>
+      <when state="after_v_wo" output="&#x0029;"/>
+      <when state="after_v_u" output="&#x0029;"/>
+      <when state="after_v_wu" output="&#x0029;"/>
+      <when state="after_v_i" output="&#x0029;"/>
+      <when state="after_v_wi" output="&#x0029;"/>
+      <when state="after_v_schwa" output="&#x0029;"/>
+      <when state="after_v_wschwa" output="&#x0029;"/>
     </action>
     <action id="press_30">
       <when state="none" output="&#x005D;"/>
@@ -814,6 +1702,18 @@
       <when state="c_th" output="&#x005D;"/>
       <when state="c_dh" output="&#x005D;"/>
       <when state="c_sh" output="&#x005D;"/>
+      <when state="after_v_a" output="&#x005D;"/>
+      <when state="after_v_wa" output="&#x005D;"/>
+      <when state="after_v_e" output="&#x005D;"/>
+      <when state="after_v_we" output="&#x005D;"/>
+      <when state="after_v_o" output="&#x005D;"/>
+      <when state="after_v_wo" output="&#x005D;"/>
+      <when state="after_v_u" output="&#x005D;"/>
+      <when state="after_v_wu" output="&#x005D;"/>
+      <when state="after_v_i" output="&#x005D;"/>
+      <when state="after_v_wi" output="&#x005D;"/>
+      <when state="after_v_schwa" output="&#x005D;"/>
+      <when state="after_v_wschwa" output="&#x005D;"/>
     </action>
     <action id="shift_30">
       <when state="none" output="&#x007D;"/>
@@ -828,6 +1728,18 @@
       <when state="c_th" output="&#x007D;"/>
       <when state="c_dh" output="&#x007D;"/>
       <when state="c_sh" output="&#x007D;"/>
+      <when state="after_v_a" output="&#x007D;"/>
+      <when state="after_v_wa" output="&#x007D;"/>
+      <when state="after_v_e" output="&#x007D;"/>
+      <when state="after_v_we" output="&#x007D;"/>
+      <when state="after_v_o" output="&#x007D;"/>
+      <when state="after_v_wo" output="&#x007D;"/>
+      <when state="after_v_u" output="&#x007D;"/>
+      <when state="after_v_wu" output="&#x007D;"/>
+      <when state="after_v_i" output="&#x007D;"/>
+      <when state="after_v_wi" output="&#x007D;"/>
+      <when state="after_v_schwa" output="&#x007D;"/>
+      <when state="after_v_wschwa" output="&#x007D;"/>
     </action>
     <action id="press_33">
       <when state="none" output="&#x005B;"/>
@@ -842,6 +1754,18 @@
       <when state="c_th" output="&#x005B;"/>
       <when state="c_dh" output="&#x005B;"/>
       <when state="c_sh" output="&#x005B;"/>
+      <when state="after_v_a" output="&#x005B;"/>
+      <when state="after_v_wa" output="&#x005B;"/>
+      <when state="after_v_e" output="&#x005B;"/>
+      <when state="after_v_we" output="&#x005B;"/>
+      <when state="after_v_o" output="&#x005B;"/>
+      <when state="after_v_wo" output="&#x005B;"/>
+      <when state="after_v_u" output="&#x005B;"/>
+      <when state="after_v_wu" output="&#x005B;"/>
+      <when state="after_v_i" output="&#x005B;"/>
+      <when state="after_v_wi" output="&#x005B;"/>
+      <when state="after_v_schwa" output="&#x005B;"/>
+      <when state="after_v_wschwa" output="&#x005B;"/>
     </action>
     <action id="shift_33">
       <when state="none" output="&#x007B;"/>
@@ -856,6 +1780,18 @@
       <when state="c_th" output="&#x007B;"/>
       <when state="c_dh" output="&#x007B;"/>
       <when state="c_sh" output="&#x007B;"/>
+      <when state="after_v_a" output="&#x007B;"/>
+      <when state="after_v_wa" output="&#x007B;"/>
+      <when state="after_v_e" output="&#x007B;"/>
+      <when state="after_v_we" output="&#x007B;"/>
+      <when state="after_v_o" output="&#x007B;"/>
+      <when state="after_v_wo" output="&#x007B;"/>
+      <when state="after_v_u" output="&#x007B;"/>
+      <when state="after_v_wu" output="&#x007B;"/>
+      <when state="after_v_i" output="&#x007B;"/>
+      <when state="after_v_wi" output="&#x007B;"/>
+      <when state="after_v_schwa" output="&#x007B;"/>
+      <when state="after_v_wschwa" output="&#x007B;"/>
     </action>
     <action id="press_36">
       <when state="none" output="&#x000D;"/>
@@ -870,6 +1806,18 @@
       <when state="c_th" output="&#x000D;"/>
       <when state="c_dh" output="&#x000D;"/>
       <when state="c_sh" output="&#x000D;"/>
+      <when state="after_v_a" output="&#x000D;"/>
+      <when state="after_v_wa" output="&#x000D;"/>
+      <when state="after_v_e" output="&#x000D;"/>
+      <when state="after_v_we" output="&#x000D;"/>
+      <when state="after_v_o" output="&#x000D;"/>
+      <when state="after_v_wo" output="&#x000D;"/>
+      <when state="after_v_u" output="&#x000D;"/>
+      <when state="after_v_wu" output="&#x000D;"/>
+      <when state="after_v_i" output="&#x000D;"/>
+      <when state="after_v_wi" output="&#x000D;"/>
+      <when state="after_v_schwa" output="&#x000D;"/>
+      <when state="after_v_wschwa" output="&#x000D;"/>
     </action>
     <action id="press_39">
       <when state="none" output="&#x0027;"/>
@@ -884,6 +1832,18 @@
       <when state="c_th" output="&#x0027;"/>
       <when state="c_dh" output="&#x0027;"/>
       <when state="c_sh" output="&#x0027;"/>
+      <when state="after_v_a" output="&#x0027;"/>
+      <when state="after_v_wa" output="&#x0027;"/>
+      <when state="after_v_e" output="&#x0027;"/>
+      <when state="after_v_we" output="&#x0027;"/>
+      <when state="after_v_o" output="&#x0027;"/>
+      <when state="after_v_wo" output="&#x0027;"/>
+      <when state="after_v_u" output="&#x0027;"/>
+      <when state="after_v_wu" output="&#x0027;"/>
+      <when state="after_v_i" output="&#x0027;"/>
+      <when state="after_v_wi" output="&#x0027;"/>
+      <when state="after_v_schwa" output="&#x0027;"/>
+      <when state="after_v_wschwa" output="&#x0027;"/>
     </action>
     <action id="shift_39">
       <when state="none" output="&#x0022;"/>
@@ -898,6 +1858,18 @@
       <when state="c_th" output="&#x0022;"/>
       <when state="c_dh" output="&#x0022;"/>
       <when state="c_sh" output="&#x0022;"/>
+      <when state="after_v_a" output="&#x0022;"/>
+      <when state="after_v_wa" output="&#x0022;"/>
+      <when state="after_v_e" output="&#x0022;"/>
+      <when state="after_v_we" output="&#x0022;"/>
+      <when state="after_v_o" output="&#x0022;"/>
+      <when state="after_v_wo" output="&#x0022;"/>
+      <when state="after_v_u" output="&#x0022;"/>
+      <when state="after_v_wu" output="&#x0022;"/>
+      <when state="after_v_i" output="&#x0022;"/>
+      <when state="after_v_wi" output="&#x0022;"/>
+      <when state="after_v_schwa" output="&#x0022;"/>
+      <when state="after_v_wschwa" output="&#x0022;"/>
     </action>
     <action id="press_42">
       <when state="none" output="&#x005C;"/>
@@ -912,6 +1884,18 @@
       <when state="c_th" output="&#x005C;"/>
       <when state="c_dh" output="&#x005C;"/>
       <when state="c_sh" output="&#x005C;"/>
+      <when state="after_v_a" output="&#x005C;"/>
+      <when state="after_v_wa" output="&#x005C;"/>
+      <when state="after_v_e" output="&#x005C;"/>
+      <when state="after_v_we" output="&#x005C;"/>
+      <when state="after_v_o" output="&#x005C;"/>
+      <when state="after_v_wo" output="&#x005C;"/>
+      <when state="after_v_u" output="&#x005C;"/>
+      <when state="after_v_wu" output="&#x005C;"/>
+      <when state="after_v_i" output="&#x005C;"/>
+      <when state="after_v_wi" output="&#x005C;"/>
+      <when state="after_v_schwa" output="&#x005C;"/>
+      <when state="after_v_wschwa" output="&#x005C;"/>
     </action>
     <action id="shift_42">
       <when state="none" output="&#x007C;"/>
@@ -926,6 +1910,18 @@
       <when state="c_th" output="&#x007C;"/>
       <when state="c_dh" output="&#x007C;"/>
       <when state="c_sh" output="&#x007C;"/>
+      <when state="after_v_a" output="&#x007C;"/>
+      <when state="after_v_wa" output="&#x007C;"/>
+      <when state="after_v_e" output="&#x007C;"/>
+      <when state="after_v_we" output="&#x007C;"/>
+      <when state="after_v_o" output="&#x007C;"/>
+      <when state="after_v_wo" output="&#x007C;"/>
+      <when state="after_v_u" output="&#x007C;"/>
+      <when state="after_v_wu" output="&#x007C;"/>
+      <when state="after_v_i" output="&#x007C;"/>
+      <when state="after_v_wi" output="&#x007C;"/>
+      <when state="after_v_schwa" output="&#x007C;"/>
+      <when state="after_v_wschwa" output="&#x007C;"/>
     </action>
     <action id="press_43">
       <when state="none" output="&#x002C;"/>
@@ -940,6 +1936,18 @@
       <when state="c_th" output="&#x002C;"/>
       <when state="c_dh" output="&#x002C;"/>
       <when state="c_sh" output="&#x002C;"/>
+      <when state="after_v_a" output="&#x002C;"/>
+      <when state="after_v_wa" output="&#x002C;"/>
+      <when state="after_v_e" output="&#x002C;"/>
+      <when state="after_v_we" output="&#x002C;"/>
+      <when state="after_v_o" output="&#x002C;"/>
+      <when state="after_v_wo" output="&#x002C;"/>
+      <when state="after_v_u" output="&#x002C;"/>
+      <when state="after_v_wu" output="&#x002C;"/>
+      <when state="after_v_i" output="&#x002C;"/>
+      <when state="after_v_wi" output="&#x002C;"/>
+      <when state="after_v_schwa" output="&#x002C;"/>
+      <when state="after_v_wschwa" output="&#x002C;"/>
     </action>
     <action id="shift_43">
       <when state="none" output="&#x003C;"/>
@@ -954,6 +1962,18 @@
       <when state="c_th" output="&#x003C;"/>
       <when state="c_dh" output="&#x003C;"/>
       <when state="c_sh" output="&#x003C;"/>
+      <when state="after_v_a" output="&#x003C;"/>
+      <when state="after_v_wa" output="&#x003C;"/>
+      <when state="after_v_e" output="&#x003C;"/>
+      <when state="after_v_we" output="&#x003C;"/>
+      <when state="after_v_o" output="&#x003C;"/>
+      <when state="after_v_wo" output="&#x003C;"/>
+      <when state="after_v_u" output="&#x003C;"/>
+      <when state="after_v_wu" output="&#x003C;"/>
+      <when state="after_v_i" output="&#x003C;"/>
+      <when state="after_v_wi" output="&#x003C;"/>
+      <when state="after_v_schwa" output="&#x003C;"/>
+      <when state="after_v_wschwa" output="&#x003C;"/>
     </action>
     <action id="press_44">
       <when state="none" output="&#x002F;"/>
@@ -968,6 +1988,18 @@
       <when state="c_th" output="&#x002F;"/>
       <when state="c_dh" output="&#x002F;"/>
       <when state="c_sh" output="&#x002F;"/>
+      <when state="after_v_a" output="&#x002F;"/>
+      <when state="after_v_wa" output="&#x002F;"/>
+      <when state="after_v_e" output="&#x002F;"/>
+      <when state="after_v_we" output="&#x002F;"/>
+      <when state="after_v_o" output="&#x002F;"/>
+      <when state="after_v_wo" output="&#x002F;"/>
+      <when state="after_v_u" output="&#x002F;"/>
+      <when state="after_v_wu" output="&#x002F;"/>
+      <when state="after_v_i" output="&#x002F;"/>
+      <when state="after_v_wi" output="&#x002F;"/>
+      <when state="after_v_schwa" output="&#x002F;"/>
+      <when state="after_v_wschwa" output="&#x002F;"/>
     </action>
     <action id="shift_44">
       <when state="none" output="&#x003F;"/>
@@ -982,6 +2014,18 @@
       <when state="c_th" output="&#x003F;"/>
       <when state="c_dh" output="&#x003F;"/>
       <when state="c_sh" output="&#x003F;"/>
+      <when state="after_v_a" output="&#x003F;"/>
+      <when state="after_v_wa" output="&#x003F;"/>
+      <when state="after_v_e" output="&#x003F;"/>
+      <when state="after_v_we" output="&#x003F;"/>
+      <when state="after_v_o" output="&#x003F;"/>
+      <when state="after_v_wo" output="&#x003F;"/>
+      <when state="after_v_u" output="&#x003F;"/>
+      <when state="after_v_wu" output="&#x003F;"/>
+      <when state="after_v_i" output="&#x003F;"/>
+      <when state="after_v_wi" output="&#x003F;"/>
+      <when state="after_v_schwa" output="&#x003F;"/>
+      <when state="after_v_wschwa" output="&#x003F;"/>
     </action>
     <action id="press_47">
       <when state="none" output="&#x002E;"/>
@@ -996,6 +2040,18 @@
       <when state="c_th" output="&#x002E;"/>
       <when state="c_dh" output="&#x002E;"/>
       <when state="c_sh" output="&#x002E;"/>
+      <when state="after_v_a" output="&#x002E;"/>
+      <when state="after_v_wa" output="&#x002E;"/>
+      <when state="after_v_e" output="&#x002E;"/>
+      <when state="after_v_we" output="&#x002E;"/>
+      <when state="after_v_o" output="&#x002E;"/>
+      <when state="after_v_wo" output="&#x002E;"/>
+      <when state="after_v_u" output="&#x002E;"/>
+      <when state="after_v_wu" output="&#x002E;"/>
+      <when state="after_v_i" output="&#x002E;"/>
+      <when state="after_v_wi" output="&#x002E;"/>
+      <when state="after_v_schwa" output="&#x002E;"/>
+      <when state="after_v_wschwa" output="&#x002E;"/>
     </action>
     <action id="shift_47">
       <when state="none" output="&#x003E;"/>
@@ -1010,6 +2066,18 @@
       <when state="c_th" output="&#x003E;"/>
       <when state="c_dh" output="&#x003E;"/>
       <when state="c_sh" output="&#x003E;"/>
+      <when state="after_v_a" output="&#x003E;"/>
+      <when state="after_v_wa" output="&#x003E;"/>
+      <when state="after_v_e" output="&#x003E;"/>
+      <when state="after_v_we" output="&#x003E;"/>
+      <when state="after_v_o" output="&#x003E;"/>
+      <when state="after_v_wo" output="&#x003E;"/>
+      <when state="after_v_u" output="&#x003E;"/>
+      <when state="after_v_wu" output="&#x003E;"/>
+      <when state="after_v_i" output="&#x003E;"/>
+      <when state="after_v_wi" output="&#x003E;"/>
+      <when state="after_v_schwa" output="&#x003E;"/>
+      <when state="after_v_wschwa" output="&#x003E;"/>
     </action>
     <action id="press_48">
       <when state="none" output="&#x0009;"/>
@@ -1024,6 +2092,18 @@
       <when state="c_th" output="&#x0009;"/>
       <when state="c_dh" output="&#x0009;"/>
       <when state="c_sh" output="&#x0009;"/>
+      <when state="after_v_a" output="&#x0009;"/>
+      <when state="after_v_wa" output="&#x0009;"/>
+      <when state="after_v_e" output="&#x0009;"/>
+      <when state="after_v_we" output="&#x0009;"/>
+      <when state="after_v_o" output="&#x0009;"/>
+      <when state="after_v_wo" output="&#x0009;"/>
+      <when state="after_v_u" output="&#x0009;"/>
+      <when state="after_v_wu" output="&#x0009;"/>
+      <when state="after_v_i" output="&#x0009;"/>
+      <when state="after_v_wi" output="&#x0009;"/>
+      <when state="after_v_schwa" output="&#x0009;"/>
+      <when state="after_v_wschwa" output="&#x0009;"/>
     </action>
     <action id="press_49">
       <when state="none" output="&#x0020;"/>
@@ -1038,6 +2118,18 @@
       <when state="c_th" output="&#x0020;"/>
       <when state="c_dh" output="&#x0020;"/>
       <when state="c_sh" output="&#x0020;"/>
+      <when state="after_v_a" output="&#x0020;"/>
+      <when state="after_v_wa" output="&#x0020;"/>
+      <when state="after_v_e" output="&#x0020;"/>
+      <when state="after_v_we" output="&#x0020;"/>
+      <when state="after_v_o" output="&#x0020;"/>
+      <when state="after_v_wo" output="&#x0020;"/>
+      <when state="after_v_u" output="&#x0020;"/>
+      <when state="after_v_wu" output="&#x0020;"/>
+      <when state="after_v_i" output="&#x0020;"/>
+      <when state="after_v_wi" output="&#x0020;"/>
+      <when state="after_v_schwa" output="&#x0020;"/>
+      <when state="after_v_wschwa" output="&#x0020;"/>
     </action>
     <action id="press_50">
       <when state="none" output="&#x0060;"/>
@@ -1052,6 +2144,18 @@
       <when state="c_th" output="&#x0060;"/>
       <when state="c_dh" output="&#x0060;"/>
       <when state="c_sh" output="&#x0060;"/>
+      <when state="after_v_a" output="&#x0060;"/>
+      <when state="after_v_wa" output="&#x0060;"/>
+      <when state="after_v_e" output="&#x0060;"/>
+      <when state="after_v_we" output="&#x0060;"/>
+      <when state="after_v_o" output="&#x0060;"/>
+      <when state="after_v_wo" output="&#x0060;"/>
+      <when state="after_v_u" output="&#x0060;"/>
+      <when state="after_v_wu" output="&#x0060;"/>
+      <when state="after_v_i" output="&#x0060;"/>
+      <when state="after_v_wi" output="&#x0060;"/>
+      <when state="after_v_schwa" output="&#x0060;"/>
+      <when state="after_v_wschwa" output="&#x0060;"/>
     </action>
     <action id="shift_50">
       <when state="none" output="&#x007E;"/>
@@ -1066,6 +2170,18 @@
       <when state="c_th" output="&#x007E;"/>
       <when state="c_dh" output="&#x007E;"/>
       <when state="c_sh" output="&#x007E;"/>
+      <when state="after_v_a" output="&#x007E;"/>
+      <when state="after_v_wa" output="&#x007E;"/>
+      <when state="after_v_e" output="&#x007E;"/>
+      <when state="after_v_we" output="&#x007E;"/>
+      <when state="after_v_o" output="&#x007E;"/>
+      <when state="after_v_wo" output="&#x007E;"/>
+      <when state="after_v_u" output="&#x007E;"/>
+      <when state="after_v_wu" output="&#x007E;"/>
+      <when state="after_v_i" output="&#x007E;"/>
+      <when state="after_v_wi" output="&#x007E;"/>
+      <when state="after_v_schwa" output="&#x007E;"/>
+      <when state="after_v_wschwa" output="&#x007E;"/>
     </action>
     <action id="press_51">
       <when state="none" output="&#x0008;"/>
@@ -1080,6 +2196,18 @@
       <when state="c_th" output=""/>
       <when state="c_dh" output=""/>
       <when state="c_sh" output=""/>
+      <when state="after_v_a" output="&#x0008;"/>
+      <when state="after_v_wa" output="&#x0008;"/>
+      <when state="after_v_e" output="&#x0008;"/>
+      <when state="after_v_we" output="&#x0008;"/>
+      <when state="after_v_o" output="&#x0008;"/>
+      <when state="after_v_wo" output="&#x0008;"/>
+      <when state="after_v_u" output="&#x0008;"/>
+      <when state="after_v_wu" output="&#x0008;"/>
+      <when state="after_v_i" output="&#x0008;"/>
+      <when state="after_v_wi" output="&#x0008;"/>
+      <when state="after_v_schwa" output="&#x0008;"/>
+      <when state="after_v_wschwa" output="&#x0008;"/>
     </action>
     <action id="press_53">
       <when state="none" output="&#x001B;"/>
@@ -1094,6 +2222,18 @@
       <when state="c_th" output="&#x001B;"/>
       <when state="c_dh" output="&#x001B;"/>
       <when state="c_sh" output="&#x001B;"/>
+      <when state="after_v_a" output="&#x001B;"/>
+      <when state="after_v_wa" output="&#x001B;"/>
+      <when state="after_v_e" output="&#x001B;"/>
+      <when state="after_v_we" output="&#x001B;"/>
+      <when state="after_v_o" output="&#x001B;"/>
+      <when state="after_v_wo" output="&#x001B;"/>
+      <when state="after_v_u" output="&#x001B;"/>
+      <when state="after_v_wu" output="&#x001B;"/>
+      <when state="after_v_i" output="&#x001B;"/>
+      <when state="after_v_wi" output="&#x001B;"/>
+      <when state="after_v_schwa" output="&#x001B;"/>
+      <when state="after_v_wschwa" output="&#x001B;"/>
     </action>
     <action id="press_76">
       <when state="none" output="&#x0003;"/>
@@ -1108,6 +2248,18 @@
       <when state="c_th" output="&#x0003;"/>
       <when state="c_dh" output="&#x0003;"/>
       <when state="c_sh" output="&#x0003;"/>
+      <when state="after_v_a" output="&#x0003;"/>
+      <when state="after_v_wa" output="&#x0003;"/>
+      <when state="after_v_e" output="&#x0003;"/>
+      <when state="after_v_we" output="&#x0003;"/>
+      <when state="after_v_o" output="&#x0003;"/>
+      <when state="after_v_wo" output="&#x0003;"/>
+      <when state="after_v_u" output="&#x0003;"/>
+      <when state="after_v_wu" output="&#x0003;"/>
+      <when state="after_v_i" output="&#x0003;"/>
+      <when state="after_v_wi" output="&#x0003;"/>
+      <when state="after_v_schwa" output="&#x0003;"/>
+      <when state="after_v_wschwa" output="&#x0003;"/>
     </action>
     <action id="press_115">
       <when state="none" output="&#x0001;"/>
@@ -1122,6 +2274,18 @@
       <when state="c_th" output="&#x0001;"/>
       <when state="c_dh" output="&#x0001;"/>
       <when state="c_sh" output="&#x0001;"/>
+      <when state="after_v_a" output="&#x0001;"/>
+      <when state="after_v_wa" output="&#x0001;"/>
+      <when state="after_v_e" output="&#x0001;"/>
+      <when state="after_v_we" output="&#x0001;"/>
+      <when state="after_v_o" output="&#x0001;"/>
+      <when state="after_v_wo" output="&#x0001;"/>
+      <when state="after_v_u" output="&#x0001;"/>
+      <when state="after_v_wu" output="&#x0001;"/>
+      <when state="after_v_i" output="&#x0001;"/>
+      <when state="after_v_wi" output="&#x0001;"/>
+      <when state="after_v_schwa" output="&#x0001;"/>
+      <when state="after_v_wschwa" output="&#x0001;"/>
     </action>
     <action id="press_116">
       <when state="none" output="&#x000B;"/>
@@ -1136,6 +2300,18 @@
       <when state="c_th" output="&#x000B;"/>
       <when state="c_dh" output="&#x000B;"/>
       <when state="c_sh" output="&#x000B;"/>
+      <when state="after_v_a" output="&#x000B;"/>
+      <when state="after_v_wa" output="&#x000B;"/>
+      <when state="after_v_e" output="&#x000B;"/>
+      <when state="after_v_we" output="&#x000B;"/>
+      <when state="after_v_o" output="&#x000B;"/>
+      <when state="after_v_wo" output="&#x000B;"/>
+      <when state="after_v_u" output="&#x000B;"/>
+      <when state="after_v_wu" output="&#x000B;"/>
+      <when state="after_v_i" output="&#x000B;"/>
+      <when state="after_v_wi" output="&#x000B;"/>
+      <when state="after_v_schwa" output="&#x000B;"/>
+      <when state="after_v_wschwa" output="&#x000B;"/>
     </action>
     <action id="press_117">
       <when state="none" output="&#x007F;"/>
@@ -1150,6 +2326,18 @@
       <when state="c_th" output="&#x007F;"/>
       <when state="c_dh" output="&#x007F;"/>
       <when state="c_sh" output="&#x007F;"/>
+      <when state="after_v_a" output="&#x007F;"/>
+      <when state="after_v_wa" output="&#x007F;"/>
+      <when state="after_v_e" output="&#x007F;"/>
+      <when state="after_v_we" output="&#x007F;"/>
+      <when state="after_v_o" output="&#x007F;"/>
+      <when state="after_v_wo" output="&#x007F;"/>
+      <when state="after_v_u" output="&#x007F;"/>
+      <when state="after_v_wu" output="&#x007F;"/>
+      <when state="after_v_i" output="&#x007F;"/>
+      <when state="after_v_wi" output="&#x007F;"/>
+      <when state="after_v_schwa" output="&#x007F;"/>
+      <when state="after_v_wschwa" output="&#x007F;"/>
     </action>
     <action id="press_119">
       <when state="none" output="&#x0004;"/>
@@ -1164,6 +2352,18 @@
       <when state="c_th" output="&#x0004;"/>
       <when state="c_dh" output="&#x0004;"/>
       <when state="c_sh" output="&#x0004;"/>
+      <when state="after_v_a" output="&#x0004;"/>
+      <when state="after_v_wa" output="&#x0004;"/>
+      <when state="after_v_e" output="&#x0004;"/>
+      <when state="after_v_we" output="&#x0004;"/>
+      <when state="after_v_o" output="&#x0004;"/>
+      <when state="after_v_wo" output="&#x0004;"/>
+      <when state="after_v_u" output="&#x0004;"/>
+      <when state="after_v_wu" output="&#x0004;"/>
+      <when state="after_v_i" output="&#x0004;"/>
+      <when state="after_v_wi" output="&#x0004;"/>
+      <when state="after_v_schwa" output="&#x0004;"/>
+      <when state="after_v_wschwa" output="&#x0004;"/>
     </action>
     <action id="press_121">
       <when state="none" output="&#x000C;"/>
@@ -1178,6 +2378,18 @@
       <when state="c_th" output="&#x000C;"/>
       <when state="c_dh" output="&#x000C;"/>
       <when state="c_sh" output="&#x000C;"/>
+      <when state="after_v_a" output="&#x000C;"/>
+      <when state="after_v_wa" output="&#x000C;"/>
+      <when state="after_v_e" output="&#x000C;"/>
+      <when state="after_v_we" output="&#x000C;"/>
+      <when state="after_v_o" output="&#x000C;"/>
+      <when state="after_v_wo" output="&#x000C;"/>
+      <when state="after_v_u" output="&#x000C;"/>
+      <when state="after_v_wu" output="&#x000C;"/>
+      <when state="after_v_i" output="&#x000C;"/>
+      <when state="after_v_wi" output="&#x000C;"/>
+      <when state="after_v_schwa" output="&#x000C;"/>
+      <when state="after_v_wschwa" output="&#x000C;"/>
     </action>
     <action id="press_123">
       <when state="none" output="&#x001C;"/>
@@ -1192,6 +2404,18 @@
       <when state="c_th" output="&#x001C;"/>
       <when state="c_dh" output="&#x001C;"/>
       <when state="c_sh" output="&#x001C;"/>
+      <when state="after_v_a" output="&#x001C;"/>
+      <when state="after_v_wa" output="&#x001C;"/>
+      <when state="after_v_e" output="&#x001C;"/>
+      <when state="after_v_we" output="&#x001C;"/>
+      <when state="after_v_o" output="&#x001C;"/>
+      <when state="after_v_wo" output="&#x001C;"/>
+      <when state="after_v_u" output="&#x001C;"/>
+      <when state="after_v_wu" output="&#x001C;"/>
+      <when state="after_v_i" output="&#x001C;"/>
+      <when state="after_v_wi" output="&#x001C;"/>
+      <when state="after_v_schwa" output="&#x001C;"/>
+      <when state="after_v_wschwa" output="&#x001C;"/>
     </action>
     <action id="press_124">
       <when state="none" output="&#x001D;"/>
@@ -1206,6 +2430,18 @@
       <when state="c_th" output="&#x001D;"/>
       <when state="c_dh" output="&#x001D;"/>
       <when state="c_sh" output="&#x001D;"/>
+      <when state="after_v_a" output="&#x001D;"/>
+      <when state="after_v_wa" output="&#x001D;"/>
+      <when state="after_v_e" output="&#x001D;"/>
+      <when state="after_v_we" output="&#x001D;"/>
+      <when state="after_v_o" output="&#x001D;"/>
+      <when state="after_v_wo" output="&#x001D;"/>
+      <when state="after_v_u" output="&#x001D;"/>
+      <when state="after_v_wu" output="&#x001D;"/>
+      <when state="after_v_i" output="&#x001D;"/>
+      <when state="after_v_wi" output="&#x001D;"/>
+      <when state="after_v_schwa" output="&#x001D;"/>
+      <when state="after_v_wschwa" output="&#x001D;"/>
     </action>
     <action id="press_125">
       <when state="none" output="&#x001F;"/>
@@ -1220,6 +2456,18 @@
       <when state="c_th" output="&#x001F;"/>
       <when state="c_dh" output="&#x001F;"/>
       <when state="c_sh" output="&#x001F;"/>
+      <when state="after_v_a" output="&#x001F;"/>
+      <when state="after_v_wa" output="&#x001F;"/>
+      <when state="after_v_e" output="&#x001F;"/>
+      <when state="after_v_we" output="&#x001F;"/>
+      <when state="after_v_o" output="&#x001F;"/>
+      <when state="after_v_wo" output="&#x001F;"/>
+      <when state="after_v_u" output="&#x001F;"/>
+      <when state="after_v_wu" output="&#x001F;"/>
+      <when state="after_v_i" output="&#x001F;"/>
+      <when state="after_v_wi" output="&#x001F;"/>
+      <when state="after_v_schwa" output="&#x001F;"/>
+      <when state="after_v_wschwa" output="&#x001F;"/>
     </action>
     <action id="press_126">
       <when state="none" output="&#x001E;"/>
@@ -1234,6 +2482,18 @@
       <when state="c_th" output="&#x001E;"/>
       <when state="c_dh" output="&#x001E;"/>
       <when state="c_sh" output="&#x001E;"/>
+      <when state="after_v_a" output="&#x001E;"/>
+      <when state="after_v_wa" output="&#x001E;"/>
+      <when state="after_v_e" output="&#x001E;"/>
+      <when state="after_v_we" output="&#x001E;"/>
+      <when state="after_v_o" output="&#x001E;"/>
+      <when state="after_v_wo" output="&#x001E;"/>
+      <when state="after_v_u" output="&#x001E;"/>
+      <when state="after_v_wu" output="&#x001E;"/>
+      <when state="after_v_i" output="&#x001E;"/>
+      <when state="after_v_wi" output="&#x001E;"/>
+      <when state="after_v_schwa" output="&#x001E;"/>
+      <when state="after_v_wschwa" output="&#x001E;"/>
     </action>
   </actions>
   <terminators>
@@ -1248,5 +2508,17 @@
     <when state="c_th" output=""/>
     <when state="c_dh" output=""/>
     <when state="c_sh" output=""/>
+    <when state="after_v_a" output=""/>
+    <when state="after_v_wa" output=""/>
+    <when state="after_v_e" output=""/>
+    <when state="after_v_we" output=""/>
+    <when state="after_v_o" output=""/>
+    <when state="after_v_wo" output=""/>
+    <when state="after_v_u" output=""/>
+    <when state="after_v_wu" output=""/>
+    <when state="after_v_i" output=""/>
+    <when state="after_v_wi" output=""/>
+    <when state="after_v_schwa" output=""/>
+    <when state="after_v_wschwa" output=""/>
   </terminators>
 </keyboard>
