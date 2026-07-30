@@ -839,13 +839,22 @@ The nuance is pragmatic and the form is fully grammatical. `-me` means present;
 listeners infer a contrast because the speaker chose to state information that
 could otherwise have been left unmarked.
 
-This is not continuous aspect. Adding `-di` says that the identity is actively
-being enacted:
+Aspect is separate from that, and adding `-di` holds the anchored identity open:
 
 ```text
 Lari Laariswemedi.
-I am actively being Lauri.
+I am currently being Lauri.
 ```
+
+**Currently, not actively.** `-di` is continuous aspect and marks duration, so it
+says the state is ongoing. It does not say anybody is working at it, and *actively*
+imports an agency the morpheme does not carry.
+
+That distinction earns its keep immediately, because it keeps the copularizer out of
+the way of verbing a noun. If `-di` meant the identity was being *enacted*, then
+`mirireswemedi` and `mirireme` would be competing for one meaning. Read as duration
+they do not compete at all: one is a state that is ongoing, the other is an
+activity.
 
 ## 23. Foreign names enter by best-effort transliteration
 

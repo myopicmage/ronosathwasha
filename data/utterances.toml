@@ -437,7 +437,7 @@ arguments = ["subject"]
 
 [[utterance]]
 text = "Lari mirireswemedi."
-english = "I am actively being a teacher"
+english = "I am currently being a teacher"
 status = "derived"
 derived_from = "Lari miriresweme."
 derivation = "continuous -di after the tense, holding the anchored identity open"
@@ -477,6 +477,33 @@ predicate = "miri"
 nominal_predicate = true
 tense = "present"
 aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari mirireme."
+english = "I teacher, in the sense of doing teacher-ish things"
+status = "rejected"
+derived_from = "Mirireri mirime."
+derivation = "present -me on the nominal mirire with no copularizer, verbing the noun directly"
+rejected_because = """
+Valid and nobody would say it, for a different reason than `Lari miriswemedi.` \
+Category-neutral roots permit tense on any root, so this verbs the noun and means \
+doing teacher-ish things rather than being a teacher, which is a real and useful \
+capability.
+
+It fails on this noun in particular. `mirire` is `miri` plus `re`, teach plus \
+person, so verbing it lands next to `mirime` from the verb it was built out of. Two \
+routes to one meaning and the shorter one wins.
+
+So the construction is fine and the word is the wrong candidate for it. Verbing \
+`ta` or `shwi`, which no verb was ever extracted from, is where it earns its place.
+"""
+speech_act = "declarative"
+predicate = "mirire"
+tense = "present"
+aspect = "simple"
 polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject"]

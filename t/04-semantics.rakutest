@@ -16,7 +16,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 
 isa-ok $corpus, Coverage, 'the corpus parses into typed meaning';
 
-is $corpus.utterances.elems, 29, 'twenty-nine utterances';
+is $corpus.utterances.elems, 30, 'thirty utterances';
 
 my %counts = $corpus.counts;
 is %counts<Attested>, 17, 'seventeen attested: the page, plus the three Kevin wrote on 2026-07-29';
@@ -24,10 +24,16 @@ is %counts<Derived>, 11, 'eleven derived, six of them decision 22 nominal predic
 nok %counts<Reviewed>, 'none reviewed yet';
 
 # The status exists for a sentence the rules permit and a speaker declines, and
-# `Lari miriswemedi.` is the first one anybody has written down. Decision 22 permits
-# it, decision 24 orders it correctly, and it means "I am being a teaching", which
-# is well-formed in English too and equally not said.
-is %counts<Rejected>, 1, 'and one rejected, which is what that status was for';
+# these are the first two anybody has written down. They fail differently, which is
+# why both are worth keeping.
+#
+# `Lari miriswemedi.` predicates being a teaching rather than doing any teaching:
+# the construction itself is the problem.
+#
+# `Lari mirireme.` verbs the noun, which is a capability worth having, and picks the
+# wrong noun for it: `mirire` is `miri` plus `re`, so verbing it lands next to
+# `mirime` from the verb it was built from. Two routes to one meaning.
+is %counts<Rejected>, 2, 'and two rejected, failing in different ways';
 
 # ------------------------------------------------------------ meaning is typed ---
 
