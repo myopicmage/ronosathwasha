@@ -7,7 +7,13 @@
 
   outputs = { self, nixpkgs }:
     let
-      systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+      # One system, because that is the only kind of machine Kevin has, and the
+      # list was not merely aspirational but wrong: nixpkgs-unstable has dropped
+      # `x86_64-darwin`, so evaluating any attribute for it throws and points at
+      # the 26.11 release notes. Nothing noticed because nobody asks for that
+      # attribute. A list that claims four platforms and evaluates on one is worse
+      # than a list of one.
+      systems = [ "aarch64-darwin" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
@@ -70,6 +76,21 @@
             # into a message. A quick tunnel is the shortest path from build/ to
             # a URL, and it is public while it is up.
             pkgs.cloudflared
+
+            # Inference, as a local process with an HTTP interface. `llama-server`
+            # is what stop 9 speaks to; `llama-cli` is for checking a GGUF loads
+            # and what the startup banner says about Metal.
+            #
+            # Pinned through `flake.lock`, which means pinned through nixpkgs
+            # rather than through a llama.cpp release: this is build `b10063`, a
+            # build number and not a version anyone can ask for by name, so a
+            # nixpkgs bump moves the inference engine with it. Worth knowing before
+            # blaming a model for a change in behaviour.
+            #
+            # The weights are not here and must never be. They live in `~/models/`,
+            # for the reason `CLAUDE.md` gives: `path:.` copies this whole tree into
+            # the store on every evaluation, without consulting git.
+            pkgs.llama-cpp
           ];
         };
       });

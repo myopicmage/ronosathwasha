@@ -34,7 +34,9 @@
     "Ronosathwasha::ContextPolicy": "lib/Ronosathwasha/ContextPolicy.rakumod"
   },
   "depends": [
-    "Config::TOML"
+    "Config::TOML",
+    "JSON::Fast",
+    "HTTP::Tiny"
   ],
   "test-depends": [],
   "source-url": "",
