@@ -13,6 +13,34 @@ The method that pays for the arrangement is C<form-for>. It has no special case
 for the anti-harmonic negator, because the declaration already crossed the two
 alternants and the same lookup therefore gives the right form for all of them.
 
+=head2 C<hosts> describes; it does not restrict
+
+Kevin's ruling, 2026-07-30: B<anything attaches to anything, and that is
+grammatical.> Whether a given combination means something is a question about
+context, not about the grammar. C<mirireme>, a tense on a noun, is a well-formed
+word that nobody would say, and the language admits it rather than blocking it.
+
+So C<hosts> records what a morpheme is I<for>, and no code may turn it into a
+filter. C<declared-for> answers "is this the canonical host", never "is this
+allowed". A realizer that refused an undeclared host would be inventing a rule
+the language does not have, and the symptom would be a form the grammar permits
+coming back as an error.
+
+This resolves the C<LANGUAGE.md> question of whether C<attaches_to> and C<role>
+are enforced. They are not, deliberately, and permanently.
+
+=head2 One morpheme has two hosts, which is why this is a list
+
+The question marker. On a verb it questions the predicate, which is
+C<Nari tethinəme?>. On a nominal it questions the referent, and that use built
+the entire interrogative series: C<toro>, C<tomwu>, C<toluumo>, C<toduruu> and
+C<toðoru> are C<to> prefixed to C<ro>, C<mwu>, C<luumo>, C<duruu> and C<ðoru>,
+five nouns the lexicon already declares. All five bases are back words, so all
+five take C<to>, and nothing is left over.
+
+The two uses are in complementary distribution. C<Nari toro?> needs no clause
+marking because the interrogative word is already carrying the morpheme.
+
 =end pod
 
 unit module Ronosathwasha::Morphology;
@@ -26,7 +54,6 @@ use Ronosathwasha::Data;
 class Morpheme is export {
     has Str               $.id          is required;
     has MorphemeRole      $.role        is required;
-    has Host              $.host        is required;
     has Position          $.position    is required;
     has Alternation       $.alternation is required;
     has LanguageStatus    $.status      is required;
@@ -43,6 +70,16 @@ class Morpheme is export {
 
     has Str $.superseded-by;
     has Int $.decision;
+
+    #| The hosts this morpheme is *for*, which is not the same as the hosts it
+    #| may legally attach to. Kevin's ruling on 2026-07-30: anything attaches to
+    #| anything, and whether the result means something is context, not grammar.
+    #| So this is descriptive and must never become a filter; see the pod.
+    #|
+    #| Plural because the question marker has two. On a verb it questions the
+    #| predicate and on a nominal it questions the referent, and the second use
+    #| is where `toro`, `tomwu`, `toluumo`, `toduruu` and `toðoru` come from.
+    has Host @.hosts is required;
 
     #| Every surface form this morpheme can take.
     method forms(--> Seq) {
@@ -61,6 +98,17 @@ class Morpheme is export {
         fail X::Ronosathwasha::Form::MixedStem.new(:morpheme($!id)) if $profile == MixedWord;
 
         $profile == BackWord ?? $!back-stem !! $!front-stem;
+    }
+
+    #| Whether this morpheme is declared for the given host.
+    #|
+    #| `.grep(* == $host).elems`, never `so @!hosts.first($host)`. An enum value
+    #| in Raku is numeric and the first declared is 0, so `VerbStem` is itself
+    #| falsy: `first` returns the matching element and boolean context then
+    #| reports no match. `Ronosathwasha::Harmony` documents the same trap, where
+    #| it made every word come back neutral.
+    method declared-for(Host:D $host --> Bool) {
+        @!hosts.grep(* == $host).elems > 0;
     }
 
     method is-current(--> Bool) { $!status == Current }
@@ -150,6 +198,25 @@ sub decode(%table, $found, Str:D $field, Str:D $subject, IO::Path:D $path) {
     $value;
 }
 
+#| Decode `attaches_to`, which is a list because one morpheme has two hosts.
+#|
+#| Declared below `decode` because it calls it. Raku resolves a lexical sub in
+#| declaration order, so the other arrangement is an undeclared-routine error at
+#| compile time rather than anything subtle.
+#|
+#| The empty list is refused. TOML cannot express a non-empty list, so this is
+#| where that invariant has to live, and without it a morpheme could silently
+#| declare itself for nothing at all rather than say so.
+sub decode-hosts(%m, Str:D $id, IO::Path:D $path) {
+    my @found = @(%m<attaches_to> // []);
+
+    fail X::Ronosathwasha::Declaration::BadValue.new(
+        :$path, :field<attaches_to>, :subject($id), :found(%m<attaches_to>),
+    ) unless @found;
+
+    @found.map({ decode(%HOST, $_, 'attaches_to', $id, $path) });
+}
+
 #| Load the morphemes. No return type; see `Ronosathwasha::Types`.
 sub load-morphology(IO::Path:D $path) is export {
     my $doc = read-toml($path);
@@ -181,7 +248,7 @@ sub load-morphology(IO::Path:D $path) is export {
         Morpheme.new(
             :$id,
             :role(decode(%ROLE, %m<role>, 'role', $id, $path)),
-            :host(decode(%HOST, %m<attaches_to>, 'attaches_to', $id, $path)),
+            :hosts(decode-hosts(%m, $id, $path)),
             :position(decode(%POSITION, %m<position>, 'position', $id, $path)),
             :$alternation,
             :status(decode(%STATUS, %m<status>, 'status', $id, $path)),
