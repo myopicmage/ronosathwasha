@@ -643,8 +643,23 @@ different shape, where `おばさん` and `おばあさん` differ by one small 
 
 ### What implementation touches
 
-**Implemented** in the font, the keyboard and the Raku grammar. Cheaper than
-the first draft of this decision assumed.
+**Implemented** in the font, the keyboard, the Raku grammar and the Python model.
+Cheaper than the first draft of this decision assumed.
+
+The Python model was the last of the four and was owed for a while without anyone
+noticing, because nothing it could not do was visible. `Syllable` was exactly one
+consonant and one vowel, so `Script.parse` read `laari` as `la` and then demanded
+a consonant of the leftover `ari`. Meanwhile the Raku grammar had
+`<consonant> <vowel> $<long>=[ <base> ]?` and parsed the same word without
+complaint. Two implementations of one language disagreeing about what a syllable
+is, in the direction where the half that writes the lexicon was the half that
+could not.
+
+`Syllable` carries a `long` flag rather than the inventory carrying twelve more
+vowels, which is the same choice this decision already made about code points:
+length is not a letter. `Vowel.lengthened` and `Script.length_mark` are the two
+places the glide rule lives, so `waa` cannot become `wawa` in one caller and not
+another. It had already done exactly that once, in the specimen generator.
 
 **No new code points.** Twelve vowels stay twelve. `GLOSSARY.md` weighed
 precomposing length, which takes twelve to twenty-four, against a combining

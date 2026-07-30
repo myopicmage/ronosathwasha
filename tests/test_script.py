@@ -258,3 +258,46 @@ def test_syllable_roman_is_the_two_parts(script: Script) -> None:
     c = next(c for c in script.consonants if c.roman == "th")
     v = next(v for v in script.vowels if v.roman == "wa")
     assert Syllable(c, v).roman == "thwa"
+
+
+def test_a_long_vowel_is_spelled_with_one_glide_and_two_vowels(script: Script) -> None:
+    """`thwaa`, not `thwawa`. Labialisation is the onset's, written once.
+
+    The two halves are checked together on purpose. A spelling that says `waa`
+    while the encoding writes the glide twice renders as a plausible pair of
+    nested chevrons, so neither half catches it alone.
+    """
+    for vowel in script.vowels:
+        stripped = vowel.roman.removeprefix("w")
+        assert vowel.lengthened == vowel.roman + stripped
+
+        plain = next(v for v in script.vowels if not v.glide and v.roman == stripped)
+        assert script.length_mark(vowel) == script.codepoint(plain)
+
+        if vowel.glide:
+            assert script.length_mark(vowel) != script.codepoint(vowel)
+
+
+def test_length_round_trips_through_parse_and_encode(script: Script) -> None:
+    """The researcher's name, which is why any of this is here.
+
+    `laari` differs from `lari` in vowel length alone, and `lari` is `la` ("I")
+    plus the subject particle. Getting the length wrong does not merely misname
+    him, it turns him into the first person.
+    """
+    short = script.parse("lari")
+    long = script.parse("laari")
+    assert not isinstance(short, ParseFailure)
+    assert not isinstance(long, ParseFailure), long
+
+    assert [s.roman for s in short] == ["la", "ri"]
+    assert [s.roman for s in long] == ["laa", "ri"]
+    assert [s.long for s in long] == [True, False]
+
+    # One more code point, and it is the same mark again: the font's `mkmk` is
+    # what moves the second copy, so nothing here says where it goes.
+    a = script.codepoint(next(v for v in script.vowels if v.roman == "a"))
+    assert script.encode(long) == script.encode(short)[:1] + (a, a) + script.encode(short)[2:]
+
+    # Three of the same vowel is not more length, it is a misspelling.
+    assert isinstance(script.parse("laaari"), ParseFailure)

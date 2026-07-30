@@ -15,11 +15,7 @@ import re
 import pytest
 
 from ronosathwasha import Script
-from tools.build_syllabary import (
-    consonant_contrasts,
-    page,
-    vowel_contrasts,
-)
+from tools.build_syllabary import consonant_contrasts, page, vowel_contrasts
 
 GLYPH = re.compile(r'<span class="glyph"[^>]*>(?P<text>[^<]*)</span>')
 SHORT_GRID = re.compile(
@@ -107,7 +103,6 @@ def test_a_long_glide_drops_the_tick_on_its_second_mark(
     grid = LONG_GRID.search(rendered)
     assert grid is not None, "the page has no long-vowel grid"
 
-    plain = {v.offset: v for v in script.vowels if not v.glide}
     found = dict(zip(script.syllables(), codepoints(grid.group("body")), strict=True))
 
     glides = [s for s in found if s.vowel.glide]
@@ -117,9 +112,10 @@ def test_a_long_glide_drops_the_tick_on_its_second_mark(
         expected = (
             script.codepoint(syllable.consonant),
             script.codepoint(syllable.vowel),
-            script.codepoint(plain[syllable.vowel.offset]),
+            script.length_mark(syllable.vowel),
         )
         assert found[syllable] == expected, syllable.roman
+        assert expected[2] != expected[1], f"{syllable.roman}: the tick was written twice"
 
 
 def test_the_bare_rows_cover_the_whole_inventory(

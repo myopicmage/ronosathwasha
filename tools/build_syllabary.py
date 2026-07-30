@@ -33,6 +33,7 @@ up while measuring:
 from __future__ import annotations
 
 import html
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Final
 
@@ -68,49 +69,29 @@ SIZES: Final = (23, 34, 48, 64, 96, 144)
 DEFAULT_SIZE: Final = 64
 
 
-def text(script: Script, *letters: Consonant | Vowel) -> str:
-    """Letters as numeric character references.
+def refs(codepoints: Iterable[int]) -> str:
+    """Code points as numeric character references.
 
     References rather than literal characters, the way `docs/` writes them: a
     private-use code point pasted into a source file is an invisible blob in
     every editor that does not have the font, and this file has to stay
     diffable.
     """
-    return "".join(f"&#x{script.codepoint(letter):04X};" for letter in letters)
+    return "".join(f"&#x{cp:04X};" for cp in codepoints)
 
 
-def lengthen(script: Script, vowel: Vowel) -> Vowel:
-    """The second mark of a long vowel, which is not always the first again.
+def cell(script: Script, syllable: Syllable) -> str:
+    """One syllable, short or long, encoded by the model rather than by hand.
 
-    A plain vowel doubles by repeating itself. A glide does not: `waa` rather
-    than `wawa`, because the labialisation happens once at the onset, so the
-    second mark is the plain vowel of the same quality. Keyed on `offset`, which
-    is what identifies that quality: a glide and its plain vowel share one, and
-    `Script.codepoint` is the thing that separates them.
+    Both the code points and the label come from the `Syllable`, which is what
+    keeps the `waa` rather than `wawa` rule out of this file. It lived here for a
+    while and that was the wrong home: it is a fact about the language, and a page
+    generator holding one means the rule has two places to be wrong in.
     """
-    if not vowel.glide:
-        return vowel
-
-    return next(v for v in script.vowels if not v.glide and v.offset == vowel.offset)
-
-
-def cell(script: Script, syllable: Syllable, *, long: bool = False) -> str:
-    """One syllable, short or long.
-
-    Length is not in the model and is not a different letter: it is one more copy
-    of the mark, which `mkmk` steps inward along the bearing. So the code points
-    are spelled out here rather than read off a `Syllable`.
-    """
-    second = lengthen(script, syllable.vowel)
-    letters: tuple[Consonant | Vowel, ...] = (
-        (syllable.consonant, syllable.vowel, second)
-        if long
-        else (syllable.consonant, syllable.vowel)
-    )
-    label = html.escape(syllable.roman + (second.roman if long else ""))
     return (
-        f'<span class="glyph" lang="x-rsw" translate="no" title="{label}">'
-        f"{text(script, *letters)}</span>"
+        f'<span class="glyph" lang="x-rsw" translate="no"'
+        f' title="{html.escape(syllable.roman)}">'
+        f"{refs(script.encode([syllable]))}</span>"
     )
 
 
@@ -118,13 +99,13 @@ def grid(script: Script, *, long: bool = False) -> str:
     """Consonants down, vowels across, in the order `Script.syllables()` yields."""
     heads = "".join(
         f'<span class="col-head">'
-        f'{html.escape(v.roman + (lengthen(script, v).roman if long else ""))}</span>'
+        f"{html.escape(v.lengthened if long else v.roman)}</span>"
         for v in script.vowels
     )
     rows = "".join(
         f'<span class="row-head">{html.escape(c.roman)}'
         f'<i>{html.escape(c.ipa)}</i></span>'
-        + "".join(cell(script, Syllable(c, v), long=long) for v in script.vowels)
+        + "".join(cell(script, Syllable(c, v, long=long)) for v in script.vowels)
         for c in script.consonants
     )
     return f'<span class="corner"></span>{heads}{rows}'
@@ -139,7 +120,8 @@ def bare(script: Script, letters: tuple[Consonant | Vowel, ...]) -> str:
     """
     return "".join(
         f'<span class="base">'
-        f'<span class="glyph" lang="x-rsw" translate="no">{text(script, letter)}</span>'
+        f'<span class="glyph" lang="x-rsw" translate="no">'
+        f"{refs([script.codepoint(letter)])}</span>"
         f"<b>{html.escape(letter.roman)}</b></span>"
         for letter in letters
     )
@@ -195,19 +177,21 @@ def contrast(script: Script, pair: tuple[Consonant, Consonant] | tuple[Vowel, Vo
 
     def shown(letter: Consonant | Vowel) -> str:
         if isinstance(letter, Consonant) and isinstance(partner, Vowel):
-            return text(script, letter, partner)
+            return refs(script.encode([Syllable(letter, partner)]))
 
         if isinstance(letter, Vowel) and isinstance(partner, Consonant):
-            return text(script, partner, letter)
+            return refs(script.encode([Syllable(partner, letter)]))
 
-        return text(script, letter)
+        return refs([script.codepoint(letter)])
 
     return (
         f'<div class="contrast">'
         f"<h3>{html.escape(both)}</h3>"
         f'<div class="pair">'
-        f'<span class="glyph" lang="x-rsw" translate="no">{text(script, left)}</span>'
-        f'<span class="glyph" lang="x-rsw" translate="no">{text(script, right)}</span>'
+        f'<span class="glyph" lang="x-rsw" translate="no">'
+        f"{refs([script.codepoint(left)])}</span>"
+        f'<span class="glyph" lang="x-rsw" translate="no">'
+        f"{refs([script.codepoint(right)])}</span>"
         f"</div>"
         f'<div class="pair">'
         f'<span class="glyph" lang="x-rsw" translate="no">{shown(left)}</span>'
@@ -248,7 +232,7 @@ def lengths(script: Script) -> str:
     rows = "".join(
         f'<span class="row-head">{label}</span>'
         + "".join(
-            cell(script, Syllable(host, v), long=long) for v in script.vowels
+            cell(script, Syllable(host, v, long=long)) for v in script.vowels
         )
         for label, long in (("short", False), ("long", True))
     )

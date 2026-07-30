@@ -133,17 +133,42 @@ class Vowel:
         """
         return self.direction.opposite if self.glide else None
 
+    @property
+    def lengthened(self) -> str:
+        """This vowel written long: `aa`, and `waa` rather than `wawa`.
+
+        Decision 20 makes a long vowel one more copy of the mark, so the spelling
+        is the vowel followed by its own second mark. For a glide that second mark
+        is not the glide again: labialisation happens once, at the onset, so the
+        `w` belongs to the syllable rather than to each mark on it.
+
+        One property rather than a rule repeated at each site, because the
+        difference between `waa` and `wawa` is invisible in the output. Both
+        render as a plausible pair of nested chevrons and only one of them says
+        what was meant.
+        """
+        return self.roman + self.roman.removeprefix("w")
+
 
 @dataclass(frozen=True)
 class Syllable:
-    """The only well-formed unit in this language: exactly one C plus one V."""
+    """The only well-formed unit in this language: one C plus one V, long or short.
+
+    Length is a property of the syllable rather than a thirteenth vowel, because
+    that is how the writing system has it: Decision 20 makes a long vowel one more
+    copy of the same mark, so there is no extra letter and no extra code point to
+    give one. A flag here keeps the vowel inventory at twelve, which is what
+    `codepoint` depends on.
+    """
 
     consonant: Consonant
     vowel: Vowel
+    long: bool = False
 
     @property
     def roman(self) -> str:
-        return self.consonant.roman + self.vowel.roman
+        vowel = self.vowel.lengthened if self.long else self.vowel.roman
+        return self.consonant.roman + vowel
 
 
 @dataclass(frozen=True)
@@ -187,6 +212,16 @@ class Script:
 
         return self.vowel_base + letter.offset + (self.glide_offset if letter.glide else 0)
 
+    def length_mark(self, vowel: Vowel) -> int:
+        """The second code point of a long vowel: the plain mark of that quality.
+
+        Deliberately not `codepoint(vowel)` again. On a glide that would write the
+        tick twice, and the tick is the onset's, not the mark's. Dropping the glide
+        offset is exactly the `waa` rather than `wawa` rule, expressed as
+        arithmetic: same quality, no tick.
+        """
+        return self.vowel_base + vowel.offset
+
     def syllables(self) -> Iterator[Syllable]:
         """All C x V, consonants outermost, so the order matches the specimen."""
         for c in self.consonants:
@@ -194,10 +229,20 @@ class Script:
                 yield Syllable(c, v)
 
     def encode(self, syllables: Sequence[Syllable]) -> tuple[int, ...]:
+        """Syllables as code points: two each, or three where the vowel is long.
+
+        Three rather than a different second one. `mkmk` in the font is what steps
+        the repeat inward off the first mark, and `ccmp` is what turns the schwa's
+        pair into its ring, so both belong to the font and neither is visible here.
+        """
         return tuple(
             cp
             for s in syllables
-            for cp in (self.codepoint(s.consonant), self.codepoint(s.vowel))
+            for cp in (
+                self.codepoint(s.consonant),
+                self.codepoint(s.vowel),
+                *((self.length_mark(s.vowel),) if s.long else ()),
+            )
         )
 
     def parse(self, word: str) -> tuple[Syllable, ...] | ParseFailure:
@@ -219,11 +264,19 @@ class Script:
         }
         spellings.update({c.roman: c for c in self.consonants})
         cons = sorted(spellings.items(), key=lambda kv: len(kv[0]), reverse=True)
-        vows = sorted(
-            {v.roman: v for v in self.vowels}.items(),
-            key=lambda kv: len(kv[0]),
-            reverse=True,
-        )
+
+        # Long spellings alongside short ones, and longest-first covers the third
+        # case as well as the two above: `waa` has to beat `wa`, and `aa` has to
+        # beat `a`, or a long vowel parses as a short one and then fails on the
+        # leftover letter with a complaint about a missing consonant.
+        #
+        # A doubled vowel can only ever mean length, because every vowel in this
+        # language is preceded by a consonant, so no two vowels are ever adjacent
+        # across a syllable boundary. That is why these can go in the same table
+        # without introducing an ambiguity to resolve.
+        readings: dict[str, tuple[Vowel, bool]] = {v.roman: (v, False) for v in self.vowels}
+        readings.update({v.lengthened: (v, True) for v in self.vowels})
+        vows = sorted(readings.items(), key=lambda kv: len(kv[0]), reverse=True)
 
         out: list[Syllable] = []
         i = 0
@@ -241,9 +294,9 @@ class Script:
                     word, i, f"{c.roman!r} is not followed by a vowel at {word[i:i + 3]!r}"
                 )
 
-            spelling, v = hit_v
+            spelling, (v, long) = hit_v
             i += len(spelling)
-            out.append(Syllable(c, v))
+            out.append(Syllable(c, v, long=long))
 
         return tuple(out)
 
