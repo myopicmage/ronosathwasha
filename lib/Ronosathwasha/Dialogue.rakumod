@@ -119,14 +119,25 @@ sub realize-intent(
         realize-word($script, $morphology, [.stem], [%case{ .role.key }])
     });
 
-    @words.push: realize-verb(
-        $script, $morphology, $intent.predicate,
-        :speech-act($intent.speech-act),
-        :tense($intent.tense),
-        :aspect($intent.aspect),
-        :polarity($intent.polarity),
-        :modality($intent.modality),
-    );
+    # The copularizer is always written when generating, which is the same choice
+    # this sub already makes about word order: rebuilding a sentence respects what
+    # somebody wrote, and generating one has nothing to respect. Decision 22 lets
+    # ordinary speech drop the copula, so `Express` has no field for the omission
+    # and generation takes the explicit form.
+    @words.push: $intent.nominal-predicate
+        ?? realize-nominal-predicate(
+               $script, $morphology, $intent.predicate,
+               :tense($intent.tense),
+               :aspect($intent.aspect),
+           )
+        !! realize-verb(
+               $script, $morphology, $intent.predicate,
+               :speech-act($intent.speech-act),
+               :tense($intent.tense),
+               :aspect($intent.aspect),
+               :polarity($intent.polarity),
+               :modality($intent.modality),
+           );
 
     return @words.join(' ') ~ ($intent.speech-act == Interrogative ?? '?' !! '.');
 

@@ -54,15 +54,32 @@ role ResponseIntent is export {
 class Express does ResponseIntent is export {
     has Str       $.predicate  is required;
     has SpeechAct $.speech-act is required;
-    has Tense     $.tense      is required;
     has Aspect    $.aspect     is required;
     has Polarity  $.polarity   is required;
     has Modality  $.modality   is required;
     has Participant @.participants;
 
+    #| Whether the predicate is a nominal taking a copularizer rather than a verb.
+    #|
+    #| The last of the three meaning types to learn decision 22. `Reading` knew it
+    #| from the start and `Semantics::Utterance` gained it with the corpus, and
+    #| until now a model could not choose to say what something *is*: every intent
+    #| it produced was a verb, because there was no field for anything else.
+    has Bool      $.nominal-predicate = False;
+
+    #| Absent for a timeless identity. Only legal on a nominal predicate, since a
+    #| verb always carries a tense morpheme, and `intent-from` refuses the
+    #| combination rather than realizing something ill-formed.
+    has Tense     $.tense;
+
     method summary(--> Str) {
-        my @parts = ($!tense.key, $!aspect.key, $!polarity.key, $!modality.key);
-        "{ $!speech-act.key } { $!predicate } ({ @parts.join(', ') })"
+        my @parts = (
+            ($!tense.defined ?? $!tense.key !! 'untensed'),
+            $!aspect.key, $!polarity.key, $!modality.key,
+        );
+        my $kind = $!nominal-predicate ?? ' is-a' !! '';
+
+        "{ $!speech-act.key }$kind { $!predicate } ({ @parts.join(', ') })"
     }
 }
 
@@ -193,10 +210,25 @@ sub intent-from(
 
     # `return`, because the `CATCH` below is the last statement of the sub and
     # would otherwise supply its value.
+    my Bool $nominal = ?(%raw<nominal_predicate> // False);
+
+    # An absent tense is a timeless identity, and only a nominal predicate has one.
+    # A verb without a tense morpheme is not a well-formed word, so this refuses the
+    # pair rather than defaulting a tense in and realizing something nobody asked
+    # for. Checked here because a schema-constrained decoder can guarantee that both
+    # fields are the right shape and cannot guarantee that the combination means
+    # anything.
+    my Bool $timeless = not %raw<tense>.defined;
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason('a verbal predicate with no tense; only an identity may be timeless'),
+    ) if $timeless && not $nominal;
+
     return Express.new(
         :$predicate,
         :speech-act(pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act')),
-        :tense(pick(%TENSE, %raw<tense>, 'tense')),
+        :nominal-predicate($nominal),
+        :tense($timeless ?? Tense !! pick(%TENSE, %raw<tense>, 'tense')),
         :aspect(pick(%ASPECT, %raw<aspect>, 'aspect')),
         :polarity(pick(%POLARITY, %raw<polarity>, 'polarity')),
         :modality(pick(%MODALITY, %raw<modality>, 'modality')),

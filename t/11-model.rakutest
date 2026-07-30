@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Model;
 
-plan 19;
+plan 29;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -91,3 +91,43 @@ nok intent(%( kind => 'chat', predicate => 'thinə' )).defined,
 # is the architectural commitment stated as a type rather than as a promise.
 is-deeply Express.^attributes.map(*.name).grep(*.contains('text')).List, (),
     'no intent carries text for the realizer to trust';
+
+# ---------------------------------------------------------- decision 22 ---
+#
+# `Express` was the last of the three meaning types to learn about nominal
+# predication. `Reading` had it from the start and `Utterance` gained it with the
+# corpus, and until it landed here a model could not choose to say what something
+# *is*: every intent it produced was a verb, because there was no field for
+# anything else.
+
+my %teacher = %eat, predicate => 'mirire', nominal_predicate => True;
+
+my $anchored = intent(%teacher);
+isa-ok $anchored, Express, 'a model may say what something is';
+ok $anchored.nominal-predicate, 'and the intent records that it is an identity';
+is $anchored.tense, Present, 'with a tense when one was sent';
+
+# The timeless identity, which is the reading decision 22 exists for. No `tense`
+# key at all rather than a null, because absence is the meaning.
+my %timeless = %teacher;
+%timeless<tense>:delete;
+
+my $identity = intent(%timeless);
+isa-ok $identity, Express, 'and may leave it out entirely';
+nok $identity.tense.defined, 'which is a timeless identity rather than a default present';
+ok $identity.summary.contains('untensed'),
+    'reported as untensed rather than as a tense it does not have';
+ok $identity.summary.contains('is-a'), 'and distinguished from a verbal intent';
+
+# A verb with no tense is not a well-formed word, so the pair is refused rather
+# than repaired. A schema-constrained decoder can guarantee both fields are the
+# right shape and cannot guarantee the combination means anything.
+my %untensed-verb = %eat;
+%untensed-verb<tense>:delete;
+
+my $refused = intent(%untensed-verb);
+nok $refused.defined, 'a verbal predicate with no tense is refused';
+isa-ok $refused.self.exception, X::Ronosathwasha::Answer::Malformed,
+    'as a malformed answer rather than a default supplied quietly';
+ok $refused.self.exception.message.contains('only an identity may be timeless'),
+    'saying which combination was wrong';

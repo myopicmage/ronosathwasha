@@ -16,7 +16,7 @@ use Ronosathwasha::PromptContext;
 use Ronosathwasha::TokenCounter;
 use Ronosathwasha::Dialogue;
 
-plan 27;
+plan 30;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -139,3 +139,28 @@ my $broken = turn($liar, $fresh, 'Lari thinəme.');
 nok $broken.defined, 'an invented predicate fails the turn';
 isa-ok $broken.self.exception, X::Ronosathwasha::Answer::Unknown,
     'as a model fault rather than a language one';
+
+# ---------------------------------------------------------- decision 22 ---
+#
+# The generation side. `realize-intent` builds a nominal predicate when the intent
+# says so, and always writes the copularizer: rebuilding a sentence respects what
+# somebody wrote, and generating one has nothing to respect, which is the same
+# choice this sub already makes about word order.
+
+sub identity(*%extra) {
+    %( answer(), predicate => 'mirire', nominal_predicate => True, |%extra )
+}
+
+my %timeless = identity();
+%timeless<tense>:delete;
+
+is turn(scripted($lexicon, $morphology, %timeless), $fresh, 'Lari thinəme.').said,
+    'lari mirireswe.', 'a timeless identity is realized without a tense morpheme';
+
+is turn(scripted($lexicon, $morphology, identity(tense => 'present')), $fresh,
+        'Lari thinəme.').said,
+    'lari miriresweme.', 'and with one when the intent carries it';
+
+is turn(scripted($lexicon, $morphology, identity(tense => 'past')), $fresh,
+        'Lari thinəme.').said,
+    'lari mirireswese.', 'past reaches the copularized nominal too';
