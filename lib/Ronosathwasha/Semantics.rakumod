@@ -78,6 +78,29 @@ class Utterance is export {
     #| this is now the second dimension the language declines to mark.
     has Tense     $.tense;
 
+    #| Whether the predicate is a nominal carrying a copularizer rather than a verb.
+    #|
+    #| `Actions::Reading` has known this since decision 22 and this type did not,
+    #| which meant the corpus could not state the construction the decision
+    #| introduced. `t/09` found it the honest way: it rebuilds a verb from these
+    #| fields and checks the result appears in the text, and for `Lari miriswemedi.`
+    #| it built `mirimedi`, because nothing here said a copula was in there.
+    #|
+    #| Declared rather than derived. `Shape` and `Predication` are readings of other
+    #| fields, but nothing else in this type records whether `-swe` was written, so
+    #| there is nothing to read it off.
+    has Bool      $.nominal-predicate = False;
+
+    #| Whether the copularizer was actually written. Decision 22 lets ordinary
+    #| speech drop it in an unmarked identity, so `Lari mirire.` and
+    #| `Lari mirireswe.` are the same meaning differently spelled, and a corpus
+    #| that could not tell them apart would rebuild the wrong one.
+    #|
+    #| Defaults true, because a nominal predicate normally carries it and the
+    #| omission is the marked case. Meaningless on a verbal entry, where nothing
+    #| reads it.
+    has Bool      $.explicit-copula = True;
+
     has Reference $.reference;
     has Str       $.locative;
     has Str       $.complement;
@@ -248,6 +271,11 @@ sub load-utterances(IO::Path:D $path) is export {
             :tense(%u<tense>.defined
                 ?? decode(%TENSE, %u<tense>, 'tense', $text, $path)
                 !! Tense),
+
+            # Defaults false, so every existing entry keeps meaning what it meant
+            # and only a sentence that says so is read as copular.
+            :nominal-predicate(?(%u<nominal_predicate> // False)),
+            :explicit-copula(?(%u<explicit_copula> // True)),
 
             :reference(%u<reference>.defined
                 ?? decode(%REFERENCE, %u<reference>, 'reference', $text, $path)

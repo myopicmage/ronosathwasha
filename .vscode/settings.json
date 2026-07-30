@@ -1,0 +1,5 @@
+{
+  "raku.includePaths": [
+    "inst#$workspaceFolder/.raku"
+  ]
+}

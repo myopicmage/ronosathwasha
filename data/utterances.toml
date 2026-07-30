@@ -350,3 +350,133 @@ aspect = "simple"
 polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject", "object"]
+
+# ------------------------------------------------- decision 22, derived ---
+#
+# Nominal predication, which the corpus reached no other way. Every one uses
+# `mirire`, a stem the lexicon lists, because a name is not a lexicon entry and
+# `laari` would fail the check that every predicate is one.
+#
+# The first two carry no `tense` key at all. That is decision 22's timeless
+# identity rather than an omission, and it is what closes the `predication:
+# Timeless` line of the coverage gate.
+
+[[utterance]]
+text = "Lari mirireswe."
+english = "I am a teacher"
+status = "derived"
+derived_from = "Mirireri mirime."
+derivation = "copularizer -swe on the nominal, no tense, subject made first person"
+speech_act = "declarative"
+predicate = "mirire"
+nominal_predicate = true
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari mirire."
+english = "I'm a teacher"
+status = "derived"
+derived_from = "Lari mirireswe."
+derivation = "the copularizer omitted, which ordinary speech permits in an unmarked identity"
+speech_act = "declarative"
+predicate = "mirire"
+nominal_predicate = true
+explicit_copula = false
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari miriresweme."
+english = "I am a teacher right now"
+status = "derived"
+derived_from = "Lari mirireswe."
+derivation = "present -me after the copularizer, which anchors the identity in time"
+speech_act = "declarative"
+predicate = "mirire"
+nominal_predicate = true
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari mirireswese."
+english = "I was a teacher"
+status = "derived"
+derived_from = "Lari miriresweme."
+derivation = "past -se in place of present -me, front stem"
+speech_act = "declarative"
+predicate = "mirire"
+nominal_predicate = true
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari mirireswethe."
+english = "I will be a teacher"
+status = "derived"
+derived_from = "Lari miriresweme."
+derivation = "future -the in place of present -me, front stem"
+speech_act = "declarative"
+predicate = "mirire"
+nominal_predicate = true
+tense = "future"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[utterance]]
+text = "Lari mirireswemedi."
+english = "I am actively being a teacher"
+status = "derived"
+derived_from = "Lari miriresweme."
+derivation = "continuous -di after the tense, holding the anchored identity open"
+speech_act = "declarative"
+predicate = "mirire"
+nominal_predicate = true
+tense = "present"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+# ---------------------------------------------------------------- rejected ---
+#
+# The first entry to carry this status, and the reason the status exists.
+
+[[utterance]]
+text = "Lari miriswemedi."
+english = "I am being a teaching, ongoing, right now"
+status = "rejected"
+derived_from = "Mirireri layi mirimedi."
+derivation = "copularizer inserted before the tense, subject made first person and the object dropped"
+rejected_because = """
+Grammatical and pointless. The copularizer makes `miri` an identity, so this \
+predicates being a teaching rather than doing any teaching, then anchors that \
+identity to the present and holds it open. English reaches the same place with "I \
+am being teaching", which is also well-formed and also not something anybody says. \
+`Lari mirimedi.` is what is meant.
+
+Kept because decision 22 permits it and decision 24 orders it correctly, so nothing \
+in the declarations rules it out. A rule that admits this and a speaker who declines \
+it is the gap worth recording, and it is the difference between a grammar and a \
+language.
+"""
+speech_act = "declarative"
+predicate = "miri"
+nominal_predicate = true
+tense = "present"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]

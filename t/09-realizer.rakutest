@@ -18,24 +18,39 @@ plan $corpus.utterances.elems + 18;
 
 sub verb(Str $stem, *%f) { realize-verb($script, $morphology, $stem, |%f) }
 
-# ------------------------------------------------ every corpus verb regenerates ---
+# --------------------------------------- every corpus predicate regenerates ---
 #
-# For each sentence, build the verb from the meaning Kevin declared and assert
+# For each sentence, build the predicate from the meaning Kevin declared and assert
 # the result is a word he actually wrote. Recognition already checks the other
 # direction, so together these close the round trip on the morphology.
+#
+# Which predicate to build depends on `nominal-predicate`. Before that field
+# existed this loop built a verb for every entry, and the first copular sentence
+# offered to the corpus failed here rather than at the schema: it built `mirimedi`
+# for `Lari miriswemedi.`, because the declared meaning said present continuous and
+# nothing said a copularizer was in there.
 
 for $corpus.utterances -> $u {
-    my $built = verb(
-        $u.predicate,
-        :speech-act($u.speech-act),
-        :tense($u.tense),
-        :aspect($u.aspect),
-        :polarity($u.polarity),
-        :modality($u.modality),
-    );
+    my $built = $u.nominal-predicate
+        ?? realize-nominal-predicate(
+               $script, $morphology, $u.predicate,
+               :copularized($u.explicit-copula),
+               :tense($u.tense),
+               :aspect($u.aspect),
+           )
+        !! verb(
+               $u.predicate,
+               :speech-act($u.speech-act),
+               :tense($u.tense),
+               :aspect($u.aspect),
+               :polarity($u.polarity),
+               :modality($u.modality),
+           );
+
+    my Str $kind = $u.nominal-predicate ?? 'nominal predicate' !! 'verb';
 
     ok $built.defined && $u.text.lc.words.first({ .subst(/<[?.,!]>+$/, '') eq $built }).defined,
-        "{ $u.text } contains the verb built from its meaning ({ $built // 'failed' })";
+        "{ $u.text } contains the $kind built from its meaning ({ $built // 'failed' })";
 }
 
 # ----------------------------------------------------------- harmony is chosen ---

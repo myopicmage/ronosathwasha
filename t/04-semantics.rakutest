@@ -16,13 +16,18 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 
 isa-ok $corpus, Coverage, 'the corpus parses into typed meaning';
 
-is $corpus.utterances.elems, 22, 'twenty-two utterances';
+is $corpus.utterances.elems, 29, 'twenty-nine utterances';
 
 my %counts = $corpus.counts;
 is %counts<Attested>, 17, 'seventeen attested: the page, plus the three Kevin wrote on 2026-07-29';
-is %counts<Derived>, 5, 'five derived, filling what nothing attested reaches';
+is %counts<Derived>, 11, 'eleven derived, six of them decision 22 nominal predication';
 nok %counts<Reviewed>, 'none reviewed yet';
-nok %counts<Rejected>, 'and none rejected yet';
+
+# The status exists for a sentence the rules permit and a speaker declines, and
+# `Lari miriswemedi.` is the first one anybody has written down. Decision 22 permits
+# it, decision 24 orders it correctly, and it means "I am being a teaching", which
+# is well-formed in English too and equally not said.
+is %counts<Rejected>, 1, 'and one rejected, which is what that status was for';
 
 # ------------------------------------------------------------ meaning is typed ---
 
@@ -63,19 +68,14 @@ ok $corpus.utterances.grep(*.status == Attested).all.source.defined,
 
 # ------------------------------------------------------------- the stop 10 gate ---
 
-# One known gap, and it is the newest dimension rather than an old debt.
-#
-# Decision 22 gave the language a predicate with no time attached, `Lari mirireswe`
-# against `Lari miriresweme`, roughly English "I am a teacher" against "I am being
-# a teacher". The `predication` line went in with it, and the corpus has no timeless
-# sentence yet because the realizer cannot produce one: `realize-verb` takes a
-# `Tense:D` and would default the absence to present, so a round trip would answer
-# a timeless sentence with an anchored one.
-#
-# Closes when the realizer learns to emit no tense morpheme and the corpus gains
-# `Lari mirireswe.`
-is-deeply $corpus.missing.List, ('predication: Timeless',),
-    'the corpus reaches every stratum except the one decision 22 just added';
+# The `predication: Timeless` line asserted here from the moment it was added until
+# `Lari mirireswe.` arrived. It needed three things that were not true at once: an
+# optional tense in the corpus schema, a realizer that emits no tense morpheme
+# rather than defaulting to present, and a `nominal_predicate` field so this file
+# could say a copularizer was there at all. The last was found by `t/09` building
+# `mirimedi` for a copular sentence.
+is-deeply $corpus.missing.List, (),
+    'the corpus reaches every stratum the model-selection gate requires';
 
 ok $corpus.has-locative, 'including one locative';
 
@@ -86,5 +86,10 @@ ok $corpus.has-locative, 'including one locative';
 # and future reached the floor only through derived sentences. Kevin wrote three
 # about dogs and closed it, which is also how the corpus got its first attested
 # back-harmonic predicate.
+#
+# It is short again, by one, and deliberately. Nominal predication reaches the
+# corpus only through the six derived sentences added with decision 22, so the line
+# above is satisfied and this one is not. Closes when Kevin reads them and marks any
+# one of the timeless pair `reviewed`, which is ten minutes and not a decision.
 is-deeply $corpus.missing-from-evidence.List, ('predication: Timeless',),
-    'and on evidence alone as well, which is the only way it counts';
+    'while evidence alone is short by one, which is the number that counts';
