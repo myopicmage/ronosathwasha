@@ -1,12 +1,14 @@
 use Test;
 
+use X::Ronosathwasha;
+
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 
-plan 18;
+plan 22;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -41,6 +43,35 @@ my $question = $corpus.utterances.first(*.text eq 'Nari tethinəme?');
 is $question.speech-act, Interrogative, 'the question is interrogative';
 is $question.tense, Present, 'in the present';
 is $question.shape, SubjectOnly, 'with a subject and no object';
+
+# ------------------------------------------------------- a question has a scope ---
+#
+# `to-`/`te-` attaches to whichever constituent is being asked about, so a type
+# that records only "this is a question" cannot rebuild the sentence: it knows a
+# marker was written and not which word carried it.
+
+is $question.question-scope, QuestionsPredicate,
+    'and says that the verb is what it asks about';
+
+is-deeply $corpus.utterances.grep(*.speech-act != Interrogative)
+    .map(*.question-scope).unique.List, (QuestionScope,),
+    'nothing that is not a question carries a scope';
+
+# The invariant, from both sides. A comment saying the two fields must agree is
+# what `023` objected to; this is the pair being unable to disagree.
+throws-like { Utterance.new(
+    :text('x'), :english('x'), :status(Attested), :speech-act(Interrogative),
+    :predicate('thinə'), :aspect(Simple), :polarity(Affirmative), :modality(Asserted),
+) }, X::Ronosathwasha::Meaning::ScopeDisagrees,
+    'an interrogative with no scope is refused',
+    message => /'must say which constituent'/;
+
+throws-like { Utterance.new(
+    :text('x'), :english('x'), :status(Attested), :speech-act(Declarative),
+    :predicate('thinə'), :aspect(Simple), :polarity(Affirmative), :modality(Asserted),
+    :question-scope(QuestionsSubject),
+) }, X::Ronosathwasha::Meaning::ScopeDisagrees,
+    'and so is a scope on something that asks nothing';
 
 my $teaching = $corpus.utterances.first(*.text eq 'Mirireri layi mirimedi.');
 is $teaching.shape, Transitive, 'subject and object make a transitive shape';

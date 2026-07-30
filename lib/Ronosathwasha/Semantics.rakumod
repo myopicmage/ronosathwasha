@@ -59,6 +59,25 @@ our enum Shape is export <NoArguments SubjectOnly ObjectOnly Transitive>;
 #| a sentence has would get an answer that is not one.
 our enum Predication is export <Timeless Anchored>;
 
+#| Which constituent the interrogative marker attaches to.
+#|
+#| `to-`/`te-` is one operation, not two. Kevin's ruling: it makes a question, and
+#| it does not imply a yes-or-no one. So this says *where the question landed* and
+#| never which of two kinds it is. The open-versus-polar distinction English draws
+#| is deliberately absent; a review proposed importing it and was corrected.
+#|
+#| The values enumerate the constituents these types can currently name, which is
+#| the honest bound. `toduruu` used as a bare temporal adjunct has nowhere to go
+#| here, because `Utterance` has no field for one either. That is a limit of the
+#| interface and not a claim about the language.
+#|
+#| `Questions-` prefixed for the reason `MorphemeRole` is `Marks-` prefixed: an
+#| enum's values become symbols in every importing scope, and `Subject`, `Object`
+#| and `Predicate` are all words this repo wants for other things.
+our enum QuestionScope is export <
+    QuestionsPredicate QuestionsSubject QuestionsObject QuestionsLocative
+>;
+
 class Utterance is export {
     has Str       $.text       is required;
     has Str       $.english    is required;
@@ -101,6 +120,13 @@ class Utterance is export {
     #| reads it.
     has Bool      $.explicit-copula = True;
 
+    #| Where the interrogative landed, and undefined when this is not a question.
+    #|
+    #| Paired with `speech-act` rather than replacing its `Interrogative` value,
+    #| because a question is a speech act and the corpus, the coverage gate and the
+    #| punctuation all read that field. `TWEAK` below is what stops the pair drifting.
+    has QuestionScope $.question-scope;
+
     has Reference $.reference;
     has Str       $.locative;
     has Str       $.complement;
@@ -109,6 +135,29 @@ class Utterance is export {
     has Str $.derived-from;
     has Str $.derivation;
     has Str $.rejected-because;
+
+    #| An interrogative says what it questions, and nothing else may.
+    #|
+    #| This is the meaning-preservation contract in the one place both halves are
+    #| visible. Review `023` asked for it after the opposite arrangement shipped: a
+    #| type accepted polarity and modality on a nominal predicate and the realizer
+    #| discarded them silently, so the interface promised a distinction it did not
+    #| keep. A field that may or may not agree with its neighbour is that same bug
+    #| with the pieces moved around.
+    #|
+    #| Raku cannot make the pair unrepresentable, since it checks types when values
+    #| bind and has no way to say "this field's definedness follows that field's
+    #| value". `TWEAK` runs after every attribute is in place, so it is the earliest
+    #| point where the question can be asked at all.
+    submethod TWEAK {
+        my Bool $asking = $!speech-act == Interrogative;
+        my Bool $scoped = $!question-scope.defined;
+
+        die X::Ronosathwasha::Meaning::ScopeDisagrees.new(
+            :speech-act($!speech-act.key.lc),
+            :scope($scoped ?? $!question-scope.key !! 'none'),
+        ) if $asking != $scoped;
+    }
 
     #| Whether this sentence locates its predicate in time.
     method predication(--> Predication) { $!tense.defined ?? Anchored !! Timeless }
@@ -226,6 +275,14 @@ my constant %POLARITY  = (affirmative => Affirmative, negative => Negative);
 my constant %MODALITY  = (asserted => Asserted, potential => Potential);
 my constant %REFERENCE = (proximal => Proximal, medial => Medial, distal => Distal);
 my constant %ARGUMENT  = (subject => Subject, object => Object);
+
+#| Named for the constituent rather than for the morpheme, so an entry says
+#| `questioned = "subject"` and not `questioned = "to"`. The corpus states
+#| meaning; which allomorph spells it is the realizer's business.
+my constant %QUESTION-SCOPE = (
+    predicate => QuestionsPredicate, subject  => QuestionsSubject,
+    object    => QuestionsObject,    locative => QuestionsLocative,
+);
 my constant %STATUS    = (
     attested => Attested, derived => Derived, reviewed => Reviewed, rejected => Rejected,
 );
@@ -271,6 +328,13 @@ sub load-utterances(IO::Path:D $path) is export {
             :tense(%u<tense>.defined
                 ?? decode(%TENSE, %u<tense>, 'tense', $text, $path)
                 !! Tense),
+
+            # Omitted rather than nulled, exactly as `tense` is: an absent key is a
+            # sentence that asks nothing. A present one naming something unknown is
+            # still a bad value, so this cannot collapse into a `// ''`.
+            :question-scope(%u<questioned>.defined
+                ?? decode(%QUESTION-SCOPE, %u<questioned>, 'questioned', $text, $path)
+                !! QuestionScope),
 
             # Defaults false, so every existing entry keeps meaning what it meant
             # and only a sentence that says so is read as copular.
