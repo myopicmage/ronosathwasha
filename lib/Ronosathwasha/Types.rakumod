@@ -73,6 +73,7 @@ our enum Alternation is export <Alternating AntiHarmonic Invariant Unpaired>;
 our enum MorphemeRole is export <
     MarksTense MarksAspect MarksPolarity MarksSpeechAct MarksModality
     MarksCase MarksNumber MarksPossession MarksNonfinite MarksLocative
+    FormsPredicate
 >;
 
 #| What a morpheme attaches to.

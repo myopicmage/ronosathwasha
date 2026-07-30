@@ -14,10 +14,13 @@ use Ronosathwasha::Script;
 # `.defined` is the safe question. Asking it also marks the `Failure` handled,
 # so these tests do not detonate on the way out of scope.
 
-plan 23;
+plan 24;
 
 my IO::Path $root = repository-root;
 my IO::Path $data = $root.add('data');
+
+isa-ok FormsPredicate, MorphemeRole,
+    'forming a predicate is a representable grammatical job';
 
 #| Recover the typed exception from an inert failure without throwing it.
 sub exception-from($failure) {
