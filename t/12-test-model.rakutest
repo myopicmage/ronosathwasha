@@ -9,6 +9,8 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Model;
 use Ronosathwasha::TestModel;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::PromptContext;
 
 plan 14;
 
@@ -30,17 +32,30 @@ sub answer(*%extra) {
     )
 }
 
+#| A distinguishable prompt.
+#|
+#| These were bare strings until `respond` was typed, which the untyped parameter
+#| allowed and which was fine: nothing here cares what a context is, only that two
+#| of them are told apart in `seen`. The tag goes in a turn so they still are.
+sub ctx(Str $tag) {
+    PromptContext.new(
+        :schema(PromptInvariant.new(:label('response schema'), :text('kind express or gap'))),
+        :capabilities(PromptInvariant.new(:label('language capabilities'), :text('three tenses'))),
+        :state(ConversationState.new.said(Human, $tag)),
+    );
+}
+
 # ------------------------------------------------------- it satisfies the role ---
 
 my $model = scripted($lexicon, $morphology, answer(), answer(tense => 'past'));
 
 ok $model ~~ Model, 'a fake satisfies the same role a real model will';
 
-my $first = $model.respond('context one');
+my $first = $model.respond(ctx('context one'));
 isa-ok $first, Express, 'and returns a validated intent';
 is $first.tense, Present, 'the first answer';
 
-is $model.respond('context two').tense, Past, 'then the second, in order';
+is $model.respond(ctx('context two')).tense, Past, 'then the second, in order';
 ok $model.spent, 'and it is now out of answers';
 
 # ---------------------------------------------------- it validates like the real ---
@@ -49,7 +64,7 @@ ok $model.spent, 'and it is now out of answers';
 # this path, and this path is the one that stops a model inventing a word.
 
 my $liar = scripted($lexicon, $morphology, answer(predicate => 'thinu'));
-my $refused = $liar.respond('context');
+my $refused = $liar.respond(ctx('context'));
 
 nok $refused.defined, 'a fake sending an invented predicate is refused';
 isa-ok $refused.self.exception, X::Ronosathwasha::Answer::Unknown,
@@ -61,7 +76,7 @@ isa-ok $refused.self.exception, X::Ronosathwasha::Answer::Unknown,
 # pass every assertion about its output. The recording is what makes the prompt
 # checkable at all.
 
-is-deeply $model.seen.List, ('context one', 'context two'),
+is-deeply $model.seen.map({ .state.turns.head.text }).List, ('context one', 'context two'),
     'every context it was asked with, in order';
 
 is $model.asked, 2, 'and how many times';
@@ -69,8 +84,8 @@ is $model.asked, 2, 'and how many times';
 # ------------------------------------------------------------------ exhaustion ---
 
 my $short = scripted($lexicon, $morphology, answer());
-$short.respond('once');
-my $over = $short.respond('twice');
+$short.respond(ctx('once'));
+my $over = $short.respond(ctx('twice'));
 
 nok $over.defined, 'asking past the end of the script fails';
 isa-ok $over.self.exception, X::Ronosathwasha::Answer::Exhausted,
@@ -79,9 +94,9 @@ isa-ok $over.self.exception, X::Ronosathwasha::Answer::Exhausted,
 # ------------------------------------------------------------------ the others ---
 
 my $quiet = Silent.new;
-isa-ok $quiet.respond('anything'), Gap,
+isa-ok $quiet.respond(ctx('anything')), Gap,
     'the silent model reports a gap, which is the system working';
 
 my $fixed = Fixed.new(intent => Gap.new(:wanted('x'), :missing('y')));
-is $fixed.respond('a').missing, 'y', 'the fixed model repeats itself';
-is $fixed.respond('b').missing, 'y', 'indefinitely';
+is $fixed.respond(ctx('a')).missing, 'y', 'the fixed model repeats itself';
+is $fixed.respond(ctx('b')).missing, 'y', 'indefinitely';

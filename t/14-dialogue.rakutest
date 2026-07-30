@@ -12,9 +12,11 @@ use Ronosathwasha::Actions;
 use Ronosathwasha::Model;
 use Ronosathwasha::TestModel;
 use Ronosathwasha::ConversationState;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::TokenCounter;
 use Ronosathwasha::Dialogue;
 
-plan 20;
+plan 27;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -35,11 +37,20 @@ sub answer(*%extra) {
     )
 }
 
-sub turn($model, $state, Str $heard) {
-    take-turn($script, $lexicon, $morphology, $model, $state, $heard);
+my $counter = PerWord.new;
+
+#| Roomy on purpose. This file is about the loop; `t/18` is about the budget.
+sub roomy { Budget.new(:total(10_000), :reserved(100)) }
+
+sub turn($model, $context, Str $heard, $budget = roomy()) {
+    take-turn($script, $lexicon, $morphology, $model, $context, $budget, $counter, $heard);
 }
 
-my $fresh = ConversationState.new;
+my $fresh = PromptContext.new(
+    :schema(PromptInvariant.new(:label('response schema'), :text('kind express or gap'))),
+    :capabilities(PromptInvariant.new(:label('language capabilities'), :text('three tenses'))),
+    :state(ConversationState.new),
+);
 
 # ------------------------------------------------------------- one whole turn ---
 
@@ -58,13 +69,40 @@ is $one.state.turns.tail.speaker, Bot, 'then the bot';
 isa-ok $one.state.turns.tail.meaning, Express,
     'what the bot said is stored as meaning, not as the string';
 
-# ------------------------------------------------------- the model sees the state ---
+# ------------------------------------------------------ the model sees the prompt ---
 
 is $model.seen.elems, 1, 'the model was asked once';
-isa-ok $model.seen.head, ConversationState,
-    'and handed the conversation, not a bare string';
+isa-ok $model.seen.head, PromptContext,
+    'and handed a whole prompt, not a bare conversation';
 is $model.seen.head.depth, 1,
     'including the turn just heard, which it has to answer';
+ok $model.seen.head.render.contains('response schema'),
+    'with the invariants it cannot answer without';
+nok $model.seen.head.render.contains('lari thinəme.'),
+    'and not the answer it has not given yet';
+
+# The context handed back is the one to feed in next, and it has grown by the
+# bot's turn rather than by a copy of the whole prompt.
+isa-ok $one.context, PromptContext, 'the exchange carries the prompt forward';
+is $one.context.state.depth, 2, 'with both turns in it';
+is $one.context.schema.label, 'response schema', 'and the invariants intact';
+
+# ---------------------------------------------------- a window too small refuses ---
+#
+# Not a conversational event. A prompt that cannot be assembled is a broken
+# configuration, so it propagates the way an invented predicate does rather than
+# arriving as a quiet half-prompt.
+
+my $cramped = turn(
+    scripted($lexicon, $morphology, answer()),
+    $fresh,
+    'Lari thinəme.',
+    Budget.new(:total(4), :reserved(1)),
+);
+
+nok $cramped.defined, 'a window too small for the invariants fails the turn';
+isa-ok $cramped.self.exception, X::Ronosathwasha::Window::Invariants,
+    'as a configuration fault rather than a language one';
 
 # ------------------------------------------------------ realization is canonical ---
 

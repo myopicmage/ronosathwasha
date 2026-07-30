@@ -76,6 +76,18 @@ class Gap does ResponseIntent is export {
 
 #| The interface a model satisfies. One method, so a fake and a local server are
 #| interchangeable and the dialogue loop can be tested without either.
+#|
+#| `$context` is untyped here and typed in every implementation, which is not the
+#| arrangement anyone would choose. `Ronosathwasha::PromptContext` holds a
+#| `ConversationState`, and that holds `Express` and `Gap` for its summaries, so
+#| naming the type here closes a compile-time `use` cycle back into this file.
+#|
+#| The honest fix is that `ResponseIntent` and its two cases do not belong in the
+#| same file as the role that returns them, and separating them is stop 9's problem
+#| rather than a change to make while wiring the policy in. Until then the
+#| constraint lives at each end: every implementation declares
+#| `PromptContext:D $context`, and `Dialogue.take-turn` will not build anything
+#| else to hand it.
 role Model is export {
     method respond($context --> ResponseIntent) { ... }
 }

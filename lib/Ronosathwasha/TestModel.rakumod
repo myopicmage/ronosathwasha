@@ -34,6 +34,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Model;
+use Ronosathwasha::PromptContext;
 
 #| Answers a prepared list in order, validating each as a real model's output.
 class Scripted does Model is export {
@@ -48,7 +49,7 @@ class Scripted does Model is export {
 
     has Int $!at = 0;
 
-    method respond($context) {
+    method respond(PromptContext:D $context) {
         @!seen.push: $context;
 
         fail X::Ronosathwasha::Answer::Exhausted.new(:given(@!answers.elems))
@@ -72,7 +73,7 @@ class Silent does Model is export {
     has Str $.wanted  = 'something';
     has Str $.missing = 'a decision nobody has made';
 
-    method respond($context) {
+    method respond(PromptContext:D $context) {
         Gap.new(:$!wanted, :$!missing);
     }
 }
@@ -82,7 +83,7 @@ class Silent does Model is export {
 class Fixed does Model is export {
     has ResponseIntent:D $.intent is required;
 
-    method respond($context) { $!intent }
+    method respond(PromptContext:D $context) { $!intent }
 }
 
 #| Build a scripted model from answers written as an ordinary list of hashes.

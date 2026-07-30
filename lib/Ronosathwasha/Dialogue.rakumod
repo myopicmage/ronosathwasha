@@ -22,9 +22,33 @@ conversation that reads well and teaches nothing.
 
 C<Exchange> carries the gap out to the caller. C<ConversationState> will lose it
 at the next fold, deliberately and visibly, and the thing that keeps it is
-C<LanguageEvidence>, which does not exist yet. Until it does, a caller that
-throws away an C<Exchange> throws away the finding, and that is the honest state
-of affairs rather than a hidden one.
+C<LanguageEvidence>. A caller that throws away an C<Exchange> throws away the
+finding, and that is the honest state of affairs rather than a hidden one.
+
+=head2 A turn carries the whole prompt, not just the conversation
+
+C<take-turn> used to take a C<ConversationState> and hand it straight to the model.
+It now takes a C<PromptContext>, which carries the invariants as well, and fits it
+to a budget before asking. One parameter rather than four: the alternative was
+passing the schema, the capabilities, the budget and the counter alongside the
+state, and a ten-positional signature is its own kind of bug.
+
+B<The fitted context is what goes forward, not the one that arrived.> Folding is
+meant to be durable. C<ConversationState> accumulates its summaries and never
+discards one, so carrying the unfolded context forward and refitting from scratch
+each turn would do the same work repeatedly and, worse, would keep re-offering
+turns the policy has already decided it cannot afford.
+
+The bot's turn is added after the fit, so the context handed back may itself be
+over budget. That is correct and self-correcting: the next turn begins by fitting
+it again.
+
+=head2 A window too small is not a conversational event
+
+C<fit-context> refuses rather than truncating, and that refusal propagates the same
+way a model naming a nonexistent word does. An unreadable input and an
+inexpressible meaning are ordinary results carried inside the C<Exchange>; a
+prompt that cannot be assembled is a broken configuration.
 
 =end pod
 
@@ -42,14 +66,24 @@ use Ronosathwasha::Realizer;
 use Ronosathwasha::Sentence;
 use Ronosathwasha::Model;
 use Ronosathwasha::ConversationState;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::ContextPolicy;
+use Ronosathwasha::TokenCounter;
 
 #| Everything one turn produced, including the parts that failed.
 class Exchange is export {
-    has Str               $.heard         is required;
-    has SentenceOutcome   $.understanding is required;
-    has ResponseIntent    $.intent;
-    has Str               $.said;
-    has ConversationState $.state         is required;
+    has Str             $.heard         is required;
+    has SentenceOutcome $.understanding is required;
+    has ResponseIntent  $.intent;
+    has Str             $.said;
+
+    #| The prompt as it stands after this turn: fitted, with the bot's answer
+    #| added. Feed it straight back into the next `take-turn`.
+    has PromptContext:D $.context is required;
+
+    #| The conversation inside it. A method rather than a second attribute, so
+    #| there is no way to hold a state that disagrees with the context holding it.
+    method state(--> ConversationState) { $!context.state }
 
     method understood(--> Bool) { so $!understanding ~~ Understood }
 
@@ -105,19 +139,33 @@ sub realize-intent(
 #| broken model reaches that: an unreadable input and an inexpressible meaning
 #| are both ordinary results carried inside the `Exchange`.
 sub take-turn(
-    Script:D            $script,
-    Lexicon:D           $lexicon,
-    Morphology:D        $morphology,
-    Model:D             $model,
-    ConversationState:D $state,
-    Str:D               $heard,
+    Script:D        $script,
+    Lexicon:D       $lexicon,
+    Morphology:D    $morphology,
+    Model:D         $model,
+    PromptContext:D $context,
+    Budget:D        $budget,
+    TokenCounter:D  $counter,
+    Str:D           $heard,
 ) is export {
     my $understanding = read-sentence($script, $lexicon, $morphology, $heard);
 
     my $meaning = $understanding ~~ Understood ?? $understanding.reading !! Nil;
-    my $heard-state = $state.said(Human, $heard, $meaning);
+    my $heard-context = $context.with(
+        :state($context.state.said(Human, $heard, $meaning)),
+    );
 
-    my $intent = $model.respond($heard-state);
+    # Fitted before the model is asked, on the state that includes what was just
+    # heard, because the turn being answered is the one that must not be folded.
+    #
+    # Forced here for the same reason the intent is below: an inert `Failure`
+    # handed to `Exchange.new`'s constrained `PromptContext` attribute is
+    # type-checked, and the binding error then replaces the exception that says the
+    # window was too small.
+    my $fitted = fit-context($heard-context, $budget, $counter);
+    die $fitted.exception if $fitted ~~ Failure;
+
+    my $intent = $model.respond($fitted);
 
     # A model that answers with something the declarations do not contain is a
     # broken model rather than a conversational event, so it propagates.
@@ -138,7 +186,7 @@ sub take-turn(
         :$understanding,
         :$intent,
         :$said,
-        :state($heard-state.said(Bot, $said // '', $intent)),
+        :context($fitted.with(:state($fitted.state.said(Bot, $said // '', $intent)))),
     );
 
     CATCH { default { .fail } }
