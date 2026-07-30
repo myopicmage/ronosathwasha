@@ -48,6 +48,27 @@ The circularity is only apparent. Host inference looks at morphemes whose form
 has exactly one claimant, which C<swe> by definition does not, so the ambiguous
 ones are resolved after the unambiguous ones have voted and never during.
 
+=head2 A word the lexicon defines beats the derivation of it
+
+C<toro> is C<to> plus C<ro>, the question marker on "person", and it is also
+simply the word for "who". Kevin's ruling: both are true, and C<toro> is how
+people say it. The breakdown may interest Lauri and nothing else.
+
+So the default parse runs a pass restricted to the words C<data/lexicon.toml>
+lists outright, and falls back to the productive division only when that finds
+nothing. C<toro> comes back whole; C<tethinəme> is not a listed word, so it comes
+back as the question marker on "eat".
+
+B<This was also fixing two words that were being shredded.> C<meliya>,
+"understand", divided as negation plus potential plus C<ya>, roughly "not might
+it". C<moluyo>, "crab", divided the same way. Both divisions are built entirely
+from declared morphemes, which is why nothing objected, and the words that
+survived did so only because their wrong division happened to fail and backtrack.
+
+C<Ronosathwasha::ParseResult>'s C<classify> compares this pass against the greedy
+one, so a word with both readings is reported as C<Ambiguous> carrying each. The
+preferred reading is used and the derivation is not thrown away.
+
 =head2 Why this is a regex and not a token
 
 Raku's C<token> ratchets: its quantifiers never give back what they matched.
@@ -112,25 +133,44 @@ grammar Morphemes is export {
     token stem   { @*STEMS }
 }
 
+#| The same shape with the prefixes frugal too, run against the listed words
+#| only. This is the pass that prefers a word the lexicon defines over the
+#| productive division of it.
+#|
+#| Both halves are needed. Restricting the stems is what stops `tethinəme`
+#| becoming the compound `te` plus `thinə`, since `te` is a stem recovered from
+#| `teswe` and not a listed word. Making the prefixes frugal is what stops `toro`
+#| becoming `to` plus `ro`, since `ro` is listed and a greedy prefix would take
+#| the `to` before the whole word was ever tried.
+grammar Lexicalised is Morphemes {
+    regex TOP { <prefix>*? <stem>+? <suffix>* }
+}
+
 #| Every stem a word may be built on.
 #|
 #| The lexicon's own entries, plus verb stems recovered by removing an
 #| infinitive marker. `rorothwaswo` is listed and `rorothwa` is not, yet
 #| `LANGUAGE.md` decision 16 inflects the latter, so the stem is derived rather
 #| than demanded of the file.
+#| The stems the lexicon states outright, as against the ones derived from them.
+#|
+#| The bound morphology is in the lexicon too, and must not be offered as a stem.
+#| Left in, `di` and `me` and `yi` compete with real stems, and `medime` divides
+#| as negation plus `di` plus `me`, which is three morphemes that all exist and a
+#| word that means nothing.
+sub listed-stems(Lexicon:D $lexicon --> Seq) {
+    my $affixes = $lexicon.affixes.map(*.roman).Set;
+
+    $lexicon.entries
+        .map(*.roman)
+        .grep({ not $affixes{$_} and not .contains(' ') });
+}
+
 sub stems-from(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
     my $infinitive = $morphology.by-id('infinitive');
     my @markers = $infinitive.forms;
 
-    # The bound morphology is in the lexicon too, and must not be offered as a
-    # stem. Left in, `di` and `me` and `yi` compete with real stems, and
-    # `medime` divides as negation plus `di` plus `me`, which is three
-    # morphemes that all exist and a word that means nothing.
-    my $affixes = $lexicon.affixes.map(*.roman).Set;
-
-    my @listed = $lexicon.entries
-        .map(*.roman)
-        .grep({ not $affixes{$_} and not .contains(' ') });
+    my @listed = listed-stems($lexicon);
 
     my @bare = @listed.map(-> $form {
         @markers.first({ $form.ends-with($_) && $form.chars > .chars })
@@ -241,12 +281,50 @@ sub choose-morpheme(@candidates, Host $host --> Morpheme) {
 #| rule and compare. `Morphemes` is frugal with stems; a greedy subclass gives
 #| the other reading of an ambiguous word, and two answers that differ are how
 #| ambiguity is detected rather than assumed.
+#|
+#| Naming no grammar asks for the reading a speaker would give, which is two
+#| passes. See the module documentation: `toro` is a word before it is a
+#| derivation, and a caller who wants the derivation asks for it.
 sub parse-word(
     Lexicon:D     $lexicon,
     Morphology:D  $morphology,
     Str:D         $word,
-    Mu           :$grammar = Morphemes,
+    Mu           :$grammar = Mu,
 ) is export {
+
+    # Two traps in one line, and the first hides the second.
+    #
+    # Never `with $grammar` or any other definedness test. A grammar is a type
+    # object, so `Greedy.defined` is False exactly as `Mu.defined` is, and `with`
+    # reports every named grammar as absent. `classify` passed `Greedy`, silently
+    # got the default two-pass reading back, and compared it against itself:
+    # ambiguity detection stopped finding anything, and the three tests that
+    # exist to catch that went green in the wrong direction.
+    #
+    # Then `===`, never `=:=`. `=:=` asks whether two *containers* are the same
+    # one, which a parameter and a type name never are, so it is False for the
+    # absent case and the present one alike. `===` compares values by `.WHICH`,
+    # which is the question being asked. The symptom of getting this backwards is
+    # `No such method 'parse' for invocant of type 'Mu'`, three frames away.
+    unless $grammar === Mu {
+        return divide($lexicon, $morphology, $word, $grammar, stems-from($lexicon, $morphology));
+    }
+
+    my $listed = divide($lexicon, $morphology, $word, Lexicalised, listed-stems($lexicon));
+
+    return $listed if $listed.defined;
+
+    divide($lexicon, $morphology, $word, Morphemes, stems-from($lexicon, $morphology));
+}
+
+#| One pass: a grammar and a stem inventory, applied.
+sub divide(
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Str:D        $word,
+    Mu           $grammar,
+                 @inventory,
+) {
     my @current = $morphology.current;
 
     my @prefix-morphemes = @current.grep(*.position == Prefix);
@@ -254,7 +332,7 @@ sub parse-word(
 
     my @*PREFIXES = @prefix-morphemes.map({ .forms.Slip }).unique;
     my @*SUFFIXES = @suffix-morphemes.map({ .forms.Slip }).unique;
-    my @*STEMS    = stems-from($lexicon, $morphology);
+    my @*STEMS    = @inventory;
 
     my $text = $word.lc;
     my $match = $grammar.parse($text);

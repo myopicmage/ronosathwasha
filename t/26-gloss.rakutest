@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 46;
+plan 48;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -131,10 +131,27 @@ is $teach.form.comb('-').elems, $teach.line.comb('-').elems,
 
 my $who = gloss-sentence($script, $lexicon, $morphology, 'Nari toro?');
 
-is $who.form, 'na-ri to-ro', 'a sentence glosses word by word';
-is $who.line, 'you-SBJ Q-person', 'with the question marker on the nominal';
-is $who.aligned, "na-ri    to-ro\nyou-SBJ  Q-person",
+is $who.form, 'na-ri toro', 'a sentence glosses word by word';
+
+# `who`, not `Q-person`. `toro` is a word the lexicon defines before it is the
+# question marker on "person", and Kevin's ruling is that both are true and the
+# defined word is how people say it. `Ronosathwasha::ParseResult` still reports
+# the derivation, as `Ambiguous` carrying both divisions.
+is $who.line, 'you-SBJ who', 'preferring the word the lexicon defines';
+
+is $who.aligned, "na-ri    toro\nyou-SBJ  who",
     'and the columns line up, which is what interlinear means';
+
+# The three lines used to disagree with each other: the gloss line decomposed
+# `toro` and the translation line, built from the reading, called it "who".
+# Preferring the defined word makes them say the same thing.
+is $who.translation.render, '[who: declarative, timeless]',
+    'and the gloss line and the translation line now name it the same way';
+
+# The productive division is still what happens when the lexicon has no word for
+# the whole thing, which is the case the question marker was declared for.
+is gloss-sentence($script, $lexicon, $morphology, 'Nari tethinəme?').words.tail.line,
+    'Q-eat-PRS', 'a word the lexicon does not list is still divided productively';
 
 # The trailing `?` is punctuation and not a morpheme, so it must not reach the
 # parser. `read-sentence` strips the same set for the same reason.
