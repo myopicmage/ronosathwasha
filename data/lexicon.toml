@@ -181,8 +181,8 @@
 
 # Affixes. Position is in the gloss: (verb) marks where the stem goes.
 [marker]
-"swe" = "infinitive (front or neutral), (verb)swe"
-"swo" = "infinitive (back), (verb)swo"
+"swe" = "infinitive or copularizer (front or neutral), (verb)swe or (nominal)swe"
+"swo" = "infinitive or copularizer (back), (verb)swo or (nominal)swo"
 "ne" = "plural (front or neutral), (noun)ne"
 "no" = "plural (back), (noun)no"
 "sa" = "possessive, (noun)sa"

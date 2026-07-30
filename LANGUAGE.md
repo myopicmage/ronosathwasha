@@ -770,6 +770,83 @@ Pressing the schwa key produces no visible change, because the character it
 emits has no ink. The keyboard could terminate a bare consonant to `Cə` on its
 own, so that the key is rarely needed. Not done, and not decided.
 
+## 22. `-swe/-swo` makes nominal predicates
+
+The infinitive pair has a second productive use: **attached to a nominal,
+`-swe/-swo` forms an identity or classification predicate without locating it
+in time.** The predicate's harmony selects the form in the ordinary way.
+
+The formal introduction is:
+
+```text
+Lasa dələri Laariswe.
+la-sa dələ-ri Laari-swe
+I-POSS name-SUBJ Lauri-COP
+My name is Lauri.
+```
+
+`Laari` is the Rono approximation of the foreign name `Lauri`. Its front vowel
+selects `-swe`. A back-harmonic nominal instead takes `-swo`.
+
+The copularizer is not a new arbitrary root. It extends existing machinery:
+the infinitive already turns semantic material into a verb, and attached to a
+nominal identity it supplies the otherwise empty relation "be." The
+copularizer and infinitive remain separate morpheme identities in
+`data/morphology.toml`, because they attach to different categories and do
+different grammatical jobs even though history has given them the same forms.
+
+### Ordinary speech drops it
+
+In an unmarked present identity, the copular relation is recoverable and may be
+omitted:
+
+```text
+Dələri Laari.
+name-SUBJ Lauri
+Name's Lauri.
+```
+
+The possessor is omitted because discourse identifies whose introduction this
+is. The copularizer is omitted because juxtaposition and the subject particle
+already recover the identity relation.
+
+This narrows decision 17's verb-final rule. **A verbal clause ends in a verb; a
+zero-copula nominal clause contains no verb to place.**
+
+### Explicit tense is grammatical and marked
+
+Tense may follow the copularizer:
+
+```text
+Laari-swe-me    is Lauri now
+Laari-swe-se    was Lauri
+Laari-swe-the   will be Lauri
+```
+
+Because the unmarked identity does not require present tense, explicitly adding
+`-me` contributes present-time anchoring and therefore invites a temporary,
+corrective or contrastive reading:
+
+```text
+Lasa dələri Laarisweme.
+My name is Lauri right now.
+
+Lari Laarisweme.
+Right now I am Lauri.
+```
+
+The nuance is pragmatic and the form is fully grammatical. `-me` means present;
+listeners infer a contrast because the speaker chose to state information that
+could otherwise have been left unmarked.
+
+This is not continuous aspect. Adding `-di` says that the identity is actively
+being enacted:
+
+```text
+Lari Laariswemedi.
+I am actively being Lauri.
+```
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

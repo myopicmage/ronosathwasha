@@ -7,7 +7,7 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Lexicon;
 
-plan 26;
+plan 29;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -45,13 +45,14 @@ is-deeply ($declared (-) $written).keys.sort.List, (),
 is-deeply ($written (-) $declared).keys.sort.List, (),
     'every affix in the lexicon is claimed by a current morpheme';
 
-is $morphology.current.elems, 17, 'seventeen current morphemes';
+is $morphology.current.elems, 18, 'eighteen current morphemes';
 
-# Thirty-one distinct forms from seventeen morphemes: fifteen alternating pairs
-# make thirty, `sa` makes thirty-one, and the negator adds none at all because
-# its two forms are the present tense's. Counting forms and counting morphemes
-# give different answers here, and the gap is precisely what a file keyed by
-# surface form could not have held.
+# Thirty-one distinct forms from eighteen morphemes: sixteen alternating pairs
+# and invariant `sa` would naively make thirty-three, but two complete pairs are
+# shared. The negator reuses present `me/mo`, and the copularizer reuses
+# infinitive `swe/swo`. Counting forms and counting morphemes give different
+# answers here, and the gap is precisely what a file keyed by surface form
+# could not have held.
 is $declared.elems, 31, 'covering thirty-one distinct surface forms';
 is $lexicon.affixes.elems, 31, 'which is every bound morpheme the lexicon lists';
 
@@ -79,6 +80,14 @@ is $negation.position, Prefix, 'negation is a prefix, which is what separated th
 
 my $possessive = $morphology.by-id('possessive');
 is $possessive.form-for(BackWord), 'sa', 'an invariant morpheme ignores the stem class';
+
+my $copularizer = $morphology.by-id('copularizer');
+is $copularizer.role, MarksPredication,
+    'a copularizer marks predication rather than nonfinite verbhood';
+is $copularizer.host, NominalStem,
+    'and attaches to the nominal it turns into a predicate';
+is-deeply $copularizer.forms.sort.List, ('swe', 'swo'),
+    'while reusing both surface forms of the infinitive';
 
 my $mixed = $present.form-for(MixedWord);
 nok $mixed.defined, 'a disharmonic stem selects nothing';

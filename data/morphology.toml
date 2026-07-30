@@ -33,6 +33,20 @@ front_stem = "swe"
 back_stem = "swo"
 status = "current"
 
+# The infinitive forms also became productive copularizers. Attached to a
+# nominal, they make an identity or classification predicate without locating
+# it in time. Tense may follow when time is contrastive: `Laari-swe-me` means
+# that the name is Laari now, not merely that it is Laari. Decision 22.
+[[morpheme]]
+id = "copularizer"
+role = "predication"
+attaches_to = "nominal"
+position = "suffix"
+alternation = "harmonic"
+front_stem = "swe"
+back_stem = "swo"
+status = "current"
+
 [[morpheme]]
 id = "plural"
 role = "number"
