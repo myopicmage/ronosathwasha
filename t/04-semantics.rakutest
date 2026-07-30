@@ -20,8 +20,8 @@ is $corpus.utterances.elems, 30, 'thirty utterances';
 
 my %counts = $corpus.counts;
 is %counts<Attested>, 17, 'seventeen attested: the page, plus the three Kevin wrote on 2026-07-29';
-is %counts<Derived>, 11, 'eleven derived, six of them decision 22 nominal predication';
-nok %counts<Reviewed>, 'none reviewed yet';
+nok %counts<Derived>, 'nothing left unread';
+is %counts<Reviewed>, 11, 'eleven reviewed on 2026-07-30, six of them nominal predication';
 
 # The status exists for a sentence the rules permit and a speaker declines, and
 # these are the first two anybody has written down. They fail differently, which is
@@ -61,12 +61,16 @@ my @unknown = $corpus.predicates.grep({
 is-deeply @unknown.List, (),
     'every predicate is a lexicon stem, bare or with its infinitive';
 
-my @derived = $corpus.utterances.grep(*.status == Derived);
+# Anything Kevin did not write himself, which is `derived`, `reviewed` and
+# `rejected` alike. Keyed on "not attested" rather than on `Derived`, because that
+# check emptied itself the moment eleven sentences were promoted to `reviewed`: a
+# reviewed sentence was still derived from something and still has to say what.
+my @composed = $corpus.utterances.grep(*.status != Attested);
 
-is-deeply @derived.grep({ not .derived-from.defined }).map(*.text).List, (),
-    'every derived sentence names the attested one it came from';
+is-deeply @composed.grep({ not .derived-from.defined }).map(*.text).List, (),
+    'every composed sentence names the one it came from';
 
-is-deeply @derived.grep({ not .derivation.defined }).map(*.text).List, (),
+is-deeply @composed.grep({ not .derivation.defined }).map(*.text).List, (),
     'and says which morpheme was substituted';
 
 ok $corpus.utterances.grep(*.status == Attested).all.source.defined,
@@ -93,9 +97,9 @@ ok $corpus.has-locative, 'including one locative';
 # about dogs and closed it, which is also how the corpus got its first attested
 # back-harmonic predicate.
 #
-# It is short again, by one, and deliberately. Nominal predication reaches the
-# corpus only through the six derived sentences added with decision 22, so the line
-# above is satisfied and this one is not. Closes when Kevin reads them and marks any
-# one of the timeless pair `reviewed`, which is ten minutes and not a decision.
-is-deeply $corpus.missing-from-evidence.List, ('predication: Timeless',),
-    'while evidence alone is short by one, which is the number that counts';
+# It went short again by one when decision 22 added nominal predication, since that
+# reached the corpus only through derived sentences. Kevin read all eleven on
+# 2026-07-30 and accepted them, which closed it and also emptied `derived` entirely:
+# every sentence here is now either evidence or a recorded refusal.
+is-deeply $corpus.missing-from-evidence.List, (),
+    'and on evidence alone as well, which is the only way it counts';

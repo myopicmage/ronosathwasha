@@ -218,12 +218,15 @@ polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject", "object"]
 
-# ----------------------------------------------------------------- derived ---
+# ---------------------------------------------------------------- reviewed ---
 #
-# Five sentences, filling the three strata nothing attested reaches: past
-# tense, future tense, and proximal reference. Two more exercise the back
-# alternants, which every attested sentence leaves untouched because every
-# attested predicate happens to be front or neutral.
+# Derived from shipped declarations and then read and accepted by Kevin on
+# 2026-07-30, which is what makes them evidence rather than merely usable.
+#
+# The first five fill strata nothing attested reached when they were written: past
+# tense, future tense, and proximal reference. Two exercise the back alternants,
+# which every attested sentence leaves untouched because every attested predicate
+# happens to be front or neutral.
 #
 # Each recombines a shipped morpheme with a shipped stem and nothing else.
 # `rorothwa` is the stem of `rorothwaswo`, "to love", with the back infinitive
@@ -232,7 +235,7 @@ arguments = ["subject", "object"]
 [[utterance]]
 text = "Lari thinəse."
 english = "I ate"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari thinəme."
 derivation = "past -se in place of present -me, front stem"
 speech_act = "declarative"
@@ -246,7 +249,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari thinəthe."
 english = "I will eat"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari thinəme."
 derivation = "future -the in place of present -me, front stem"
 speech_act = "declarative"
@@ -260,7 +263,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "She thinəme."
 english = "(I) eat this food"
-status = "derived"
+status = "reviewed"
 derived_from = "Sho thinəme."
 derivation = "proximal she in place of distal sho"
 speech_act = "declarative"
@@ -275,7 +278,7 @@ reference = "proximal"
 [[utterance]]
 text = "Lari rorothwamo."
 english = "I love"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari thinəme."
 derivation = "back stem rorothwa, which selects the back present -mo"
 speech_act = "declarative"
@@ -289,7 +292,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari rorothwaso."
 english = "I loved"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari rorothwamo."
 derivation = "back past -so, which the same stem selects"
 speech_act = "declarative"
@@ -351,7 +354,7 @@ polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject", "object"]
 
-# ------------------------------------------------- decision 22, derived ---
+# ----------------------------------------------- decision 22, reviewed ---
 #
 # Nominal predication, which the corpus reached no other way. Every one uses
 # `mirire`, a stem the lexicon lists, because a name is not a lexicon entry and
@@ -364,7 +367,7 @@ arguments = ["subject", "object"]
 [[utterance]]
 text = "Lari mirireswe."
 english = "I am a teacher"
-status = "derived"
+status = "reviewed"
 derived_from = "Mirireri mirime."
 derivation = "copularizer -swe on the nominal, no tense, subject made first person"
 speech_act = "declarative"
@@ -378,7 +381,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari mirire."
 english = "I'm a teacher"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari mirireswe."
 derivation = "the copularizer omitted, which ordinary speech permits in an unmarked identity"
 speech_act = "declarative"
@@ -393,7 +396,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari miriresweme."
 english = "I am a teacher right now"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari mirireswe."
 derivation = "present -me after the copularizer, which anchors the identity in time"
 speech_act = "declarative"
@@ -408,7 +411,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari mirireswese."
 english = "I was a teacher"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari miriresweme."
 derivation = "past -se in place of present -me, front stem"
 speech_act = "declarative"
@@ -423,7 +426,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari mirireswethe."
 english = "I will be a teacher"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari miriresweme."
 derivation = "future -the in place of present -me, front stem"
 speech_act = "declarative"
@@ -438,7 +441,7 @@ arguments = ["subject"]
 [[utterance]]
 text = "Lari mirireswemedi."
 english = "I am currently being a teacher"
-status = "derived"
+status = "reviewed"
 derived_from = "Lari miriresweme."
 derivation = "continuous -di after the tense, holding the anchored identity open"
 speech_act = "declarative"
