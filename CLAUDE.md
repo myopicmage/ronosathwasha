@@ -107,6 +107,25 @@ because that is not enough: each has bitten more than once.
   `MorphemeRole` uses `Marks-` prefixes for the same reason, since a value named
   `Tense` would collide with the type of that name in `Semantics`.
 
+**Model weights live in `~/models/`, never inside this repository.** Referenced by
+absolute path from configuration, and the reason is specific rather than tidiness.
+
+`nix develop 'path:.'` copies the whole working tree into the nix store on every
+evaluation, and `path:` bypasses git, so `.gitignore` does not exempt anything. Every
+`make` target run outside direnv re-enters that shell. A multi-gigabyte GGUF anywhere
+under this directory therefore gets copied into the store repeatedly, into a fresh
+store path each time any file in the tree changes, and only garbage collection takes
+it back.
+
+That is the one place this project's disk cost is real. The Raku dependencies are
+172 KB installed and `llama-cpp`'s entire closure is 29 MB, so nothing else in the
+software is worth measuring. The weights are four orders of magnitude larger than all
+of it.
+
+They must also stay out of the nix store itself, for the same arithmetic in a
+different direction: a derivation that fetches a GGUF leaves the previous copy behind
+as a live store path on every version bump.
+
 **The flake uses `mkShellNoCC`, and must keep doing so.** `mkShell` pulls in nix's C
 compiler wrapper, which sets `SDKROOT` and `DEVELOPER_DIR` to a nixpkgs `apple-sdk`. On
 this machine that SDK was built by Swift 5.10 while `/usr/bin/swift` is 6.3.3, and the

@@ -25,3 +25,10 @@ build/
 
 # Raku precompilation cache.
 .precomp/
+
+# Model weights, which belong in ~/models/ and are referenced by absolute path.
+# This is a guard against an accidental `mv`, not the mechanism: `nix develop
+# 'path:.'` copies the tree into the store without consulting git, so a GGUF in
+# here would be copied on every evaluation whether it is ignored or not.
+*.gguf
+models/

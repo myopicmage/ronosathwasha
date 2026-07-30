@@ -184,6 +184,23 @@ This keeps Qwen-specific prompt syntax out of the Raku harness. The harness
 owns structured conversational state; the model package describes how that
 state crosses its inference boundary.
 
+### Where the weights live
+
+**`~/models/`, referenced by absolute path from `config/chatbot.toml`.** Never
+inside the repository, and never fetched by a nix derivation. `CLAUDE.md` carries
+the arithmetic; the short version is that `path:.` copies the working tree into the
+nix store on every evaluation without consulting git, so a GGUF in the tree is
+copied on every `make`.
+
+**Which Qwen is not recorded anywhere yet.** This section names the family because
+that is what determines the chat template, and the family is all that stop 9 needs:
+its contract tests run against a stub server and never load weights.
+
+The specific model, its parameter count and its quantisation are stop 10's
+decision, which plan `014` frames as selecting or rejecting candidates rather than
+adopting one. That gate is still behind the language coverage gate, so the choice
+has not been made and should not be inferred from a downloaded file.
+
 ## Context boundaries
 
 The system must distinguish:
