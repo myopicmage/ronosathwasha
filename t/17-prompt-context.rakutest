@@ -1,0 +1,111 @@
+use Test;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Model;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::TokenCounter;
+
+plan 21;
+
+my $schema = Invariant.new(
+    :label('response schema'),
+    :text('{"kind":"express"|"gap", ...}'),
+);
+
+my $capabilities = Invariant.new(
+    :label('language capabilities'),
+    :text('three tenses, two aspects, two polarities'),
+);
+
+sub context(ConversationState:D $state) {
+    PromptContext.new(:$schema, :$capabilities, :$state);
+}
+
+# ------------------------------------------------------------------- shape ---
+
+my $empty = context(ConversationState.new);
+
+is $empty.invariants.elems, 2, 'a context has exactly two invariants';
+is $empty.invariants[0].label, 'response schema',
+    'the schema comes first, because an unparseable answer is not an answer';
+is $empty.invariants[1].label, 'language capabilities',
+    'and the capabilities second, because they are what keep a gap honest';
+
+is $empty.depth, 0, 'an untouched context has no turns';
+
+# ------------------------------------------------- invariants are the floor ---
+
+ok $empty.invariant-text.contains('response schema'),
+    'the floor names each invariant';
+ok $empty.invariant-text.contains('{"kind":"express"|"gap", ...}'),
+    'and carries its text verbatim';
+
+is $empty.conversation-text, '',
+    'a first turn spends nothing announcing that nothing has happened';
+is $empty.render, $empty.invariant-text,
+    'so an empty conversation renders as the floor exactly';
+
+# --------------------------------------------------------- a conversation ---
+
+my $talked = context(
+    ConversationState.new
+        .said(Human, 'Lari thinəme.')
+        .said(Bot, 'Nari thinəme?')
+);
+
+is $talked.depth, 2, 'turns are counted';
+ok $talked.conversation-text.contains('human: Lari thinəme.'),
+    'and rendered by the speaker who said them';
+ok $talked.render.contains('response schema'),
+    'a rendered context still leads with its invariants';
+ok $talked.render.index('response schema') < $talked.render.index('conversation'),
+    'invariants before conversation, which is the order they may be sacrificed in';
+
+# ------------------------------------------------------------ folded state ---
+#
+# The point of the fold is that the text is gone, so what a context shows after
+# one is a summary and not the turn. `ConversationState` destroys it; this only
+# has to not quietly keep a copy.
+
+my $folded = context(
+    ConversationState.new
+        .said(Human, 'Lari thinəme.')
+        .said(Bot, 'Nari thinəme?')
+        .said(Human, 'Lari tono.')
+        .fold(1)
+);
+
+is $folded.depth, 1, 'folding leaves the newest turn verbatim';
+ok $folded.conversation-text.contains('remembered'),
+    'and what it summarised is shown as remembered rather than as said';
+nok $folded.conversation-text.contains('Nari thinəme?'),
+    'the folded text is genuinely gone, not relabelled';
+ok $folded.conversation-text.contains('Lari tono.'),
+    'while the newest turn is untouched';
+
+# ------------------------------------------------------ replacing the state ---
+#
+# The policy's whole method: try a fold, measure it, keep it or throw it away.
+# `Checked` is what makes a typo in the field name an error rather than a copy
+# with nothing changed.
+
+my $shorter = $talked.with(:state($talked.state.fold(1)));
+
+is $shorter.depth, 1, 'a context is replaced rather than mutated';
+is $talked.depth, 2, 'and the one it came from is unchanged';
+
+my $typo = try $talked.with(:sate($talked.state));
+nok $typo.defined, 'a misspelled field is refused';
+isa-ok $!, X::Ronosathwasha::NoSuchAttribute, 'rather than silently changing nothing';
+
+# ------------------------------------------------------------- measurable ---
+#
+# The reason `render` exists at all: the policy budgets against a count, and
+# `PerWord` only gives a predictable one if the serialisation is stable.
+
+my $counter = PerWord.new;
+ok $counter.count($talked.render) > $counter.count($empty.render),
+    'a longer conversation costs more, which is the whole lever the policy has';
