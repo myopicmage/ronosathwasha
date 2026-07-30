@@ -175,7 +175,12 @@ sub take-turn(
     # type-checked, and the binding error then replaces the exception that says the
     # window was too small.
     my $fitted = fit-context($heard-context, $budget, $counter);
-    die $fitted.exception if $fitted ~~ Failure;
+    # `.defined` rather than `~~ Failure`, and the difference is not style. Smartmatching
+    # against a type does not mark a `Failure` handled and neither does `.exception`, so
+    # the old form retrieved the cause, rethrew it, and left the original object to
+    # complain at destruction: "unhandled Failure detected in DESTROY". `.defined` is one
+    # of the four methods that mark it, along with `.Bool`, `.so` and `.not`.
+    die $fitted.exception unless $fitted.defined;
 
     my $intent = $model.respond($fitted);
 
@@ -187,7 +192,7 @@ sub take-turn(
     # binding error then replaces the exception that says what the model
     # actually sent. Third time this has happened; a constrained slot is where
     # a `Failure` goes to lose its cause.
-    die $intent.exception if $intent ~~ Failure;
+    die $intent.exception unless $intent.defined;
 
     my Str $said = $intent ~~ Express
         ?? realize-intent($script, $morphology, $intent)

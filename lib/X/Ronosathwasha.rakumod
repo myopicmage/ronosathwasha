@@ -79,6 +79,49 @@ class Budget::Impossible is Exception {
     }
 }
 
+#| Something went wrong between here and the inference server.
+#|
+#| Named `Request` rather than `Server` or `Inference`, and not for tidiness: an
+#| intermediate package leaks into an importing scope, so a group called `Server`
+#| collides with `Ronosathwasha::Config`'s class of that name and one called
+#| `Inference` with `ModelProtocol`'s role. Third time the naming note at the top of
+#| this file has earned itself.
+class Request is Exception { }
+
+class Request::Unreachable is Request {
+    has Str $.url    is required;
+    has Str $.reason is required;
+
+    method message(--> Str) {
+        "no answer from $!url: $!reason. `llama-server` is started separately and is "
+        ~ "not running, or is not listening where `config/chatbot.toml` says."
+    }
+}
+
+class Request::Refused is Request {
+    has Str $.url    is required;
+    has Int $.status is required;
+    has Str $.body   is required;
+
+    method message(--> Str) {
+        "$!url answered $!status: { $!body.lines.head // '(no body)' }"
+    }
+}
+
+#| The server answered, and what it said was not the shape this application speaks.
+#|
+#| Distinct from `Answer::Malformed`, which is about a model choosing something the
+#| language does not permit. This is about the envelope rather than the contents: a
+#| response with no `choices`, or a `content` that is not the JSON the schema
+#| promised. One is a model being wrong and the other is a server being wrong, and
+#| conflating them would send Kevin looking in the lexicon for a transport bug.
+class Request::Malformed is Request {
+    has Str $.url    is required;
+    has Str $.reason is required;
+
+    method message(--> Str) { "$!url answered in an unexpected shape: $!reason" }
+}
+
 #| The window is too small for what has to go in it.
 #|
 #| Two subclasses because they want different fixes and a caller cannot tell them

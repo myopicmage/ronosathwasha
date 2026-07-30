@@ -1,0 +1,127 @@
+use Test;
+
+use JSON::Fast;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Config;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::LlamaCpp;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Prompt;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Semantics;
+
+plan 26;
+
+my IO::Path $data = repository-root.add('data');
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $config     = load-config(repository-root.add('config/chatbot.toml'));
+
+my $context = PromptContext.new(
+    :schema(PromptInvariant.new(:label('response schema'), :text('kind express or gap'))),
+    :capabilities(PromptInvariant.new(:label('language capabilities'), :text('three tenses'))),
+    :state(ConversationState.new.said(Human, 'Lari thinəme.')),
+);
+
+my @messages = wire-messages($config, $context);
+
+#| A transport that answers from a script and records what it was asked.
+#|
+#| This is the seam. A stub server on a port would verify the same bytes and add a
+#| free-port search, a listener lifecycle and a teardown that has to survive a failing
+#| assertion, none of which tests this application.
+class Recorder does Transport {
+    has Int $.status = 200;
+    has Str $.answer is required;
+    has @.urls;
+    has @.bodies;
+
+    method post(Str:D $url, Str:D $body --> Reply) {
+        @!urls.push: $url;
+        @!bodies.push: $body;
+        Reply.new(:status($!status), :body($!answer));
+    }
+}
+
+sub envelope(Str $content) {
+    to-json(%( choices => [ %( message => %( content => $content ) ) ] ));
+}
+
+sub client(Recorder $t) {
+    LlamaCpp.new(:$config, :$lexicon, :$morphology, :transport($t));
+}
+
+# ------------------------------------------------------ the request it sends ---
+
+my $gap = envelope(to-json(%( kind => 'gap', wanted => 'a habitual', missing => 'an aspect' )));
+my $rec = Recorder.new(:answer($gap));
+
+my %answer = client($rec).complete(@messages);
+
+is $rec.urls.elems, 1, 'one request per turn';
+is $rec.urls[0], 'http://127.0.0.1:8080/v1/chat/completions',
+    'to the OpenAI-compatible route from the configuration';
+
+my %sent = from-json($rec.bodies[0]);
+
+is %sent<messages>.elems, 2, 'carrying the message list';
+is %sent<messages>[0]<role>, 'system', 'system first';
+is %sent<messages>[1]<content>, 'Lari thinəme.', 'and the turn verbatim';
+is %sent<temperature>, 0.7, 'with the configured sampling';
+is %sent<max_tokens>, 1024, 'and the reservation as max_tokens';
+is %sent<response_format><type>, 'json_schema', 'schema-constrained';
+ok %sent<response_format><json_schema><schema><properties><predicate><enum>.elems > 50,
+    'against a schema enumerating the real lexicon rather than a placeholder';
+nok %sent<chat_template_kwargs><enable_thinking>, 'and thinking off';
+
+# ------------------------------------------------------- the answer it returns ---
+
+is %answer<kind>, 'gap', 'a gap comes back decoded';
+is %answer<missing>, 'an aspect', 'with its fields';
+
+# Raw, not validated. Keeping those apart is what makes "the server said something
+# odd" a different error from "the model named a word that does not exist".
+my $intent = intent-from($lexicon, $morphology, %answer);
+isa-ok $intent, Gap, 'and intent-from is what turns it into an intent';
+
+# An answer that satisfies the envelope and names a word the lexicon lacks is a model
+# fault, and it has to survive the client untouched to be caught by the right thing.
+my $liar = Recorder.new(:answer(envelope(to-json(%(
+    kind => 'express', predicate => 'thinu', speech_act => 'declarative',
+    aspect => 'simple', polarity => 'affirmative', modality => 'asserted',
+    tense => 'present', arguments => [],
+)))));
+
+my %invented = client($liar).complete(@messages);
+is %invented<predicate>, 'thinu', 'the client passes an invented word through';
+nok intent-from($lexicon, $morphology, %invented).defined,
+    'and intent-from refuses it, which is where that check belongs';
+
+# ------------------------------------------------------------------ refusals ---
+
+my $refused = client(Recorder.new(:status(503), :answer('upstream is warming up'))).complete(@messages);
+nok $refused.defined, 'a non-200 is refused';
+isa-ok $refused.self.exception, X::Ronosathwasha::Request::Refused, 'as a refused request';
+ok $refused.self.exception.message.contains('503'), 'naming the status';
+ok $refused.self.exception.message.contains('warming up'), 'and what the server said';
+
+my $garbage = client(Recorder.new(:answer('<html>not json</html>'))).complete(@messages);
+nok $garbage.defined, 'an envelope that is not JSON is refused';
+isa-ok $garbage.self.exception, X::Ronosathwasha::Request::Malformed, 'as a malformed reply';
+ok $garbage.self.exception.message.contains('envelope'),
+    'saying which of the two decodes failed, since both can';
+
+my $inner = client(Recorder.new(:answer(envelope('this is not json either')))).complete(@messages);
+nok $inner.defined, 'and so is content that is not the JSON the schema promised';
+ok $inner.self.exception.message.contains('schema-constrained content'),
+    'named as the second decode rather than the first';
+
+my $empty = client(Recorder.new(:answer(to-json(%( choices => [] ))))).complete(@messages);
+nok $empty.defined, 'an envelope with no choices is refused';
+ok $empty.self.exception.message.contains('no choices'),
+    'rather than dying on an index nobody can see';
