@@ -22,6 +22,7 @@
     "Ronosathwasha::Actions": "lib/Ronosathwasha/Actions.rakumod",
     "Ronosathwasha::Realizer": "lib/Ronosathwasha/Realizer.rakumod",
     "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod",
+    "Ronosathwasha::Intent": "lib/Ronosathwasha/Intent.rakumod",
     "Ronosathwasha::Model": "lib/Ronosathwasha/Model.rakumod",
     "X::Ronosathwasha": "lib/X/Ronosathwasha.rakumod",
     "Ronosathwasha::TestModel": "lib/Ronosathwasha/TestModel.rakumod",

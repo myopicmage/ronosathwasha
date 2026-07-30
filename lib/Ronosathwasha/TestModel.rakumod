@@ -33,6 +33,7 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
+use Ronosathwasha::Intent;
 use Ronosathwasha::Model;
 use Ronosathwasha::PromptContext;
 

@@ -36,7 +36,7 @@ unit module Ronosathwasha::LanguageEvidence;
 
 use Ronosathwasha::Types;
 use Ronosathwasha::Checked;
-use Ronosathwasha::Model;
+use Ronosathwasha::Intent;
 use Ronosathwasha::ParseResult;
 
 #| What kind of hole this is.

@@ -42,7 +42,7 @@ unit module Ronosathwasha::ConversationState;
 
 use Ronosathwasha::Types;
 use Ronosathwasha::Checked;
-use Ronosathwasha::Model;
+use Ronosathwasha::Intent;
 
 our enum Speaker is export <Human Bot>;
 

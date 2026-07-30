@@ -5,7 +5,7 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
-use Ronosathwasha::Model;
+use Ronosathwasha::Intent;
 use Ronosathwasha::ParseResult;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::LanguageEvidence;

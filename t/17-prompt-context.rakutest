@@ -3,7 +3,7 @@ use Test;
 use X::Ronosathwasha;
 
 use Ronosathwasha::Chatbot;
-use Ronosathwasha::Model;
+use Ronosathwasha::Intent;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::TokenCounter;

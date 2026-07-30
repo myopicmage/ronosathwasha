@@ -9,7 +9,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Actions;
-use Ronosathwasha::Model;
+use Ronosathwasha::Intent;
 use Ronosathwasha::TestModel;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::PromptContext;

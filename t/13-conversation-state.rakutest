@@ -3,7 +3,7 @@ use Test;
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Semantics;
-use Ronosathwasha::Model;
+use Ronosathwasha::Intent;
 use Ronosathwasha::ConversationState;
 use X::Ronosathwasha;
 

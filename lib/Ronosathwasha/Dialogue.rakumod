@@ -64,6 +64,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Actions;
 use Ronosathwasha::Realizer;
 use Ronosathwasha::Sentence;
+use Ronosathwasha::Intent;
 use Ronosathwasha::Model;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::PromptContext;
