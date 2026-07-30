@@ -45,6 +45,34 @@ That is a real cost and it is not paid down by binary search, for the reason abo
 The available fixes are caching a count per turn and folding by more than one turn
 at a time, and neither is worth writing before a profile says which.
 
+=head2 What this measures is not quite what gets sent
+
+C<CHATBOT.md> now has the packaging boundary written down, and it has a consequence
+for the arithmetic here. The model does not receive C<render>'s output. It receives
+what the GGUF's Jinja chat template makes of a list of messages, which is then
+tokenized by the GGUF's own tokenizer:
+
+    Raku messages -> Jinja chat template -> text and control tokens -> tokenizer
+
+So the template adds framing this file never sees, and every one of those tokens is
+spent from the same window. B<A counter measuring untemplated text underestimates,
+always in the same direction.> Not by much per message and once per message, which
+is the shape that overflows a long conversation rather than a short one.
+
+Two things follow, both stop 9's:
+
+=item The tokenizer has to count the templated form, not this one. That is why the
+plan puts C<LlamaTokenCounter> behind the same role as C<PerWord> rather than
+letting anything here estimate.
+
+=item C<PromptContext> will need to yield typed messages rather than one string,
+because system, user and assistant are what the template renders. C<render> stays
+as the thing a pure policy can measure deterministically, and stops being the thing
+that crosses the boundary.
+
+Until then the honest position is that this file budgets correctly against the
+counter it is given, and the counter it is given is a fake.
+
 =head2 Two failures, not one
 
 A context that cannot fit raises rather than returning a smaller thing that
