@@ -42,17 +42,41 @@ our enum Status     is export <Attested Derived Reviewed Rejected>;
 #| which arguments are present and the shape is a reading of that.
 our enum Shape is export <NoArguments SubjectOnly ObjectOnly Transitive>;
 
+#| Whether a sentence puts its predicate in time, derived from whether it carries
+#| a tense at all.
+#|
+#| Decision 22 made this contrastive rather than incidental. `Lari mirireswe` says
+#| what somebody is and `Lari miriresweme` says what they are doing at the moment,
+#| which is roughly English "I am a teacher" against "I am being a teacher". So the
+#| absence of a tense is a meaning here, not a gap in the record.
+#|
+#| Derived and never declared, for the same reason as `Shape`: it is a reading of
+#| the tense field rather than a second fact about the sentence, so there is no way
+#| for a corpus entry to claim one thing and carry another.
+#|
+#| Deliberately not a fourth `Tense`. Past, present and future are three points on
+#| a line and this is not a fourth point on it, so every caller asking what tense
+#| a sentence has would get an answer that is not one.
+our enum Predication is export <Timeless Anchored>;
+
 class Utterance is export {
     has Str       $.text       is required;
     has Str       $.english    is required;
     has Status    $.status     is required;
     has SpeechAct $.speech-act is required;
     has Str       $.predicate  is required;
-    has Tense     $.tense      is required;
     has Aspect    $.aspect     is required;
     has Polarity  $.polarity   is required;
     has Modality  $.modality   is required;
     has Argument  @.arguments;
+
+    #| Absent on a timeless predication, and absent means something. Decision 22
+    #| gives the copularizer an identity reading with no time attached, so a
+    #| sentence with no tense is not an incomplete record of one that has a tense.
+    #|
+    #| Grouped with `reference` rather than left among the required fields, because
+    #| this is now the second dimension the language declines to mark.
+    has Tense     $.tense;
 
     has Reference $.reference;
     has Str       $.locative;
@@ -62,6 +86,9 @@ class Utterance is export {
     has Str $.derived-from;
     has Str $.derivation;
     has Str $.rejected-because;
+
+    #| Whether this sentence locates its predicate in time.
+    method predication(--> Predication) { $!tense.defined ?? Anchored !! Timeless }
 
     method shape(--> Shape) {
         my Bool $subject = @!arguments.grep(* == Subject).elems > 0;
@@ -87,14 +114,23 @@ class Utterance is export {
 #| What the model-selection gate in stop 10 requires before it can run. Named
 #| here rather than there because the corpus is what has to satisfy it, and a
 #| floor stated far from the thing it measures drifts away from it.
+#| `predication` is here and `tense` stays, and both are needed.
+#|
+#| The tense line is ticked only by sentences that have one, so a corpus of nothing
+#| but timeless identity statements cannot report tense as covered. But that alone
+#| would stop watching the timeless construction entirely: delete the only sentence
+#| with no tense and the tense line is still ticked by the ordinary verbs, so the
+#| gate would pass having lost a whole construction. The `predication` line is what
+#| notices.
 our constant %REQUIRED is export = (
-    'speech act' => (Declarative, Interrogative, Imperative),
-    'tense'      => (Past, Present, Future),
-    'aspect'     => (Simple, Continuous),
-    'polarity'   => (Affirmative, Negative),
-    'modality'   => (Asserted, Potential),
-    'reference'  => (Proximal, Medial, Distal),
-    'shape'      => (SubjectOnly, Transitive, NoArguments),
+    'speech act'  => (Declarative, Interrogative, Imperative),
+    'tense'       => (Past, Present, Future),
+    'predication' => (Timeless, Anchored),
+    'aspect'      => (Simple, Continuous),
+    'polarity'    => (Affirmative, Negative),
+    'modality'    => (Asserted, Potential),
+    'reference'   => (Proximal, Medial, Distal),
+    'shape'       => (SubjectOnly, Transitive, NoArguments),
 );
 
 class Coverage is export {
@@ -102,14 +138,20 @@ class Coverage is export {
 
     method !values-for(Str $dimension, @from) {
         given $dimension {
-            when 'speech act' { @from.map(*.speech-act) }
-            when 'tense'      { @from.map(*.tense)      }
-            when 'aspect'     { @from.map(*.aspect)     }
-            when 'polarity'   { @from.map(*.polarity)   }
-            when 'modality'   { @from.map(*.modality)   }
-            when 'shape'      { @from.map(*.shape)      }
-            when 'reference'  { @from.map(*.reference).grep(*.defined) }
-            default           { () }
+            when 'speech act'  { @from.map(*.speech-act)  }
+            when 'aspect'      { @from.map(*.aspect)      }
+            when 'polarity'    { @from.map(*.polarity)    }
+            when 'modality'    { @from.map(*.modality)    }
+            when 'shape'       { @from.map(*.shape)       }
+            when 'predication' { @from.map(*.predication) }
+
+            # The two optional dimensions, and the same treatment. An undefined
+            # value witnesses nothing, so a timeless sentence cannot tick a tense
+            # box and a sentence with no demonstrative cannot tick a reference one.
+            when 'tense'       { @from.map(*.tense).grep(*.defined)     }
+            when 'reference'   { @from.map(*.reference).grep(*.defined) }
+
+            default            { () }
         }
     }
 
@@ -195,11 +237,18 @@ sub load-utterances(IO::Path:D $path) is export {
             :status(decode(%STATUS, %u<status>, 'status', $text, $path)),
             :speech-act(decode(%SPEECH-ACT, %u<speech_act>, 'speech_act', $text, $path)),
             :predicate(~%u<predicate>),
-            :tense(decode(%TENSE, %u<tense>, 'tense', $text, $path)),
             :aspect(decode(%ASPECT, %u<aspect>, 'aspect', $text, $path)),
             :polarity(decode(%POLARITY, %u<polarity>, 'polarity', $text, $path)),
             :modality(decode(%MODALITY, %u<modality>, 'modality', $text, $path)),
             :@arguments,
+
+            # Omitted rather than nulled. An absent `tense` key is a timeless
+            # predication, and a present one that names something unknown is still a
+            # bad value, so this cannot be a `// ''` that swallows both.
+            :tense(%u<tense>.defined
+                ?? decode(%TENSE, %u<tense>, 'tense', $text, $path)
+                !! Tense),
+
             :reference(%u<reference>.defined
                 ?? decode(%REFERENCE, %u<reference>, 'reference', $text, $path)
                 !! Reference),
