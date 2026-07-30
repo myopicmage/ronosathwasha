@@ -160,6 +160,30 @@ status.
 
 That is earned abstraction applied to language design.
 
+## Model packaging and chat templates
+
+The model does not receive the Raku message records directly. `llama.cpp`
+turns them into the model-specific token stream that the weights were trained
+to recognize.
+
+The GGUF is more than a bag of weights. It also carries the model architecture,
+tokenizer metadata, special tokens and a Jinja chat template. Starting
+`llama-server` with `--jinja` tells it to use that embedded template to render
+system, user, assistant and tool messages according to the model's own calling
+convention.
+
+```text
+Raku messages
+    -> GGUF Jinja chat template
+    -> model-specific text and control tokens
+    -> GGUF tokenizer
+    -> model
+```
+
+This keeps Qwen-specific prompt syntax out of the Raku harness. The harness
+owns structured conversational state; the model package describes how that
+state crosses its inference boundary.
+
 ## Context boundaries
 
 The system must distinguish:
