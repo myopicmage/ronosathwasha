@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 33;
+plan $corpus.utterances.elems + 41;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -133,3 +133,46 @@ isa-ok read('Lari nu thinəme.'), NotUnderstood,
     'an open-looking word in a verbal clause remains unknown';
 isa-ok read('Laari.'), NotUnderstood,
     'a bare unknown form is not assumed to be a name without clause structure';
+
+# ---------------------------------------------- the question is found anywhere ---
+#
+# `to-`/`te-` attaches to whichever constituent is being asked about, and this used
+# to be read off the predicate alone. Everything below reported `Declarative`
+# before the question scope arrived, and `Nari toro?` is the case `e0662af`
+# recorded as known and wrong: the question lives inside the word, so no prefix
+# existed anywhere for the old rule to see.
+
+sub asked(Str $sentence) {
+    my $outcome = read($sentence);
+
+    $outcome ~~ Understood ?? $outcome.reading !! Nil;
+}
+
+my $lexicalised = asked('Nari toro?');
+is $lexicalised.speech-act, Interrogative,
+    'a lexicalised interrogative makes its clause a question';
+is $lexicalised.question-scope, QuestionsPredicate,
+    'and `toro` is the predicate, so that is what is asked about';
+
+is asked('Nari tethinəme?').question-scope, QuestionsPredicate,
+    'the productive prefix on a verb scopes the same way';
+
+is asked('Tororu thinəme?').question-scope, QuestionsSubject,
+    'the subject particle says a questioned subject';
+is asked('Tomwuyu thinəme?').question-scope, QuestionsObject,
+    'and the object particle says a questioned object';
+
+# Decision 17 frees every position before the verb, so a bare questioned word is
+# grammatical and has no role these types can name. Recorded rather than guessed
+# at: `Sho thinəme.` is the declarative precedent, and the corpus states its
+# arguments as empty for the same reason.
+is asked('Toro thinəme?').question-scope, QuestionsConstituent,
+    'a questioned word with no particle is named as exactly that';
+
+# `tono` is a listed word beginning with `to` and is not a question, which is why
+# the check is the `[interrogative]` section rather than the prefix's spelling.
+nok asked('Lari tonoyu thinəme.').question-scope.defined,
+    'a word that merely starts with `to` asks nothing';
+
+nok asked('Lari thinəme.').question-scope.defined,
+    'and a statement carries no scope at all';

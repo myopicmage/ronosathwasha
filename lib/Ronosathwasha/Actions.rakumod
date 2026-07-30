@@ -42,9 +42,8 @@ use Ronosathwasha::ParseResult;
 #| that type is a declaration, carrying an English gloss, a review status and a
 #| source. This one is derived, and the point of the pair is that they can be
 #| compared.
-class Reading is export {
+class Reading does Asks is export {
     has Str       $.text       is required;
-    has SpeechAct $.speech-act is required;
     has Str       $.predicate  is required;
     has Aspect    $.aspect     is required;
     has Polarity  $.polarity   is required;
@@ -110,6 +109,42 @@ class WrongOrder does SentenceOutcome is export {
     method summary(--> Str) {
         "$!sentence: the verb $!verb.raku() must come last"
     }
+}
+
+#| Whether this word carries the interrogative, by either of the two routes it has.
+#|
+#| The prefix is the productive one: `te-` on `thinə` gives `tethinəme`. The lexicon
+#| section is the lexicalised one, and it is a declaration rather than a guess.
+#| `toro` divides as one listed word under `e0662af`, so the marker inside it is not
+#| a prefix any longer and nothing in the division can see it.
+#|
+#| **Not "the word starts with `to`".** `tono` does, `tono` is a listed word, and it
+#| is not a question. The `[interrogative]` section is what separates the two, the
+#| same way `[demonstrative]` is what finds a pointer below.
+sub questions(Set $interrogatives, WordParse:D $word --> Bool) {
+    my $act = $word.with-role(MarksSpeechAct);
+
+    return True if $act.defined && $act.id eq 'question';
+
+    so $word.stems.first({ $interrogatives{$_} });
+}
+
+#| Where the interrogative landed, given the word carrying it.
+#|
+#| Read off the particles, because those are what say a word's role. A questioned
+#| word with no particle that is not the predicate is grammatical and unnameable
+#| here, which `QuestionsConstituent` records rather than guessing at.
+sub scope-of(WordParse:D $word, Bool:D $is-predicate --> QuestionScope) {
+    return QuestionsPredicate if $is-predicate;
+
+    my $case = $word.with-role(MarksCase);
+
+    return $case.id eq 'subject' ?? QuestionsSubject !! QuestionsObject
+        if $case.defined;
+
+    return QuestionsLocative if $word.has-role(MarksLocative);
+
+    QuestionsConstituent;
 }
 
 #| Front is near, central is middle, back is far. See the module documentation:
@@ -259,6 +294,34 @@ sub read-sentence(
     my $act          = $predicate.with-role(MarksSpeechAct);
     my $polarity     = $predicate.with-role(MarksPolarity);
 
+    # The interrogative is looked for across the whole sentence, and every other
+    # feature is read off the predicate alone. That asymmetry is the language's:
+    # tense, aspect, polarity and modality are properties of the predication and
+    # can only be written on the predicate, and `to-` attaches to whichever
+    # constituent is being asked about.
+    #
+    # Reading it off the predicate was the bug. `Nari toro?` came back as
+    # `Declarative`, so `nari toro.` was the round trip and the question was gone;
+    # `Tomwuyu thinəme?` lost it the same way with the marker sitting on the object.
+    my Set $interrogatives = $lexicon.in-section('interrogative').map(*.roman).Set;
+
+    my $asked-at = @divisions.first({ questions($interrogatives, $_) }, :k);
+
+    my QuestionScope $question-scope = $asked-at.defined
+        ?? scope-of(@divisions[$asked-at], $asked-at == $predicate-position)
+        !! QuestionScope;
+
+    # A question outranks a command, and the pair cannot both be written on one
+    # predicate anyway: they are the same morpheme slot, so `data/morphology.toml`
+    # gives them one `speech-act` role and `with-role` returns whichever is there.
+    # The ordering only matters for a command whose *argument* is questioned, which
+    # nothing has yet written and which reads as a question when it is.
+    my SpeechAct $speech-act = do {
+        if $asked-at.defined                        { Interrogative }
+        elsif $act.defined && $act.id eq 'command'  { Imperative    }
+        else                                        { Declarative   }
+    };
+
     my Argument @arguments = @divisions
         .map({ .with-role(MarksCase) })
         .grep(*.defined)
@@ -274,11 +337,8 @@ sub read-sentence(
 
     Understood.new(reading => Reading.new(
         :text($sentence),
-        :speech-act(do given $act.defined ?? $act.id !! '' {
-            when 'question' { Interrogative }
-            when 'command'  { Imperative    }
-            default         { Declarative   }
-        }),
+        :$speech-act,
+        :$question-scope,
         :predicate($predicate.stems.join),
         # Undefined when nothing was written, rather than Present. A verb always
         # carries a tense morpheme, so the absence only ever arises on the nominal

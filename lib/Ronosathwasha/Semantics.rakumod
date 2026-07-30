@@ -74,15 +74,59 @@ our enum Predication is export <Timeless Anchored>;
 #| `Questions-` prefixed for the reason `MorphemeRole` is `Marks-` prefixed: an
 #| enum's values become symbols in every importing scope, and `Subject`, `Object`
 #| and `Predicate` are all words this repo wants for other things.
+#| `QuestionsConstituent` is the honest one. Decision 17 frees every position
+#| before the verb and the particles say what each word is, so a questioned word
+#| carrying no particle is grammatical and has no role these types can name.
+#| `Sho thinəme.` is the declarative precedent: the corpus records its arguments
+#| as empty, because an unmarked word is not an argument as far as this file is
+#| concerned. Naming that case is what `023` asked for, which is that an interface
+#| limit be stated rather than disguised as a fact about the language.
 our enum QuestionScope is export <
     QuestionsPredicate QuestionsSubject QuestionsObject QuestionsLocative
+    QuestionsConstituent
 >;
 
-class Utterance is export {
+#| The speech act, and where the question landed when it is one.
+#|
+#| A role because three types carry this pair and the invariant between them is one
+#| rule: `Utterance` declares it, `Actions::Reading` derives it from a sentence, and
+#| `Intent::Express` receives it from a model. Written out three times it would be
+#| three chances to write it differently, which is the shape of the bug `023`
+#| objected to in the first place.
+#|
+#| The role owns both attributes rather than only the scope, because a `TWEAK` can
+#| only read attributes its own composition unit declared, and because the point is
+#| that the two are one fact.
+role Asks is export {
+    has SpeechAct     $.speech-act is required;
+    has QuestionScope $.question-scope;
+
+    #| An interrogative says what it questions, and nothing else may.
+    #|
+    #| The meaning-preservation contract from review `023`, in the one place both
+    #| halves are visible: if the interface accepts a distinction, it has to keep it.
+    #| The bug that prompted it was the same shape, a type accepting polarity on a
+    #| nominal predicate that the realizer then discarded, and a field which may or
+    #| may not agree with its neighbour is that bug with the pieces moved around.
+    #|
+    #| Raku cannot make the pair unrepresentable. It checks types when values bind
+    #| and has no way to tie one attribute's definedness to another's value, so
+    #| `TWEAK` is the earliest point at which the question can be asked at all.
+    submethod TWEAK {
+        my Bool $asking = $!speech-act == Interrogative;
+        my Bool $scoped = $!question-scope.defined;
+
+        die X::Ronosathwasha::Meaning::ScopeDisagrees.new(
+            :speech-act($!speech-act.key.lc),
+            :scope($scoped ?? $!question-scope.key !! 'none'),
+        ) if $asking != $scoped;
+    }
+}
+
+class Utterance does Asks is export {
     has Str       $.text       is required;
     has Str       $.english    is required;
     has Status    $.status     is required;
-    has SpeechAct $.speech-act is required;
     has Str       $.predicate  is required;
     has Aspect    $.aspect     is required;
     has Polarity  $.polarity   is required;
@@ -120,13 +164,6 @@ class Utterance is export {
     #| reads it.
     has Bool      $.explicit-copula = True;
 
-    #| Where the interrogative landed, and undefined when this is not a question.
-    #|
-    #| Paired with `speech-act` rather than replacing its `Interrogative` value,
-    #| because a question is a speech act and the corpus, the coverage gate and the
-    #| punctuation all read that field. `TWEAK` below is what stops the pair drifting.
-    has QuestionScope $.question-scope;
-
     has Reference $.reference;
     has Str       $.locative;
     has Str       $.complement;
@@ -135,29 +172,6 @@ class Utterance is export {
     has Str $.derived-from;
     has Str $.derivation;
     has Str $.rejected-because;
-
-    #| An interrogative says what it questions, and nothing else may.
-    #|
-    #| This is the meaning-preservation contract in the one place both halves are
-    #| visible. Review `023` asked for it after the opposite arrangement shipped: a
-    #| type accepted polarity and modality on a nominal predicate and the realizer
-    #| discarded them silently, so the interface promised a distinction it did not
-    #| keep. A field that may or may not agree with its neighbour is that same bug
-    #| with the pieces moved around.
-    #|
-    #| Raku cannot make the pair unrepresentable, since it checks types when values
-    #| bind and has no way to say "this field's definedness follows that field's
-    #| value". `TWEAK` runs after every attribute is in place, so it is the earliest
-    #| point where the question can be asked at all.
-    submethod TWEAK {
-        my Bool $asking = $!speech-act == Interrogative;
-        my Bool $scoped = $!question-scope.defined;
-
-        die X::Ronosathwasha::Meaning::ScopeDisagrees.new(
-            :speech-act($!speech-act.key.lc),
-            :scope($scoped ?? $!question-scope.key !! 'none'),
-        ) if $asking != $scoped;
-    }
 
     #| Whether this sentence locates its predicate in time.
     method predication(--> Predication) { $!tense.defined ?? Anchored !! Timeless }
