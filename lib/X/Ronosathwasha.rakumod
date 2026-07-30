@@ -253,6 +253,24 @@ class Form::NoSuchMorpheme is Exception {
     method message(--> Str) { "the declaration has no current morpheme $!wanted.raku()" }
 }
 
+#| A question that does not say what it questions, or a scope on something that
+#| is not a question. The two fields are one fact and have to move together.
+#|
+#| `Str` rather than the enums themselves, and deliberately. Typing them would
+#| make this file `use Ronosathwasha::Semantics`, which already uses this one, and
+#| the cycle is the same one that split `Intent` out of `Model`. The keys carry
+#| everything the message needs.
+class Meaning::ScopeDisagrees is Exception {
+    has Str $.speech-act is required;
+    has Str $.scope      is required;
+
+    method message(--> Str) {
+        $!scope eq 'none'
+            ?? "a $!speech-act sentence must say which constituent it questions"
+            !! "a $!speech-act sentence cannot question $!scope"
+    }
+}
+
 # ----------------------------------------------------------------- the model ---
 
 #| The model named something the declarations do not contain. Carries what it

@@ -20,6 +20,27 @@ computing it from the finished word would be wrong the moment a negator is
 involved, because that morpheme is anti-harmonic by design and disagrees on
 purpose.
 
+=head2 A nominal predicate takes the same prefixes a verb does
+
+Until review C<021>'s first finding, it took none. C<Express> accepted a polarity
+and a modality, C<intent-from> checked them, they survived into a well-typed value,
+and C<realize-nominal-predicate> had no parameter to receive them, so
+C<laarisweme> came out for the negative potential and the plain assertion alike.
+Not rejected and not approximated: discarded, silently, in a signature.
+
+Kevin's ruling settles what the missing forms are, and it is the least surprising
+answer available: the same three prefixes, meaning the same three things.
+C<molaariswe> is "is not laari" and C<Nari temirireswe?> is "are you a teacher".
+The negator, the potential and the question marker do not care what they attach
+to, and C<prefix-ids> below is now the single list both realizers read.
+
+What is B<not> here yet is the guard against writing a marker a stem already
+spells. C<toro> is the word for "who" and prefixing a question marker to it would
+give C<totoro>, so the interrogative words need a check against
+C<data/lexicon.toml>, which this module does not currently receive. Nothing passes
+C<:speech-act> to a nominal predicate yet, so the hazard is not reachable; it is
+noted because the parameter is now there to be passed.
+
 =head2 Nothing here knows about negation
 
 C<form-for> takes the stem's class and returns the form, and the declaration
@@ -54,6 +75,41 @@ my constant %ACT-MORPHEME = (
     Interrogative.key => 'question', Imperative.key => 'command',
 );
 
+#| One morpheme's form for a stem of this class.
+#|
+#| Was a closure inside `realize-verb`, which is why the nominal predicate reached
+#| for `$morphology.by-id` directly and got no missing-morpheme check at all.
+sub form-of(Morphology:D $morphology, Str:D $id, VowelProfile:D $class) {
+    my $morpheme = $morphology.by-id($id);
+
+    fail X::Ronosathwasha::Form::NoSuchMorpheme.new(:wanted($id)) without $morpheme;
+
+    $morpheme.form-for($class);
+}
+
+#| Which prefixes the three prefixing axes call for, in decision 16's order.
+#|
+#| Shared rather than written twice, and that is the whole point of extracting it:
+#| a verb and a nominal predicate take the same three prefixes, and the only reason
+#| they ever differed is that this list lived inside `realize-verb` where the other
+#| one could not reach it.
+#|
+#| Two of the three are unmarked in one of their values, so the list is usually
+#| shorter than three and is empty for an ordinary declarative statement.
+sub prefix-ids(
+    SpeechAct:D $speech-act,
+    Polarity:D  $polarity,
+    Modality:D  $modality,
+    --> Seq
+) {
+    my %wanted =
+        'modality'   => ($modality == Potential  ?? 'potential' !! Str),
+        'polarity'   => ($polarity == Negative   ?? 'negation'  !! Str),
+        'speech-act' => %ACT-MORPHEME{ $speech-act.key };
+
+    @PREFIX-ORDER.map({ %wanted{$_} }).grep(*.defined);
+}
+
 #| Build the verb word.
 #|
 #| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
@@ -74,27 +130,18 @@ sub realize-verb(
 
     fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
-    my sub form(Str $id) {
-        my $morpheme = $morphology.by-id($id);
-
-        fail X::Ronosathwasha::Form::NoSuchMorpheme.new(:wanted($id)) without $morpheme;
-
-        $morpheme.form-for($class);
-    }
-
-    my %wanted =
-        'modality'   => ($modality == Potential  ?? 'potential' !! Str),
-        'polarity'   => ($polarity == Negative   ?? 'negation'  !! Str),
-        'speech-act' => %ACT-MORPHEME{ $speech-act.key };
-
-    my @prefixes = @PREFIX-ORDER.map({ %wanted{$_} }).grep(*.defined).map({ form($_) });
+    my @prefixes = prefix-ids($speech-act, $polarity, $modality);
 
     my @suffixes = (
-        form(%TENSE-MORPHEME{ $tense.key }),
-        ($aspect == Continuous ?? form('continuous') !! Empty),
+        %TENSE-MORPHEME{ $tense.key },
+        ($aspect == Continuous ?? 'continuous' !! Empty),
     );
 
-    return (@prefixes, $stem, @suffixes).flat.join;
+    return (
+        @prefixes.map({ form-of($morphology, $_, $class) }),
+        $stem,
+        @suffixes.map({ form-of($morphology, $_, $class) }),
+    ).flat.join;
 
     CATCH { default { .fail } }
 }
@@ -114,19 +161,27 @@ sub realize-nominal-predicate(
     Morphology:D $morphology,
     Str:D        $stem,
     Bool:D      :$copularized = True,
+    SpeechAct:D :$speech-act  = Declarative,
     Tense       :$tense,
-    Aspect:D    :$aspect = Simple,
+    Aspect:D    :$aspect      = Simple,
+    Polarity:D  :$polarity    = Affirmative,
+    Modality:D  :$modality    = Asserted,
 ) is export {
     my $class = profile-of($script, $stem);
 
     fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
     my @suffixes;
-    @suffixes.push: $morphology.by-id('copularizer') if $copularized;
-    @suffixes.push: $morphology.by-id(%TENSE-MORPHEME{ $tense.key }) if $tense.defined;
-    @suffixes.push: $morphology.by-id('continuous') if $aspect == Continuous;
+    @suffixes.push: 'copularizer' if $copularized;
+    @suffixes.push: %TENSE-MORPHEME{ $tense.key } if $tense.defined;
+    @suffixes.push: 'continuous' if $aspect == Continuous;
 
-    return $stem ~ @suffixes.map({ .form-for($class) }).join;
+    return (
+        prefix-ids($speech-act, $polarity, $modality)
+            .map({ form-of($morphology, $_, $class) }),
+        $stem,
+        @suffixes.map({ form-of($morphology, $_, $class) }),
+    ).flat.join;
 
     CATCH { default { .fail } }
 }

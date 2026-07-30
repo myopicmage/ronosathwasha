@@ -145,7 +145,13 @@ is $who.aligned, "na-ri    toro\nyou-SBJ  who",
 # The three lines used to disagree with each other: the gloss line decomposed
 # `toro` and the translation line, built from the reading, called it "who".
 # Preferring the defined word makes them say the same thing.
-is $who.translation.render, '[who: declarative, timeless]',
+#
+# `declarative` stood here until the question scope arrived, and `e0662af` recorded
+# it as known and wrong at the time: the question lives inside `toro` and nothing
+# marked the clause, so the reader saw no marker anywhere and called the sentence a
+# statement. This assertion is the one that would have caught it, and it was written
+# to match the behaviour rather than the meaning.
+is $who.translation.render, '[who: interrogative, timeless]',
     'and the gloss line and the translation line now name it the same way';
 
 # The productive division is still what happens when the lexicon has no word for

@@ -156,6 +156,9 @@ english = "Do you eat?"
 status = "attested"
 source = "docs/basic-sentences.html"
 speech_act = "interrogative"
+# `te-` sits on the verb, so the predicate is what is being asked about. The only
+# question in the corpus, and now the only entry that has to say this.
+questioned = "predicate"
 predicate = "thinə"
 tense = "present"
 aspect = "simple"
