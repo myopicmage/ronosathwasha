@@ -646,14 +646,18 @@ different shape, where `おばさん` and `おばあさん` differ by one small 
 **Implemented** in the font, the keyboard, the Raku grammar and the Python model.
 Cheaper than the first draft of this decision assumed.
 
-The Python model was the last of the four and was owed for a while without anyone
-noticing, because nothing it could not do was visible. `Syllable` was exactly one
-consonant and one vowel, so `Script.parse` read `laari` as `la` and then demanded
-a consonant of the leftover `ari`. Meanwhile the Raku grammar had
-`<consonant> <vowel> $<long>=[ <base> ]?` and parsed the same word without
-complaint. Two implementations of one language disagreeing about what a syllable
-is, in the direction where the half that writes the lexicon was the half that
-could not.
+The Python model came a few hours after the other three, and the gap is legible in
+the commit that made them: `8733a9c`, "Implement vowel length in the font, the
+keyboard and the grammar". Three of four, named accurately, with the fourth
+unmentioned rather than deferred.
+
+Nothing the model could not do was visible from outside, which is why it took a
+word to surface it. `Syllable` was exactly one consonant and one vowel, so
+`Script.parse` read `laari` as `la` and then demanded a consonant of the leftover
+`ari`, while the Raku grammar's `<consonant> <vowel> $<long>=[ <base> ]?` took the
+same word without complaint. Two implementations of one language disagreeing about
+what a syllable is, in the direction where the half that writes the lexicon was
+the half that could not.
 
 `Syllable` carries a `long` flag rather than the inventory carrying twelve more
 vowels, which is the same choice this decision already made about code points:
