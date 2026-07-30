@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 13;
+plan $corpus.utterances.elems + 33;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -96,3 +96,40 @@ is-deeply read('layi Mirireri mirimedi').reading.arguments.sort.List,
 my $backwards = read('mirimedi Mirireri layi');
 isa-ok $backwards, WrongOrder, 'but the verb may not leave the end';
 is $backwards.verb, 'mirimedi', 'and the offending word is named';
+
+# ---------------------------------------------------------- decision 22 ---
+
+my $formal-name = read('Lasa dələri Laariswe.');
+isa-ok $formal-name, Understood, 'a formal copular introduction is understood';
+is $formal-name.reading.predicate, 'laari', 'the open name is its predicate';
+ok $formal-name.reading.nominal-predicate, 'the predicate is nominal';
+ok $formal-name.reading.explicit-copula, 'the written copularizer is preserved';
+nok $formal-name.reading.explicit-tense, 'the bare copularizer does not assert a time';
+
+my $ordinary-name = read('Dələri Laari.');
+isa-ok $ordinary-name, Understood, 'ordinary speech may omit the copularizer';
+is $ordinary-name.reading.predicate, 'laari', 'the final open nominal supplies the identity';
+nok $ordinary-name.reading.explicit-copula, 'the omitted copula remains omitted';
+nok $ordinary-name.reading.explicit-tense, 'zero copula is likewise timeless';
+
+my $present-name = read('Lasa dələri Laarisweme.');
+isa-ok $present-name, Understood, 'the copularizer may carry explicit tense';
+is $present-name.reading.tense, Present, 'the written tense is interpreted';
+ok $present-name.reading.explicit-tense, 'and its contrastive presence is preserved';
+
+my $classification = read('Dələri runəswo.');
+isa-ok $classification, Understood, 'a declared noun may also become a predicate';
+is $classification.reading.predicate, 'runə', 'the noun is recovered beneath the copularizer';
+ok $classification.reading.nominal-predicate, 'and is distinguished from an infinitive';
+
+my $present-classification = read('Dələri runəswomo.');
+isa-ok $present-classification, Understood, 'a declared nominal predicate may carry tense';
+ok $present-classification.reading.nominal-predicate,
+    'the shared form is not misread as an infinitive before tense';
+ok $present-classification.reading.explicit-tense,
+    'its written present remains explicit';
+
+isa-ok read('Lari nu thinəme.'), NotUnderstood,
+    'an open-looking word in a verbal clause remains unknown';
+isa-ok read('Laari.'), NotUnderstood,
+    'a bare unknown form is not assumed to be a name without clause structure';

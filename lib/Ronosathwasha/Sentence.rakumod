@@ -92,14 +92,24 @@ sub realize-sentence(
         realize-constituent($script, $morphology, $_)
     });
 
-    @words.push: realize-verb(
-        $script, $morphology, $reading.predicate,
-        :speech-act($reading.speech-act),
-        :tense($reading.tense),
-        :aspect($reading.aspect),
-        :polarity($reading.polarity),
-        :modality($reading.modality),
-    );
+    if $reading.nominal-predicate {
+        @words.push: realize-nominal-predicate(
+            $script, $morphology, $reading.predicate,
+            :copularized($reading.explicit-copula),
+            :explicit-tense($reading.explicit-tense),
+            :tense($reading.tense),
+            :aspect($reading.aspect),
+        );
+    } else {
+        @words.push: realize-verb(
+            $script, $morphology, $reading.predicate,
+            :speech-act($reading.speech-act),
+            :tense($reading.tense),
+            :aspect($reading.aspect),
+            :polarity($reading.polarity),
+            :modality($reading.modality),
+        );
+    }
 
     # English punctuation, borrowed whole, because the script has none of its
     # own. The marks are redundant with the morphology, since `te-/to-` already

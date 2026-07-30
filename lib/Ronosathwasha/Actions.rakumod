@@ -53,6 +53,9 @@ class Reading is export {
     has Argument  @.arguments;
     has Reference $.reference;
     has Str       $.locative;
+    has Bool      $.nominal-predicate = False;
+    has Bool      $.explicit-copula   = False;
+    has Bool      $.explicit-tense    = True;
 
     #| Words that divided more than one way. The frugal reading was taken, and
     #| this records that a choice was made rather than hiding it.
@@ -124,8 +127,18 @@ sub read-sentence(
 
     my WordParse @divisions;
     my Str       @ambiguous;
+    my Int       @open-nominals;
+    my           %nominal-readings;
 
     for $sentence.words -> $word {
+        my Int $position = @divisions.elems;
+        my $nominal-reading = parse-nominal-predicate(
+            $script, $morphology,
+            $word.subst(/<[?.,!]>+$/, ''),
+        );
+        %nominal-readings{$position} = $nominal-reading
+            if $nominal-reading.defined;
+
         my $outcome = classify($script, $lexicon, $morphology, $word);
 
         given $outcome {
@@ -138,34 +151,101 @@ sub read-sentence(
                 @ambiguous.push: .word;
             }
 
+            when UnknownStem {
+                if $nominal-reading.defined {
+                    @divisions.push: $nominal-reading;
+                    @open-nominals.push: $position;
+                } else {
+                    my $nominal = open-nominal($word.subst(/<[?.,!]>+$/, ''));
+                    @divisions.push: $nominal;
+                    @open-nominals.push: $position;
+                }
+            }
+
             default {
                 return NotUnderstood.new(:$sentence, :$word, :because($outcome));
             }
         }
     }
 
-    # The verb is identified by its tense marker rather than by its position,
-    # and then its position is checked. Those are separate steps on purpose: a
-    # sentence with the verb in the wrong place is a well-formed sentence
-    # written wrongly, and saying so is more useful than failing to find a verb.
-    my $verb = @divisions.first(*.has-role(MarksTense));
+    # A nominal predicate identifies itself with the copularizer. A verbal
+    # predicate identifies itself with tense. The zero-copula form has neither,
+    # so it is licensed only when a subject-marked nominal precedes one final
+    # unmarked nominal.
+    my $predicate-position = @divisions.first(*.has-role(MarksTense), :k);
+
+    if $predicate-position.defined
+        && (%nominal-readings{$predicate-position}:exists)
+        && %nominal-readings{$predicate-position}.has-role(MarksTense)
+    {
+        @divisions[$predicate-position] = %nominal-readings{$predicate-position};
+    }
+
+    unless $predicate-position.defined {
+        my Int $last = @divisions.end;
+
+        if %nominal-readings{$last}:exists {
+            @divisions[$last] = %nominal-readings{$last};
+            $predicate-position = $last;
+        }
+    }
+
+    my $predicate = $predicate-position.defined
+        ?? @divisions[$predicate-position]
+        !! WordParse;
+
+    my Bool $nominal-predicate =
+        $predicate.defined && $predicate.has-role(MarksPredication);
+    my Bool $explicit-copula = $nominal-predicate;
+
+    unless $predicate {
+        my $subject-position = @divisions.first({
+            my $case = .with-role(MarksCase);
+            $case.defined && $case.id eq 'subject'
+        }, :k);
+        my Int $candidate-position = @divisions.end;
+        my $candidate = @divisions.tail;
+
+        if $subject-position.defined
+            && $candidate-position != $subject-position
+            && !$candidate.prefixes
+            && !$candidate.suffixes
+        {
+            $predicate = $candidate;
+            $predicate-position = $candidate-position;
+            $nominal-predicate = True;
+        }
+    }
 
     return NotUnderstood.new(
         :$sentence,
         :word($sentence),
         :because(UnknownStem.new(:word($sentence))),
-    ) without $verb;
+    ) without $predicate;
+
+    # Open vocabulary is accepted only where the clause grammar proves that it
+    # is the nominal predicate. Elsewhere an unknown writable word remains an
+    # unknown word rather than silently becoming a name.
+    with @open-nominals.first({ $_ != $predicate-position }) -> $unknown-position {
+        my $unknown = @divisions[$unknown-position];
+
+        return NotUnderstood.new(
+            :$sentence,
+            :word($unknown.text),
+            :because(UnknownStem.new(:word($unknown.text))),
+        );
+    }
 
     # Decision 17. Every other constituent is free, because the particles say
     # what each one is; the verb is fixed because no particle identifies it.
-    return WrongOrder.new(:$sentence, :verb($verb.text))
-        unless @divisions.tail === $verb;
+    return WrongOrder.new(:$sentence, :verb($predicate.text))
+        unless $predicate-position == @divisions.end;
 
-    my $tense-marker = $verb.with-role(MarksTense);
-    my $aspect       = $verb.with-role(MarksAspect);
-    my $modality     = $verb.with-role(MarksModality);
-    my $act          = $verb.with-role(MarksSpeechAct);
-    my $polarity     = $verb.with-role(MarksPolarity);
+    my $tense-marker = $predicate.with-role(MarksTense);
+    my $aspect       = $predicate.with-role(MarksAspect);
+    my $modality     = $predicate.with-role(MarksModality);
+    my $act          = $predicate.with-role(MarksSpeechAct);
+    my $polarity     = $predicate.with-role(MarksPolarity);
 
     my Argument @arguments = @divisions
         .map({ .with-role(MarksCase) })
@@ -187,8 +267,8 @@ sub read-sentence(
             when 'command'  { Imperative    }
             default         { Declarative   }
         }),
-        :predicate($verb.stems.head),
-        :tense(do given $tense-marker.id {
+        :predicate($predicate.stems.join),
+        :tense(do given $tense-marker.defined ?? $tense-marker.id !! '' {
             when 'past'   { Past    }
             when 'future' { Future  }
             default       { Present }
@@ -199,7 +279,10 @@ sub read-sentence(
         :@arguments,
         :$reference,
         :locative($locative.defined ?? $locative.id !! Str),
+        :$nominal-predicate,
+        :$explicit-copula,
+        :explicit-tense($tense-marker.defined),
         :@ambiguous,
-        :constituents(@divisions.grep({ $_ !=== $verb })),
+        :constituents(@divisions[0 ..^ @divisions.end]),
     ));
 }

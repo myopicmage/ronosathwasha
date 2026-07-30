@@ -39,6 +39,7 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
+use Ronosathwasha::Harmony;
 
 
 #| One word, divided. The morphemes are named by identity rather than by form,
@@ -156,4 +157,66 @@ sub parse-word(
         :stems($match<stem>.map({ ~$_ })),
         :@suffixes,
     );
+}
+
+#| Treat a writable, undeclared form as one open nominal stem.
+#|
+#| Names are productive vocabulary. Requiring every person's name to appear in
+#| the lexicon before an introduction can be read would turn the dictionary
+#| into an accidental registry of people.
+sub open-nominal(Str:D $word --> WordParse) is export {
+    WordParse.new(:text($word.lc), :stems($word.lc));
+}
+
+#| Parse an open nominal carrying the productive copularizer, optionally
+#| followed by tense and continuous aspect.
+#|
+#| This is separate from `parse-word`: the general parser deliberately accepts
+#| only declared stems, while names are open vocabulary only in the grammatical
+#| position that proves they are nominal predicates.
+sub parse-nominal-predicate(
+    Script:D     $script,
+    Morphology:D $morphology,
+    Str:D        $word,
+    --> WordParse
+) is export {
+    my Str $text = $word.lc;
+    my $copularizer = $morphology.by-id('copularizer');
+    my @tenses = $morphology.current.grep(*.role == MarksTense);
+    my $continuous = $morphology.by-id('continuous');
+
+    my @sequences;
+    @sequences.push: [$copularizer];
+
+    for @tenses -> $tense {
+        @sequences.push: [$copularizer, $tense];
+        @sequences.push: [$copularizer, $tense, $continuous];
+    }
+
+    @sequences .= sort({
+        $^b.map(*.forms.map(*.chars).max).sum
+            <=>
+        $^a.map(*.forms.map(*.chars).max).sum
+    });
+
+    for @sequences -> @suffixes {
+        my @endings = @suffixes.head.forms;
+
+        for @suffixes.skip(1) -> $suffix {
+            @endings = @endings X~ $suffix.forms;
+        }
+
+        for @endings -> $ending {
+            next unless $text.ends-with($ending) && $text.chars > $ending.chars;
+
+            my Str $stem = $text.substr(0, $text.chars - $ending.chars);
+            my $class = profile-of($script, $stem);
+            next if $class == MixedWord;
+            next unless @suffixes.map({ .form-for($class) }).join eq $ending;
+
+            return WordParse.new(:$text, :stems($stem), :@suffixes);
+        }
+    }
+
+    fail X::Ronosathwasha::Word::Unrecognised.new(:word($word));
 }

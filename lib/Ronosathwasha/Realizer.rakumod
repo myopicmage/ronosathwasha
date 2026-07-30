@@ -99,6 +99,32 @@ sub realize-verb(
     CATCH { default { .fail } }
 }
 
+#| Build a nominal predicate. The copularizer is optional in ordinary
+#| unmarked identity clauses; tense is optional independently because writing
+#| present tense contributes the contrastive "right now" reading.
+sub realize-nominal-predicate(
+    Script:D     $script,
+    Morphology:D $morphology,
+    Str:D        $stem,
+    Bool:D      :$copularized = True,
+    Bool:D      :$explicit-tense = False,
+    Tense:D     :$tense = Present,
+    Aspect:D    :$aspect = Simple,
+) is export {
+    my $class = profile-of($script, $stem);
+
+    fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
+
+    my @suffixes;
+    @suffixes.push: $morphology.by-id('copularizer') if $copularized;
+    @suffixes.push: $morphology.by-id(%TENSE-MORPHEME{ $tense.key }) if $explicit-tense;
+    @suffixes.push: $morphology.by-id('continuous') if $aspect == Continuous;
+
+    return $stem ~ @suffixes.map({ .form-for($class) }).join;
+
+    CATCH { default { .fail } }
+}
+
 #| The full paradigm of one stem, which is the table Kevin asked for on
 #| 2026-07-28. Returned as data rather than rendered, so a page and a terminal
 #| can both use it.

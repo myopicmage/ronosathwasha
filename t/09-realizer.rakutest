@@ -14,7 +14,7 @@ my $script     = load-script($data.add('script.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
-plan $corpus.utterances.elems + 14;
+plan $corpus.utterances.elems + 18;
 
 sub verb(Str $stem, *%f) { realize-verb($script, $morphology, $stem, |%f) }
 
@@ -81,3 +81,16 @@ is %back<command>, 'dororothwamo', 'and decision 16 writes this one too';
 my $mixed = verb('thino');
 nok $mixed.defined, 'a disharmonic stem cannot be inflected';
 isa-ok $mixed.self.exception, X::Ronosathwasha::Form::NoClass, 'and says why rather than guessing an alternant';
+
+# ---------------------------------------------------------- decision 22 ---
+
+is realize-nominal-predicate($script, $morphology, 'laari'),
+    'laariswe', 'a front name takes the front copularizer';
+is realize-nominal-predicate($script, $morphology, 'laari', :explicit-tense),
+    'laarisweme', 'explicit present follows the copularizer';
+is realize-nominal-predicate($script, $morphology, 'laari', :copularized(False)),
+    'laari', 'ordinary identity may use a zero copula';
+is realize-nominal-predicate(
+    $script, $morphology, 'laari',
+    :explicit-tense, :aspect(Continuous),
+), 'laariswemedi', 'aspect follows an explicitly tensed copular predicate';
