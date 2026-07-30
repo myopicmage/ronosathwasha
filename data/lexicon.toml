@@ -78,7 +78,6 @@
 #   show
 #
 # Social and physical anchors
-#   name
 #   friend, ally
 #   enemy, opponent
 #   place
@@ -121,6 +120,7 @@
 "moluyo" = "crab"
 "mirire" = "teacher (teach-person)"
 "mwu" = "thing"
+"dələ" = "name"
 
 
 # The w-infix turns a body-relative direction into a compass one.
