@@ -1,0 +1,136 @@
+use Test;
+
+use Ronosathwasha::Capabilities;
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Types;
+
+plan 24;
+
+my IO::Path $data = repository-root.add('data');
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+my $invariant = capabilities-invariant($morphology);
+my Str $text = $invariant.text;
+
+isa-ok $invariant, PromptInvariant, 'it is a prompt invariant';
+is $invariant.label, 'language capabilities', 'labelled as the capabilities block';
+
+# ------------------------------------------------ every current morpheme appears ---
+
+for $morphology.current -> $morpheme {
+    # Only the first is asserted per morpheme, because 20-odd identical assertions
+    # would bury the interesting failures below in noise. The loop covers the set; the
+    # count assertion after it covers the total.
+    next unless $morpheme.id eq 'continuous';
+
+    ok $text.contains($morpheme.id), "the block names { $morpheme.id }";
+}
+
+my @absent = $morphology.current.map(*.id).grep({ not $text.contains($_) });
+is-deeply @absent.List, ().List, 'and names every other current morpheme too';
+
+# --------------------------------------------------------- and no retired one does ---
+#
+# The check that keeps the block honest about the past. `continuous-ji` lost to
+# `continuous` in decision 10, so a model told about it would be told about a form it
+# must not produce.
+
+my @retired = $morphology.superseded.map(*.id).grep({ $text.contains($_) });
+is-deeply @retired.List, ().List, 'no superseded morpheme appears';
+
+nok $text.contains('continuous-ji'), 'asserted by name, since it is the near miss';
+nok $text.contains('negation-ma'), 'and so is the other one that shares a prefix';
+
+# -------------------------------------------------------------- no fiction at all ---
+#
+# The assertion this module exists for. A hand-written block can claim a morpheme the
+# language does not have and nothing notices, because there is nothing to disagree with.
+# It happened: a probe's capabilities line asserted a `habitual` aspect, the model was
+# told so by the only authority it had, and it then reported a false gap.
+
+nok $text.contains('habitual'),
+    'no habitual, which is the invented aspect that started this';
+
+# Every token in an id position must be a declared id. Matched structurally, as the word
+# immediately before a parenthesised form list, because the inventory renders
+# `id (forms)` and nothing else in the block does. An earlier version scanned the whole
+# text for hyphenated lowercase words and flagged `well-formed` out of the prose, which
+# is the wrong shape of check: it guesses at what an id looks like instead of looking
+# where ids actually go.
+my $declared = $morphology.morphemes.map(*.id).Set;
+my @suspect = $text.comb(/ (<[a..z-]>+) \s* '(' /, :match)
+    .map({ ~.[0] })
+    .unique
+    .grep({ not $declared{$_} });
+
+is-deeply @suspect.List, ().List,
+    'every name in an id position is a morpheme the declarations carry';
+
+# ----------------------------------------------- the axes match the answer schema ---
+#
+# Built from `answer-vocabulary`, which is also what `response-schema` enumerates, so the
+# prompt cannot offer a choice the decoder refuses or withhold one it permits.
+
+my %v = answer-vocabulary();
+
+for <tense aspect polarity modality> -> $axis {
+    my @values = %v{$axis}.List;
+
+    ok $text.contains("$axis: { @values.sort.join(', ') }"),
+        "the $axis axis lists exactly what the decoder accepts";
+}
+
+ok $text.contains('speech act:'), 'speech act is named without its underscore';
+ok $text.contains('argument role:'),
+    'and the argument role is named as that rather than as case';
+
+nok $text.contains('kind:'),
+    'the envelope discriminator is not offered as a feature of the language';
+
+# ------------------------------------------------------ the composition statement ---
+#
+# The fix for the false gap. An inventory alone invites a model to conclude that some
+# pairing is unavailable, and one did: asked for a past continuous it reported that the
+# language lacks the construction. It does not.
+
+ok $text.contains('independent'), 'the axes are stated to be independent';
+ok $text.contains('past continuous'),
+    'and the pairing that was wrongly refused is named as ordinary';
+
+ok $text.contains('meaning, not spelling'),
+    'the model is told it selects features rather than assembling forms';
+
+# ---------------------------------------------- a language gap is not an interface gap ---
+#
+# The morpheme list is larger than the choice list: locatives, number and possession are
+# real Ronosathwasha with nothing in the answer format to select them. Left in
+# deliberately, so the model can say which morpheme it needed, and told apart explicitly
+# so it does not report the interface as a hole in the language.
+
+ok $text.contains('locative-at'),
+    'a morpheme the answer format cannot select still appears';
+ok $text.contains('the interface'),
+    'and the two kinds of limit are distinguished';
+
+# --------------------------------------------------------------- it is derived ---
+#
+# The assertion that separates a generated block from a literal that happens to agree.
+# Drop a morpheme and the inventory must lose it.
+
+my @fewer = $morphology.morphemes.grep({ .id ne 'continuous' });
+my $reduced = capabilities-invariant(Morphology.new(:morphemes(@fewer)));
+
+ok $text.contains('continuous (di/du)'), 'the real morphology yields the inventory entry';
+nok $reduced.text.contains('continuous (di/du)'),
+    'and removing the morpheme removes it, so the inventory is derived not copied';
+
+# The entry, not the bare word. `continuous` is also an aspect *value*, and the axis list
+# comes from `answer-vocabulary` rather than from the morphology, so a language that had
+# the value with no morpheme would still legitimately offer the choice and the block's own
+# unmarked rule would cover it. Asserting on the bare word conflated the two sources and
+# failed against prose that names the pairing.
+ok $reduced.text.contains('aspect: continuous, simple'),
+    'while the axis still offers the value, since that comes from the other source';
