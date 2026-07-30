@@ -24,6 +24,7 @@
     "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod",
     "Ronosathwasha::Config": "lib/Ronosathwasha/Config.rakumod",
     "Ronosathwasha::LlamaCpp": "lib/Ronosathwasha/LlamaCpp.rakumod",
+    "Ronosathwasha::LlamaTokenCounter": "lib/Ronosathwasha/LlamaTokenCounter.rakumod",
     "Ronosathwasha::ModelProtocol": "lib/Ronosathwasha/ModelProtocol.rakumod",
     "Ronosathwasha::Prompt": "lib/Ronosathwasha/Prompt.rakumod",
     "Ronosathwasha::Intent": "lib/Ronosathwasha/Intent.rakumod",

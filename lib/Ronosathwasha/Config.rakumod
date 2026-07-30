@@ -60,6 +60,10 @@ class Server is export {
 
     #| The tokenizer route, which is how the budget learns what the model counts.
     method tokenize(--> Str) { $!url.chomp('/') ~ '/tokenize' }
+
+    #| What the GGUF's own Jinja template makes of a message list. Half of the real
+    #| token count: the other half is tokenizing what this returns.
+    method apply-template(--> Str) { $!url.chomp('/') ~ '/apply-template' }
 }
 
 #| Who the model is told it is.

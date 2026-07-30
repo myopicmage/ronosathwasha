@@ -84,9 +84,19 @@ bite:
   passes the backslash through to the shell and zef then reads `inst\` as an unknown
   repository type. Build the spec once in a variable and use that variable everywhere.
 
-**Three Raku language traps.** Each is silent, each produces plausible behaviour
+**Four Raku language traps.** Each is silent, each produces plausible behaviour
 rather than an error, and each was already documented inside one module where it only
 helped whoever opened that module. They are here because that is not enough.
+
+- **A final expression in front of a `CATCH` block is sunk, so the routine returns
+  `Nil`.** `CATCH` is an ordinary statement, and the statement before it is therefore
+  not the last one, so its value is discarded in sink context. Write `return` explicitly
+  whenever a routine ends with a `CATCH`.
+
+  The symptom is never local. `Dialogue` got a type check about `Associative` two frames
+  away; `HttpTransport.post` handed back `Any` and the caller died on
+  `No such method 'status'`. Three occurrences, and the third one shipped with a green
+  suite because every test injects a fake transport, so the method had never run.
 
 - **`*@args` is the flattening slurpy and `**@args` is not.** A single star
   flattens its arguments, so `f((a, b), (c, d))` arrives as four items rather than

@@ -1,0 +1,118 @@
+use Test;
+
+use JSON::Fast;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Config;
+use Ronosathwasha::LlamaCpp;
+use Ronosathwasha::LlamaTokenCounter;
+use Ronosathwasha::ModelProtocol;
+use Ronosathwasha::TokenCounter;
+
+plan 19;
+
+my $config = load-config(repository-root.add('config/chatbot.toml'));
+
+my @messages = (
+    %( role => 'system',  content => 'You are a consultant.' ),
+    %( role => 'user',    content => 'Lari thinəme.' ),
+);
+
+#| Answers per route, and records the order it was asked. Two questions get asked and
+#| the order matters: templating has to happen before counting, because the thing being
+#| counted is what templating produced.
+class Routed does Transport {
+    has %.answers is required;
+    has @.asked;
+    has @.payloads;
+
+    method post(Str:D $url, Str:D $body --> Reply) {
+        @!asked.push: $url;
+        @!payloads.push: from-json($body);
+
+        my $key = %!answers.keys.first({ $url.ends-with($_) });
+        return Reply.new(:status(404), :body('no such route')) without $key;
+
+        Reply.new(:status(200), :body(%!answers{$key}));
+    }
+}
+
+sub counter(Routed $t) { LlamaTokenCounter.new(:$config, :transport($t)) }
+
+# ---------------------------------------------------------- the two requests ---
+
+my $t = Routed.new(:answers(%(
+    'apply-template' => to-json(%( prompt => "<|im_start|>system\nYou are a consultant.<|im_end|>\n" )),
+    'tokenize'       => to-json(%( tokens => [1 .. 41] )),
+)));
+
+is counter($t).count-prompt(@messages), 41, 'the count is what the tokenizer returned';
+
+is $t.asked.elems, 2, 'two requests, because it is two questions';
+ok $t.asked[0].ends-with('/apply-template'), 'templating first';
+ok $t.asked[1].ends-with('/tokenize'), 'then counting what templating produced';
+
+is-deeply $t.payloads[0]<messages>.List, @messages.List,
+    'the message list goes to the template unchanged';
+
+is $t.payloads[1]<content>, "<|im_start|>system\nYou are a consultant.<|im_end|>\n",
+    'and the templated string is what gets counted, not the original messages';
+
+ok $t.payloads[1]<add_special>,
+    'with add_special, because a real request carries those tokens and is charged for them';
+
+# --------------------------------------- it satisfies the role, not TokenCounter ---
+
+ok counter($t) ~~ PromptTokenizer, 'it is a prompt tokenizer';
+nok counter($t) ~~ TokenCounter,
+    'and deliberately not a TokenCounter, which cannot template a message list';
+
+# ------------------------------------------- the estimate it exists to replace ---
+#
+# The direction of the error is the point. Framing is added once per message, so the
+# gap grows with the conversation rather than staying constant, which is what overflows
+# a long session and never a short one.
+
+my $per-word = PerWord.new;
+my $flat = @messages.map(*<content>).join("\n");
+
+ok $per-word.count($flat) < 41,
+    'PerWord under-counts the templated form, which is why this class exists';
+
+# ------------------------------------------------------------------ refusals ---
+
+my $no-template = Routed.new(:answers(%(
+    'apply-template' => to-json(%( something-else => 'x' )),
+    'tokenize'       => to-json(%( tokens => [] )),
+)));
+
+my $missing = counter($no-template).count-prompt(@messages);
+nok $missing.defined, 'a template response with no prompt is refused';
+ok $missing.self.exception.message.contains('apply-template'),
+    'named against the route that answered oddly';
+
+my $no-tokens = Routed.new(:answers(%(
+    'apply-template' => to-json(%( prompt => 'x' )),
+    'tokenize'       => to-json(%( count => 7 )),
+)));
+
+my $wrong = counter($no-tokens).count-prompt(@messages);
+nok $wrong.defined, 'a tokenize response with no token list is refused';
+ok $wrong.self.exception.message.contains('tokenize'), 'named against that route instead';
+
+my $down = Routed.new(:answers(%()));
+my $refused = counter($down).count-prompt(@messages);
+nok $refused.defined, 'a route that is not there is refused';
+isa-ok $refused.self.exception, X::Ronosathwasha::Request::Refused, 'as a refused request';
+
+# A `Request` exception raised inside `!ask` must not be relabelled by the JSON `CATCH`
+# below it, or a 404 would be reported as a parse failure.
+nok $refused.self.exception.message.contains('did not parse'),
+    'and not renamed by the decode handler it passes through';
+
+my $garbage = Routed.new(:answers(%( 'apply-template' => 'not json at all' )));
+my $unparsed = counter($garbage).count-prompt(@messages);
+nok $unparsed.defined, 'a reply that is not JSON is refused';
+ok $unparsed.self.exception.message.contains('did not parse'), 'as a parse failure this time';

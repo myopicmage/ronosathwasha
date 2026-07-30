@@ -78,7 +78,13 @@ class HttpTransport does Transport is export {
             content => $body,
             headers => %( 'content-type' => 'application/json' );
 
-        Reply.new(
+        # `return`, not a bare expression. Third time: a final expression in front of a
+        # `CATCH` is sunk, so this handed back `Any` and the caller died on
+        # `No such method 'status'`. Nothing caught it, because every test in the suite
+        # injects a fake transport and this method had therefore never once run.
+        # That is the cost of the seam, and it is why stop 9 ends with a live probe
+        # rather than a green suite.
+        return Reply.new(
             :status(%response<status>.Int),
 
             # `.decode` rather than `~`, because the body arrives as a Blob and
