@@ -121,6 +121,16 @@ class WrongOrder does SentenceOutcome is export {
 #| **Not "the word starts with `to`".** `tono` does, `tono` is a listed word, and it
 #| is not a question. The `[interrogative]` section is what separates the two, the
 #| same way `[demonstrative]` is what finds a pointer below.
+#| The words that already spell an interrogative, as stems.
+#|
+#| Exported because realization needs the same set for the opposite reason: reading
+#| asks whether the marker is there, writing asks whether to put one. A second copy
+#| of this one-liner in `Ronosathwasha::Sentence` would be a second place for the
+#| section name to live, and the two would answer differently the day it changed.
+sub interrogative-words(Lexicon:D $lexicon --> Set) is export {
+    $lexicon.in-section('interrogative').map(*.roman).Set;
+}
+
 sub questions(Set $interrogatives, WordParse:D $word --> Bool) {
     my $act = $word.with-role(MarksSpeechAct);
 
@@ -303,7 +313,7 @@ sub read-sentence(
     # Reading it off the predicate was the bug. `Nari toro?` came back as
     # `Declarative`, so `nari toro.` was the round trip and the question was gone;
     # `Tomwuyu thinəme?` lost it the same way with the marker sitting on the object.
-    my Set $interrogatives = $lexicon.in-section('interrogative').map(*.roman).Set;
+    my Set $interrogatives = interrogative-words($lexicon);
 
     my $asked-at = @divisions.first({ questions($interrogatives, $_) }, :k);
 

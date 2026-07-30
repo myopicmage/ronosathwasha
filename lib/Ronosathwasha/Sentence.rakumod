@@ -19,6 +19,26 @@ than by anything else in the sentence.
 That is why realization is per-word and why nothing here passes a harmony class
 down from the sentence. There is no such thing.
 
+=head2 The question is written once, wherever it belongs
+
+Every other feature of a sentence is a property of its predication and is written
+on the predicate. The interrogative is not: C<to-> attaches to whichever
+constituent is being asked about, so a reading's speech act is a fact about the
+sentence and not an instruction for the predicate word.
+
+Handing it to the predicate regardless produced both failures the question scope
+was introduced to fix, one in each direction. C<Tororu thinəme?> came back as
+C<tororu tethinəme?>, with the marker on the questioned subject and a second one
+on the verb. And before the scope existed at all, the same sentence came back as
+C<tororu thinəme.>, because the reader looked for the marker only on the predicate
+and found nothing.
+
+So C<act-to-write> decides, and it says no in two distinct cases: another
+constituent carries the marker, or the predicate is a word that already spells one.
+The second is why this module now needs the lexicon. C<toro> is "who" and the
+question is inside it, so the check has to be a declaration rather than a look at
+the spelling.
+
 =head2 Order is reproduced, not chosen
 
 Decision 17 leaves everything before the verb free, so a realizer could put the
@@ -37,6 +57,7 @@ use X::Ronosathwasha;
 
 use Ronosathwasha::Types;
 use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Harmony;
 use Ronosathwasha::Semantics;
@@ -80,14 +101,43 @@ sub realize-word(
     $stem ~ @suffixes.map({ .form-for($class) }).join;
 }
 
+#| Which speech act to write on the predicate, which is not always the sentence's.
+#|
+#| A statement and a command are properties of the predication and are always
+#| written there. A question is not: `to-` attaches to whichever constituent is
+#| being asked about, so the predicate carries it only when the predicate is what
+#| is being asked about, and only when it does not already spell one.
+#|
+#| **`Declarative` here means "write no speech-act prefix".** The realizer maps only
+#| the question and the command to morphemes, so the declarative is the unmarked
+#| value and passing it is how a caller says nothing goes on the front. That is a
+#| slightly uncomfortable way to express "somewhere else carries this", and the
+#| alternative is a second parameter that can disagree with the first.
+sub act-to-write(Lexicon:D $lexicon, Reading:D $reading --> SpeechAct) {
+    return $reading.speech-act unless $reading.speech-act == Interrogative;
+
+    # Another constituent carries it, and that word is rebuilt from its own
+    # division with the marker still attached, so writing one here would duplicate
+    # it. `Tororu thinəme?` became `tororu tethinəme?` for exactly this reason.
+    return Declarative unless $reading.question-scope == QuestionsPredicate;
+
+    # Or the predicate is a word that already spells it. `toro` is "who", and
+    # prefixing the marker to it again gives `totoro`, which is a film.
+    return Declarative if interrogative-words($lexicon){ $reading.predicate };
+
+    Interrogative;
+}
+
 #| Build a whole sentence from a reading.
 #|
 #| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
 sub realize-sentence(
     Script:D     $script,
+    Lexicon:D    $lexicon,
     Morphology:D $morphology,
     Reading:D    $reading,
 ) is export {
+    my SpeechAct $act = act-to-write($lexicon, $reading);
     my @words = $reading.constituents.map({
         realize-constituent($script, $morphology, $_)
     });
@@ -96,13 +146,16 @@ sub realize-sentence(
         @words.push: realize-nominal-predicate(
             $script, $morphology, $reading.predicate,
             :copularized($reading.explicit-copula),
+            :speech-act($act),
             :tense($reading.tense),
             :aspect($reading.aspect),
+            :polarity($reading.polarity),
+            :modality($reading.modality),
         );
     } else {
         @words.push: realize-verb(
             $script, $morphology, $reading.predicate,
-            :speech-act($reading.speech-act),
+            :speech-act($act),
             :tense($reading.tense),
             :aspect($reading.aspect),
             :polarity($reading.polarity),

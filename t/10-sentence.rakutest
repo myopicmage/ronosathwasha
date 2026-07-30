@@ -19,10 +19,10 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
-plan $corpus.utterances.elems + 13;
+plan $corpus.utterances.elems + 19;
 
 sub read(Str $s)  { read-sentence($script, $lexicon, $morphology, $s) }
-sub write(Reading $r) { realize-sentence($script, $morphology, $r) }
+sub write(Reading $r) { realize-sentence($script, $lexicon, $morphology, $r) }
 
 #| Only capitalisation is stripped, and the asymmetry is the point. Punctuation
 #| is part of the written language: the script borrows English marks, they
@@ -101,3 +101,47 @@ my $broken = realize-constituent($script, $morphology, $crossed);
 
 nok $broken.defined, 'and then has no class for its particle to agree with';
 isa-ok $broken.self.exception, X::Ronosathwasha::Form::NoClass, 'which it says rather than guessing';
+
+# ------------------------------------------------ a question survives both ways ---
+#
+# The corpus loop above covers only `Nari tethinəme?`, which is the one case that
+# always worked: the marker is a prefix on the predicate, so reading it off the
+# predicate and writing it back there agreed. Every other arrangement failed, and
+# each of these failed differently.
+
+sub round-trip(Str $s) {
+    my $outcome = read($s);
+
+    $outcome ~~ Understood ?? write($outcome.reading) !! Str;
+}
+
+# Was `nari toro.` before the scope existed, because nothing marked the clause and
+# the reader saw no prefix. Then it stayed correct through stop 3 only because a
+# nominal predicate was given no speech act at all, which this stop changes.
+is round-trip('Nari toro?'), 'nari toro?',
+    'a lexicalised interrogative keeps its question and gains no second marker';
+
+is round-trip('Nari toroswo?'), 'nari toroswo?',
+    'and the same with the copularizer written';
+
+# Was `tororu tethinəme?` at the end of stop 3, with the marker on the subject and
+# a second one manufactured on the verb.
+is round-trip('Tororu thinəme?'), 'tororu thinəme?',
+    'a questioned subject leaves the verb unmarked';
+is round-trip('Tomwuyu thinəme?'), 'tomwuyu thinəme?',
+    'and so does a questioned object';
+
+is round-trip('Nari tethinəme?'), 'nari tethinəme?',
+    'a questioned predicate still writes the marker it needs';
+
+# The nominal predicate reached by the productive route rather than the lexicalised
+# one. Nothing spells the marker here, so it has to be written.
+my $productive = Reading.new(
+    :text('Nari temirireswe?'), :speech-act(Interrogative),
+    :question-scope(QuestionsPredicate), :predicate('mirire'),
+    :aspect(Simple), :polarity(Affirmative), :modality(Asserted),
+    :nominal-predicate(True), :explicit-copula(True),
+);
+
+is realize-sentence($script, $lexicon, $morphology, $productive), 'temirireswe?',
+    'a questioned identity built from a bare stem does write one';
