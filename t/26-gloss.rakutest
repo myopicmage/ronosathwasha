@@ -1,0 +1,154 @@
+use Test;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Words;
+use Ronosathwasha::Gloss;
+
+plan 27;
+
+my IO::Path $data = repository-root.add('data');
+
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+# ------------------------------------------------------- the declared labels ---
+
+is $morphology.morphemes.grep({ not .gloss.chars }).elems, 0,
+    'every morpheme declares a gloss label';
+
+# Two current morphemes sharing a label would make a gloss line ambiguous about
+# which morpheme was written. Superseded ones deliberately share with their
+# replacements, so only the current set is checked.
+is $morphology.current.map(*.gloss).repeated.elems, 0,
+    'and no two current morphemes share one';
+
+is $morphology.by-id('past').gloss, 'PST', 'the past is Leipzig PST';
+is $morphology.by-id('past-je').gloss, 'PST',
+    'and the morpheme it superseded keeps the label of the job it did';
+
+# ----------------------------------------------------- the label is required ---
+#
+# The loader's job rather than a test's, and this asserts that the loader does
+# it. A morpheme added without a gloss must not reach the program at all: the
+# alternative is a hole appearing in a gloss line much later, at which point
+# nothing points back at the declaration that caused it.
+
+my $ungloss = $*TMPDIR.add("rono-gloss-{ $*PID }.toml");
+
+$ungloss.spurt(q:to/TOML/);
+    [[morpheme]]
+    id = "invented"
+    role = "tense"
+    attaches_to = ["verb"]
+    position = "suffix"
+    alternation = "harmonic"
+    front_stem = "ke"
+    back_stem = "ko"
+    status = "current"
+    TOML
+
+my $refused = load-morphology($ungloss);
+
+nok $refused.defined, 'a morpheme with no gloss does not load';
+isa-ok $refused.self.exception, X::Ronosathwasha::Declaration::BadValue,
+    'and says which declaration was bad';
+
+$ungloss.unlink;
+
+# ------------------------------------------------- prose becomes one label ---
+
+is short-gloss('to teach'), 'teach', 'an infinitive gloss loses its "to"';
+is short-gloss('who (question-person)'), 'who', 'a parenthetical comes off';
+is short-gloss('language, tongue'), 'language', 'the first sense is taken';
+is short-gloss('that over there'), 'that.over.there',
+    'and a multi-word gloss joins with periods, which is Leipzig rule 4';
+
+# The order the reduction runs in, asserted rather than described. A comma
+# inside the parenthetical must not be read as a sense boundary.
+is short-gloss('and, and then, furthermore (clause-level discourse continuation)'),
+    'and', 'the parenthetical is removed before the sense is chosen';
+
+# --------------------------------------------------------------- stem labels ---
+
+my $stems = stem-glosses($lexicon, $morphology);
+
+is $stems<mirire>, 'teacher', 'a listed noun glosses from its own entry';
+is $stems<miri>, 'teach',
+    'and a verb stem recovered from its infinitive takes the infinitive gloss';
+
+nok $stems<swe>.defined, 'the bound morphology is not offered as a stem';
+nok $stems<laari>.defined, 'and neither is a name nobody declared';
+
+# ------------------------------------------------------------------- a word ---
+
+my $teach = gloss-word(
+    $script, $morphology,
+    parse-word($lexicon, $morphology, 'demirime'),
+    $stems,
+);
+
+is $teach.form, 'de-miri-me', 'a word is rewritten with its boundaries shown';
+is $teach.line, 'IMP-teach-PRS', 'against one label per morpheme';
+ok $teach.complete, 'and nothing in it went unglossed';
+
+# Leipzig's structural rule, and the one worth a test rather than an eye: the
+# two lines must have the same number of pieces or they cannot be read against
+# each other at all.
+is $teach.form.comb('-').elems, $teach.line.comb('-').elems,
+    'the object line and the gloss line have the same number of hyphens';
+
+# ------------------------------------------------------------- the sentence ---
+
+my $who = gloss-sentence($script, $lexicon, $morphology, 'Nari toro?');
+
+is $who.form, 'na-ri to-ro', 'a sentence glosses word by word';
+is $who.line, 'you-SBJ Q-person', 'with the question marker on the nominal';
+is $who.aligned, "na-ri    to-ro\nyou-SBJ  Q-person",
+    'and the columns line up, which is what interlinear means';
+
+# The trailing `?` is punctuation and not a morpheme, so it must not reach the
+# parser. `read-sentence` strips the same set for the same reason.
+ok $who.words.tail.complete, 'punctuation does not become an unglossed piece';
+
+# ------------------------------------------------------------ an open stem ---
+
+my $named = gloss-sentence($script, $lexicon, $morphology, 'Laari mirime.');
+
+is $named.words.head.line, UNGLOSSED,
+    'a name the lexicon does not list glosses as a question mark';
+nok $named.complete, 'and the sentence reports itself incomplete';
+is $named.words.tail.line, 'teach-PRS',
+    'while the rest of the sentence is glossed normally';
+
+# --------------------------------------------------- nothing here is invented ---
+#
+# The check that matters, and the analogue of `t/25`'s. Every label a gloss line
+# can produce must come from a declaration: a morpheme's `gloss` field, a
+# lexicon entry reduced by `short-gloss`, or the marker for no answer at all.
+# A table of labels written into `Gloss.rakumod` would pass every test above and
+# fail this one.
+
+my $declared = (
+    $morphology.morphemes.map(*.gloss),
+    $stems.values,
+    UNGLOSSED,
+).flat.Set;
+
+my @sentences = <
+    Nari|toro? Sheri|tomwu? Layi|demirime. Nari|tethinəme?
+    Lari|mirireswe. Shoru|tomwuswo? Laari|mirime.
+>.map(*.subst('|', ' ', :g));
+
+my @invented = @sentences.map(-> $s {
+    gloss-sentence($script, $lexicon, $morphology, $s).line.split(/<[\-\s]>/).Slip
+}).grep({ .chars and not $declared{$_} });
+
+is-deeply @invented.List, (),
+    'every label in every gloss traces back to a declaration';

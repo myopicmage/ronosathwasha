@@ -483,3 +483,25 @@ one piece of meaning, without fusing them. `lumedororothwamo` is five morphemes
 in a row and every boundary is findable. The opposite is fusional, where one
 ending carries several meanings at once, as Latin's `-ō` carries first person,
 singular, present, active and indicative together.
+
+**Interlinear gloss**: the morpheme-by-morpheme line written under an example
+sentence, naming what each piece is doing. The layout convention is the Leipzig
+Glossing Rules, from the Max Planck Institute: grammatical morphemes get a
+capitalised abbreviation, lexical ones get a lower-case English word, and the
+two lines carry the same number of hyphens so they can be read against each
+other.
+
+```text
+na-ri     to-ro
+you-SBJ   Q-person
+```
+
+An agglutinative language is the case where this earns its keep, because every
+boundary is real and there is something to put under each piece.
+`Ronosathwasha::Gloss` produces these, and every label in one comes from a
+declaration rather than from the module: a morpheme's from its `gloss` field in
+`data/morphology.toml`, a stem's from `data/lexicon.toml`.
+
+**Object line**: in an interlinear gloss, the line carrying the language itself,
+as against the gloss line under it. The name is standard and slightly
+unfortunate, since it has nothing to do with a grammatical object.

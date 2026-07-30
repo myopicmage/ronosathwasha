@@ -55,6 +55,16 @@ class Morpheme is export {
     has Str               $.id          is required;
     has MorphemeRole      $.role        is required;
     has Position          $.position    is required;
+
+    #| The label this morpheme takes in an interlinear gloss, per the Leipzig
+    #| Glossing Rules. Required, so a morpheme cannot be added without one and
+    #| turn up later as a hole in a gloss line.
+    #|
+    #| Not derivable from `role`: `MarksTense` would gloss the past, present and
+    #| future identically, and a gloss whose whole job is naming which morpheme
+    #| this is would name none of them.
+    has Str               $.gloss       is required;
+
     has Alternation       $.alternation is required;
     has LanguageStatus    $.status      is required;
     has OrthographyStatus $.orthography is required;
@@ -228,6 +238,14 @@ sub load-morphology(IO::Path:D $path) is export {
             :$path, :field<id>, :subject('a morpheme'), :found(%m<id>),
         ) unless $id.chars;
 
+        # Checked here rather than left to the constrained attribute, which would
+        # accept the empty string and produce a gloss line with a gap in it.
+        my Str $gloss = ~(%m<gloss> // '');
+
+        fail X::Ronosathwasha::Declaration::BadValue.new(
+            :$path, :field<gloss>, :subject($id), :found(%m<gloss>),
+        ) unless $gloss.chars;
+
         my $alternation = decode(%ALTERNATION, %m<alternation>, 'alternation', $id, $path);
 
         # An alternating morpheme needs both alternants and an invariant one
@@ -247,6 +265,7 @@ sub load-morphology(IO::Path:D $path) is export {
 
         Morpheme.new(
             :$id,
+            :$gloss,
             :role(decode(%ROLE, %m<role>, 'role', $id, $path)),
             :hosts(decode-hosts(%m, $id, $path)),
             :position(decode(%POSITION, %m<position>, 'position', $id, $path)),

@@ -20,11 +20,23 @@
 # Neutral stems select the front alternant, so `front_stem` covers front and
 # neutral both. `alternation` names which rule produced the arrangement, so
 # nothing has to be inferred from comparing the two forms.
+#
+# `gloss` is the label this morpheme takes in an interlinear gloss, following
+# the Leipzig Glossing Rules. It lives here rather than in the renderer because
+# a table of labels in code is a second place to drift and can name a morpheme
+# this file does not declare. Required, so a new morpheme cannot arrive without
+# one and be silently unglossable.
+#
+# Leipzig's standard list covers most of these. `CONT` and the four `LOC.*` are
+# language-specific labels, which rule 5 expressly permits; `CONT` rather than
+# `PROG` because the language calls the aspect continuous. A superseded morpheme
+# keeps the label of the job it did, so it shares one with its replacement.
 
 # ---------------------------------------------------------------- current ---
 
 [[morpheme]]
 id = "infinitive"
+gloss = "INF"
 role = "nonfinite"
 attaches_to = ["verb"]
 position = "suffix"
@@ -39,6 +51,7 @@ status = "current"
 # that the name is Laari now, not merely that it is Laari. Decision 22.
 [[morpheme]]
 id = "copularizer"
+gloss = "COP"
 role = "predication"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -49,6 +62,7 @@ status = "current"
 
 [[morpheme]]
 id = "plural"
+gloss = "PL"
 role = "number"
 attaches_to = ["noun"]
 position = "suffix"
@@ -59,6 +73,7 @@ status = "current"
 
 [[morpheme]]
 id = "possessive"
+gloss = "POSS"
 role = "possession"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -68,6 +83,7 @@ status = "current"
 
 [[morpheme]]
 id = "present"
+gloss = "PRS"
 role = "tense"
 attaches_to = ["verb"]
 position = "suffix"
@@ -78,6 +94,7 @@ status = "current"
 
 [[morpheme]]
 id = "past"
+gloss = "PST"
 role = "tense"
 attaches_to = ["verb"]
 position = "suffix"
@@ -88,6 +105,7 @@ status = "current"
 
 [[morpheme]]
 id = "future"
+gloss = "FUT"
 role = "tense"
 attaches_to = ["verb"]
 position = "suffix"
@@ -98,6 +116,7 @@ status = "current"
 
 [[morpheme]]
 id = "continuous"
+gloss = "CONT"
 role = "aspect"
 attaches_to = ["verb"]
 position = "suffix"
@@ -112,6 +131,7 @@ status = "current"
 # glance without being stressed. Decision 3.
 [[morpheme]]
 id = "negation"
+gloss = "NEG"
 role = "polarity"
 attaches_to = ["verb"]
 position = "prefix"
@@ -141,6 +161,7 @@ status = "current"
 # its question words the same way; Japanese keeps か in both and does not.
 [[morpheme]]
 id = "question"
+gloss = "Q"
 role = "speech-act"
 attaches_to = ["verb", "nominal"]
 position = "prefix"
@@ -151,6 +172,7 @@ status = "current"
 
 [[morpheme]]
 id = "command"
+gloss = "IMP"
 role = "speech-act"
 attaches_to = ["verb"]
 position = "prefix"
@@ -161,6 +183,7 @@ status = "current"
 
 [[morpheme]]
 id = "potential"
+gloss = "POT"
 role = "modality"
 attaches_to = ["verb"]
 position = "prefix"
@@ -171,6 +194,7 @@ status = "current"
 
 [[morpheme]]
 id = "subject"
+gloss = "SBJ"
 role = "case"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -181,6 +205,7 @@ status = "current"
 
 [[morpheme]]
 id = "object"
+gloss = "OBJ"
 role = "case"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -191,6 +216,7 @@ status = "current"
 
 [[morpheme]]
 id = "locative-at"
+gloss = "LOC.AT"
 role = "locative"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -201,6 +227,7 @@ status = "current"
 
 [[morpheme]]
 id = "locative-in"
+gloss = "LOC.IN"
 role = "locative"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -211,6 +238,7 @@ status = "current"
 
 [[morpheme]]
 id = "locative-near"
+gloss = "LOC.NEAR"
 role = "locative"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -221,6 +249,7 @@ status = "current"
 
 [[morpheme]]
 id = "locative-towards"
+gloss = "LOC.TO"
 role = "locative"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -248,6 +277,7 @@ status = "current"
 
 [[morpheme]]
 id = "negation-ma"
+gloss = "NEG"
 role = "polarity"
 attaches_to = ["verb"]
 position = "prefix"
@@ -260,6 +290,7 @@ writable = true
 
 [[morpheme]]
 id = "command-yo"
+gloss = "IMP"
 role = "speech-act"
 attaches_to = ["verb"]
 position = "prefix"
@@ -275,6 +306,7 @@ writable = true
 # answered without knowing the position it appeared in.
 [[morpheme]]
 id = "question-tho"
+gloss = "Q"
 role = "speech-act"
 attaches_to = ["verb"]
 position = "prefix"
@@ -287,6 +319,7 @@ writable = true
 
 [[morpheme]]
 id = "subject-ju"
+gloss = "SBJ"
 role = "case"
 attaches_to = ["nominal"]
 position = "suffix"
@@ -299,6 +332,7 @@ writable = false
 
 [[morpheme]]
 id = "past-je"
+gloss = "PST"
 role = "tense"
 attaches_to = ["verb"]
 position = "suffix"
@@ -311,6 +345,7 @@ writable = false
 
 [[morpheme]]
 id = "continuous-ji"
+gloss = "CONT"
 role = "aspect"
 attaches_to = ["verb"]
 position = "suffix"
