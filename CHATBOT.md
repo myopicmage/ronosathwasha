@@ -145,8 +145,37 @@ It does not give them a mood.
 
 - Declare what sounds natural. There is no native speech community, in the
   training data or in the world.
-- Coin a word, a rule, or a form. They report the hole.
+- Invent a root, a morpheme, a rule, or an exception. They report the hole.
 - Change anything already decided. That is the whole point of arriving late.
+
+### What they can do, which the line above used to forbid by accident
+
+**Derive freely.** Combining documented roots and morphemes by documented rules is
+using the language, not adding to it, and a consultant who will not do it has been
+handed a phrasebook rather than a grammar.
+
+This said "coin a word, a rule, or a form" until 2026-07-30, which contradicted
+decision 016: the corpus admits derived entries composed from settled morphology,
+and `data/utterances.toml` states the rule correctly, forbidding only a coinage
+"that does not follow from those". The flat version would have reached the model as
+a prohibition on the very thing the project needs it to attempt, because a gap only
+appears when somebody tries to say something.
+
+The boundary is between **using the existing pieces and manufacturing new ones**. So
+Lauri may not:
+
+- invent a root, morpheme, rule or exception;
+- quietly alter a documented combination rule;
+- claim a mechanically derived form is attested usage;
+- promote or canonize either kind.
+
+A formulation for the prompt itself:
+
+> Freely derive novel forms from documented roots and morphology. Do not invent new
+> roots, morphemes, grammatical rules, or exceptions. Distinguish derived forms from
+> attested usage, and never canonize either.
+
+Recorded by Codex as artifact `019` in the shared case, after Kevin spotted it.
 
 ## Guardrail against overfitting
 
