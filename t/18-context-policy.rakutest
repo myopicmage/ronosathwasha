@@ -1,0 +1,152 @@
+use Test;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Model;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::ContextPolicy;
+use Ronosathwasha::TokenCounter;
+
+plan 26;
+
+my $counter = PerWord.new;
+
+my $schema = PromptInvariant.new(:label('response schema'), :text('kind express or gap'));
+my $capabilities = PromptInvariant.new(:label('language capabilities'), :text('three tenses'));
+
+#| `**@said`, not `*@said`. A single star is the flattening slurpy, so
+#| `context((Human, 'x'), (Bot, 'y'))` arrives as four items rather than two pairs
+#| and `said` gets one positional where it wants two.
+sub context(**@said) {
+    my $state = ConversationState.new;
+    $state = $state.said(|$_) for @said;
+
+    PromptContext.new(:$schema, :$capabilities, :$state);
+}
+
+#| A budget whose available is exactly `$n`, so a boundary is stated rather than
+#| computed backwards from a total.
+sub budget-of(Int $n) { Budget.new(:total($n + 1), :reserved(1)) }
+
+#| A turn long enough that folding it is a saving.
+#|
+#| Length is the whole variable. A folded turn costs whatever `summarise` produces,
+#| five words for one nobody understood, so folding pays only when the turn was
+#| longer than that. The short-turn case at the bottom of this file is the same
+#| policy going the other way, deliberately.
+sub long(Str $tag) { ($tag, |('rorothwamo' xx 10)).join(' ') }
+
+# --------------------------------------------------------- it already fits ---
+#
+# Calibrated against a real count rather than hand-arithmetic, so `render`
+# changing shape cannot silently turn a boundary test into an approximate one.
+
+my $talk = context(
+    (Human, long('alpha')),
+    (Bot,   long('beta')),
+    (Human, long('gamma')),
+);
+
+my $full = context-cost($talk, $counter);
+
+my $kept = fit-context($talk, budget-of($full), $counter);
+ok $kept.defined, 'a context that fits its budget exactly is returned';
+is $kept.depth, 3, 'with every turn still verbatim';
+is context-cost($kept, $counter), $full, 'and nothing rewritten';
+
+is fit-context($talk, budget-of($full + 50), $counter).depth, 3,
+    'a roomy budget folds nothing at all';
+
+# ---------------------------------------------------- one token of overflow ---
+
+my $squeezed = fit-context($talk, budget-of($full - 1), $counter);
+ok $squeezed.defined, 'one token over the budget still produces a context';
+ok $squeezed.depth < 3, 'by giving up a verbatim turn';
+ok context-cost($squeezed, $counter) <= $full - 1, 'and the result genuinely fits';
+ok $squeezed.state.folded.elems > 0, 'what it gave up became a summary';
+
+# The newest turn is the last thing sacrificed, which is the priority order
+# `PromptContext` declares.
+ok $squeezed.render.contains('gamma'),
+    'the newest turn survives, because the oldest is folded first';
+nok $squeezed.render.contains('alpha'),
+    'and the oldest is the one that went';
+
+# ---------------------------------------------------- nothing is truncated ---
+#
+# The invariant that matters most, and worth checking by sweep rather than at one
+# chosen point: a turn is present whole or it is gone. No surviving turn is ever a
+# fragment of the turn it came from, at any budget.
+
+my @original = $talk.state.turns.map(*.text);
+
+my @survivors = (1 .. $full + 5)
+    .map({ fit-context($talk, budget-of($_), $counter) })
+    .grep(*.defined)
+    .map({ .state.turns.map(*.text).Slip });
+
+ok @survivors.elems > 0, 'the sweep produced fits to check';
+is @survivors.grep({ $_ ∉ @original }).elems, 0,
+    'across every budget, a surviving turn is whole or absent, never cut';
+
+# ------------------------------------------------------- an oversized turn ---
+#
+# One turn whose own text cannot fit. It must be folded away rather than cut, and
+# what replaces it must contain none of it.
+
+my $big = context((Human, ('rorothwamo' xx 40).join(' ')));
+my $tiny = budget-of($counter.count($big.invariant-text) + 8);
+
+my $shrunk = fit-context($big, $tiny, $counter);
+ok $shrunk.defined, 'an oversized turn does not defeat the policy';
+is $shrunk.depth, 0, 'it is folded away entirely';
+nok $shrunk.render.contains('rorothwamo'), 'and not one word of it is kept';
+ok $shrunk.render.contains('remembered'), 'while what is left says a turn was there';
+
+# ---------------------------------------- the invariants do not fit at all ---
+
+# `.self.exception` rather than `$!`, which `try` and `CATCH` set and an inert
+# `Failure` does not. `fit-context` returns one instead of throwing, so the
+# exception has to be asked for.
+
+my $impossible = fit-context($talk, budget-of(2), $counter);
+nok $impossible.defined, 'a window too small for the invariants is refused';
+
+my $why = $impossible.self.exception;
+isa-ok $why, X::Ronosathwasha::Window::Invariants, 'as a configuration failure';
+ok $why.message.contains('response schema'), 'naming what it could not afford';
+ok $why.message.contains('language capabilities'), 'both of them';
+nok $why.message.contains('every turn is folded'),
+    'and not blaming the conversation, which was never the problem';
+
+# ------------------------------- folded flat and still over the budget ---
+
+my $flat = folded-flat($talk);
+my $hopeless = fit-context($talk, budget-of(context-cost($flat, $counter) - 1), $counter);
+
+nok $hopeless.defined, 'a conversation whose summary outgrew the window is refused';
+
+my $outgrown = $hopeless.self.exception;
+isa-ok $outgrown, X::Ronosathwasha::Window::Conversation, 'as a runtime condition';
+ok $outgrown.message.contains('every turn is folded'),
+    'saying that the lever was pulled all the way';
+
+# ------------------------------------------------ folding can cost more ---
+#
+# Why the scan is linear rather than a binary search on how many turns to keep.
+#
+# `summarise` renders a turn nobody understood as `human said something not
+# understood`, five words, against a short turn's own gist of three. So folding
+# two short turns makes the prompt bigger, cost is not monotonic in how much is
+# folded, and a search assuming it is would report "does not fit" about a context
+# that does.
+
+my $short = context((Human, 'yo'), (Bot, 'ha'));
+my $before = context-cost($short, $counter);
+my $after  = context-cost(folded-flat($short), $counter);
+
+ok $after > $before, 'folding two short unread turns costs more than keeping them';
+is fit-context($short, budget-of($before), $counter).depth, 2,
+    'so the scan takes the first fit and keeps them, rather than folding first';

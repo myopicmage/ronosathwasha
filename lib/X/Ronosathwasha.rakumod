@@ -79,6 +79,45 @@ class Budget::Impossible is Exception {
     }
 }
 
+#| The window is too small for what has to go in it.
+#|
+#| Two subclasses because they want different fixes and a caller cannot tell them
+#| apart from an arithmetic. The first is configuration: no conversation, however
+#| short, will make room. The second is a conversation whose accumulated summary
+#| has outgrown the window, which is a runtime condition and a real one, since
+#| folding adds a line every time it removes a turn.
+#|
+#| Named for the window rather than for `PromptContext` or `ContextPolicy`,
+#| following the note above: an intermediate package leaks into an importing
+#| scope, and this file has already lost `Model` and `Morphology` that way.
+class Window is Exception { }
+
+class Window::Invariants is Window {
+    has Int $.available is required;
+    has Int $.cost      is required;
+    has     @.labels;
+
+    method message(--> Str) {
+        "the prompt must always carry { @!labels.join(' and ') }, which costs "
+        ~ "$!cost against $!available available. Nothing can be folded to make "
+        ~ "room, because none of it may be shortened."
+    }
+}
+
+class Window::Conversation is Window {
+    has Int $.available is required;
+    has Int $.cost      is required;
+    has Int $.folded    is required;
+
+    method message(--> Str) {
+        my $lines = $!folded == 1 ?? 'summary line' !! 'summary lines';
+
+        "every turn is folded and the prompt still costs $!cost against "
+        ~ "$!available available, carrying $!folded $lines. Folding cannot help "
+        ~ "further: it removes a turn by adding a line."
+    }
+}
+
 # ------------------------------------------------------------- declarations ---
 
 #| Base for anything wrong with a declaration file. Catching this catches every

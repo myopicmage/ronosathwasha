@@ -30,7 +30,8 @@
     "Ronosathwasha::Dialogue": "lib/Ronosathwasha/Dialogue.rakumod",
     "Ronosathwasha::TokenCounter": "lib/Ronosathwasha/TokenCounter.rakumod",
     "Ronosathwasha::LanguageEvidence": "lib/Ronosathwasha/LanguageEvidence.rakumod",
-    "Ronosathwasha::PromptContext": "lib/Ronosathwasha/PromptContext.rakumod"
+    "Ronosathwasha::PromptContext": "lib/Ronosathwasha/PromptContext.rakumod",
+    "Ronosathwasha::ContextPolicy": "lib/Ronosathwasha/ContextPolicy.rakumod"
   },
   "depends": [
     "Config::TOML"
