@@ -192,14 +192,29 @@ the arithmetic; the short version is that `path:.` copies the working tree into 
 nix store on every evaluation without consulting git, so a GGUF in the tree is
 copied on every `make`.
 
-**Which Qwen is not recorded anywhere yet.** This section names the family because
-that is what determines the chat template, and the family is all that stop 9 needs:
-its contract tests run against a stub server and never load weights.
+**The model is Qwen3-14B at Q5_K_M, running its native 32K context.** Kevin's
+choice, 2026-07-30.
 
-The specific model, its parameter count and its quantisation are stop 10's
-decision, which plan `014` frames as selecting or rejecting candidates rather than
-adopting one. That gate is still behind the language coverage gate, so the choice
-has not been made and should not be inferred from a downloaded file.
+Three consequences worth having written down rather than rediscovered:
+
+**The budget's total is 32768 tokens**, and `Budget` takes a reservation out of it
+for the answer rather than letting a prompt fill the window. That is the number
+`config/chatbot.toml` declares and the only place it should appear.
+
+**Q5_K_M is roughly 10 GB on disk**, which is the whole of this project's real disk
+cost and belongs in `~/models/` for the reasons above. Worth checking against the
+actual file rather than trusting this figure.
+
+**The chat template is Qwen3's**, which matters for stop 9's contract tests. They
+assert the exact request and response shape this application uses, and the template
+is what turns a message list into that request. Stop 9 still needs no weights: it
+runs against a stub server, and the template lives in the GGUF for `llama-server
+--jinja` to apply.
+
+Selecting the model does not discharge stop 10. Plan `014` frames that stop as
+verifying that candidate weights correctly encode known meanings *before* their
+failures are treated as language evidence, and that gate still sits behind the
+language coverage gate.
 
 ## Context boundaries
 
