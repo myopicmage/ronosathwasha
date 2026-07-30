@@ -19,7 +19,7 @@ plan 24;
 my IO::Path $root = repository-root;
 my IO::Path $data = $root.add('data');
 
-isa-ok FormsPredicate, MorphemeRole,
+isa-ok MarksPredication, MorphemeRole,
     'forming a predicate is a representable grammatical job';
 
 #| Recover the typed exception from an inert failure without throwing it.

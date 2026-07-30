@@ -7,7 +7,7 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Lexicon;
 
-plan 25;
+plan 26;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -16,6 +16,19 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 
 isa-ok $morphology, Morphology, 'the morphology declaration parses';
 isa-ok $lexicon, Lexicon, 'the lexicon parses';
+
+# --------------------------------------------- every role is reachable ---
+#
+# `MorphemeRole` and the loader's string table are two places that have to agree,
+# and adding a value to the enum without adding its string compiles perfectly. The
+# symptom arrives later and points at the wrong thing: `%ROLE{'predication'}` came
+# back undefined, `pick` turned that into a `Failure`, and it died in the
+# constrained `$.role` slot complaining about a type check.
+#
+# This is the assertion that would have failed at the moment the enum grew.
+
+is-deeply declared-roles.values.Set, MorphemeRole::.values.Set,
+    'every MorphemeRole is reachable from some declaration string';
 
 # ------------------------------------------------- the two files must agree ---
 #

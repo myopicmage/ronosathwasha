@@ -70,10 +70,16 @@ our enum Alternation is export <Alternating AntiHarmonic Invariant Unpaired>;
 #| symbols in the importing scope, a value named `Tense` here would collide
 #| with the type named `Tense` there for any module using both, and that is
 #| every module downstream of this one.
+#| `MarksPredication` rather than `FormsPredicate`, and the distinction it gives up
+#| is real: every other value marks a feature of a predicate, while a copularizer
+#| brings one into being out of a nominal. Uniform prefixes win anyway. The prefix
+#| is not decoration, it is what keeps these names out of the way of `Semantics`,
+#| and a set where ten values announce that and one does not is a set where the
+#| eleventh reads as an oversight.
 our enum MorphemeRole is export <
     MarksTense MarksAspect MarksPolarity MarksSpeechAct MarksModality
     MarksCase MarksNumber MarksPossession MarksNonfinite MarksLocative
-    FormsPredicate
+    MarksPredication
 >;
 
 #| What a morpheme attaches to.

@@ -99,12 +99,25 @@ class Morphology is export {
 # says `Alternating` and `Invariant` because inside the program the useful
 # distinction is how many forms there are and what picks between them.
 my constant %ROLE = (
-    'tense'      => MarksTense,      'aspect'     => MarksAspect,
-    'polarity'   => MarksPolarity,   'speech-act' => MarksSpeechAct,
-    'modality'   => MarksModality,   'case'       => MarksCase,
-    'number'     => MarksNumber,     'possession' => MarksPossession,
-    'nonfinite'  => MarksNonfinite,  'locative'   => MarksLocative,
+    'tense'       => MarksTense,       'aspect'     => MarksAspect,
+    'polarity'    => MarksPolarity,    'speech-act' => MarksSpeechAct,
+    'modality'    => MarksModality,    'case'       => MarksCase,
+    'number'      => MarksNumber,      'possession' => MarksPossession,
+    'nonfinite'   => MarksNonfinite,   'locative'   => MarksLocative,
+    'predication' => MarksPredication,
 );
+
+#| Which role strings a declaration may use, and what each one means.
+#|
+#| Exposed because it is a real question about the declaration format rather than a
+#| test hook. It is also the only way to check the invariant below, since the table
+#| is lexical and an enum growing without its mapping compiles perfectly.
+#|
+#| That is how `MarksPredication` arrived broken: the value landed in
+#| `Ronosathwasha::Types` and the table was not told, so `%ROLE{'predication'}` was
+#| undefined, `pick` produced a `Failure`, and it died in the constrained `$.role`
+#| slot with a message about a type check and nothing about the missing string.
+sub declared-roles(--> Map) is export { %ROLE }
 
 my constant %HOST = (
     'verb' => VerbStem, 'noun' => NounStem, 'nominal' => NominalStem,
