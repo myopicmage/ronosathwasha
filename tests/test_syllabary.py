@@ -22,7 +22,12 @@ from tools.build_syllabary import (
 )
 
 GLYPH = re.compile(r'<span class="glyph"[^>]*>(?P<text>[^<]*)</span>')
-GRID = re.compile(r'<div class="grid">(?P<body>.*?)</div>', re.S)
+SHORT_GRID = re.compile(
+    r'<div class="grid" data-length="short">(?P<body>.*?)</div>', re.S
+)
+LONG_GRID = re.compile(
+    r'<div class="grid" data-length="long"[^>]*>(?P<body>.*?)</div>', re.S
+)
 BASES = re.compile(r'<div class="bases">(?P<body>.*?)</div>', re.S)
 SOURCE = re.compile(r"local\(\s*[^)]*\)|url\(\s*[\"']?(?P<target>[^\"')]*)")
 
@@ -63,11 +68,58 @@ def test_the_grid_holds_every_syllable_in_declaration_order(
     emitted from the same two lists, so a grid that disagreed with
     `Script.syllables()` would be mislabelled everywhere at once and look fine.
     """
-    grid = GRID.search(rendered)
-    assert grid is not None, "the page has no grid"
+    grid = SHORT_GRID.search(rendered)
+    assert grid is not None, "the page has no short-vowel grid"
 
     expected = [script.encode([syllable]) for syllable in script.syllables()]
     assert codepoints(grid.group("body")) == expected
+
+
+def test_a_long_plain_vowel_is_its_own_mark_again(script: Script, rendered: str) -> None:
+    """A long vowel is one more copy of the mark, not a different letter.
+
+    `mkmk` is what steps the second copy inward, so the page has to emit a
+    genuine repeat. Emitting one mark and trusting a feature to double it would
+    render as a short vowel and look entirely correct.
+    """
+    grid = LONG_GRID.search(rendered)
+    assert grid is not None, "the page has no long-vowel grid"
+
+    found = dict(zip(script.syllables(), codepoints(grid.group("body")), strict=True))
+    for syllable, cps in found.items():
+        if syllable.vowel.glide:
+            continue
+
+        v = script.codepoint(syllable.vowel)
+        assert cps == (script.codepoint(syllable.consonant), v, v), syllable.roman
+
+
+def test_a_long_glide_drops_the_tick_on_its_second_mark(
+    script: Script, rendered: str
+) -> None:
+    """`waa`, not `wawa`. Labialisation happens once, at the onset.
+
+    This is the case a test written against the implementation misses, because
+    repeating the glide code point renders as a perfectly plausible pair of
+    nested chevrons that happens to say the wrong thing. `test_shaping.py` is
+    where the rule lives; this checks the page obeys it.
+    """
+    grid = LONG_GRID.search(rendered)
+    assert grid is not None, "the page has no long-vowel grid"
+
+    plain = {v.offset: v for v in script.vowels if not v.glide}
+    found = dict(zip(script.syllables(), codepoints(grid.group("body")), strict=True))
+
+    glides = [s for s in found if s.vowel.glide]
+    assert glides, "no glide vowels in the grid at all"
+
+    for syllable in glides:
+        expected = (
+            script.codepoint(syllable.consonant),
+            script.codepoint(syllable.vowel),
+            script.codepoint(plain[syllable.vowel.offset]),
+        )
+        assert found[syllable] == expected, syllable.roman
 
 
 def test_the_bare_rows_cover_the_whole_inventory(

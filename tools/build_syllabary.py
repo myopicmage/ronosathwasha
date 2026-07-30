@@ -13,14 +13,18 @@ inventory in a file nobody thinks to update. This one cannot go stale: it is
 recomputed from the declaration on every build, and the font is compiled in this
 same process so the page and the shapes it shows are the same vintage.
 
-Three things the page adds beyond the grid, each answering a question that came
+Four things the page adds beyond the grid, each answering a question that came
 up while measuring:
 
-- **Guides.** The em square with the two bands from `SCRIPT.md` drawn on it, so
-  "does this glyph sit in the middle with room for the chevrons" is a thing the
-  eye checks rather than a thing the caliper does.
+- **Guides.** The em square with a crosshair through its centre and the band the
+  consonants occupy, so "does this glyph sit in the middle with room for the
+  chevrons" is a thing the eye checks rather than the caliper.
 - **Sizes.** 23 and 34 are where the legibility arguments were made and where
   pairs stop being separable, so they are one click away rather than a zoom.
+- **Length.** Both grids, swapped in place. The long forms are the tight case
+  rather than a variant to note in passing: a doubled mark steps 11 inward along
+  its bearing, so it is aimed at the space the consonant is already using. Every
+  clearance figure taken off the short grid is the easy half of the problem.
 - **Contrasts.** The derived pairs, side by side. Every one of them is a pair
   that a mark has to keep apart, and they are read off the `derivation` field
   rather than listed here, so a change to the derivation scheme moves them.
@@ -75,23 +79,52 @@ def text(script: Script, *letters: Consonant | Vowel) -> str:
     return "".join(f"&#x{script.codepoint(letter):04X};" for letter in letters)
 
 
-def cell(script: Script, syllable: Syllable) -> str:
-    label = html.escape(syllable.roman)
+def lengthen(script: Script, vowel: Vowel) -> Vowel:
+    """The second mark of a long vowel, which is not always the first again.
+
+    A plain vowel doubles by repeating itself. A glide does not: `waa` rather
+    than `wawa`, because the labialisation happens once at the onset, so the
+    second mark is the plain vowel of the same quality. Keyed on `offset`, which
+    is what identifies that quality: a glide and its plain vowel share one, and
+    `Script.codepoint` is the thing that separates them.
+    """
+    if not vowel.glide:
+        return vowel
+
+    return next(v for v in script.vowels if not v.glide and v.offset == vowel.offset)
+
+
+def cell(script: Script, syllable: Syllable, *, long: bool = False) -> str:
+    """One syllable, short or long.
+
+    Length is not in the model and is not a different letter: it is one more copy
+    of the mark, which `mkmk` steps inward along the bearing. So the code points
+    are spelled out here rather than read off a `Syllable`.
+    """
+    second = lengthen(script, syllable.vowel)
+    letters: tuple[Consonant | Vowel, ...] = (
+        (syllable.consonant, syllable.vowel, second)
+        if long
+        else (syllable.consonant, syllable.vowel)
+    )
+    label = html.escape(syllable.roman + (second.roman if long else ""))
     return (
         f'<span class="glyph" lang="x-rsw" translate="no" title="{label}">'
-        f"{text(script, syllable.consonant, syllable.vowel)}</span>"
+        f"{text(script, *letters)}</span>"
     )
 
 
-def grid(script: Script) -> str:
+def grid(script: Script, *, long: bool = False) -> str:
     """Consonants down, vowels across, in the order `Script.syllables()` yields."""
     heads = "".join(
-        f'<span class="col-head">{html.escape(v.roman)}</span>' for v in script.vowels
+        f'<span class="col-head">'
+        f'{html.escape(v.roman + (lengthen(script, v).roman if long else ""))}</span>'
+        for v in script.vowels
     )
     rows = "".join(
         f'<span class="row-head">{html.escape(c.roman)}'
         f'<i>{html.escape(c.ipa)}</i></span>'
-        + "".join(cell(script, Syllable(c, v)) for v in script.vowels)
+        + "".join(cell(script, Syllable(c, v), long=long) for v in script.vowels)
         for c in script.consonants
     )
     return f'<span class="corner"></span>{heads}{rows}'
@@ -200,6 +233,28 @@ def contrasts(script: Script) -> str:
     )
 
 
+def lengths(script: Script) -> str:
+    """Every vowel short over long, on the letter with the least room to spare.
+
+    `d` is the worst host in the script: 28.3 sideways and 27.3 downward, the
+    only glyph at the top of both rankings. A doubled mark steps 11 inward along
+    its bearing, which puts its inner edge 27.63 from centre, so this row is
+    where the second copy either clears the letter or does not.
+    """
+    host = next(c for c in script.consonants if c.roman == "d")
+    heads = "".join(
+        f'<span class="col-head">{html.escape(v.roman)}</span>' for v in script.vowels
+    )
+    rows = "".join(
+        f'<span class="row-head">{label}</span>'
+        + "".join(
+            cell(script, Syllable(host, v), long=long) for v in script.vowels
+        )
+        for label, long in (("short", False), ("long", True))
+    )
+    return f'<span class="corner"></span>{heads}{rows}'
+
+
 def page(script: Script, woff2: bytes) -> str:
     buttons = "".join(
         f'<button type="button" data-size="{size}"'
@@ -212,11 +267,14 @@ def page(script: Script, woff2: bytes) -> str:
         face=face(woff2),
         buttons=buttons,
         grid=grid(script),
+        long_grid=grid(script, long=True),
+        lengths=lengths(script),
         consonants=bare(script, script.consonants),
         vowels=bare(script, script.vowels),
         contrasts=contrasts(script),
         columns=len(script.vowels),
         count=len(script.consonants) * len(script.vowels),
+        both=2 * len(script.consonants) * len(script.vowels),
         default=DEFAULT_SIZE,
         drop=BOX_DROP,
         band_left=CONSONANT_BAND[0],
@@ -235,7 +293,8 @@ def main() -> None:
 
     syllables = len(script.consonants) * len(script.vowels)
     print(f"{OUT.relative_to(Path.cwd())}: {OUT.stat().st_size:,} bytes, "
-          f"{syllables} syllables, font {len(woff2):,} bytes")
+          f"{syllables} syllables short and {syllables} long, "
+          f"font {len(woff2):,} bytes")
 
 
 TEMPLATE: Final = """<!doctype html>
@@ -446,18 +505,21 @@ code {{ font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }}
 <div class="sheet">
 
 <h1>syllabary</h1>
-<p class="lede">Every syllable the script can write: {count} of them, one square
-each. Consonants down, vowels across. <b>Guides</b> draws the em square with a
+<p class="lede">Every syllable the script can write: {both} of them, {count} with a
+short vowel and the same {count} again with a long one. One square each,
+consonants down, vowels across. <b>Guides</b> draws the em square with a
 crosshair through its centre and a dashed box around the band the consonants
 actually occupy, measured off this font rather than intended.</p>
 
 <div class="controls">
   {buttons}
   <span class="spacer"></span>
+  <button type="button" id="length" aria-pressed="false">long</button>
   <button type="button" id="guides" aria-pressed="false">guides</button>
 </div>
 
-<div class="grid">{grid}</div>
+<div class="grid" data-length="short">{grid}</div>
+<div class="grid" data-length="long" hidden>{long_grid}</div>
 
 <h2>consonants alone</h2>
 <p class="note">No chevron on top. This is where a base form is judged on its
@@ -470,6 +532,16 @@ rotated, carrying height and backness at once. The ring of dots is U+25CC, which
 the font carries on purpose: a mark with no consonant under it is an error, and a
 shaper says so by drawing a placeholder rather than by dropping the mark.</p>
 <div class="bases">{vowels}</div>
+
+<h2>length</h2>
+<p class="note">Every vowel short over long, on <i>d</i>, which is the worst host
+in the script: 28.3 sideways and 27.3 downward, the only letter at the top of
+both rankings. A doubled mark steps 11 units inward along its own bearing, which
+puts its inner edge 27.63 from centre. So <i>doo</i> and <i>dee</i> overlap the
+diamond by 0.67, and <i>daa</i> clears it by 0.33. Schwa is the exception by
+construction: it has no bearing to step along, so its long form ligates into a
+ring instead of doubling.</p>
+<div class="grid lengths">{lengths}</div>
 
 <h2>contrasts</h2>
 <p class="note">Each derived pair bare, then carried: consonants on
@@ -502,6 +574,19 @@ const guides = document.getElementById("guides");
 guides.addEventListener("click", () => {{
   const on = document.body.classList.toggle("guides");
   guides.setAttribute("aria-pressed", String(on));
+}});
+
+/* Both grids are in the page and one is hidden, rather than one grid being
+   rewritten. Swapping visibility keeps the two in the same place on screen, so
+   comparing a cell short against long is a flicker instead of a scroll. */
+const length = document.getElementById("length");
+const short = document.querySelector('.grid[data-length="short"]');
+const long = document.querySelector('.grid[data-length="long"]');
+length.addEventListener("click", () => {{
+  const showLong = !short.hidden;
+  short.hidden = showLong;
+  long.hidden = !showLong;
+  length.setAttribute("aria-pressed", String(showLong));
 }});
 </script>
 </body>
