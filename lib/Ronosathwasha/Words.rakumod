@@ -20,6 +20,55 @@ suffixes from the suffix inventory, both taken from the declaration, so a C<me>
 before the stem can only be negation and a C<me> after it can only be tense.
 The comment became a field, and the field became a lookup.
 
+=head2 Position is not enough for C<swe>
+
+One pair of morphemes defeats it. The infinitive and the copularizer are both
+suffixes and share both surface forms, so the position lookup above has two
+answers and used to take whichever C<data/morphology.toml> listed first. That is
+the infinitive, so C<mirireswe>, "I am a teacher", came back with a nonfinite
+verb marker on a noun.
+
+It is the only such pair. Checked rather than assumed: across every current
+morpheme, grouped by position, C<swe> and C<swo> are the only forms with more
+than one claimant.
+
+B<The rest of the word decides.> A word carrying a tense, an aspect or a speech
+act is verbal, so its C<swe> is the infinitive; one carrying a case, a number or
+a locative is nominal, so its C<swe> is the copularizer. When no other morpheme
+says, the stem does: C<mirire> is listed under C<[noun]> and C<miri> is recovered
+from a C<[verb]> entry.
+
+This reads C<attaches_to> and does not enforce it. Kevin's ruling stands that
+anything attaches to anything and sense is contextual, so nothing here refuses a
+word: a form with two possible morphemes gets the reading its context suggests,
+and a word whose context says nothing keeps the old first-listed answer rather
+than being rejected.
+
+The circularity is only apparent. Host inference looks at morphemes whose form
+has exactly one claimant, which C<swe> by definition does not, so the ambiguous
+ones are resolved after the unambiguous ones have voted and never during.
+
+=head2 A word the lexicon defines beats the derivation of it
+
+C<toro> is C<to> plus C<ro>, the question marker on "person", and it is also
+simply the word for "who". Kevin's ruling: both are true, and C<toro> is how
+people say it. The breakdown may interest Lauri and nothing else.
+
+So the default parse runs a pass restricted to the words C<data/lexicon.toml>
+lists outright, and falls back to the productive division only when that finds
+nothing. C<toro> comes back whole; C<tethinəme> is not a listed word, so it comes
+back as the question marker on "eat".
+
+B<This was also fixing two words that were being shredded.> C<meliya>,
+"understand", divided as negation plus potential plus C<ya>, roughly "not might
+it". C<moluyo>, "crab", divided the same way. Both divisions are built entirely
+from declared morphemes, which is why nothing objected, and the words that
+survived did so only because their wrong division happened to fail and backtrack.
+
+C<Ronosathwasha::ParseResult>'s C<classify> compares this pass against the greedy
+one, so a word with both readings is reported as C<Ambiguous> carrying each. The
+preferred reading is used and the derivation is not thrown away.
+
 =head2 Why this is a regex and not a token
 
 Raku's C<token> ratchets: its quantifiers never give back what they matched.
@@ -84,25 +133,44 @@ grammar Morphemes is export {
     token stem   { @*STEMS }
 }
 
+#| The same shape with the prefixes frugal too, run against the listed words
+#| only. This is the pass that prefers a word the lexicon defines over the
+#| productive division of it.
+#|
+#| Both halves are needed. Restricting the stems is what stops `tethinəme`
+#| becoming the compound `te` plus `thinə`, since `te` is a stem recovered from
+#| `teswe` and not a listed word. Making the prefixes frugal is what stops `toro`
+#| becoming `to` plus `ro`, since `ro` is listed and a greedy prefix would take
+#| the `to` before the whole word was ever tried.
+grammar Lexicalised is Morphemes {
+    regex TOP { <prefix>*? <stem>+? <suffix>* }
+}
+
 #| Every stem a word may be built on.
 #|
 #| The lexicon's own entries, plus verb stems recovered by removing an
 #| infinitive marker. `rorothwaswo` is listed and `rorothwa` is not, yet
 #| `LANGUAGE.md` decision 16 inflects the latter, so the stem is derived rather
 #| than demanded of the file.
+#| The stems the lexicon states outright, as against the ones derived from them.
+#|
+#| The bound morphology is in the lexicon too, and must not be offered as a stem.
+#| Left in, `di` and `me` and `yi` compete with real stems, and `medime` divides
+#| as negation plus `di` plus `me`, which is three morphemes that all exist and a
+#| word that means nothing.
+sub listed-stems(Lexicon:D $lexicon --> Seq) {
+    my $affixes = $lexicon.affixes.map(*.roman).Set;
+
+    $lexicon.entries
+        .map(*.roman)
+        .grep({ not $affixes{$_} and not .contains(' ') });
+}
+
 sub stems-from(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
     my $infinitive = $morphology.by-id('infinitive');
     my @markers = $infinitive.forms;
 
-    # The bound morphology is in the lexicon too, and must not be offered as a
-    # stem. Left in, `di` and `me` and `yi` compete with real stems, and
-    # `medime` divides as negation plus `di` plus `me`, which is three
-    # morphemes that all exist and a word that means nothing.
-    my $affixes = $lexicon.affixes.map(*.roman).Set;
-
-    my @listed = $lexicon.entries
-        .map(*.roman)
-        .grep({ not $affixes{$_} and not .contains(' ') });
+    my @listed = listed-stems($lexicon);
 
     my @bare = @listed.map(-> $form {
         @markers.first({ $form.ends-with($_) && $form.chars > .chars })
@@ -113,6 +181,99 @@ sub stems-from(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
     (@listed, @bare).flat.unique;
 }
 
+#| The lexicon section whose entries are predicates. Everything else that can be
+#| a stem is nominal, which is one rule rather than a section-to-host table: a
+#| table would be a second place to drift, and it could name a section
+#| `data/lexicon.toml` does not have.
+#|
+#| An adjective landing on the nominal side is correct rather than convenient.
+#| `-swe` on one gives "to be red", which is the copularizer doing exactly its
+#| declared job.
+#| Exported because `Ronosathwasha::Gloss` splits a stem's senses on the same
+#| signal. If the two read different sections, a stem could be verbal for the
+#| parser and nominal for the gloss of the very same word.
+constant VERB-SECTION is export = 'verb';
+
+#| Which host class each stem can be, as the lexicon has it.
+#|
+#| A stem can be both. `thinə` is listed under `[noun]` as "food" and is also
+#| recovered from `thinəswe` under `[verb]`, so it belongs to each, and a word
+#| built on it needs its affixes to say which is meant. That is not a defect in
+#| the lexicon; it is decision 16's derivation showing through.
+sub stem-hosts(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
+    my @markers = $morphology.by-id('infinitive').forms;
+    my $affixes = $lexicon.affixes.map(*.roman).Set;
+
+    my %hosts;
+
+    for $lexicon.entries.grep({ not $affixes{.roman} and not .roman.contains(' ') }) -> $entry {
+        my $host = $entry.section eq VERB-SECTION ?? VerbStem !! NominalStem;
+        my Str $roman = $entry.roman;
+
+        %hosts{$roman}{$host} = True;
+
+        with @markers.first({ $roman.ends-with($_) && $roman.chars > .chars }) -> $marker {
+            %hosts{ $roman.substr(0, $roman.chars - $marker.chars) }{$host} = True;
+        }
+    }
+
+    %hosts.map({ .key => .value.keys.map({ Host::{$_} }).Set }).Map;
+}
+
+#| The host class the word's own morphology implies, or `Host` if nothing says.
+#|
+#| Only morphemes whose form has a single claimant get a vote, which is what
+#| keeps this from needing the answer it is computing. If those disagree, or
+#| there are none, the stem decides; if the stem is both, nothing does.
+sub infer-host(Map:D $stem-hosts, @stems, @candidates --> Host) {
+    # `my @voted`, not `my $voted`. Every stage here returns a `Seq`, which is
+    # one-shot: asking `.elems` iterates it, and the `.head` after that would
+    # throw about an already-iterated sequence. Binding to an array caches it.
+    #
+    # `NounStem` folds into `NominalStem` because the distinction is about which
+    # nominals a morpheme suits, and the question being asked is only verbal
+    # against nominal.
+    my @voted = @candidates
+        .grep(*.elems == 1)
+        .map(*.head.hosts)
+        .grep(*.elems == 1)
+        .map(*.head)
+        .map({ $_ == VerbStem ?? VerbStem !! NominalStem })
+        .unique;
+
+    return @voted.head if @voted.elems == 1;
+
+    my $from-stem = $stem-hosts{ @stems.join } // $stem-hosts{ @stems.head } // Set.new;
+
+    $from-stem.elems == 1 ?? $from-stem.keys.head !! Host;
+}
+
+#| The same question asked of a word already divided.
+#|
+#| Every morpheme is resolved by this point, so each one is its own singleton
+#| candidate list and `infer-host` needs no second implementation. Exported
+#| because `Ronosathwasha::Gloss` asks it in order to choose between a stem's
+#| senses, which is the same question in a different coat: `thinə` with a tense
+#| is "eat" and with a case marker is "food".
+sub word-host(Map:D $stem-hosts, WordParse:D $word --> Host) is export {
+    infer-host(
+        $stem-hosts,
+        $word.stems,
+        ($word.prefixes, $word.suffixes).flat.map({ ($_,) }),
+    );
+}
+
+#| Pick the morpheme a matched form meant, given what the word turned out to be.
+#|
+#| Falls back to the first candidate rather than failing, because a word whose
+#| context says nothing is still a word. Refusing it here would turn a
+#| descriptive declaration into the filter Kevin ruled out.
+sub choose-morpheme(@candidates, Host $host --> Morpheme) {
+    return @candidates.head if @candidates.elems == 1 or not $host.defined;
+
+    @candidates.first({ .declared-for($host) }) // @candidates.head;
+}
+
 #| Split one word into its morphemes.
 #|
 #| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
@@ -120,12 +281,50 @@ sub stems-from(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
 #| rule and compare. `Morphemes` is frugal with stems; a greedy subclass gives
 #| the other reading of an ambiguous word, and two answers that differ are how
 #| ambiguity is detected rather than assumed.
+#|
+#| Naming no grammar asks for the reading a speaker would give, which is two
+#| passes. See the module documentation: `toro` is a word before it is a
+#| derivation, and a caller who wants the derivation asks for it.
 sub parse-word(
     Lexicon:D     $lexicon,
     Morphology:D  $morphology,
     Str:D         $word,
-    Mu           :$grammar = Morphemes,
+    Mu           :$grammar = Mu,
 ) is export {
+
+    # Two traps in one line, and the first hides the second.
+    #
+    # Never `with $grammar` or any other definedness test. A grammar is a type
+    # object, so `Greedy.defined` is False exactly as `Mu.defined` is, and `with`
+    # reports every named grammar as absent. `classify` passed `Greedy`, silently
+    # got the default two-pass reading back, and compared it against itself:
+    # ambiguity detection stopped finding anything, and the three tests that
+    # exist to catch that went green in the wrong direction.
+    #
+    # Then `===`, never `=:=`. `=:=` asks whether two *containers* are the same
+    # one, which a parameter and a type name never are, so it is False for the
+    # absent case and the present one alike. `===` compares values by `.WHICH`,
+    # which is the question being asked. The symptom of getting this backwards is
+    # `No such method 'parse' for invocant of type 'Mu'`, three frames away.
+    unless $grammar === Mu {
+        return divide($lexicon, $morphology, $word, $grammar, stems-from($lexicon, $morphology));
+    }
+
+    my $listed = divide($lexicon, $morphology, $word, Lexicalised, listed-stems($lexicon));
+
+    return $listed if $listed.defined;
+
+    divide($lexicon, $morphology, $word, Morphemes, stems-from($lexicon, $morphology));
+}
+
+#| One pass: a grammar and a stem inventory, applied.
+sub divide(
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Str:D        $word,
+    Mu           $grammar,
+                 @inventory,
+) {
     my @current = $morphology.current;
 
     my @prefix-morphemes = @current.grep(*.position == Prefix);
@@ -133,7 +332,7 @@ sub parse-word(
 
     my @*PREFIXES = @prefix-morphemes.map({ .forms.Slip }).unique;
     my @*SUFFIXES = @suffix-morphemes.map({ .forms.Slip }).unique;
-    my @*STEMS    = stems-from($lexicon, $morphology);
+    my @*STEMS    = @inventory;
 
     my $text = $word.lc;
     my $match = $grammar.parse($text);
@@ -143,20 +342,31 @@ sub parse-word(
     # Resolving a form to a morpheme is a lookup restricted by position, which
     # is the whole reason the declaration records position at all. Without it
     # `me` has two answers here and no way to choose.
-    my Morpheme @prefixes = $match<prefix>.map(-> $m {
-        @prefix-morphemes.first({ .forms.first(~$m).defined })
+    #
+    # `.grep` rather than `.first`, because position leaves `swe` with two
+    # claimants and the module documentation explains what settles it. Every
+    # other form has exactly one, so this list is a singleton everywhere else and
+    # `choose-morpheme` returns its head untouched.
+    my @prefix-candidates = $match<prefix>.map(-> $m {
+        @prefix-morphemes.grep({ .forms.first(~$m).defined }).List
     });
 
-    my Morpheme @suffixes = $match<suffix>.map(-> $m {
-        @suffix-morphemes.first({ .forms.first(~$m).defined })
+    my @suffix-candidates = $match<suffix>.map(-> $m {
+        @suffix-morphemes.grep({ .forms.first(~$m).defined }).List
     });
 
-    WordParse.new(
-        :$text,
-        :@prefixes,
-        :stems($match<stem>.map({ ~$_ })),
-        :@suffixes,
+    my Str @stems = $match<stem>.map({ ~$_ });
+
+    my $host = infer-host(
+        stem-hosts($lexicon, $morphology),
+        @stems,
+        (@prefix-candidates, @suffix-candidates).flat,
     );
+
+    my Morpheme @prefixes = @prefix-candidates.map({ choose-morpheme($_, $host) });
+    my Morpheme @suffixes = @suffix-candidates.map({ choose-morpheme($_, $host) });
+
+    WordParse.new(:$text, :@prefixes, :@stems, :@suffixes);
 }
 
 #| Treat a writable, undeclared form as one open nominal stem.

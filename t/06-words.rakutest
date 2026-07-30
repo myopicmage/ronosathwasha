@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 
-plan 17;
+plan 33;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -86,3 +86,76 @@ is-deeply @failed.sort.unique.List, (),
 
 my $nonsense = split('thinəzzz');
 nok $nonsense.defined, 'a string that is not built from declared morphemes fails';
+
+# --------------------------------------- a defined word beats its derivation ---
+#
+# Kevin's ruling: `toro` is `to` plus `ro` and it is also simply the word for
+# "who", both are true, and the second is how people say it. So the default parse
+# tries the listed words first and falls back to the productive division.
+
+is-deeply split('toro').stems.List, ('toro',),
+    'a word the lexicon defines is not divided into the morphemes that derive it';
+is split('toro').prefixes.elems, 0, 'so no question marker is taken off it';
+
+is-deeply split('tethinəme').stems.List, ('thinə',),
+    'a word the lexicon does not define is still divided';
+is split('tethinəme').prefixes.head.id, 'question',
+    'and the question marker is found where it is the only reading';
+
+# The two words this was quietly destroying. Both are listed entries, and both
+# divided into affixes that all exist: `meliya` came apart as negation plus
+# potential plus `ya`, roughly "not might it". Nothing objected because every
+# piece was declared.
+#
+# `medi`, `tono`, `methe`, `molu` and `luru` survived the old rule, but only
+# because their wrong division failed and the grammar backtracked. These two
+# died because theirs happened to succeed.
+is-deeply split('meliya').stems.List, ('meliya',), 'meliya is understand, not "not might it"';
+is-deeply split('moluyo').stems.List, ('moluyo',), 'and moluyo is a crab';
+
+# Nothing that already worked moved.
+is-deeply split('demirime').stems.List, ('miri',), 'a productive word is unchanged';
+is-deeply split('shamwu').stems.List, ('sha', 'mwu'), 'and so is a compound';
+
+# ------------------------------------------------------ the one ambiguous form ---
+#
+# `swe` and `swo` are the only forms in the language with two claimants at one
+# position: the infinitive and the copularizer share both. Position, which
+# settles everything else here, has nothing to say about them.
+
+my @claimants = $morphology.current
+    .grep(*.position == Suffix)
+    .grep({ .forms.first('swe').defined })
+    .map(*.id)
+    .sort;
+
+is-deeply @claimants.List, ('copularizer', 'infinitive'),
+    'two current suffixes claim swe, which is why anything below is needed';
+
+my $host = stem-hosts($lexicon, $morphology);
+
+is-deeply $host<mirire>.keys.List, (NominalStem,),
+    'a stem listed only under [noun] is nominal';
+is-deeply $host<miri>.keys.List, (VerbStem,),
+    'and one recovered from a [verb] infinitive is verbal';
+
+# The case the lexicon genuinely has both ways. Not a defect: `thinəswe` is
+# `thinə` plus the infinitive, so the noun and the verb stem are the same string
+# by derivation rather than by accident.
+is-deeply $host<thinə>.keys.map(*.key).sort.List, ('NominalStem', 'VerbStem'),
+    'a stem that is both a noun and a verb stem says so';
+
+# The defect this resolves. `mirireswe` is "I am a teacher", and it used to come
+# back with a nonfinite marker on a noun because the infinitive is declared
+# first and `.first` took it.
+is split('mirireswe').suffixes.head.id, 'copularizer',
+    'swe on a nominal stem is the copularizer';
+is split('mirireswe').suffixes.head.gloss, 'COP',
+    'and glosses as one';
+
+# Nothing else moved. A word with no ambiguous form must divide exactly as
+# before, which is what the corpus assertion above is really guarding.
+is split('mothinəme').prefixes.head.id, 'negation',
+    'an unambiguous prefix is untouched by any of this';
+is split('mirireri').suffixes.head.id, 'subject',
+    'and so is an unambiguous suffix';

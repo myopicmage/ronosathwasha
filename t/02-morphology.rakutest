@@ -6,13 +6,16 @@ use Ronosathwasha::Chatbot;
 use Ronosathwasha::Types;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Lexicon;
+use Ronosathwasha::Script;
+use Ronosathwasha::Harmony;
 
-plan 29;
+plan 43;
 
 my IO::Path $data = repository-root.add('data');
 
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $script     = load-script($data.add('script.toml'));
 
 isa-ok $morphology, Morphology, 'the morphology declaration parses';
 isa-ok $lexicon, Lexicon, 'the lexicon parses';
@@ -84,10 +87,47 @@ is $possessive.form-for(BackWord), 'sa', 'an invariant morpheme ignores the stem
 my $copularizer = $morphology.by-id('copularizer');
 is $copularizer.role, MarksPredication,
     'a copularizer marks predication rather than nonfinite verbhood';
-is $copularizer.host, NominalStem,
-    'and attaches to the nominal it turns into a predicate';
+is-deeply $copularizer.hosts.List, (NominalStem,),
+    'and is declared for the nominal it turns into a predicate';
 is-deeply $copularizer.forms.sort.List, ('swe', 'swo'),
     'while reusing both surface forms of the infinitive';
+
+# ------------------------------------------------------------------- hosts ---
+
+# Descriptive, never a filter. Kevin's ruling is that anything attaches to
+# anything and sense is contextual, so these assert what a morpheme is *for*.
+
+is $morphology.morphemes.grep({ not .hosts.elems }).elems, 0,
+    'every morpheme is declared for at least one host';
+
+my $question = $morphology.by-id('question');
+ok $question.declared-for(VerbStem),
+    'the question marker is declared for a verb, which is the polar question';
+ok $question.declared-for(NominalStem),
+    'and for a nominal, which is where the interrogative words came from';
+
+# The trap this guards: `VerbStem` is the first value of `Host` and an enum
+# value in Raku is numeric, so it is 0 and therefore falsy. A `declared-for`
+# written as `so @!hosts.first($host)` returns the match and then reports it as
+# no match, and the verb assertion above would fail while the nominal one
+# passed. `Ronosathwasha::Harmony` carries the same trap in a comment.
+nok $morphology.by-id('command').declared-for(NominalStem),
+    'and a single-host morpheme says no to the host it does not claim';
+
+# The productive rule the second host describes, checked against the five words
+# the lexicon lists, so an edit to either file that breaks the correspondence
+# fails here rather than in prose.
+my %interrogative =
+    ro => 'toro', mwu => 'tomwu', luumo => 'toluumo',
+    duruu => 'toduruu', 'ðoru' => 'toðoru';
+
+my $forms = $lexicon.forms;
+
+for %interrogative.kv -> $base, $whole {
+    is $question.form-for(profile-of($script, $base)) ~ $base, $whole,
+        "question + $base derives the listed $whole";
+    ok $forms{$base}, "and $base is a word the lexicon declares";
+}
 
 my $mixed = $present.form-for(MixedWord);
 nok $mixed.defined, 'a disharmonic stem selects nothing';

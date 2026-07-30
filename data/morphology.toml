@@ -20,13 +20,25 @@
 # Neutral stems select the front alternant, so `front_stem` covers front and
 # neutral both. `alternation` names which rule produced the arrangement, so
 # nothing has to be inferred from comparing the two forms.
+#
+# `gloss` is the label this morpheme takes in an interlinear gloss, following
+# the Leipzig Glossing Rules. It lives here rather than in the renderer because
+# a table of labels in code is a second place to drift and can name a morpheme
+# this file does not declare. Required, so a new morpheme cannot arrive without
+# one and be silently unglossable.
+#
+# Leipzig's standard list covers most of these. `CONT` and the four `LOC.*` are
+# language-specific labels, which rule 5 expressly permits; `CONT` rather than
+# `PROG` because the language calls the aspect continuous. A superseded morpheme
+# keeps the label of the job it did, so it shares one with its replacement.
 
 # ---------------------------------------------------------------- current ---
 
 [[morpheme]]
 id = "infinitive"
+gloss = "INF"
 role = "nonfinite"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "swe"
@@ -39,8 +51,9 @@ status = "current"
 # that the name is Laari now, not merely that it is Laari. Decision 22.
 [[morpheme]]
 id = "copularizer"
+gloss = "COP"
 role = "predication"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "swe"
@@ -49,8 +62,9 @@ status = "current"
 
 [[morpheme]]
 id = "plural"
+gloss = "PL"
 role = "number"
-attaches_to = "noun"
+attaches_to = ["noun"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "ne"
@@ -59,8 +73,9 @@ status = "current"
 
 [[morpheme]]
 id = "possessive"
+gloss = "POSS"
 role = "possession"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "neutral"
 form = "sa"
@@ -68,8 +83,9 @@ status = "current"
 
 [[morpheme]]
 id = "present"
+gloss = "PRS"
 role = "tense"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "me"
@@ -78,8 +94,9 @@ status = "current"
 
 [[morpheme]]
 id = "past"
+gloss = "PST"
 role = "tense"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "se"
@@ -88,8 +105,9 @@ status = "current"
 
 [[morpheme]]
 id = "future"
+gloss = "FUT"
 role = "tense"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "the"
@@ -98,8 +116,9 @@ status = "current"
 
 [[morpheme]]
 id = "continuous"
+gloss = "CONT"
 role = "aspect"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "di"
@@ -112,18 +131,39 @@ status = "current"
 # glance without being stressed. Decision 3.
 [[morpheme]]
 id = "negation"
+gloss = "NEG"
 role = "polarity"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "prefix"
 alternation = "anti-harmonic"
 front_stem = "mo"
 back_stem = "me"
 status = "current"
 
+# Two hosts, and the second one built the interrogative series. On a verb this
+# questions the predicate, giving the polar question `Nari tethinəme?`. On a
+# nominal it questions the referent, and every interrogative word the lexicon
+# lists is that: `to` prefixed to a noun already declared there.
+#
+#   toro     to + ro      person   who
+#   tomwu    to + mwu     thing    what
+#   toluumo  to + luumo   place    where
+#   toduruu  to + duruu   time     when
+#   toðoru   to + ðoru    reason   why
+#
+# All five bases are back words, so all five take `to`, and the rule reproduces
+# every listed form with nothing left over. The lexicon entries are therefore
+# derived rather than primitive, and `tothwasha` is available for free.
+#
+# The two uses are in complementary distribution, which is why `Nari toro?`
+# needs no further marking: the interrogative word already carries the morpheme,
+# and marking the clause again would write `to` twice. Mandarin arranges 吗 and
+# its question words the same way; Japanese keeps か in both and does not.
 [[morpheme]]
 id = "question"
+gloss = "Q"
 role = "speech-act"
-attaches_to = "verb"
+attaches_to = ["verb", "nominal"]
 position = "prefix"
 alternation = "harmonic"
 front_stem = "te"
@@ -132,8 +172,9 @@ status = "current"
 
 [[morpheme]]
 id = "command"
+gloss = "IMP"
 role = "speech-act"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "prefix"
 alternation = "harmonic"
 front_stem = "de"
@@ -142,8 +183,9 @@ status = "current"
 
 [[morpheme]]
 id = "potential"
+gloss = "POT"
 role = "modality"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "prefix"
 alternation = "harmonic"
 front_stem = "li"
@@ -152,8 +194,9 @@ status = "current"
 
 [[morpheme]]
 id = "subject"
+gloss = "SBJ"
 role = "case"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "ri"
@@ -162,8 +205,9 @@ status = "current"
 
 [[morpheme]]
 id = "object"
+gloss = "OBJ"
 role = "case"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "yi"
@@ -172,8 +216,9 @@ status = "current"
 
 [[morpheme]]
 id = "locative-at"
+gloss = "LOC.AT"
 role = "locative"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "shi"
@@ -182,8 +227,9 @@ status = "current"
 
 [[morpheme]]
 id = "locative-in"
+gloss = "LOC.IN"
 role = "locative"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "thi"
@@ -192,8 +238,9 @@ status = "current"
 
 [[morpheme]]
 id = "locative-near"
+gloss = "LOC.NEAR"
 role = "locative"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "mi"
@@ -202,8 +249,9 @@ status = "current"
 
 [[morpheme]]
 id = "locative-towards"
+gloss = "LOC.TO"
 role = "locative"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "harmonic"
 front_stem = "ði"
@@ -229,8 +277,9 @@ status = "current"
 
 [[morpheme]]
 id = "negation-ma"
+gloss = "NEG"
 role = "polarity"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "prefix"
 alternation = "neutral"
 form = "ma"
@@ -241,8 +290,9 @@ writable = true
 
 [[morpheme]]
 id = "command-yo"
+gloss = "IMP"
 role = "speech-act"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "prefix"
 alternation = "none"
 form = "yo"
@@ -256,8 +306,9 @@ writable = true
 # answered without knowing the position it appeared in.
 [[morpheme]]
 id = "question-tho"
+gloss = "Q"
 role = "speech-act"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "prefix"
 alternation = "none"
 form = "tho"
@@ -268,8 +319,9 @@ writable = true
 
 [[morpheme]]
 id = "subject-ju"
+gloss = "SBJ"
 role = "case"
-attaches_to = "nominal"
+attaches_to = ["nominal"]
 position = "suffix"
 alternation = "none"
 form = "ju"
@@ -280,8 +332,9 @@ writable = false
 
 [[morpheme]]
 id = "past-je"
+gloss = "PST"
 role = "tense"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "none"
 form = "je"
@@ -292,8 +345,9 @@ writable = false
 
 [[morpheme]]
 id = "continuous-ji"
+gloss = "CONT"
 role = "aspect"
-attaches_to = "verb"
+attaches_to = ["verb"]
 position = "suffix"
 alternation = "none"
 form = "ji"
