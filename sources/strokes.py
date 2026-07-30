@@ -32,7 +32,18 @@ DIAMOND = "M24,50 L50,36.5 L76,50 L50,63.5 Z"  # place: t, and d over it
 # this and the hook, so it cannot move to suit one of them; a narrower tally off
 # to one side under a wide bar reads as crooked rather than as crossed.
 TALLY = ["M38,70 L47,31", "M53,70 L62,31"]
-HOOK = "M62,24 L62,56 C62,70 50,78 39,73 C30,69 29,58 36,52"
+# Four fifths about its own centre, then moved onto the box's, the way `c_n` and
+# `c_y` were taken to two thirds. It was the tallest letter in the script at 55.1
+# and the only one that was not centred, sitting 3.3 left, so the two complaints
+# were one measurement: what looked like the wrong shape was the right shape in
+# the wrong place at the wrong size.
+#
+# Four fifths lands its half-extent on 22.5, which is `c_th`'s, so the hook stops
+# being one of the four letters the vowel marks have to negotiate with and
+# becomes one of the six they do not. The nib does not scale with it, so it is
+# darker for its size than it was; there are no counters in a single open stroke,
+# which is why this letter can afford that and `c_s` cannot.
+HOOK = "M62.2,29.8 L62.2,55.4 C62.2,66.6 52.6,73.0 43.8,69.0 C36.6,65.8 35.8,57.0 41.4,52.2"
 
 CONSONANTS: dict[str, list[str]] = {
     # A single horizontal. The most featureless glyph in the set, and the one
