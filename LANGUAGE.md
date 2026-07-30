@@ -965,6 +965,71 @@ discover it.
   transliterate a name the same way or it is not a name. Korean and Japanese both
   conventionalised theirs.
 
+## 24. Suffixes compose as copula, tense, aspect
+
+**Predicate suffixes attach in a fixed order: copularizer, then tense, then
+aspect.** This is decision 16's twin, which fixed the prefixes as modality,
+negation, speech act, and it exists for the same reason: a fixed order makes the
+structure recoverable instead of lexicalizing each combination.
+
+```text
+mirire-swe-me-di      is being a teaching, ongoing, now
+```
+
+### It was already the rule, and only the realizer knew it
+
+`Ronosathwasha::Realizer` builds a verb from `@PREFIX-ORDER` stated once as a
+constant, with a comment naming decision 16. The suffixes had no such list: the
+verb path emits tense then aspect, the nominal path emits copularizer then tense
+then aspect, and both orders lived as the sequence of three statements rather than
+as a declared fact.
+
+Nothing checked it, so nothing rejected a different order. **The parser divides a
+word into declared morphemes and never asks whether their arrangement is legal.**
+
+### The symptom, which is worse than a rejection
+
+`miriswedime` puts aspect before tense. It is not read as ill-formed and it is not
+read as a variant. It is read as a *different word*:
+
+```text
+Lari miriswemedi.   ->  predicate miri,     nominal, present   round trips
+Lari miriswedime.   ->  predicate miriswe,  verbal,  present   comes back as
+                                                              miriswemedi
+```
+
+The reader could not match the nominal pattern, fell through to a verbal one, and
+invented a stem called `miriswe` that neither the lexicon nor the morphology
+contains. Then the realizer wrote the canonical order back out, so a round trip
+silently corrects the input instead of refusing it.
+
+That is the most dangerous class of failure this project can produce, and it is the
+one `t/10` exists to catch: text to meaning to text, for every corpus sentence.
+An ad hoc sentence typed at `tools/validate.raku` is not round-tripped, which is
+why this survived until somebody wrote it by hand.
+
+### What implementation touches
+
+**Not yet implemented.** The order is now stated, and three things follow from it.
+
+- `@SUFFIX-ORDER` beside `@PREFIX-ORDER` in the realizer, so the rule is declared
+  once rather than implied by statement sequence in two places.
+- The reader has to reject an arrangement it cannot match, rather than falling
+  through to a reading that invents a stem. A word whose pieces are all declared is
+  not yet a word the language permits.
+- `tools/validate.raku` should realize what it read and complain when the two
+  differ, which would have caught this without anybody noticing it by eye.
+
+### Not decided here
+
+- **Nominal suffix order.** Plural, possessive and the case particles are a
+  separate series and this says nothing about how they order among themselves or
+  against these.
+- **Whether `attaches_to` and `role` are enforced at all.** Every morpheme declares
+  both and nothing in the parse path consults either, which is how `mirireme` puts a
+  tense on a noun and `Lari thinəswe.` heads a clause with a form declared
+  `nonfinite`. Related but larger than suffix order.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does
