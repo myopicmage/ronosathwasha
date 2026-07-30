@@ -192,6 +192,10 @@
 "roro" = "very"
 
 
+[interjection]
+"molu" = "damn, fuck (clipped from moluyo, the problematic crab)"
+
+
 # Affixes. Position is in the gloss: (verb) marks where the stem goes.
 [marker]
 "swe" = "infinitive or copularizer (front or neutral), (verb)swe or (nominal)swe"
