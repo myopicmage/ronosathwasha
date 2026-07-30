@@ -62,6 +62,16 @@ class Server is export {
     method tokenize(--> Str) { $!url.chomp('/') ~ '/tokenize' }
 }
 
+#| Who the model is told it is.
+#|
+#| One field, because `CHATBOT.md` is explicit that a prompt gives the position, the
+#| brief and what is available, and does not give a mood. There is no `personality`
+#| here and no `tone`: those would be the trait-shaped fields that produce a
+#| performance rather than a consequence.
+class Researcher is export {
+    has Str:D $.system is required;
+}
+
 #| What the sampler is told, and whether the model is allowed to think first.
 class Sampling is export {
     has Numeric $.temperature is required;
@@ -71,10 +81,11 @@ class Sampling is export {
 }
 
 class Config is export {
-    has ModelFile $.model    is required;
-    has Budget    $.budget   is required;
-    has Server    $.server   is required;
-    has Sampling  $.sampling is required;
+    has ModelFile  $.model      is required;
+    has Budget     $.budget     is required;
+    has Server     $.server     is required;
+    has Sampling   $.sampling   is required;
+    has Researcher $.researcher is required;
 }
 
 #| Read a value of an expected type, or fail against the file it came from.
@@ -103,7 +114,8 @@ sub load-config(IO::Path:D $path) is export {
     my %model    = require-table($doc, 'model');
     my %context  = require-table($doc, 'context');
     my %server   = require-table($doc, 'server');
-    my %sampling = require-table($doc, 'sampling');
+    my %sampling   = require-table($doc, 'sampling');
+    my %researcher = require-table($doc, 'researcher');
 
     # `~` expanded once, here. `IO::Path.resolve` would not do it: the tilde is a
     # shell convention rather than a filesystem one, so an unexpanded path names a
@@ -139,6 +151,9 @@ sub load-config(IO::Path:D $path) is export {
         :server(Server.new(
             :url(want(%server, 'url', Str, $path, 'server')),
             :timeout-seconds(want(%server, 'timeout_seconds', Int, $path, 'server')),
+        )),
+        :researcher(Researcher.new(
+            :system(want(%researcher, 'system', Str, $path, 'researcher')),
         )),
         :sampling(Sampling.new(
             :temperature(want(%sampling, 'temperature', Numeric, $path, 'sampling')),

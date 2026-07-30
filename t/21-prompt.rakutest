@@ -1,0 +1,103 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Config;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Prompt;
+use Ronosathwasha::TokenCounter;
+
+plan 26;
+
+my $config = load-config(repository-root.add('config/chatbot.toml'));
+
+my $schema = PromptInvariant.new(:label('response schema'), :text('kind express or gap'));
+my $caps   = PromptInvariant.new(:label('language capabilities'), :text('three tenses'));
+
+sub context(ConversationState:D $state) {
+    PromptContext.new(:$schema, :capabilities($caps), :$state);
+}
+
+# ------------------------------------------------------- a first turn ---
+
+my $first = context(ConversationState.new.said(Human, 'Lari thinəme.'));
+my @m = messages($config, $first);
+
+is @m.elems, 2, 'a system message and the one turn';
+is @m[0].role, System, 'the character and the invariants lead';
+is @m[1].role, User, 'and what a person said is a user turn';
+is @m[1].content, 'Lari thinəme.', 'carried verbatim, because the model has to see the text';
+
+# ------------------------------------------- what the system message holds ---
+
+my $sys = @m[0].content;
+
+ok $sys.contains('consultant'), 'the position Lauri was hired into';
+ok $sys.contains('laari'), 'and the name the language can almost say';
+ok $sys.contains('response schema'), 'the schema invariant';
+ok $sys.contains('language capabilities'), 'and the capabilities invariant';
+
+ok $sys.index('response schema') < $sys.index('language capabilities'),
+    'in the order PromptContext declares, which is the order they may be sacrificed';
+
+# `CHATBOT.md` is explicit that the prompt gives a position and not a mood, so these
+# words are the ones that must not appear. If Lauri comes out fussy from the
+# situation alone the prompt is right; if he had to be told, it is not.
+for <frustrated fussy pedantic annoyed irritable> -> $mood {
+    nok $sys.lc.contains($mood), "the prompt does not hand him a mood ($mood)";
+}
+
+# Codex's artifact 019: the boundary is between using the pieces and making new ones,
+# and the earlier wording forbade the wrong thing.
+ok $sys.contains('Freely derive'), 'derivation is permitted explicitly';
+ok $sys.contains('Do not invent new'), 'and invention is what is forbidden instead';
+
+# ------------------------------------------------ alternation, and folding ---
+
+my $talked = context(
+    ConversationState.new
+        .said(Human, 'Lari thinəme.')
+        .said(Bot, 'Nari thinəme?')
+        .said(Human, 'Lari tono.')
+);
+
+is-deeply messages($config, $talked).map(*.role).List,
+    (System, User, Assistant, User),
+    'turns alternate as a chat template expects';
+
+# A folded summary is not something a speaker said. Giving it a turn would invent an
+# utterance nobody produced and teach the model that summaries are speech, so it goes
+# in the system message as background.
+my $folded = context(
+    ConversationState.new
+        .said(Human, 'Lari thinəme.')
+        .said(Bot, 'Nari thinəme?')
+        .said(Human, 'Lari tono.')
+        .fold(1)
+);
+
+my @f = messages($config, $folded);
+
+is @f.elems, 2, 'folding removes turns rather than replacing them with pseudo-turns';
+is-deeply @f.map(*.role).List, (System, User), 'and leaves a clean alternation';
+ok @f[0].content.contains('remembered'), 'what was folded appears as background';
+nok @f[1].content.contains('remembered'), 'and not inside anybody\'s turn';
+
+# ------------------------------------------------------------ the wire form ---
+
+my @w = wire-messages($config, $first);
+
+is @w.elems, 2, 'the wire form has one entry per message';
+is-deeply @w[1], %( role => 'user', content => 'Lari thinəme.' ),
+    'lowercased role and content, which is what llama-server expects';
+is @w[0]<role>, 'system', 'and the system message says so in the protocol\'s spelling';
+
+# --------------------------------------------------- render still has a job ---
+#
+# Both survive. `render` is what a deterministic policy measures, because its token
+# count must not move when the model changes. `messages` is what crosses the boundary
+# and its real cost is only knowable from the tokenizer.
+
+my $counter = PerWord.new;
+ok $counter.count($first.render) > 0, 'render is still measurable for the policy';
+ok messages($config, $first).elems > 0, 'while messages is what actually gets sent';

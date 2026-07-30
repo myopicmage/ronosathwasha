@@ -98,6 +98,8 @@ my $wrong-type = broken(qq:to/TOML/, $tmp);
     top_p = 0.8
     top_k = 20
     thinking = false
+    [researcher]
+    system = "a placeholder, because this fixture is testing context.total"
     TOML
 
 nok $wrong-type.defined, 'a window written as a string is refused';
