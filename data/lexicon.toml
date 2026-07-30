@@ -110,6 +110,7 @@
 
 [conjunction]
 "luru" = "and, and then, furthermore (clause-level discourse continuation)"
+"ladu" = "but"
 
 
 [noun]
@@ -117,6 +118,7 @@
 "sene" = "cat"
 "runə" = "dog"
 "tono" = "drink"
+"dooru" = "coffee"
 "shimi" = "family"
 "nishimi" = "parent (up-family)"
 "sishimi" = "child (down-family)"
