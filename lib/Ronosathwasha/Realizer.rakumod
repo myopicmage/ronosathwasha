@@ -99,16 +99,22 @@ sub realize-verb(
     CATCH { default { .fail } }
 }
 
-#| Build a nominal predicate. The copularizer is optional in ordinary
-#| unmarked identity clauses; tense is optional independently because writing
-#| present tense contributes the contrastive "right now" reading.
+#| Build a nominal predicate. The copularizer is optional in ordinary unmarked
+#| identity clauses; tense is optional independently because writing present tense
+#| contributes the contrastive "right now" reading.
+#|
+#| `Tense :$tense` rather than `Tense:D :$tense = Present` beside a separate
+#| `:$explicit-tense` flag. The two said the same thing twice, and a `:D` with a
+#| default cannot express "no tense" at all: it turns the absence into an
+#| assertion of the present, which is the reading decision 22 exists to
+#| distinguish. Undefined now means untensed, and there is one place to get it
+#| wrong instead of two to keep in step.
 sub realize-nominal-predicate(
     Script:D     $script,
     Morphology:D $morphology,
     Str:D        $stem,
     Bool:D      :$copularized = True,
-    Bool:D      :$explicit-tense = False,
-    Tense:D     :$tense = Present,
+    Tense       :$tense,
     Aspect:D    :$aspect = Simple,
 ) is export {
     my $class = profile-of($script, $stem);
@@ -117,7 +123,7 @@ sub realize-nominal-predicate(
 
     my @suffixes;
     @suffixes.push: $morphology.by-id('copularizer') if $copularized;
-    @suffixes.push: $morphology.by-id(%TENSE-MORPHEME{ $tense.key }) if $explicit-tense;
+    @suffixes.push: $morphology.by-id(%TENSE-MORPHEME{ $tense.key }) if $tense.defined;
     @suffixes.push: $morphology.by-id('continuous') if $aspect == Continuous;
 
     return $stem ~ @suffixes.map({ .form-for($class) }).join;

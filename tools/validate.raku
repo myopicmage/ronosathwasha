@@ -126,8 +126,13 @@ sub validate-sentence(
             say "predicate: { $reading.predicate }";
             say "kind: $kind";
             say "speech-act: { $reading.speech-act.key }";
-            say "tense: { $reading.tense.key }"
-                ~ ($reading.explicit-tense ?? ' (explicit)' !! ' (implicit)');
+            # Reported as absent rather than as an implicit present. The old line
+            # printed `tense: Present (implicit)` for a sentence decision 22 says
+            # is not located in time, and a tool whose job is telling you what a
+            # sentence means should not name a tense that is not there.
+            say $reading.tense.defined
+                ?? "tense: { $reading.tense.key }"
+                !! 'tense: none, an identity with no time attached';
             return True;
         }
 

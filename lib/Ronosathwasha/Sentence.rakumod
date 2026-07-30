@@ -96,7 +96,6 @@ sub realize-sentence(
         @words.push: realize-nominal-predicate(
             $script, $morphology, $reading.predicate,
             :copularized($reading.explicit-copula),
-            :explicit-tense($reading.explicit-tense),
             :tense($reading.tense),
             :aspect($reading.aspect),
         );

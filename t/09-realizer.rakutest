@@ -86,11 +86,11 @@ isa-ok $mixed.self.exception, X::Ronosathwasha::Form::NoClass, 'and says why rat
 
 is realize-nominal-predicate($script, $morphology, 'laari'),
     'laariswe', 'a front name takes the front copularizer';
-is realize-nominal-predicate($script, $morphology, 'laari', :explicit-tense),
+is realize-nominal-predicate($script, $morphology, 'laari', :tense(Present)),
     'laarisweme', 'explicit present follows the copularizer';
 is realize-nominal-predicate($script, $morphology, 'laari', :copularized(False)),
     'laari', 'ordinary identity may use a zero copula';
 is realize-nominal-predicate(
     $script, $morphology, 'laari',
-    :explicit-tense, :aspect(Continuous),
+    :tense(Present), :aspect(Continuous),
 ), 'laariswemedi', 'aspect follows an explicitly tensed copular predicate';

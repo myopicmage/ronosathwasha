@@ -46,16 +46,28 @@ class Reading is export {
     has Str       $.text       is required;
     has SpeechAct $.speech-act is required;
     has Str       $.predicate  is required;
-    has Tense     $.tense      is required;
     has Aspect    $.aspect     is required;
     has Polarity  $.polarity   is required;
     has Modality  $.modality   is required;
     has Argument  @.arguments;
+
+    #| Absent when no tense morpheme was written, which decision 22 makes a
+    #| meaning rather than a silence: `Lari mirireswe` says what somebody is and
+    #| `Lari miriresweme` says what they are doing at the moment.
+    #|
+    #| This replaced an `explicit-tense` flag beside a tense that defaulted to
+    #| `Present`. The two were perfectly correlated, so one of them was redundant,
+    #| and the one that stayed is the one a careless reader cannot misuse: an
+    #| undefined tense forces a decision at every call site, where `Present` next
+    #| to a flag hands out a confident wrong answer to anyone who reads only the
+    #| first field. `Semantics::Utterance` encodes it the same way, which matters
+    #| because comparing the two types is what that pair is for.
+    has Tense     $.tense;
+
     has Reference $.reference;
     has Str       $.locative;
     has Bool      $.nominal-predicate = False;
     has Bool      $.explicit-copula   = False;
-    has Bool      $.explicit-tense    = True;
 
     #| Words that divided more than one way. The frugal reading was taken, and
     #| this records that a choice was made rather than hiding it.
@@ -268,10 +280,14 @@ sub read-sentence(
             default         { Declarative   }
         }),
         :predicate($predicate.stems.join),
+        # Undefined when nothing was written, rather than Present. A verb always
+        # carries a tense morpheme, so the absence only ever arises on the nominal
+        # predicates decision 22 introduced, and there it is the point.
         :tense(do given $tense-marker.defined ?? $tense-marker.id !! '' {
-            when 'past'   { Past    }
-            when 'future' { Future  }
-            default       { Present }
+            when 'past'    { Past    }
+            when 'future'  { Future  }
+            when 'present' { Present }
+            default        { Tense   }
         }),
         :aspect($aspect.defined ?? Continuous !! Simple),
         :polarity($polarity.defined ?? Negative !! Affirmative),
@@ -281,7 +297,6 @@ sub read-sentence(
         :locative($locative.defined ?? $locative.id !! Str),
         :$nominal-predicate,
         :$explicit-copula,
-        :explicit-tense($tense-marker.defined),
         :@ambiguous,
         :constituents(@divisions[0 ..^ @divisions.end]),
     ));

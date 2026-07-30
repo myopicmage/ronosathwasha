@@ -109,7 +109,10 @@ sub summarise(Turn:D $turn --> Str) is export {
     my $who = $turn.speaker.key.lc;
 
     given $turn.meaning {
-        when Express { "$who expressed { .predicate } ({ .tense.key })" }
+        # `.tense.key` unguarded would die here on a timeless predication, which
+        # carries no tense at all since decision 22. A summary is the wrong place
+        # to learn that: it runs while folding, long after the turn it describes.
+        when Express { "$who expressed { .predicate } ({ .tense.defined ?? .tense.key !! 'untensed' })" }
         when Gap     { "$who could not say { .wanted.raku }" }
         default      { "$who said something not understood" }
     }
