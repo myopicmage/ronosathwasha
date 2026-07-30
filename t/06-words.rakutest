@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 
-plan 17;
+plan 25;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -86,3 +86,46 @@ is-deeply @failed.sort.unique.List, (),
 
 my $nonsense = split('thinəzzz');
 nok $nonsense.defined, 'a string that is not built from declared morphemes fails';
+
+# ------------------------------------------------------ the one ambiguous form ---
+#
+# `swe` and `swo` are the only forms in the language with two claimants at one
+# position: the infinitive and the copularizer share both. Position, which
+# settles everything else here, has nothing to say about them.
+
+my @claimants = $morphology.current
+    .grep(*.position == Suffix)
+    .grep({ .forms.first('swe').defined })
+    .map(*.id)
+    .sort;
+
+is-deeply @claimants.List, ('copularizer', 'infinitive'),
+    'two current suffixes claim swe, which is why anything below is needed';
+
+my $host = stem-hosts($lexicon, $morphology);
+
+is-deeply $host<mirire>.keys.List, (NominalStem,),
+    'a stem listed only under [noun] is nominal';
+is-deeply $host<miri>.keys.List, (VerbStem,),
+    'and one recovered from a [verb] infinitive is verbal';
+
+# The case the lexicon genuinely has both ways. Not a defect: `thinəswe` is
+# `thinə` plus the infinitive, so the noun and the verb stem are the same string
+# by derivation rather than by accident.
+is-deeply $host<thinə>.keys.map(*.key).sort.List, ('NominalStem', 'VerbStem'),
+    'a stem that is both a noun and a verb stem says so';
+
+# The defect this resolves. `mirireswe` is "I am a teacher", and it used to come
+# back with a nonfinite marker on a noun because the infinitive is declared
+# first and `.first` took it.
+is split('mirireswe').suffixes.head.id, 'copularizer',
+    'swe on a nominal stem is the copularizer';
+is split('mirireswe').suffixes.head.gloss, 'COP',
+    'and glosses as one';
+
+# Nothing else moved. A word with no ambiguous form must divide exactly as
+# before, which is what the corpus assertion above is really guarding.
+is split('mothinəme').prefixes.head.id, 'negation',
+    'an unambiguous prefix is untouched by any of this';
+is split('mirireri').suffixes.head.id, 'subject',
+    'and so is an unambiguous suffix';

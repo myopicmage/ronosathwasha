@@ -242,6 +242,39 @@ sub short-gloss(Str:D $gloss --> Str) is export {
           .subst(/ \s+ /, '.', :g);
 }
 
+#| What one stem glosses as, which can be two things.
+#|
+#| `thinə` is "food" under `[noun]` and "eat" under `[verb]`, and the two are the
+#| same string because `thinəswe` derives the predicate from the noun. Storing
+#| one label and letting the noun win was the bug: `thinəme` glossed as
+#| `food-PRS` where the tense had already said which sense was live.
+class StemGloss is export {
+    has Str $.nominal;
+    has Str $.verbal;
+
+    #| The sense the word's morphology selected.
+    #|
+    #| Both, joined, when nothing selected one and the stem really has two. That
+    #| is a bare `thinə` with no affixes at all, where the language genuinely has
+    #| not said, and a gloss that picked silently would be inventing the answer
+    #| rather than reporting it. Same discipline as `UNGLOSSED`.
+    #| A stem nobody declared has no senses to choose between, so the type object
+    #| answers rather than throwing. `:U` and `:D` invocants rather than a
+    #| `.defined` guard inside one method, because attribute access on a type
+    #| object throws before any guard could run: the error is "Cannot look up
+    #| attributes in a type object", which names neither the stem nor the caller.
+    multi method label(StemGloss:U: Host --> Str) { UNGLOSSED }
+
+    multi method label(StemGloss:D: Host $host --> Str) {
+        return $!verbal  if $host.defined && $host == VerbStem    && $!verbal.defined;
+        return $!nominal if $host.defined && $host == NominalStem && $!nominal.defined;
+
+        my @senses = ($!nominal, $!verbal).grep(*.defined).unique;
+
+        @senses.elems ?? @senses.join('/') !! UNGLOSSED;
+    }
+}
+
 #| Every stem that can appear in a division, with the label it glosses as.
 #|
 #| The listed words minus the bound morphology, plus verb stems recovered from
@@ -252,7 +285,8 @@ sub stem-glosses(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export
     my @markers = $morphology.by-id('infinitive').forms;
     my $affixes = $lexicon.affixes.map(*.roman).Set;
 
-    my %glosses;
+    my %nominal;
+    my %verbal;
 
     # `-> $entry` rather than the implicit `$_`, which is not style. The `with`
     # block below rebinds `$_` to the marker, so `.roman` inside it would be
@@ -262,17 +296,48 @@ sub stem-glosses(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export
         my Str $label = short-gloss($entry.gloss);
         my Str $roman = $entry.roman;
 
-        %glosses{$roman} = $label;
+        # The section is the same signal `Ronosathwasha::Words` uses for stem
+        # hosts, and it has to be, or a stem could be verbal for the parser and
+        # nominal for the gloss of the very same word.
+        my %side := $entry.section eq VERB-SECTION ?? %verbal !! %nominal;
+
+        %side{$roman} = $label;
 
         # `$roman.chars > .chars` guards the marker being the whole word: without
         # it a hypothetical entry spelled `swe` would recover the empty stem and
         # claim a gloss for it.
         with @markers.first({ $roman.ends-with($_) && $roman.chars > .chars }) -> $marker {
-            %glosses{ $roman.substr(0, $roman.chars - $marker.chars) } //= $label;
+            %side{ $roman.substr(0, $roman.chars - $marker.chars) } //= $label;
         }
     }
 
-    %glosses.Map;
+    # `// Str` on each, because a missing hash key is `Any` and a `Str` attribute
+    # refuses it. The `Str` type object is the absence this wants; `Any` is a
+    # different absence and the error names the attribute rather than the lookup.
+    (%nominal.keys, %verbal.keys).flat.unique.map({
+        $_ => StemGloss.new(
+            :nominal(%nominal{$_} // Str),
+            :verbal(%verbal{$_}  // Str),
+        )
+    }).Map;
+}
+
+#| Both stem tables, carried together.
+#|
+#| A pair of bare `Map` parameters side by side is a call waiting to be made in
+#| the wrong order, and the symptom would be every stem glossing as `?` rather
+#| than anything that points at the mistake. One typed argument cannot be
+#| transposed.
+class StemTables is export {
+    has Map:D $.glosses is required;
+    has Map:D $.hosts   is required;
+}
+
+sub stem-tables(Lexicon:D $lexicon, Morphology:D $morphology --> StemTables) is export {
+    StemTables.new(
+        :glosses(stem-glosses($lexicon, $morphology)),
+        :hosts(stem-hosts($lexicon, $morphology)),
+    );
 }
 
 #| Gloss one divided word.
@@ -284,7 +349,7 @@ sub gloss-word(
     Script:D     $script,
     Morphology:D $morphology,
     WordParse:D  $word,
-    Map:D        $stem-glosses,
+    StemTables:D $tables,
 ) is export {
 
     # From the joined stems, not from each stem or from the whole word. That is
@@ -302,9 +367,14 @@ sub gloss-word(
         $word.suffixes.map({ .form-for($class) }),
     ).flat;
 
+    # What the rest of the word says this one is. `thinə` under a tense is "eat"
+    # and under a case marker is "food", and the affixes have already decided
+    # before this asks.
+    my $host = word-host($tables.hosts, $word);
+
     my @labels = (
         $word.prefixes.map(*.gloss),
-        $word.stems.map({ $stem-glosses{$_} // UNGLOSSED }),
+        $word.stems.map({ ($tables.glosses{$_} // StemGloss).label($host) }),
         $word.suffixes.map(*.gloss),
     ).flat;
 
@@ -322,8 +392,17 @@ sub gloss-word(
 #|
 #| The predicate is given by its gloss label where one exists, so this line and
 #| the gloss line above it name the same thing the same way.
-sub reading-summary(Reading:D $reading, Map:D $stem-glosses --> Str) is export {
-    my Str $predicate = $stem-glosses{ $reading.predicate } // $reading.predicate;
+#|
+#| `nominal-predicate` supplies the host here, where the gloss line got it from
+#| the affixes. That is the reading's own answer to the same question, so an
+#| identity clause glosses its predicate as a noun and a verbal one as a verb.
+#| An undeclared stem keeps its own spelling rather than becoming `?`, because a
+#| name is the usual case and printing `laari` says more than a question mark.
+sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) is export {
+    my $host = $reading.nominal-predicate ?? NominalStem !! VerbStem;
+    my $sense = $tables.glosses{ $reading.predicate };
+
+    my Str $predicate = $sense.defined ?? $sense.label($host) !! $reading.predicate;
 
     my @features = $reading.speech-act.key.lc;
 
@@ -383,7 +462,7 @@ sub gloss-sentence(
     Str:D        $sentence,
     Coverage    :$corpus,
 ) is export {
-    my $stems = stem-glosses($lexicon, $morphology);
+    my $tables = stem-tables($lexicon, $morphology);
 
     my GlossedWord @words = $sentence.words.map(-> $written {
         my Str $bare = $written.subst(/<[?.,!]>+$/, '');
@@ -393,7 +472,7 @@ sub gloss-sentence(
         gloss-word(
             $script, $morphology,
             $division.defined ?? $division !! open-nominal($bare),
-            $stems,
+            $tables,
         );
     });
 
@@ -408,7 +487,7 @@ sub gloss-sentence(
         $translation = $outcome ~~ Understood
             ?? Translation.new(
                    :source(FromReading),
-                   :text(reading-summary($outcome.reading, $stems)),
+                   :text(reading-summary($outcome.reading, $tables)),
                )
             !! Translation.new(:source(Unavailable), :text($outcome.summary));
     }

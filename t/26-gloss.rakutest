@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 37;
+plan 46;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -78,21 +78,43 @@ is short-gloss('and, and then, furthermore (clause-level discourse continuation)
 
 # --------------------------------------------------------------- stem labels ---
 
-my $stems = stem-glosses($lexicon, $morphology);
+my $tables = stem-tables($lexicon, $morphology);
+my $stems  = $tables.glosses;
 
-is $stems<mirire>, 'teacher', 'a listed noun glosses from its own entry';
-is $stems<miri>, 'teach',
+is $stems<mirire>.nominal, 'teacher', 'a listed noun glosses from its own entry';
+is $stems<miri>.verbal, 'teach',
     'and a verb stem recovered from its infinitive takes the infinitive gloss';
 
 nok $stems<swe>.defined, 'the bound morphology is not offered as a stem';
 nok $stems<laari>.defined, 'and neither is a name nobody declared';
+
+# ------------------------------------------------------------ two senses ---
+#
+# `thinə` is "food" under `[noun]` and "eat" under `[verb]`, because `thinəswe`
+# derives the predicate from the noun. One string, two labels, and the affixes
+# say which is meant.
+
+is $stems<thinə>.nominal, 'food', 'a stem in both sections keeps its noun gloss';
+is $stems<thinə>.verbal, 'eat', 'and its verb gloss';
+
+is $stems<thinə>.label(VerbStem), 'eat', 'a verbal word selects the verb sense';
+is $stems<thinə>.label(NominalStem), 'food', 'and a nominal word the noun sense';
+
+# Nothing chose, so nothing is chosen for it. A gloss that picked silently here
+# would be inventing the answer rather than reporting that the language has not
+# given one.
+is $stems<thinə>.label(Host), 'food/eat',
+    'with no host to go on, both senses are shown rather than one guessed';
+
+is $stems<mirire>.label(VerbStem), 'teacher',
+    'a stem with one sense ignores a host that disagrees';
 
 # ------------------------------------------------------------------- a word ---
 
 my $teach = gloss-word(
     $script, $morphology,
     parse-word($lexicon, $morphology, 'demirime'),
-    $stems,
+    $tables,
 );
 
 is $teach.form, 'de-miri-me', 'a word is rewritten with its boundaries shown';
@@ -138,9 +160,9 @@ is $named.words.tail.line, 'teach-PRS',
 
 my $declared = (
     $morphology.morphemes.map(*.gloss),
-    $stems.values,
+    $stems.values.map({ .nominal, .verbal }),
     UNGLOSSED,
-).flat.Set;
+).flat.grep(*.defined).Set;
 
 my @sentences = <
     Nari|toro? Sheri|tomwu? Layi|demirime. Nari|tethinəme?
@@ -176,8 +198,25 @@ my $unsourced = gloss-sentence($script, $lexicon, $morphology, 'Sho thinəme.');
 
 is $unsourced.translation.source, FromReading,
     'without a corpus the same sentence falls back to its reading';
-is $unsourced.translation.render, '[food: declarative, present simple, distal]',
+is $unsourced.translation.render, '[eat: declarative, present simple, distal]',
     'rendered in brackets, and glossing the stem the way the gloss line did';
+
+# ------------------------------------------------- the sense a word selects ---
+#
+# The defect this closes. `thinəme` used to gloss as `food-PRS`: the noun entry
+# won because it is listed directly, even though the tense on the word had
+# already said the predicate was meant.
+
+is gloss-sentence($script, $lexicon, $morphology, 'Sho thinəme.').words.tail.line,
+    'eat-PRS', 'a tense selects the verbal sense of a two-sense stem';
+
+is gloss-sentence($script, $lexicon, $morphology, 'Thinəyi twame.').words.head.line,
+    'food-OBJ', 'and a case marker selects the nominal one';
+
+# The other half of the same rule, in the parser rather than here: `swe` has two
+# claimants and the stem settles it.
+is gloss-sentence($script, $lexicon, $morphology, 'Lari mirireswe.').words.tail.line,
+    'teacher-COP', 'swe on a noun glosses as the copularizer, not the infinitive';
 
 # Zero-marked features are absent from the language and must be absent here.
 # Printing "affirmative" would report a choice nobody wrote a morpheme for.
