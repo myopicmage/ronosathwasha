@@ -20,8 +20,8 @@ import tomllib
 from pathlib import Path
 from typing import Any, Final
 
-from ronesathwasha import Entry, Lexicon, ParseFailure, Script, load, load_lexicon
-from tools.webfont import FAMILY, compile_woff2, face
+from ronosathwasha import Entry, Lexicon, ParseFailure, Script, load, load_lexicon
+from tools.webfont import compile_woff2, face, family
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 OUT: Final = ROOT / "build" / "dictionary.html"
@@ -161,8 +161,8 @@ def page(script: Script, lexicon: Lexicon, woff2: bytes) -> str:
         + [p for p in (paradigms(script),) if p]
     )
     return TEMPLATE.format(
-        family=FAMILY,
-        face=face(woff2),
+        family=family(script),
+        face=face(script, woff2),
         sections=sections,
         count=len(lexicon.writable()),
         blocked=len(lexicon.blocked()),
@@ -186,7 +186,7 @@ TEMPLATE: Final = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ronesathwasha dictionary</title>
+<title>ronosathwasha dictionary</title>
 <style>
 /* The font is the decoder, not a style. Without it the private-use code points
    below are unreadable, so it travels with the page rather than being linked. */
@@ -344,7 +344,7 @@ footer code {{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }}
 <div class="wrap">
 
 <header>
-  <h1>ronesathwasha</h1>
+  <h1>ronosathwasha</h1>
   <p class="tagline">{count} words. Search the English or the romanisation.</p>
 </header>
 

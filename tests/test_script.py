@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ronesathwasha import (
+from ronosathwasha import (
     Backness,
     Direction,
     Height,
@@ -114,12 +114,20 @@ def test_voicing_stem_only_ever_voices(script: Script) -> None:
 
 
 def test_autonym_round_trips(script: Script) -> None:
-    parsed = script.parse("ronesathwasha")
+    """The language's own name, read from the declaration and spelled out here.
+
+    The word comes from `script.name` rather than a literal, because a literal is
+    how this test came to assert the pre-harmony `rone-` for a while after
+    `data/script.toml` said `rono-`: it went on passing, against a word that was
+    no longer the autonym. The expectation stays concrete on purpose, so renaming
+    the language fails here loudly instead of quietly testing something else.
+    """
+    parsed = script.parse(script.name)
     assert not isinstance(parsed, ParseFailure)
-    assert [s.roman for s in parsed] == ["ro", "ne", "sa", "thwa", "sha"]
+    assert [s.roman for s in parsed] == ["ro", "no", "sa", "thwa", "sha"]
     assert script.encode(parsed) == (
         0xE009, 0xE023,  # ro
-        0xE001, 0xE022,  # ne
+        0xE001, 0xE023,  # no
         0xE006, 0xE024,  # sa
         0xE004, 0xE02A,  # thwa
         0xE007, 0xE024,  # sha

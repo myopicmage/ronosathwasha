@@ -25,7 +25,7 @@ remain in the Scrivener project.
 
 [[example]]
 english = "I eat"
-ronesathwasha = "Lari thinəme."
+ronosathwasha = "Lari thinəme."
 analysis = [
   "I (subject marker)",
   "food (present tense)",
@@ -35,7 +35,7 @@ common_note = "drop subject"
 
 [[example]]
 english = "I am eating"
-ronesathwasha = "Lari thinəmedi."
+ronosathwasha = "Lari thinəmedi."
 analysis = [
   "I (subject marker)",
   "food (present tense) (continuous)",
@@ -44,7 +44,7 @@ common = ["thinəmedi"]
 
 [[example]]
 english = "I do not eat"
-ronesathwasha = "Lari mothinəme."
+ronosathwasha = "Lari mothinəme."
 analysis = [
   "I (subject marker)",
   "(negation marker) food (present tense)",
@@ -54,7 +54,7 @@ common_note = "drop grammar markers"
 
 [[example]]
 english = "The teacher teaches"
-ronesathwasha = "Mirireri mirime."
+ronosathwasha = "Mirireri mirime."
 analysis = [
   "Teach-person (subject marker)",
   "teach (present tense)",
@@ -62,7 +62,7 @@ analysis = [
 
 [[example]]
 english = "The teacher is teaching me"
-ronesathwasha = "Mirireri layi mirimedi."
+ronosathwasha = "Mirireri layi mirimedi."
 analysis = [
   "Teach-person (subject marker)",
   "me (object marker)",
@@ -71,7 +71,7 @@ analysis = [
 
 [[example]]
 english = "(You) teach me (now)"
-ronesathwasha = "Layi demirime."
+ronosathwasha = "Layi demirime."
 analysis = [
   "I (object marker)",
   "(command marker) teach (present tense)",
@@ -79,7 +79,7 @@ analysis = [
 
 [[example]]
 english = "(I) eat that food (over there)"
-ronesathwasha = "Sho thinəme."
+ronosathwasha = "Sho thinəme."
 analysis = [
   "That (over there)",
   "food (present tense)",
@@ -87,7 +87,7 @@ analysis = [
 
 [[example]]
 english = "I might eat that food"
-ronesathwasha = "Lari sha lithinəme."
+ronosathwasha = "Lari sha lithinəme."
 analysis = [
   "I (subject marker)",
   "that (near you)",
@@ -100,7 +100,7 @@ common = [
 
 [[example]]
 english = "My dog eats"
-ronesathwasha = "Lasa runəru thinəme."
+ronosathwasha = "Lasa runəru thinəme."
 analysis = [
   "I (possessive)",
   "dog (subject marker)",
@@ -109,7 +109,7 @@ analysis = [
 
 [[example]]
 english = "Do you eat?"
-ronesathwasha = "Nari tethinəme?"
+ronosathwasha = "Nari tethinəme?"
 analysis = [
   "You (subject marker)",
   "(question marker) food (present tense)",
@@ -117,7 +117,7 @@ analysis = [
 
 [[example]]
 english = "(I) want to eat"
-ronesathwasha = "Thinəswe twame."
+ronosathwasha = "Thinəswe twame."
 analysis = [
   "Food (infinitive)",
   "want (present tense)",
@@ -127,7 +127,7 @@ common_note = "drop markers, becomes “I want food”"
 
 [[example]]
 english = "(I) want that (thing)"
-ronesathwasha = "Shamwuyu twame."
+ronosathwasha = "Shamwuyu twame."
 analysis = [
   "That-thing",
   "want (present tense)",
@@ -137,7 +137,7 @@ common_note = "object and tense markers dropped, implied"
 
 [[example]]
 english = "I go home"
-ronesathwasha = "Lari taði medime."
+ronosathwasha = "Lari taði medime."
 analysis = [
   "I (subject marker)",
   "home (towards)",
@@ -148,7 +148,7 @@ common_note = "drop subject, location marker, and tense marker"
 
 [[example]]
 english = "(Person) has a dog"
-ronesathwasha = "Ðari runəyu time."
+ronosathwasha = "Ðari runəyu time."
 analysis = [
   "Alive-thing (subject marker)",
   "dog (object marker)",

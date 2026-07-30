@@ -12,7 +12,7 @@ rule of the language, and it now lives with the grammar that has to apply it.
 
 from __future__ import annotations
 
-from ronesathwasha import Lexicon, ParseFailure
+from ronosathwasha import Lexicon, ParseFailure
 
 
 def test_every_entry_is_writable(lexicon: Lexicon) -> None:

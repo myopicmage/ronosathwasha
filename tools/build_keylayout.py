@@ -17,7 +17,7 @@ import re
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
 
-from ronesathwasha import Consonant, Script, Vowel, load
+from ronosathwasha import Consonant, Script, Vowel, load
 from tools.installed import LAYOUTS, report
 
 # macOS virtual key codes, ANSI. Every consonant sits on the letter it is
@@ -171,6 +171,11 @@ def build(script: Script) -> str:
     consonants, digraphs, vowels = _plan(script)
     letters = {c.glyph: c for c in (*consonants.values(), *digraphs.values())}
 
+    # The name macOS shows in the input menu, from `data/script.toml` rather than
+    # from a literal here. This and the font family were the two names LANGUAGE.md
+    # listed as still owed after the autonym was repaired.
+    family = script.family
+
     # Two kinds of state, and the difference matters for delete. An armed
     # consonant has written nothing yet, so backspacing it cancels the dead key;
     # a post-vowel state has already written its syllable, so backspacing is
@@ -309,7 +314,7 @@ def build(script: Script) -> str:
   emitting both code points at once. Shift adds the mark on either half, so it
   gives the derived consonant or the glide vowel.
 -->
-<keyboard group="126" id="{LAYOUT_ID}" name="Ronesathwasha">
+<keyboard group="126" id="{LAYOUT_ID}" name="{family}">
   <layouts>
     <layout first="0" last="17" modifiers="modifiers" mapSet="keys"/>
   </layouts>
@@ -341,7 +346,7 @@ def build(script: Script) -> str:
 
 def main() -> None:
     script = load()
-    out = Path(__file__).resolve().parent.parent / "layouts" / "Ronesathwasha.keylayout"
+    out = Path(__file__).resolve().parent.parent / "layouts" / "Ronosathwasha.keylayout"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(build(script), encoding="utf-8")
 

@@ -36,8 +36,8 @@ import html
 from pathlib import Path
 from typing import Final
 
-from ronesathwasha import Consonant, Script, Syllable, Vowel, load
-from tools.webfont import FAMILY, compile_woff2, face
+from ronosathwasha import Consonant, Script, Syllable, Vowel, load
+from tools.webfont import compile_woff2, face, family
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 OUT: Final = ROOT / "build" / "syllabary.html"
@@ -263,8 +263,8 @@ def page(script: Script, woff2: bytes) -> str:
         for size in SIZES
     )
     return TEMPLATE.format(
-        family=FAMILY,
-        face=face(woff2),
+        family=family(script),
+        face=face(script, woff2),
         buttons=buttons,
         grid=grid(script),
         long_grid=grid(script, long=True),
@@ -302,7 +302,7 @@ TEMPLATE: Final = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ronesathwasha syllabary</title>
+<title>ronosathwasha syllabary</title>
 <style>
 /* The font is the decoder, not a style. Without it the private-use code points
    below are unreadable, so it travels with the page rather than being linked. */

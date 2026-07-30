@@ -4,7 +4,7 @@ import pytest
 from fontTools.ttLib import TTFont
 from ufo2ft import compileTTF
 
-from ronesathwasha import Lexicon, Script, load, load_lexicon
+from ronosathwasha import Lexicon, Script, load, load_lexicon
 from tests.harness import Built
 from tools.build_ufo import build
 
@@ -28,7 +28,7 @@ def built(tmp_path_factory: pytest.TempPathFactory) -> Built:
     """
     script = load()
     work = tmp_path_factory.mktemp("font")
-    ufo = build(script, work / "Ronesathwasha.ufo")
-    path = work / "Ronesathwasha.ttf"
+    ufo = build(script, work / "Ronosathwasha.ufo")
+    path = work / "Ronosathwasha.ttf"
     compileTTF(ufo).save(path)
     return Built(path, TTFont(path), script)

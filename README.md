@@ -1,9 +1,9 @@
-# ronesathwasha
+# ronosathwasha
 
 A font and a macOS keyboard layout for a constructed script: a strict
 consonant-plus-vowel syllabary, encoded in the Unicode Private Use Area.
 
-`ronesathwasha` is `rone` + `sa` + `thwasha`, "people's tongue".
+`ronosathwasha` is `rone` + `sa` + `thwasha`, "people's tongue".
 
 11 consonants x 12 vowels = 132 syllables. Every syllable is exactly one
 consonant and one vowel: no onsetless syllables, no codas, no clusters.
@@ -23,10 +23,10 @@ against that file, so `make serve` will not recompile a font to serve a page
 that has not changed. The underlying commands, if you want them directly:
 
 ```sh
-python3 -m tools.build_font       # declaration -> UFO -> build/Ronesathwasha.ttf
+python3 -m tools.build_font       # declaration -> UFO -> build/Ronosathwasha.ttf
 python3 -m tools.build_dictionary # lexicon -> build/dictionary.html
 python3 -m tools.build_docs       # docs/*.html -> build/, font inlined
-python3 -m tools.build_keylayout  # -> layouts/Ronesathwasha.keylayout
+python3 -m tools.build_keylayout  # -> layouts/Ronosathwasha.keylayout
 ```
 
 Install both halves:
@@ -75,7 +75,7 @@ the font and points at a path, which is right for editing and wrong for anyone
 else. `build_docs` rewrites that `@font-face` rule to carry the font it just
 compiled, and writes the result next to the dictionary.
 
-The `local("Ronesathwasha")` in a source page is the trap worth knowing about.
+The `local("Ronosathwasha")` in a source page is the trap worth knowing about.
 It resolves against the *installed* font, so the page looks correct here however
 stale it is, and shows nothing recognisable anywhere else. `pytest` fails if a
 built page can still reach outside itself for a font.
@@ -162,7 +162,7 @@ Makefile               every command worth running, and what it depends on
 data/script.toml       the inventory, the PUA block, the derivation rules
 data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
 data/examples.toml     the sentence examples, checked against the page that shows them
-ronesathwasha/         those files parsed into models that cannot hold a broken one
+ronosathwasha/         those files parsed into models that cannot hold a broken one
 sources/strokes.py     the consonant letterforms, as centrelines
 tools/                 the generators: UFO, font, keyboard layout, dictionary
 docs/                  hand-written pages; rebuilt into build/ with the font in them
@@ -200,7 +200,7 @@ Every glyph is a single centreline stroked with one nib. Change `PEN` in
 
 ## Notes
 
-`sources/Ronesathwasha.ufo` and `layouts/Ronesathwasha.keylayout` are generated
+`sources/Ronosathwasha.ufo` and `layouts/Ronosathwasha.keylayout` are generated
 and overwritten on every build. Edit `sources/strokes.py` for the letterforms
 and `data/script.toml` for the inventory.
 

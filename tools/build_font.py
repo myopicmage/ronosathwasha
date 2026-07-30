@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ronesathwasha import load
+from ronosathwasha import load
 from tools.build_ufo import build
 from tools.installed import FONTS, report
 
@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def main() -> None:
-    ufo = ROOT / "sources" / "Ronesathwasha.ufo"
+    ufo = ROOT / "sources" / "Ronosathwasha.ufo"
     build(load(), ufo)
 
     # --keep-overlaps because the outlines arrive already unioned: every glyph
@@ -43,7 +43,7 @@ def main() -> None:
         sys.stderr.write(result.stderr)
         raise SystemExit(result.returncode)
 
-    ttf = ROOT / "build" / "Ronesathwasha.ttf"
+    ttf = ROOT / "build" / "Ronosathwasha.ttf"
     print(f"{ttf.relative_to(Path.cwd())}: {ttf.stat().st_size:,} bytes")
     report(ttf, FONTS)
 

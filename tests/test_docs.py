@@ -14,9 +14,9 @@ from pathlib import Path
 
 import pytest
 
-from ronesathwasha import ParseFailure, Script
+from ronosathwasha import ParseFailure, Script
 from tools.build_docs import DocError, inline, pages
-from tools.webfont import FAMILY, compile_woff2
+from tools.webfont import compile_woff2, family
 
 FACE_BLOCK = re.compile(r"@font-face\s*\{.*?\}", re.S)
 SOURCE = re.compile(r"local\(\s*[^)]*\)|url\(\s*[\"']?(?P<target>[^\"')]*)")
@@ -36,22 +36,28 @@ def test_there_are_pages_to_build() -> None:
 
 
 @pytest.mark.parametrize("path", pages(), ids=lambda p: p.name)
-def test_every_page_declares_one_face_this_can_replace(path: Path) -> None:
+def test_every_page_declares_one_face_this_can_replace(
+    script: Script, path: Path
+) -> None:
     source = path.read_text(encoding="utf-8")
-    assert FAMILY in source, f"{path.name} never names the font"
-    inline(source, path, b"")
+    assert family(script) in source, f"{path.name} never names the font"
+    inline(script, source, path, b"")
 
 
-def test_a_page_with_no_face_is_an_error_rather_than_a_silent_copy() -> None:
+def test_a_page_with_no_face_is_an_error_rather_than_a_silent_copy(
+    script: Script,
+) -> None:
     """Silently serving a page that shows tofu is the failure being prevented."""
     with pytest.raises(DocError):
-        inline("<html><body>no font here</body></html>", Path("x.html"), b"")
+        inline(script, "<html><body>no font here</body></html>", Path("x.html"), b"")
 
 
-def test_a_page_with_two_faces_is_an_error_rather_than_a_guess() -> None:
-    face = f'@font-face {{ font-family: "{FAMILY}"; src: url(a.ttf); }}'
+def test_a_page_with_two_faces_is_an_error_rather_than_a_guess(
+    script: Script,
+) -> None:
+    face = f'@font-face {{ font-family: "{family(script)}"; src: url(a.ttf); }}'
     with pytest.raises(DocError):
-        inline(face + face, Path("x.html"), b"")
+        inline(script, face + face, Path("x.html"), b"")
 
 
 def test_the_built_pages_carry_every_font_they_name(script: Script) -> None:
@@ -65,7 +71,7 @@ def test_the_built_pages_carry_every_font_they_name(script: Script) -> None:
     assert woff2[:4] == b"wOF2"
 
     for path in pages():
-        built = inline(path.read_text(encoding="utf-8"), path, woff2)
+        built = inline(script, path.read_text(encoding="utf-8"), path, woff2)
         blocks = FACE_BLOCK.findall(built)
         assert blocks, f"{path.name} has no @font-face after inlining"
 

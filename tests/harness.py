@@ -10,7 +10,7 @@ from pathlib import Path
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.ttLib import TTFont
 
-from ronesathwasha import ParseFailure, Script
+from ronosathwasha import ParseFailure, Script
 
 SHAPED = re.compile(
     r"(?P<glyph>[^=|\[\]]+)=(?P<cluster>\d+)"

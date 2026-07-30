@@ -20,7 +20,7 @@ did when the affricates were dropped.
 
 Raku's C<|> is longest-token matching rather than first-match, and interpolating
 an array into a regex uses it. So C<th> beats C<t> and C<wa> beats C<a> without
-the inventory being sorted, which the Python parser in C<ronesathwasha/script.py>
+the inventory being sorted, which the Python parser in C<ronosathwasha/script.py>
 has to do by hand with a comment explaining why. Ordering the declaration
 differently cannot break this grammar.
 

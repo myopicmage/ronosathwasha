@@ -29,33 +29,33 @@ fi
 # it will be under direnv. The guard stops this recursing if the shell somehow
 # does not provide fontmake.
 if ! command -v fontmake >/dev/null 2>&1; then
-  if [[ -n "${RONESATHWASHA_RESHELLED:-}" ]]; then
+  if [[ -n "${RONOSATHWASHA_RESHELLED:-}" ]]; then
     echo "fontmake missing even inside the dev shell." >&2
     exit 1
   fi
   echo "Entering the dev shell..."
-  RONESATHWASHA_RESHELLED=1 exec nix develop 'path:.' --command "$0" "$@"
+  RONOSATHWASHA_RESHELLED=1 exec nix develop 'path:.' --command "$0" "$@"
 fi
 
 digest() { [[ -f "$1" ]] && shasum -a 256 "$1" | cut -c1-16 || echo "absent"; }
 
-layout_before=$(digest "$layouts/Ronesathwasha.keylayout")
+layout_before=$(digest "$layouts/Ronosathwasha.keylayout")
 
 echo "Building..."
 python3 -m tools.build_font
 python3 -m tools.build_keylayout
 
 mkdir -p "$fonts" "$layouts"
-cp build/Ronesathwasha.ttf "$fonts/"
-cp layouts/Ronesathwasha.keylayout "$layouts/"
+cp build/Ronosathwasha.ttf "$fonts/"
+cp layouts/Ronosathwasha.keylayout "$layouts/"
 
 echo
 echo "Installed:"
-echo "  $fonts/Ronesathwasha.ttf"
-echo "  $layouts/Ronesathwasha.keylayout"
+echo "  $fonts/Ronosathwasha.ttf"
+echo "  $layouts/Ronosathwasha.keylayout"
 
 echo
-if [[ "$(digest "$layouts/Ronesathwasha.keylayout")" == "$layout_before" ]]; then
+if [[ "$(digest "$layouts/Ronosathwasha.keylayout")" == "$layout_before" ]]; then
   echo "The font is live now. The keyboard layout is unchanged, so no logout."
 else
   echo "The font is live now."

@@ -168,6 +168,19 @@ class Script:
     vowel_base: int
     glide_offset: int
 
+    @property
+    def family(self) -> str:
+        """The autonym as an artefact name: font family, keyboard layout, title.
+
+        Derived rather than declared, because a second copy of the name is a
+        second thing to forget. The name has been repaired once already, when
+        harmony made `rone-` into `rono-`, and the font family, the layout, the
+        Python package and the docs all kept the old spelling for a while after
+        `data/script.toml` had the new one. Anything that reads this cannot fall
+        behind that file again.
+        """
+        return self.name.capitalize()
+
     def codepoint(self, letter: Consonant | Vowel) -> int:
         if isinstance(letter, Consonant):
             return self.consonant_base + letter.offset

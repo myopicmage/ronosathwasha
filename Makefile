@@ -36,7 +36,7 @@ RAKU_REPO := inst\#$(RAKU_DEPS)
 RAKU_STAMP := $(RAKU_DEPS)/.deps.stamp
 RAKU := $(RESHELL) env RAKULIB="$(RAKU_REPO)"
 
-MODEL := $(wildcard ronesathwasha/*.py)
+MODEL := $(wildcard ronosathwasha/*.py)
 SCRIPT := data/script.toml
 LEXICON := data/lexicon.toml
 MORPHOLOGY := data/morphology.toml
@@ -46,10 +46,10 @@ MORPHOLOGY := data/morphology.toml
 UFO := $(MODEL) $(SCRIPT) sources/strokes.py tools/build_ufo.py
 WEB := $(UFO) tools/webfont.py
 
-FONT := build/Ronesathwasha.ttf
+FONT := build/Ronosathwasha.ttf
 DICTIONARY := build/dictionary.html
 SYLLABARY := build/syllabary.html
-KEYLAYOUT := layouts/Ronesathwasha.keylayout
+KEYLAYOUT := layouts/Ronosathwasha.keylayout
 PAGES := $(wildcard docs/*.html)
 
 # build_docs writes one file per page from a single run. A stamp is how make

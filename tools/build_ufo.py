@@ -24,7 +24,7 @@ from fontTools.svgLib.path import parse_path
 from fontTools.misc.transform import Transform
 from ufoLib2.objects import Glyph
 
-from ronesathwasha import Direction, Script, load
+from ronosathwasha import Direction, Script, load
 from sources.strokes import CONSONANTS, PEN
 
 UPM = 1000
@@ -312,7 +312,7 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
 
     font = ufoLib2.Font()
     info = font.info
-    info.familyName = "Ronesathwasha"
+    info.familyName = script.family
     info.styleName = "Regular"
     info.unitsPerEm = UPM
     info.ascender = 750
@@ -434,7 +434,7 @@ def build(script: Script, out: Path) -> ufoLib2.Font:
 
 def main() -> None:
     script = load()
-    out = Path(__file__).resolve().parent.parent / "sources" / "Ronesathwasha.ufo"
+    out = Path(__file__).resolve().parent.parent / "sources" / "Ronosathwasha.ufo"
     font = build(script, out)
     contours = sum(len(g.contours) for g in font)
     print(f"{out.relative_to(Path.cwd())}: {len(font)} glyphs, {contours} contours")

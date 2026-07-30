@@ -183,10 +183,19 @@ way, so repairing the autonym did not require settling the question marker.
 `rone` ("people") became `rono` in the same change, as the first entry of the
 repair pass that decision 5 implies.
 
-**Still owed**: the font family name and the keyboard layout name are hardcoded
-in `tools/build_ufo.py` and `tools/build_keylayout.py` rather than read from
-`data/script.toml`, and the Python package, the UFO directory and the docs all
-still say `ronesathwasha`.
+**Settled.** The font family and the keyboard layout name now come from
+`data/script.toml` by way of `Script.family`, rather than from literals in
+`tools/build_ufo.py` and `tools/build_keylayout.py`. The Python package, the UFO
+directory, the layout file, the docs and the repository were renamed with them.
+
+`data/script.toml` is the only file that spells the name at all, which is the
+part worth keeping: the drift happened because two artefacts carried their own
+copy, so repairing the autonym in the data left them behind and neither of them
+could notice.
+
+One thing it cost: the autonym was the smoke test in `tests/test_coretext.py`
+partly because `rone-` exercised the left-pointing chevron, and `rono-` does not.
+`tumame` covers that position, and the comment there now says so.
 
 ## 7. The subject particle is `-ri/-ru`
 

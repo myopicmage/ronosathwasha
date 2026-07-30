@@ -115,7 +115,7 @@ doing real work**, which is worth remembering while replacing them.
 
 ## Measurements
 
-From `build/Ronesathwasha.ttf`, advance 1000.
+From `build/Ronosathwasha.ttf`, advance 1000.
 
 | | units |
 |---|---|

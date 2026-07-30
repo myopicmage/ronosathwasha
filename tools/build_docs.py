@@ -23,37 +23,45 @@ import re
 from pathlib import Path
 from typing import Final
 
-from ronesathwasha import load
-from tools.webfont import FAMILY, compile_woff2, face
+from ronosathwasha import Script, load
+from tools.webfont import compile_woff2, face, family
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 DOCS: Final = ROOT / "docs"
 OUT: Final = ROOT / "build"
 
-# The whole @font-face rule for our family, however its src is spelled. Matched
-# rather than string-replaced because the src is the part that varies, and a
-# rule this file did not recognise must be an error, not a silent pass-through.
-FACE = re.compile(
-    r"@font-face\s*\{[^}]*?font-family:\s*[\"']?" + FAMILY + r"[\"']?[^}]*?\}",
-    re.IGNORECASE,
-)
+def face_pattern(script: Script) -> re.Pattern[str]:
+    """The whole @font-face rule for our family, however its src is spelled.
+
+    Matched rather than string-replaced because the src is the part that varies,
+    and a rule this file did not recognise must be an error rather than a silent
+    pass-through. Built per call rather than once at import, because the family
+    comes from `data/script.toml` and this file should not read it to find out.
+    """
+    return re.compile(
+        r"@font-face\s*\{[^}]*?font-family:\s*[\"']?"
+        + re.escape(family(script))
+        + r"[\"']?[^}]*?\}",
+        re.IGNORECASE,
+    )
 
 
 class DocError(Exception):
     """A page cannot be served as-is and this cannot fix it."""
 
 
-def inline(source: str, path: Path, woff2: bytes) -> str:
+def inline(script: Script, source: str, path: Path, woff2: bytes) -> str:
     """Swap the page's @font-face rule for one carrying the font."""
-    found = FACE.findall(source)
+    pattern = face_pattern(script)
+    found = pattern.findall(source)
     if len(found) != 1:
         raise DocError(
-            f"{path.name}: expected exactly one @font-face rule for {FAMILY}, "
-            f"found {len(found)}. A page that shows the script needs one, and "
-            f"this cannot guess which of several to replace."
+            f"{path.name}: expected exactly one @font-face rule for "
+            f"{family(script)}, found {len(found)}. A page that shows the script "
+            f"needs one, and this cannot guess which of several to replace."
         )
 
-    return FACE.sub(lambda _: face(woff2), source, count=1)
+    return pattern.sub(lambda _: face(script, woff2), source, count=1)
 
 
 def pages() -> list[Path]:
@@ -68,7 +76,8 @@ def main() -> None:
     for path in pages():
         out = OUT / path.name
         out.write_text(
-            inline(path.read_text(encoding="utf-8"), path, woff2), encoding="utf-8"
+            inline(script, path.read_text(encoding="utf-8"), path, woff2),
+            encoding="utf-8",
         )
         print(f"{out.relative_to(Path.cwd())}: {out.stat().st_size:,} bytes")
 

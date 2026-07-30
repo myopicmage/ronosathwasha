@@ -8,7 +8,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Harmony;
 use Ronosathwasha::Semantics;
 
-# Harmony moved here from `ronesathwasha/lexicon.py`, which computed the same
+# Harmony moved here from `ronosathwasha/lexicon.py`, which computed the same
 # four classes and was used by nothing but its own tests. The invariants those
 # tests protected are the last two blocks of this file, unchanged in substance:
 # the writable lexicon contains no disharmonious word, and a phrase harmonises

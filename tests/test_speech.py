@@ -10,7 +10,7 @@ Kevin's ears, and the tests can only check that the mapping is total.
 
 from __future__ import annotations
 
-from ronesathwasha import Consonant, Script, Vowel
+from ronosathwasha import Consonant, Script, Vowel
 from tools.speak import ESPEAK, phonemes
 
 

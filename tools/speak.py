@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 from typing import Final
 
-from ronesathwasha import ParseFailure, Script, load
+from ronosathwasha import ParseFailure, Script, load
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 OUT: Final = ROOT / "build" / "speech"

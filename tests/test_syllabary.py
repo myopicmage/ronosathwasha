@@ -14,7 +14,7 @@ import re
 
 import pytest
 
-from ronesathwasha import Script
+from ronosathwasha import Script
 from tools.build_syllabary import (
     consonant_contrasts,
     page,

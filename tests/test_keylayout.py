@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from ronesathwasha import Consonant, ParseFailure, Script, Vowel, load
+from ronosathwasha import Consonant, ParseFailure, Script, Vowel, load
 from tools.build_keylayout import (
     CONSONANT_KEYS,
     DIGRAPHS,
@@ -125,7 +125,7 @@ def test_generated_layout_is_well_formed() -> None:
     macOS requires them anyway and Ukelele writes them the same way, so the
     structure is checked on a copy with those references swapped out.
     """
-    path = Path("layouts/Ronesathwasha.keylayout")
+    path = Path("layouts/Ronosathwasha.keylayout")
     assert path.exists(), "run python3 -m tools.build_keylayout"
     ET.fromstring(parseable(path.read_text(encoding="utf-8")))
 
@@ -218,7 +218,7 @@ def test_space_passes_through_and_abandons_a_pending_consonant(
 
 
 def test_the_autonym_is_typeable(script: Script, xml: str) -> None:
-    parsed = script.parse("ronesathwasha")
+    parsed = script.parse("ronosathwasha")
     assert not isinstance(parsed, ParseFailure)
 
     board = Keyboard.parse(xml)

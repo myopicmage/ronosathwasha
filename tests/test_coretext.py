@@ -26,9 +26,9 @@ pytestmark = [
 ]
 
 WORDS = [
-    "ronesathwasha",  # every position: right, left, below, glide, below
+    "ronosathwasha",  # the autonym: right twice, below, glide, below
     "nishimi",        # up-left, and a derived consonant
-    "tumame",         # up-right
+    "tumame",         # up-right, and left, which the autonym lost on being repaired
     "twatha",         # a glide over a derived consonant
     "dhələ",          # both marks, and the ring that encloses rather than sits
 ]

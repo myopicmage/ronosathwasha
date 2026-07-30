@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from ronesathwasha import Lexicon, ParseFailure, Script, load_lexicon
+from ronosathwasha import Lexicon, ParseFailure, Script, load_lexicon
 from tools.build_dictionary import canonical, page, searchable
 from tools.webfont import compile_woff2
 

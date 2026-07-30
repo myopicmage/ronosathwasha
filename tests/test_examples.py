@@ -115,7 +115,7 @@ def test_every_sentence_matches_its_article(
 ) -> None:
     where = example["english"]
 
-    assert example["ronesathwasha"] == article.form, where
+    assert example["ronosathwasha"] == article.form, where
     assert " ".join(example["analysis"]) == article.analysis, where
 
     expected_common = example.get("common")

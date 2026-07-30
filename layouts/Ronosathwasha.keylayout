@@ -10,7 +10,7 @@
   emitting both code points at once. Shift adds the mark on either half, so it
   gives the derived consonant or the glide vowel.
 -->
-<keyboard group="126" id="-19217" name="Ronesathwasha">
+<keyboard group="126" id="-19217" name="Ronosathwasha">
   <layouts>
     <layout first="0" last="17" modifiers="modifiers" mapSet="keys"/>
   </layouts>

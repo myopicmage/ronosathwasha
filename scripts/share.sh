@@ -20,12 +20,12 @@ cd "$root"
 port="${1:-8000}"
 
 if ! command -v cloudflared >/dev/null 2>&1; then
-  if [[ -n "${RONESATHWASHA_RESHELLED:-}" ]]; then
+  if [[ -n "${RONOSATHWASHA_RESHELLED:-}" ]]; then
     echo "cloudflared missing even inside the dev shell." >&2
     exit 1
   fi
   echo "Entering the dev shell..."
-  RONESATHWASHA_RESHELLED=1 exec nix develop 'path:.' --command "$0" "$@"
+  RONOSATHWASHA_RESHELLED=1 exec nix develop 'path:.' --command "$0" "$@"
 fi
 
 if [[ ! -f build/dictionary.html && ! -f build/basic-sentences.html ]]; then

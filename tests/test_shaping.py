@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import pytest
 
-from ronesathwasha import Consonant, Direction, Syllable, Vowel
+from ronosathwasha import Consonant, Direction, Syllable, Vowel
 from tests.harness import Built, Placed
 from tools.build_ufo import ADVANCE, SCHWA_GLIDE_LONG, SCHWA_LONG
 
@@ -167,9 +167,10 @@ def test_glide_tick_is_on_the_far_side_from_the_chevron(built: Built) -> None:
 
 
 def test_the_autonym(built: Built) -> None:
-    run = built.shape([built.text("ronesathwasha")])[0]
+    """From `script.name`, for the reason `test_autonym_round_trips` gives."""
+    run = built.shape([built.text(built.script.name)])[0]
     assert [p.glyph for p in run] == [
-        "c_r", "v_o", "c_n", "v_e", "c_s", "v_a", "c_th", "v_wa", "c_sh", "v_a",
+        "c_r", "v_o", "c_n", "v_o", "c_s", "v_a", "c_th", "v_wa", "c_sh", "v_a",
     ]
     assert sum(p.advance for p in run) == 5 * ADVANCE
 

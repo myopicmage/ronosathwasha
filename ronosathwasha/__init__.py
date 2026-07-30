@@ -1,12 +1,12 @@
-"""ronesathwasha: the script, its model, and the artefacts generated from it."""
+"""ronosathwasha: the script, its model, and the artefacts generated from it."""
 
-from ronesathwasha.lexicon import (
+from ronosathwasha.lexicon import (
     Entry,
     Lexicon,
     LexiconError,
 )
-from ronesathwasha.lexicon import load as load_lexicon
-from ronesathwasha.script import (
+from ronosathwasha.lexicon import load as load_lexicon
+from ronosathwasha.script import (
     Backness,
     Consonant,
     Derivation,

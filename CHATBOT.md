@@ -19,7 +19,7 @@ The language author chooses a rule or lexical form
 That decision enters the grammar and its tests
 ```
 
-The chatbot becomes Ronesathwasha's **first permanent second-language learner**.
+The chatbot becomes Ronosathwasha's **first permanent second-language learner**.
 Its confusion is useful because it continually asks questions such as:
 
 - How do I distinguish habitual from continuous action?

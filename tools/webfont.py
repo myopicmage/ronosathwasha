@@ -16,14 +16,22 @@ from __future__ import annotations
 import base64
 import io
 from pathlib import Path
-from typing import Final
 
 from ufo2ft import compileTTF
 
-from ronesathwasha import Script
+from ronosathwasha import Script
 from tools.build_ufo import build
 
-FAMILY: Final = "Ronesathwasha"
+
+def family(script: Script) -> str:
+    """The font family, from the declaration rather than from a literal.
+
+    A literal here would be a third copy of the name, and it would have to agree
+    with the UFO's `familyName` for an `@font-face` rule to match the font the
+    page carries. Disagreement is silent: the rule names a family nothing
+    provides, so the browser falls back and the page renders as tofu.
+    """
+    return script.family
 
 
 def compile_woff2(script: Script, work: Path) -> bytes:
@@ -33,7 +41,7 @@ def compile_woff2(script: Script, work: Path) -> bytes:
     the flake already carries brotli for exactly this: a WOFF2 container is
     Brotli-compressed by spec, so fontTools cannot write one without it.
     """
-    ufo = build(script, work / f"{FAMILY}.ufo")
+    ufo = build(script, work / f"{family(script)}.ufo")
     ttf = compileTTF(ufo)
     ttf.flavor = "woff2"
     buffer = io.BytesIO()
@@ -45,7 +53,7 @@ def data_uri(woff2: bytes) -> str:
     return f"data:font/woff2;base64,{base64.b64encode(woff2).decode('ascii')}"
 
 
-def face(woff2: bytes) -> str:
+def face(script: Script, woff2: bytes) -> str:
     """A complete `@font-face` rule with the font inside it.
 
     `font-display: block` rather than the browser default of `auto`: an unstyled
@@ -54,7 +62,7 @@ def face(woff2: bytes) -> str:
     """
     return (
         f"@font-face {{\n"
-        f'  font-family: "{FAMILY}";\n'
+        f'  font-family: "{family(script)}";\n'
         f'  src: url({data_uri(woff2)}) format("woff2");\n'
         f"  font-display: block;\n"
         f"}}"
