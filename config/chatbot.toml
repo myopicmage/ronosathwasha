@@ -1,0 +1,79 @@
+schema_version = 1
+
+# How to reach a model and what it is allowed to spend.
+#
+# `data/` holds declarations about the language, which are facts. This holds
+# configuration, which is a choice about this machine, and the two are separated
+# because one is the subject and the other is the apparatus.
+#
+# Nothing here is a secret. There is no API key because there is no provider: the
+# model runs as a local process on this machine, which is decision `165` of plan
+# `014`, "local first means local".
+
+[model]
+
+# Qwen3-14B at Q5_K_M, Kevin's choice on 2026-07-30. Recorded in `CHATBOT.md` with
+# the reasoning; recorded here because this is what the code reads.
+name = "Qwen3-14B"
+quantisation = "Q5_K_M"
+
+# `~` is expanded by the loader. TOML has no notion of a home directory, and an
+# absolute path would be wrong on Kevin's other machines.
+#
+# Outside the repository, and that is not tidiness. `nix develop 'path:.'` copies
+# this whole tree into the nix store on every evaluation without consulting git, so
+# a ten-gigabyte file in here would be copied on every `make`. `CLAUDE.md` carries
+# the full argument.
+path = "~/models/Qwen3-14B-Q5_K_M.gguf"
+
+[context]
+
+# The model's native context, and the ceiling everything else is measured against.
+# Qwen3-14B trains at 32768 and will stretch further with YaRN, which is declined:
+# a longer window than the weights were trained on degrades quality in exchange for
+# room this project does not need.
+total = 32768
+
+# Held back for the answer, and never spendable by the prompt. `Budget` in
+# `Ronosathwasha::TokenCounter` enforces it.
+#
+# A `ResponseIntent` is a small object, a predicate and half a dozen enum values, so
+# a couple of hundred tokens would do. 1024 is deliberate headroom: the failure mode
+# of too small a reservation arrives at generation time as a truncated answer, which
+# looks like a bad model rather than a bad number.
+reserved = 1024
+
+[server]
+
+# `llama-server`, started separately. The harness does not launch it: a chatbot that
+# spawns its own inference server owns a process lifecycle nobody asked it to own,
+# and the failure modes are worse than "connection refused".
+url = "http://127.0.0.1:8080"
+
+# One local blocking request, so a generous ceiling rather than a tight one. A 14B
+# generating a couple of hundred tokens on Metal is a few seconds; a first request
+# after the server starts also pays for the model load.
+timeout_seconds = 120
+
+[sampling]
+
+# Qwen3's own recommended non-thinking settings, which is why these numbers and not
+# rounder ones. Worth revisiting only with evidence, since a model's authors have
+# measured this and we have not.
+temperature = 0.7
+top_p = 0.8
+top_k = 20
+
+# Thinking mode off, and this one is a real decision rather than a default.
+#
+# Qwen3 can emit a reasoning block before its answer, and those tokens come out of
+# the same 32768. `Ronosathwasha::ContextPolicy` budgets a prompt against `total`
+# minus `reserved`, and it has no way to know a model intends to spend six hundred
+# tokens thinking before it starts answering. Reasoning would need a much larger
+# reservation, and the reservation would be a guess.
+#
+# The task also does not obviously want it: the model picks a meaning from a
+# constrained set or reports that it cannot, and the output is schema-constrained
+# JSON. If a candidate turns out to report better gaps while thinking, that is
+# evidence and this flips, with `reserved` raised in the same change.
+thinking = false

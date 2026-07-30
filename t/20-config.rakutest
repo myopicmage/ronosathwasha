@@ -1,0 +1,108 @@
+use Test;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Config;
+use Ronosathwasha::TokenCounter;
+
+plan 22;
+
+my IO::Path $real = repository-root.add('config/chatbot.toml');
+
+# ------------------------------------------------------- the shipped file ---
+
+my $config = load-config($real);
+
+isa-ok $config, Config, 'the shipped configuration loads';
+
+is $config.model.name, 'Qwen3-14B', 'the model Kevin chose';
+is $config.model.quantisation, 'Q5_K_M', 'at the quantisation he chose';
+
+# `~` expanded here and nowhere else. An unexpanded tilde names a directory called
+# `~` in the working directory, so the failure would be a "no such file" against a
+# string that looks entirely plausible.
+# Parenthesised, because `~$path.contains('~')` stringifies the Bool rather than the
+# path and then asserts against the truthy string "False".
+nok (~$config.model.path).contains('~'), 'the home directory is expanded';
+ok $config.model.path.absolute, 'into an absolute path';
+ok $config.model.path.e, 'that exists, checked at load rather than at first request';
+
+# ------------------------------------------------------------- the budget ---
+#
+# Constructed here so an impossible one fails while being built. `Budget.TWEAK`
+# owns that check and this only has to hand it the numbers.
+
+isa-ok $config.budget, Budget, 'the context window arrives as a Budget';
+is $config.budget.total, 32768, "Qwen3-14B's native context, not a stretched one";
+is $config.budget.reserved, 1024, 'with room held back for the answer';
+is $config.budget.available, 31744, 'so a prompt may spend the difference';
+
+# ------------------------------------------------------------- the server ---
+
+is $config.server.url, 'http://127.0.0.1:8080', 'inference is local';
+is $config.server.completions, 'http://127.0.0.1:8080/v1/chat/completions',
+    'the OpenAI-compatible route, built rather than written out twice';
+is $config.server.tokenize, 'http://127.0.0.1:8080/tokenize',
+    'and the tokenizer route the real budget will need';
+is $config.server.timeout-seconds, 120, 'generous, because a first request pays for the model load';
+
+# ----------------------------------------------------------- the sampling ---
+
+is $config.sampling.temperature, 0.7, "Qwen3's own recommended temperature";
+is $config.sampling.top-p, 0.8, 'and top-p';
+is $config.sampling.top-k, 20, 'and top-k';
+
+# Reasoning tokens come out of the same window, and `ContextPolicy` cannot know a
+# model means to spend six hundred of them before answering.
+nok $config.sampling.thinking, 'thinking is off, because it spends the same budget';
+
+# ------------------------------------------------------------- refusals ---
+#
+# A configuration file is untyped text whose failures are all downstream and
+# disguised, so each one is refused at the boundary with the field named.
+
+sub broken(Str $body, $tmp) {
+    my $path = $tmp.add('chatbot.toml');
+    $path.spurt($body);
+    load-config($path);
+}
+
+my $tmp = $*TMPDIR.add("rono-config-{ $*PID }");
+$tmp.mkdir;
+
+my $no-table = broken(qq:to/TOML/, $tmp);
+    schema_version = 1
+    [model]
+    name = "x"
+    TOML
+
+nok $no-table.defined, 'a file missing a whole table is refused';
+isa-ok $no-table.self.exception, X::Ronosathwasha::Declaration::MissingTable,
+    'naming the table rather than dying on an absent key';
+
+my $wrong-type = broken(qq:to/TOML/, $tmp);
+    schema_version = 1
+    [model]
+    name = "Qwen3-14B"
+    quantisation = "Q5_K_M"
+    path = "~/models/Qwen3-14B-Q5_K_M.gguf"
+    [context]
+    total = "32768"
+    reserved = 1024
+    [server]
+    url = "http://127.0.0.1:8080"
+    timeout_seconds = 120
+    [sampling]
+    temperature = 0.7
+    top_p = 0.8
+    top_k = 20
+    thinking = false
+    TOML
+
+nok $wrong-type.defined, 'a window written as a string is refused';
+ok $wrong-type.self.exception.message.contains('context.total'),
+    'and the message names the field, which is the whole point of checking here';
+
+$tmp.add('chatbot.toml').unlink;
+$tmp.rmdir;
