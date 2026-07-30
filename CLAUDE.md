@@ -84,6 +84,29 @@ bite:
   passes the backslash through to the shell and zef then reads `inst\` as an unknown
   repository type. Build the spec once in a variable and use that variable everywhere.
 
+**Two Raku language traps that keep recurring.** Both are silent, both produce
+plausible data rather than an error, and both are already documented inside
+individual modules where they only help whoever opens that module. They are here
+because that is not enough: each has bitten more than once.
+
+- **`*@args` is the flattening slurpy and `**@args` is not.** A single star
+  flattens its arguments, so `f((a, b), (c, d))` arrives as four items rather than
+  two pairs, and every field of every element then reads as undefined. Reach for
+  `**@` whenever the arguments are lists, pairs or hashes. Documented already in
+  `TestModel.rakumod`'s `scripted`, and hit again in `t/18` regardless.
+- **An enum's values become symbols in every importing scope, so they collide with
+  classes.** A class named `Invariant` alongside `Types`' `Alternation` value of
+  that name does not shadow it or lose to it: any module importing both fails to
+  compile, and the error names the second `use` rather than the enum it clashed
+  with. Four occurrences so far. `VowelProfile` is suffixed for it, `FindingKind` is
+  flattened rather than nested for it, the exceptions are rooted under
+  `X::Ronosathwasha` for it, and `PromptInvariant` is prefixed for it. **Check
+  `Types.rakumod`'s enums before naming a new exported class**, and expect the
+  collision, because those values are ordinary words: `Current`, `Writable`,
+  `Prefix`, `Suffix`, `Front`, `Back`, `Harmonic` and `Invariant` are all taken.
+  `MorphemeRole` uses `Marks-` prefixes for the same reason, since a value named
+  `Tense` would collide with the type of that name in `Semantics`.
+
 **The flake uses `mkShellNoCC`, and must keep doing so.** `mkShell` pulls in nix's C
 compiler wrapper, which sets `SDKROOT` and `DEVELOPER_DIR` to a nixpkgs `apple-sdk`. On
 this machine that SDK was built by Swift 5.10 while `/usr/bin/swift` is 6.3.3, and the
