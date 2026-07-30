@@ -48,6 +48,7 @@ WEB := $(UFO) tools/webfont.py
 
 FONT := build/Ronesathwasha.ttf
 DICTIONARY := build/dictionary.html
+SYLLABARY := build/syllabary.html
 KEYLAYOUT := layouts/Ronesathwasha.keylayout
 PAGES := $(wildcard docs/*.html)
 
@@ -58,7 +59,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict pages keylayout serve share speak test raku-test typecheck check install clean
+.PHONY: help all site font dict syllabary pages keylayout serve share speak test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -69,10 +70,11 @@ help: ## List these targets
 
 all: font dict pages keylayout ## Build every artefact
 
-site: dict pages ## Build everything servable into build/
+site: dict syllabary pages ## Build everything servable into build/
 
 font: $(FONT) ## Compile the font
 dict: $(DICTIONARY) ## Build the searchable dictionary page
+syllabary: $(SYLLABARY) ## Build the specimen sheet of every syllable
 pages: $(STAMP) ## Rebuild docs/ into build/ with the font inlined
 keylayout: $(KEYLAYOUT) ## Generate the macOS keyboard layout
 
@@ -90,6 +92,11 @@ $(PARADIGMS): $(RAKU_STAMP) $(MORPHOLOGY) $(LEXICON) $(SCRIPT) tools/paradigms.r
 
 $(DICTIONARY): $(WEB) $(LEXICON) $(PARADIGMS) tools/build_dictionary.py
 	$(PY) -m tools.build_dictionary
+
+# The specimen sheet. Depends on nothing but the shapes: it shows the syllabary
+# rather than the vocabulary, so the lexicon moving does not date it.
+$(SYLLABARY): $(WEB) tools/build_syllabary.py
+	$(PY) -m tools.build_syllabary
 
 $(STAMP): $(WEB) $(PAGES) tools/build_docs.py
 	$(PY) -m tools.build_docs
