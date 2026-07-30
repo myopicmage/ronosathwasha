@@ -378,6 +378,13 @@ writers on the way.
 **fontmake**: the command-line front end that orchestrates the above. The
 Google Fonts pipeline.
 
+**Specimen sheet**: a page laying out a typeface for judging rather than for
+reading, so the letters are grouped by shape and shown at several sizes instead
+of set as text. The artefact a redraw is argued over. Ours is
+`build/syllabary.html`, from `make syllabary`, and it draws the em square and the
+band the consonants occupy on request, because "sits in the middle with room for
+the chevrons" needs a visible middle.
+
 **TTF vs OTF**: two flavours of the same container. TTF stores outlines as
 quadratic curves, OTF as cubic. fontmake converts as needed; the choice barely
 matters for a script like this one.
