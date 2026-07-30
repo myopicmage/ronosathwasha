@@ -28,6 +28,18 @@ An invariant is never dropped and never trimmed. If it does not fit, that is a
 configuration error and C<Ronosathwasha::ContextPolicy> says so rather than
 sending a prompt with a hole in it.
 
+=head2 C<PromptInvariant>, not C<Invariant>
+
+C<Ronosathwasha::Types> already exports C<Invariant> as one of C<Alternation>'s
+values, meaning a morpheme with no backness to agree about. Raku installs an
+enum's values as symbols in the importing scope, so a class of that name here does
+not shadow it or lose to it: any module importing both simply fails to compile,
+naming the second C<use> and not the enum.
+
+Fourth time this shape has bitten in this distribution. C<VowelProfile> is
+suffixed for it, C<FindingKind> is flattened for it, and the exceptions are rooted
+rather than nested for it. The prefix is the same fix.
+
 =head2 Why the two invariants are one type rather than two C<Str>s
 
 Both are text and both are mandatory, which makes them the same kind of thing, and
@@ -71,7 +83,7 @@ use Ronosathwasha::ConversationState;
 
 #| One piece of prompt that may not be shortened, and what to call it when it
 #| does not fit.
-class Invariant is export {
+class PromptInvariant is export {
     has Str:D $.label is required;
     has Str:D $.text  is required;
 }
@@ -80,12 +92,12 @@ class PromptContext does Checked is export {
 
     #| What shape the answer must take. First because a well-informed model that
     #| cannot be parsed has produced nothing at all.
-    has Invariant:D $.schema is required;
+    has PromptInvariant:D $.schema is required;
 
     #| What the language can currently express. Second because this is what keeps
     #| a gap honest: a model that does not know the boundary reaches past it and
     #| calls the result Ronosathwasha.
-    has Invariant:D $.capabilities is required;
+    has PromptInvariant:D $.capabilities is required;
 
     #| The turns, and the summaries of the turns that are gone. Held rather than
     #| copied apart, so folding is `ConversationState`'s single implementation and

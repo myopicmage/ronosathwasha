@@ -10,12 +10,12 @@ use Ronosathwasha::TokenCounter;
 
 plan 21;
 
-my $schema = Invariant.new(
+my $schema = PromptInvariant.new(
     :label('response schema'),
     :text('{"kind":"express"|"gap", ...}'),
 );
 
-my $capabilities = Invariant.new(
+my $capabilities = PromptInvariant.new(
     :label('language capabilities'),
     :text('three tenses, two aspects, two polarities'),
 );
