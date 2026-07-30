@@ -505,3 +505,136 @@ declaration rather than from the module: a morpheme's from its `gloss` field in
 **Object line**: in an interlinear gloss, the line carrying the language itself,
 as against the gloss line under it. The name is standard and slightly
 unfortunate, since it has nothing to do with a grammatical object.
+
+**Stress**: which syllable of a word is said with more prominence. Languages
+divide into those that fix it by position (Finnish and Hungarian on the first
+syllable, Polish on the second to last), those that let the word decide
+(English, Russian), and the few where moving it changes the word outright
+(Spanish *término*, *termino*, *terminó*).
+
+Ronosathwasha fixes it on the first syllable. That is a spoken decision rather
+than a declared one: nothing in `data/` records stress, because nothing yet
+needs it.
+
+Two consequences are worth knowing. **Every prefix is stressed and no suffix
+is**, since modality, polarity and the speech act all attach to the front, so
+`thínəme` becomes `téthinəme` and the stress leaves the stem the moment
+anything attaches. And **stress and length are independent**, as in Finnish, so
+`láari` and `dúruu` carry their long vowel in an unstressed syllable. An
+English ear resists both, because English fuses stress with length.
+
+**Levelling**: the process by which speakers regularise an irregular form,
+extending the ordinary pattern over the exception. English *holp* became
+*helped*. It is the standing threat to anti-harmony: the natural next chapter
+for a language with exactly one anti-harmonic morpheme is that half its
+speakers start saying `melaari`. Decision 3 has a defence, in that levelling it
+costs the audibility the disharmony was bought for, and that tension is
+material rather than a problem.
+
+**Polar question against open question**: a polar question asks whether a
+proposition holds and expects yes or no. An open question, also called a
+*wh-question* or a *content question*, asks for a missing piece and expects the
+piece back. English marks them differently, with inversion for the first and a
+*wh-* word for the second.
+
+**Ronosathwasha marks neither, and the distinction is deliberately absent from
+the code.** `to-`/`te-` is one interrogative operation that attaches to
+whatever is being questioned; on a predicate it questions the proposition and
+on a nominal it questions the referent, and nothing in the language names the
+difference. A review proposed importing the pair into the semantic types and
+the ruling was that `to-` does not imply polar, so what the types carry is
+where the interrogation is scoped and never which of two kinds it is.
+
+**Honorific**: morphology or vocabulary encoding the speaker's relationship to
+the listener or to whoever is being discussed. **Speech level**: a Korean and
+Japanese system where a verb ending selects a register on every finite verb, so
+there is no way to say anything without asserting a relationship first.
+
+**Lexical politeness against grammatical politeness**: the distinction that
+decides how much of this a language carries. Lexical politeness is words:
+*please*, *thank you*, *sir*. Grammatical politeness is inflection, and it is
+compulsory, because every verb must choose. English has only the first. Korean
+layers both, and it is the second that has no neutral setting.
+
+Ronosathwasha takes the first and refuses the second. That refusal costs
+nothing structurally, which is the point: a politeness word is an entry in
+`data/lexicon.toml` and touches no morpheme, so it never reaches
+`Ronosathwasha::Capabilities` and cannot widen the grammar.
+
+**Topic marker**: a particle marking what a sentence is *about*, as against the
+particle marking its grammatical subject. Korean's 은/는 against 이/가, Japanese
+は against が. The pair lets *the fish, I ate it* and *I ate the fish* be
+different sentences rather than different word orders.
+
+Ronosathwasha has the subject half, `-ri`/`-ru`, and no topic half, so the
+contrast the pair exists to draw is currently unavailable.
+
+**Consonant gradation**: a Finnish and Estonian alternation where a stem's
+consonants weaken as endings attach, so *katto* becomes *katon*. It is the
+single most punishing thing about Finnish morphology, and Ronosathwasha has no
+trace of it: a stem here is invariant and every boundary stays findable, which
+is what `agglutinative` above is claiming.
+
+**Allomorph**, called an **alternant** throughout this repo: one of the forms a
+single morpheme takes, chosen by context rather than by meaning. English's
+plural is one morpheme with three of them, the *s* of *cats*, the *z* of *dogs*
+and the *əz* of *horses*, and no speaker experiences it as three endings.
+
+Here the choosing context is harmony, so a morpheme declares `front_stem` and
+`back_stem` in `data/morphology.toml` and `Morpheme.form-for` picks between
+them. **Those field names say which form goes with a stem of that class, never
+what the form's own vowel is**, which is why the anti-harmonic negator can
+declare `front_stem = "mo"` without the file contradicting itself.
+
+**Speech act**: what an utterance *does*, as against what it describes.
+Stating, asking and ordering are the three ordinary ones, and the term is
+Austin's, taken up by Searle. Ronosathwasha marks it with a prefix, `to-`/`te-`
+for a question and `do-`/`de-` for a command, with the declarative unmarked
+because there is nothing to distinguish it from.
+
+**Modality**: the speaker's commitment to what they are saying. Ronosathwasha
+has two settings, asserted and potential, with `lu-`/`li-` for the second.
+**Polarity** is the affirmative-or-negative axis beside it, `me-`/`mo-` for the
+negative. Both are prefixes and both are unmarked in one of their two values.
+
+**Aspect**: how a situation is distributed across time, as against **tense**,
+which is where in time it sits. *I ate* and *I was eating* share a tense and
+differ in aspect. Ronosathwasha marks the distinction with `-di`/`-du`, so
+`thinəme` is simple and `thinəmedi` is continuous, and the two axes compose
+freely: `thinəsedi` is a past continuous and is nothing unusual.
+
+**Nominal predication**: a clause whose predicate is a noun rather than a verb.
+*She is a teacher* against *she teaches*. The distinction matters here because
+the two take different morphology: a verb must carry a tense to be a
+well-formed word, and a nominal predicate need not, so **an absent tense is a
+timeless identity rather than a missing field**. Decision 22.
+
+**Copula**: whatever links a subject to a nominal predicate. English spends a
+whole verb on it, *be*, but that is not the usual arrangement: Korean's 이다 is
+suffixed to the noun, and Ronosathwasha's `-swe`/`-swo` follows Korean. It
+shares both forms with the infinitive marker, which is the one genuine
+ambiguity in the morphology and why `Ronosathwasha::Words` needs a rule for
+deciding which of the two a given `swe` is.
+
+**Zero copula**: leaving it out. Russian does this obligatorily in the present
+tense, Hungarian in the third person. Decision 22 makes it optional here, so
+`Lari mirire.` and `Lari mirireswe.` are the same sentence differently spelled,
+and `Semantics::Utterance` carries `explicit_copula` precisely so the corpus
+can tell them apart and rebuild the one that was written.
+
+**Case particle**: a separable marker of a noun's grammatical role, as against
+case *inflection*, where the ending fuses with the noun and cannot be peeled
+off. Latin and Finnish inflect; Korean and Japanese use particles. Ronosathwasha
+uses particles, `-ri`/`-ru` for the subject and `-yi`/`-yu` for the object,
+which are 이/가 and 을/를 with the alternation conditioned by harmony instead of
+by the preceding consonant.
+
+**Verb-final word order** (**SOV**): the verb comes last, which is the majority
+arrangement among the world's languages and the one Korean, Japanese and Turkish
+all take. **Scrambling** is the freedom that usually accompanies it: because the
+particles say what each noun is doing, the nouns can be reordered without the
+sentence changing meaning.
+
+Decision 17 takes both. The verb's position is fixed and every other position is
+free, and the two halves are the same fact: the verb is pinned *because* no
+particle identifies it, and everything else is loose because a particle does.
