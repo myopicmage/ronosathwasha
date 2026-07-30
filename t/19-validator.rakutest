@@ -1,0 +1,45 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+
+plan 16;
+
+my IO::Path $tool = repository-root.add('tools/validate.raku');
+
+sub validate(Str:D $level, Str:D $text --> Proc) {
+    run $*EXECUTABLE, '-Ilib', $tool, "--level=$level", $text, :out, :err;
+}
+
+my $writing = validate('writing', 'nu');
+my Str $writing-out = $writing.out.slurp;
+is $writing.exitcode, 0, 'a writable unknown word passes the writing layer';
+like $writing-out, /'VALID writing'/, 'and names the layer it passed';
+is $writing.err.slurp, '', 'without diagnostics on standard error';
+
+my $word = validate('word', 'nu');
+my Str $word-out = $word.out.slurp;
+is $word.exitcode, 1, 'the same unknown word fails the word layer';
+like $word-out, /'INVALID word'/, 'and names the failed layer';
+like $word-out, /'no declared stem'/, 'with the domain reason';
+
+my $sentence = validate('sentence', 'Lasa dələri Laarisweme.');
+my Str $sentence-out = $sentence.out.slurp;
+is $sentence.exitcode, 0, 'a grammatical sentence passes';
+like $sentence-out, /'predicate: laari'/, 'with its recovered predicate';
+like $sentence-out, /'kind: nominal'/, 'and its clause kind';
+
+my $wrong-order = validate('sentence', 'thinəme Lari.');
+my Str $wrong-order-out = $wrong-order.out.slurp;
+is $wrong-order.exitcode, 1, 'an ordering error fails';
+like $wrong-order-out, /'INVALID sentence'/, 'as a sentence failure';
+like $wrong-order-out, /'must come last'/, 'with the grammar reason';
+
+my $punctuation = validate('writing', '...');
+my Str $punctuation-out = $punctuation.out.slurp;
+is $punctuation.exitcode, 1, 'punctuation alone is not vacuously valid';
+like $punctuation-out, /'reason: no words'/, 'and says what is absent';
+
+my $singular = validate('word', 'toduruu');
+my Str $singular-out = $singular.out.slurp;
+is $singular.exitcode, 0, 'a derived interrogative passes word validation';
+like $singular-out, /'1 word)'/, 'with a grammatical singular count';
