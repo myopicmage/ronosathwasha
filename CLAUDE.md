@@ -84,10 +84,9 @@ bite:
   passes the backslash through to the shell and zef then reads `inst\` as an unknown
   repository type. Build the spec once in a variable and use that variable everywhere.
 
-**Two Raku language traps that keep recurring.** Both are silent, both produce
-plausible data rather than an error, and both are already documented inside
-individual modules where they only help whoever opens that module. They are here
-because that is not enough: each has bitten more than once.
+**Three Raku language traps.** Each is silent, each produces plausible behaviour
+rather than an error, and each was already documented inside one module where it only
+helped whoever opened that module. They are here because that is not enough.
 
 - **`*@args` is the flattening slurpy and `**@args` is not.** A single star
   flattens its arguments, so `f((a, b), (c, d))` arrives as four items rather than
@@ -106,6 +105,32 @@ because that is not enough: each has bitten more than once.
   `Prefix`, `Suffix`, `Front`, `Back`, `Harmonic` and `Invariant` are all taken.
   `MorphemeRole` uses `Marks-` prefixes for the same reason, since a value named
   `Tense` would collide with the type of that name in `Semantics`.
+- **A role enforces that a method exists, never that its signature matches.** A
+  stubbed `method respond(PromptContext:D $context) { ... }` gives a hard compile
+  error if a class doing the role has no `respond` at all:
+
+  ```text
+  Method 'respond' must be implemented by Missing because it is required by
+  roles: Ronosathwasha::Model::Model
+  ```
+
+  But a class declaring `method respond(Int:D $n)` compiles cleanly, satisfies
+  `~~ Model`, passes any `Model:D` parameter, and fails at the moment somebody calls
+  it with a binding error about `$n`. Not an overload and nothing shadowed: the class
+  simply meets a weaker contract than the one written down, and the failure moves from
+  compile time to call time.
+
+  **Raku has a compiler and does not have a static type checker**, which is the whole
+  explanation. `BEGIN` runs during compilation, `.precomp/` holds real bytecode, and
+  Rakudo does reject `f("a string")` against `sub f(Int $n)` when the argument is a
+  literal it already knows. What it never does is compare two signatures for
+  substitutability, because that needs reasoning about types ahead of time and Raku
+  checks types when values bind.
+
+  So **a type on a role stub is documentation.** Put the enforcement somewhere real:
+  `Model:D` on the parameter that receives the model, and the concrete type in each
+  implementation's own signature. `Ronosathwasha::Model` says this in its pod, and the
+  per-implementation typing that looks redundant is what is actually holding.
 
 **Model weights live in `~/models/`, never inside this repository.** Referenced by
 absolute path from configuration, and the reason is specific rather than tidiness.
