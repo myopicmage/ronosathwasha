@@ -110,6 +110,32 @@ my constant %POLARITY = (affirmative => Affirmative, negative => Negative);
 my constant %MODALITY = (asserted => Asserted, potential => Potential);
 my constant %ROLE     = (subject => Subject, object => Object);
 
+#| Which strings a model may send for each enumerated field.
+#|
+#| Exposed because the JSON schema in `Ronosathwasha::ModelProtocol` has to enumerate
+#| exactly these, and a schema listing its own copy of them is a second place for the
+#| vocabulary to live. That has already gone wrong once tonight, in `Morphology`: an
+#| enum grew, the string table beside it did not, and the symptom was a type check
+#| complaining about the wrong thing entirely.
+#|
+#| Sorted, so a schema built from this is stable between runs and a diff of one means
+#| something changed.
+sub answer-vocabulary(--> Hash) is export {
+    %(
+        # Not from a table, because the discriminator is not decoded through one:
+        # `intent-from` branches on it directly. Listed here so the schema and the
+        # branch cannot disagree about which kinds exist.
+        kind       => <express gap>,
+
+        speech_act => %SPEECH-ACT.keys.sort.List,
+        tense      => %TENSE.keys.sort.List,
+        aspect     => %ASPECT.keys.sort.List,
+        polarity   => %POLARITY.keys.sort.List,
+        modality   => %MODALITY.keys.sort.List,
+        role       => %ROLE.keys.sort.List,
+    );
+}
+
 #| Raises rather than failing. A `Failure` handed to a constrained attribute
 #| is type-checked, and the type-check error replaces the domain exception with
 #| one about binding, so the caller learns nothing about what the model sent.

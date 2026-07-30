@@ -1,0 +1,128 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Config;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::ModelProtocol;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Prompt;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Semantics;
+
+plan 29;
+
+my IO::Path $data = repository-root.add('data');
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $config     = load-config(repository-root.add('config/chatbot.toml'));
+
+my %schema = response-schema($lexicon, $morphology);
+
+# --------------------------------------------- the vocabulary cannot drift ---
+#
+# The whole reason `answer-vocabulary` is exported. Every string the schema permits
+# must be a string `intent-from` accepts, and the failure this prevents is the one
+# `Morphology` already had: an enum grows, the table beside it does not, and the
+# symptom is a type check about the wrong thing.
+
+my %v = answer-vocabulary();
+
+for %v.keys.sort -> $field {
+    my @from-schema = $field eq 'role'
+        ?? %schema<properties><arguments><items><properties><role><enum>.List
+        !! %schema<properties>{$field}<enum>.List;
+
+    # `.List` on both sides. `is-deeply` distinguishes an Array from a List, and
+    # binding to an `@` variable coerces, so comparing them bare fails on the
+    # container while reporting values that look identical.
+    is-deeply @from-schema.List, %v{$field}.List,
+        "the schema's $field enumerates exactly what the decoder accepts";
+}
+
+# ------------------------------------ the predicate is a list, not a string ---
+
+ok %schema<properties><predicate><enum>:exists,
+    'the predicate is enumerated rather than a free string';
+
+my Set $known = nameable($lexicon, $morphology);
+is %schema<properties><predicate><enum>.elems, $known.elems,
+    'and enumerates every nameable stem';
+
+is-deeply %schema<properties><predicate><enum>.List, $known.keys.sort.List,
+    'sorted, so the schema is stable between runs';
+
+nok %schema<properties><predicate><enum>.grep('thinu'),
+    'a word the lexicon does not have is not offered';
+ok %schema<properties><predicate><enum>.grep('thinə'),
+    'while one it does have is';
+
+# Arguments carry stems too, and the same constraint has to reach them or a model can
+# invent a word in the one place nobody checked.
+is-deeply %schema<properties><arguments><items><properties><stem><enum>.List,
+    $known.keys.sort.List, 'argument stems are constrained the same way';
+
+# ---------------------------------------------------- refusing extra fields ---
+
+nok %schema<additionalProperties>, 'a field nobody asked for is refused';
+nok %schema<properties><arguments><items><additionalProperties>,
+    'including inside an argument';
+
+# ------------------------------------------------------- only kind is required ---
+#
+# A schema requiring `predicate` would make a gap impossible to express, which is the
+# one answer this project most wants available.
+
+is-deeply %schema<required>.List, ('kind',), 'only the discriminator is required';
+ok %schema<properties><wanted>:exists, 'a gap has somewhere to say what it wanted';
+is %schema<properties><wanted><type>, 'string',
+    'as free text, since a gap is about what the declarations cannot express';
+
+# --------------------------------------------------------------- the request ---
+
+my $ctx = PromptContext.new(
+    :schema(PromptInvariant.new(:label('response schema'), :text('kind express or gap'))),
+    :capabilities(PromptInvariant.new(:label('language capabilities'), :text('three tenses'))),
+    :state(ConversationState.new.said(Human, 'Lari thinəme.')),
+);
+
+my %body = request-body($config, $lexicon, $morphology, wire-messages($config, $ctx));
+
+is %body<messages>.elems, 2, 'the body carries the message list';
+is %body<messages>[0]<role>, 'system', 'in the protocol\'s spelling';
+is %body<temperature>, 0.7, 'with the configured sampling';
+is %body<top_k>, 20, 'all of it';
+
+is %body<max_tokens>, $config.budget.reserved,
+    'and max_tokens is the reservation, which is the other half of Budget\'s promise';
+
+nok %body<chat_template_kwargs><enable_thinking>,
+    'thinking is off, because those tokens come out of the same window';
+
+is %body<response_format><type>, 'json_schema', 'the answer is schema-constrained';
+ok %body<response_format><json_schema><strict>, 'strictly';
+is-deeply %body<response_format><json_schema><schema>, %schema,
+    'against the schema built from the declarations';
+
+# ------------------------------------------------------------------ the roles ---
+
+# Implemented rather than introspected. `.^find_method` on a role composes it into a
+# class, which then demands the stub it declares, so asking a role about its own
+# methods is how you make it complain about itself.
+#
+# `TokenCounter.count` takes a Str, and the string a policy measures is not the string
+# a model receives: a message list has to be templated before it can be counted, and a
+# counter taking a string cannot do that step. Hence a second role.
+class CountingFake does PromptTokenizer {
+    method count-prompt(@messages --> Int) { @messages.elems }
+}
+
+class AnsweringFake does Inference {
+    method complete(@messages --> Hash) { %( kind => 'gap', wanted => 'x', missing => 'y' ) }
+}
+
+is CountingFake.new.count-prompt([1, 2, 3]), 3,
+    'a prompt counter takes the message list rather than a string';
+is AnsweringFake.new.complete([]).<kind>, 'gap',
+    'and inference returns the raw answer, for intent-from to judge';
