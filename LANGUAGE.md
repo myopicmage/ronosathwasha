@@ -914,6 +914,33 @@ native words, where a mixed stem is an error, and stop applying to declared loan
 Distinguishing the two requires knowing that a stem is a loan, which is the open
 question below.
 
+#### The rule costs a typo filter, and the cost is not yet paid
+
+The phonotactics already catch most mistyping, because strict CV admits no
+clusters, no codas and no geminates. Of six plausible slips on `mirire`, three are
+not writable at all:
+
+```text
+mirre     unwritable   geminate; there is no consonant length either
+mriire    unwritable   cluster
+mirir     unwritable   coda
+midire    writable, FrontWord
+murire    writable, MixedWord
+miirire   writable, FrontWord   an accidental double becomes a long vowel
+```
+
+What survives is substitution of a single letter. And **harmony is the second
+filter that catches half of what is left**: `murire` is mixed, so today no affix
+attaches to it and `murireswe` fails. The typo is caught by the grammar refusing
+to inflect it.
+
+The final-vowel rule spends that filter. Once a mixed stem can take affixes, a
+one-vowel slip becomes an acceptable disharmonic loan and passes as a name.
+
+The filter is still in place, because this rule is decided and not implemented.
+Whoever implements it is spending something, and should know that rather than
+discover it.
+
 ### Not decided here
 
 - **Whether a transliterated name is a lexicon entry or generated on demand.**
@@ -921,11 +948,19 @@ question below.
   the parser accept any well-formed nominal. Decision 22's implementation already
   accepts unlisted nominals in a predicate slot, so the code currently behaves as
   though names are generated.
-- **What that costs the evidence.** `UnknownStem` is the outcome that asks for a
-  word, and `LanguageEvidence` records it as a finding. If an unlisted nominal is
-  silently understood, a genuine gap in nominal position stops producing evidence,
-  and gaps are the product. Marked and unlisted is a name; unmarked and unlisted
-  was supposed to be a finding.
+- **What generating costs, which is less than it first appears.** The worry was
+  that an unlisted nominal silently understood would stop producing the
+  `UnknownStem` finding that gaps are made of. It mostly does not, because the
+  model cannot produce an unlisted stem at all: `intent-from` checks every
+  predicate and argument against `nameable()`, derived from the lexicon, and
+  refuses the rest as `Answer::Unknown`. Lauri's gaps arrive as a `Gap` carrying
+  `wanted` and `missing`, never as an unparseable word. `UnknownStem` therefore
+  only ever describes human input, and a human who types a name knows they typed
+  one.
+
+  What remains is a single-letter typo passing as a name, bounded by the filters
+  above, and the slot still refines the finding: unlisted in a nominal position is
+  a name or a missing noun, unlisted where a verb belongs is a missing verb.
 - **Whether the substitution table above is normative.** Two speakers must
   transliterate a name the same way or it is not a name. Korean and Japanese both
   conventionalised theirs.
