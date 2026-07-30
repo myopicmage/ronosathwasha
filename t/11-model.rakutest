@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 29;
+plan 39;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -131,3 +131,43 @@ isa-ok $refused.self.exception, X::Ronosathwasha::Answer::Malformed,
     'as a malformed answer rather than a default supplied quietly';
 ok $refused.self.exception.message.contains('only an identity may be timeless'),
     'saying which combination was wrong';
+
+# --------------------------------------------------------- the question scope ---
+#
+# Review `023`: an interrogative has to say what it questions. Until now a model
+# could only ask `Nari tethinəme?`, because a speech act with nowhere to land put
+# the marker on the predicate by default and every other question was unreachable.
+
+my %asks = %eat, speech_act => 'interrogative', question_scope => 'subject';
+
+my $question = intent(%asks);
+isa-ok $question, Express, 'a model may ask about a constituent';
+is $question.question-scope, QuestionsSubject, 'and the scope is typed rather than a string';
+ok $question.summary.contains('questions subject'),
+    'with the summary carrying it, since two questions that differ must read differently';
+
+is intent(%( %asks, question_scope => 'predicate' )).question-scope, QuestionsPredicate,
+    'the predicate is one scope among five rather than the only one';
+
+# The interface limit `023` asked to have stated rather than disguised. Decision 17
+# frees every position before the verb, so a questioned word carrying no particle is
+# grammatical and has no role these types can name.
+is intent(%( %asks, question_scope => 'constituent' )).question-scope, QuestionsConstituent,
+    'and an unnameable constituent is a value rather than a hole';
+
+my $invented-scope = intent(%( %asks, question_scope => 'polar' ));
+nok $invented-scope.defined, 'a scope outside the five is refused';
+is $invented-scope.self.exception.field, 'question_scope', 'naming the field it came from';
+
+# ------------------------------------------------- the pair cannot disagree ---
+#
+# Enforced in `Semantics::Asks`, which all three meaning types compose, so this is
+# the same rule `Utterance` and `Reading` obey rather than a fourth copy of it.
+
+my $unscoped = intent(%( %eat, speech_act => 'interrogative' ));
+nok $unscoped.defined, 'an interrogative with no scope is refused';
+isa-ok $unscoped.self.exception, X::Ronosathwasha::Meaning::ScopeDisagrees,
+    'as a meaning that disagrees with itself, not a malformed answer';
+
+my $scoped-statement = intent(%( %eat, question_scope => 'subject' ));
+nok $scoped-statement.defined, 'and so is a declarative that claims to question something';
