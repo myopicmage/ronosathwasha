@@ -58,6 +58,61 @@ becomes a period, which is Leipzig's rule for a multi-word gloss of a single
 morpheme. It can shorten and it cannot invent, and the full entry stays in the
 lexicon where a reader wants it.
 
+=head2 The third line, and why it has two shapes
+
+Leipzig's layout is three lines: the object line, the gloss, and a free
+translation. The first two are morphology and the third is meaning, and keeping
+them apart is what resolves C<thinəme>.
+
+C<thinə-me> glosses as C<food-PRS>, which is exactly right, and a speaker reads
+it as "eats". Both are true at once. The gloss line reports what was written and
+the translation line reports what it means, so neither has to compromise.
+
+B<The derivation is Ronosathwasha's; only the English word is English's.> Kevin
+made this correction and it is worth keeping straight, because the obvious
+reading of C<food-PRS> is that the glosser has failed at something.
+
+It has not. C<thinəswe> is C<thinə> plus the infinitive, and "to food" is a
+perfectly good way to build a verb: the language derives the predicate from the
+noun productively, and that rule is declared. What is peculiar to English is the
+I<lexeme>. English happens to keep separate words for the substance and the act,
+so no single English word glosses the Rono stem in both of its uses, and the
+label has to pick one.
+
+C<data/lexicon.toml> in fact holds both: C<thinə> is "food" and C<thinəswe> is
+"to eat (food-verb)". The noun is listed directly and the verb stem is recovered
+from its infinitive, so the noun wins, and C<thinəme> glosses as C<food-PRS>
+where C<eat-PRS> was meant. Choosing between them would mean reading the rest of
+the word, which is the same unresolved question the copularizer raises below.
+
+B<Fluent English still comes from the corpus.> Not because the derivation is
+foreign, but because "(I) eat that food (over there)" is a sentence somebody
+wrote, and assembling one here would be inventing. So the translation has two
+sources and they render differently, because a reader who cannot tell them apart
+will trust the wrong one:
+
+=begin code
+Sho thinə-me            la-ri  miri-me
+that.over.there food-PRS  I-SBJ  teach-PRS
+'(I) eat that food (over there)'    [teach: declarative, present simple]
+=end code
+
+Single quotes mean C<data/utterances.toml> says so, in Kevin's words. Square
+brackets mean nobody has translated this sentence and the line was assembled
+from the reading. The bracketed form is not a translation and does not pretend
+to be one.
+
+An unattested sentence is the common case for a chatbot, since a sentence the
+model just produced is by definition not in the corpus yet. That is the case the
+bracketed form exists for.
+
+=head2 Zero-marked features are omitted from the bracketed line
+
+Affirmative polarity and asserted modality have no morpheme, so printing them
+would report a decision the writer never made. They appear only when marked,
+which is the same rule C<Ronosathwasha::Capabilities> applies for the same
+reason.
+
 =head2 The stem list is the one from C<Words>, deliberately
 
 C<stem-glosses> recovers bare verb stems by stripping an infinitive marker, the
@@ -76,11 +131,47 @@ use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Harmony;
+use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
+use Ronosathwasha::Actions;
 
 #| The label an unglossable stem takes. Named because it appears in the module,
 #| in the tests and in anything that reads a gloss line looking for holes.
 constant UNGLOSSED is export = '?';
+
+#| Where the third line came from, which decides how it is punctuated.
+#|
+#| `FromCorpus` rather than `Attested`, and `FromReading` rather than `Derived`.
+#| Both of those names are already `Ronosathwasha::Semantics::Status` values, and
+#| Raku installs an enum's values as symbols in every importing scope, so either
+#| one would break any module using both. `CLAUDE.md` records this; it is the
+#| fifth time it has come up.
+enum TranslationSource is export <FromCorpus FromReading Unavailable>;
+
+#| The free translation line.
+class Translation is export {
+    has TranslationSource:D $.source is required;
+    has Str                 $.text;
+
+    #| Quoted when somebody wrote it, bracketed when nothing did.
+    #|
+    #| Leipzig puts a free translation in single quotes. The bracketed form
+    #| deliberately breaks that convention rather than extending it, because the
+    #| one thing this line must never do is let an assembled feature list read as
+    #| a translation somebody stands behind.
+    method render(--> Str) {
+        given $!source {
+            when FromCorpus  { "'$!text'" }
+            when FromReading { "[$!text]"  }
+
+            # `Unavailable` still carries text when the reader said why it could
+            # not read the sentence. "[no reading]" alone is the least useful
+            # thing this line could say: the whole reason somebody glosses a
+            # sentence they just wrote is to find out what is wrong with it.
+            default { $!text.defined ?? "[$!text]" !! '[no reading]' }
+        }
+    }
+}
 
 #| One word, aligned against its gloss.
 class GlossedWord is export {
@@ -99,8 +190,9 @@ class GlossedWord is export {
 }
 
 class GlossedSentence is export {
-    has Str          $.text  is required;
-    has GlossedWord  @.words is required;
+    has Str          $.text        is required;
+    has GlossedWord  @.words       is required;
+    has Translation  $.translation is required;
 
     method form(--> Str) { @!words.map(*.form).join(' ') }
     method line(--> Str) { @!words.map(*.line).join(' ') }
@@ -120,6 +212,14 @@ class GlossedSentence is export {
         my @bot = @!words.kv.map(-> $i, $w { sprintf('%-*s', @widths[$i], $w.line) });
 
         (@top.join('  ').trim-trailing, @bot.join('  ').trim-trailing).join("\n");
+    }
+
+    #| All three lines, which is what Leipzig means by an interlinear gloss.
+    #|
+    #| The translation is not padded into the columns, because it is a statement
+    #| about the whole sentence rather than about any word in it.
+    method render(--> Str) {
+        (self.aligned, $!translation.render).join("\n");
     }
 }
 
@@ -213,6 +313,53 @@ sub gloss-word(
     CATCH { default { .fail } }
 }
 
+#| The reading, written out as a feature list rather than as English.
+#|
+#| Affirmative polarity and asserted modality are omitted because they are
+#| zero-marked: no morpheme was written, so printing them would report a choice
+#| the writer never made. A timeless predication says so, since decision 22
+#| makes an absent tense a meaning rather than a silence.
+#|
+#| The predicate is given by its gloss label where one exists, so this line and
+#| the gloss line above it name the same thing the same way.
+sub reading-summary(Reading:D $reading, Map:D $stem-glosses --> Str) is export {
+    my Str $predicate = $stem-glosses{ $reading.predicate } // $reading.predicate;
+
+    my @features = $reading.speech-act.key.lc;
+
+    @features.push: $reading.tense.defined
+        ?? "{ $reading.tense.key.lc } { $reading.aspect.key.lc }"
+        !! 'timeless';
+
+    @features.push: 'negative'  if $reading.polarity == Negative;
+    @features.push: 'potential' if $reading.modality == Potential;
+    @features.push: $reading.reference.key.lc if $reading.reference.defined;
+
+    "$predicate: { @features.join(', ') }";
+}
+
+#| What the corpus says this sentence means, if it says anything.
+#|
+#| Matched on the text with case and trailing punctuation ignored, because
+#| `Sho thinəme.` and `sho thinəme` are the same sentence and the corpus writes
+#| the tidy one. Nothing looser than that: a near-match would attach somebody
+#| else's English to a sentence Kevin did not write.
+#| `Coverage` rather than a list of `Utterance`, because that is what
+#| `load-utterances` hands back and unwrapping it at every call site would be a
+#| second shape for one fact. Undefined is an ordinary answer: a caller with no
+#| corpus loaded gets `Unavailable` rather than an error.
+sub corpus-translation(Coverage $corpus, Str:D $sentence --> Translation) {
+    return Translation.new(:source(Unavailable)) without $corpus;
+
+    my sub key(Str:D $s) { $s.trim.subst(/<[?.,!]>+$/, '').fc }
+
+    my $found = $corpus.utterances.first({ key(.text) eq key($sentence) });
+
+    return Translation.new(:source(Unavailable)) without $found;
+
+    Translation.new(:source(FromCorpus), :text($found.english));
+}
+
 #| Gloss a whole sentence, parsing it on the way.
 #|
 #| The punctuation strip matches `read-sentence`'s, because a gloss of
@@ -225,11 +372,16 @@ sub gloss-word(
 #| Kevin has just invented and is deciding about.
 #|
 #| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
+#| `:$corpus` is optional, and its absence yields the bracketed reading rather
+#| than nothing. A caller with `data/utterances.toml` loaded gets Kevin's English
+#| for the sentences he has written; a caller without one is not made to load a
+#| file in order to gloss a word.
 sub gloss-sentence(
     Script:D     $script,
     Lexicon:D    $lexicon,
     Morphology:D $morphology,
     Str:D        $sentence,
+    Coverage    :$corpus,
 ) is export {
     my $stems = stem-glosses($lexicon, $morphology);
 
@@ -245,7 +397,23 @@ sub gloss-sentence(
         );
     });
 
-    return GlossedSentence.new(:text($sentence), :@words);
+    # The corpus first, because a translation somebody wrote beats one this
+    # module assembled. Falling back the other way would hide Kevin's own words
+    # behind a feature list.
+    my $translation = corpus-translation($corpus, $sentence);
+
+    if $translation.source == Unavailable {
+        my $outcome = read-sentence($script, $lexicon, $morphology, $sentence);
+
+        $translation = $outcome ~~ Understood
+            ?? Translation.new(
+                   :source(FromReading),
+                   :text(reading-summary($outcome.reading, $stems)),
+               )
+            !! Translation.new(:source(Unavailable), :text($outcome.summary));
+    }
+
+    return GlossedSentence.new(:text($sentence), :@words, :$translation);
 
     CATCH { default { .fail } }
 }

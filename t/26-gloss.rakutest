@@ -7,10 +7,11 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Script;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 27;
+plan 37;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -152,3 +153,53 @@ my @invented = @sentences.map(-> $s {
 
 is-deeply @invented.List, (),
     'every label in every gloss traces back to a declaration';
+
+# ------------------------------------------------------- the third line ---
+#
+# Leipzig's free translation. It has two shapes on purpose: quoted when the
+# corpus says so in Kevin's own words, bracketed when this module assembled it
+# from the reading. A reader who cannot tell them apart will trust the wrong one.
+
+my $corpus = load-utterances($data.add('utterances.toml'));
+
+my $attested = gloss-sentence($script, $lexicon, $morphology, 'Sho thinəme.', :$corpus);
+
+is $attested.translation.source, FromCorpus,
+    'a sentence the corpus holds takes its translation from there';
+is $attested.translation.render, q{'(I) eat that food (over there)'},
+    'and renders in single quotes, which is what Leipzig means by a free translation';
+
+# The same sentence with no corpus passed. Nothing is invented to fill the gap:
+# the reading is reported instead, and it is punctuated so it cannot be mistaken
+# for something somebody wrote.
+my $unsourced = gloss-sentence($script, $lexicon, $morphology, 'Sho thinəme.');
+
+is $unsourced.translation.source, FromReading,
+    'without a corpus the same sentence falls back to its reading';
+is $unsourced.translation.render, '[food: declarative, present simple, distal]',
+    'rendered in brackets, and glossing the stem the way the gloss line did';
+
+# Zero-marked features are absent from the language and must be absent here.
+# Printing "affirmative" would report a choice nobody wrote a morpheme for.
+nok $unsourced.translation.text.contains('affirmative'),
+    'an unmarked polarity is not reported';
+nok $unsourced.translation.text.contains('asserted'),
+    'and neither is an unmarked modality';
+
+my $negated = gloss-sentence($script, $lexicon, $morphology, 'Mirireri mothinəme.');
+
+ok $negated.translation.text.contains('negative'),
+    'while a polarity that was written does appear';
+
+# A sentence the reader cannot read says why. "[no reading]" on its own is the
+# least useful thing this line could carry, since the reason somebody glosses a
+# sentence they have just written is to find out what is wrong with it.
+my $unread = gloss-sentence($script, $lexicon, $morphology, 'Laari mirime.', :$corpus);
+
+is $unread.translation.source, Unavailable,
+    'a sentence with no reading and no corpus entry has no translation';
+ok $unread.translation.render.contains('laari'),
+    'and the line names the word that defeated the reader';
+
+is $unread.render.lines.elems, 3,
+    'every rendering is three lines, which is what interlinear means';
