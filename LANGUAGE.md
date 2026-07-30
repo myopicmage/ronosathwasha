@@ -847,6 +847,124 @@ Lari Laariswemedi.
 I am actively being Lauri.
 ```
 
+## 23. Foreign names enter by best-effort transliteration
+
+**A name the language cannot pronounce is repaired rather than borrowed.** Each
+sound maps to the nearest available one, codas and clusters are broken by an
+epenthetic schwa, and the result is an ordinary Rono word. There is no category
+of unassimilated foreign name and no marker that says a name follows.
+
+This is what every language with a restrictive inventory does. Korean writes
+스트레스 and 맥도날드; Japanese writes マクドナルド and collapses /l/ and /r/ into
+one series. Neither treats the result as foreign once it has been made sayable.
+
+### The filler is schwa, because schwa is the vowel that is not written
+
+Decision 21 made schwa inkless, and codas are illegal, so a consonant drawn with
+no vowel mark above it already means `Cə`. That is exactly the right shape for
+padding: **material that is not part of the name is written by not being
+written.**
+
+It also makes foreignness legible without marking it. A native word rarely ends
+in an unmarked consonant, so `kevin` coming out as three squares whose last
+carries no vowel looks like what it is.
+
+Korean reached the same principle and stops one step short: ㅡ is the least-marked
+vowel it has, and 맥도날드 draws every syllable of it. Rono needs the filler more
+often, because Korean permits a range of codas and this permits none.
+
+### Lossy is accepted, and the losses are worse than Korean's
+
+The inventory has no labial stops, no velars, no labiodentals, no affricates
+after decision 1, and no `h` at all. So the substitutions collide:
+
+```text
+p b  ->  t d        manner over place; the only labial is a nasal
+k g  ->  t d        Kevin, Tevin and Gevin become one name
+f v  ->  th dh      voicing kept, place moved to the teeth
+h    ->  deleted    not a phoneme here, and h completes the digraphs
+z    ->  s
+ŋ    ->  n
+w    ->  the glide on the following vowel, not a consonant
+j    ->  y
+```
+
+Reverse transliteration is therefore impossible, which is also true of katakana
+and is not treated as a defect there.
+
+### Harmony is the hard part, and the rule is that the last vowel governs
+
+Transliteration can produce a word that belongs to no harmony class. `Roberto`
+becomes `rodetho`, which profiles as `MixedWord`, and a mixed word currently
+takes no affix at all: it cannot be a subject, cannot be copularized, cannot be
+possessed. **The name would be grammatically inert**, which is worse than
+unpronounceable.
+
+So for a disharmonic stem, **affixes agree with its final vowel.** `rodetho`
+ends in `o` and takes back forms: `rodethoru`, `rodethoswo`.
+
+Turkish does exactly this with loanwords, and Finnish resolves compounds by
+letting the last element govern. It is the minimal fix: the name keeps its shape,
+and nothing about native harmony changes.
+
+**This is a change to existing behaviour and not only an addition.**
+`X::Ronosathwasha::Form::MixedStem` is currently raised for every mixed stem, and
+`Morphology.form-for(MixedWord)` currently fails by design. Both stay correct for
+native words, where a mixed stem is an error, and stop applying to declared loans.
+Distinguishing the two requires knowing that a stem is a loan, which is the open
+question below.
+
+#### The rule costs a typo filter, and the cost is not yet paid
+
+The phonotactics already catch most mistyping, because strict CV admits no
+clusters, no codas and no geminates. Of six plausible slips on `mirire`, three are
+not writable at all:
+
+```text
+mirre     unwritable   geminate; there is no consonant length either
+mriire    unwritable   cluster
+mirir     unwritable   coda
+midire    writable, FrontWord
+murire    writable, MixedWord
+miirire   writable, FrontWord   an accidental double becomes a long vowel
+```
+
+What survives is substitution of a single letter. And **harmony is the second
+filter that catches half of what is left**: `murire` is mixed, so today no affix
+attaches to it and `murireswe` fails. The typo is caught by the grammar refusing
+to inflect it.
+
+The final-vowel rule spends that filter. Once a mixed stem can take affixes, a
+one-vowel slip becomes an acceptable disharmonic loan and passes as a name.
+
+The filter is still in place, because this rule is decided and not implemented.
+Whoever implements it is spending something, and should know that rather than
+discover it.
+
+### Not decided here
+
+- **Whether a transliterated name is a lexicon entry or generated on demand.**
+  Listing them is reproducible and closed; generating them is open-class and lets
+  the parser accept any well-formed nominal. Decision 22's implementation already
+  accepts unlisted nominals in a predicate slot, so the code currently behaves as
+  though names are generated.
+- **What generating costs, which is less than it first appears.** The worry was
+  that an unlisted nominal silently understood would stop producing the
+  `UnknownStem` finding that gaps are made of. It mostly does not, because the
+  model cannot produce an unlisted stem at all: `intent-from` checks every
+  predicate and argument against `nameable()`, derived from the lexicon, and
+  refuses the rest as `Answer::Unknown`. Lauri's gaps arrive as a `Gap` carrying
+  `wanted` and `missing`, never as an unparseable word. `UnknownStem` therefore
+  only ever describes human input, and a human who types a name knows they typed
+  one.
+
+  What remains is a single-letter typo passing as a name, bounded by the filters
+  above, and the slot still refines the finding: unlisted in a nominal position is
+  a name or a missing noun, unlisted where a verb belongs is a missing verb.
+- **Whether the substitution table above is normative.** Two speakers must
+  transliterate a name the same way or it is not a name. Korean and Japanese both
+  conventionalised theirs.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

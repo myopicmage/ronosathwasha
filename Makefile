@@ -9,6 +9,7 @@
 # changed. Only the verbs below are phony.
 
 PORT ?= 8000
+LEVEL ?= sentence
 
 # Empty under direnv, which is the usual case: the toolchain is already on
 # PATH. Outside it, every recipe re-enters the dev shell, the way
@@ -59,7 +60,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict syllabary pages keylayout serve share speak test raku-test typecheck check install clean
+.PHONY: help all site font dict syllabary pages keylayout serve share speak validate test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -109,6 +110,10 @@ $(KEYLAYOUT): $(MODEL) $(SCRIPT) tools/build_keylayout.py
 # waiting on and the questions it answers are asked rarely.
 speak: ## Speak the language into build/speech
 	$(PY) -m tools.speak --demo
+
+validate: $(RAKU_STAMP) ## Validate Rono in TEXT at writing, word, or sentence LEVEL
+	@test -n "$(TEXT)" || { echo "usage: make validate TEXT='Lari thinəme.' [LEVEL=sentence]"; exit 2; }
+	$(RAKU) raku -I lib tools/validate.raku --level="$(LEVEL)" "$(TEXT)"
 
 serve: site ## Serve build/ over HTTP
 	$(PY) -m http.server -d build $(PORT)
