@@ -43,20 +43,50 @@ legal fields means anything.
 C<additionalProperties> is false, which is the same refusal at the schema level: a
 field nobody asked for is a model answering a different question.
 
-=head2 What the schema cannot express, and who catches it
+=head2 A tagged union, because the fields are not independent
+
+An C<express> needs a predicate and four features; a C<gap> needs two strings and would
+be impossible to express if the schema demanded a predicate. One flat object cannot say
+that, so it used to require only C<kind> and leave the rest optional. The consequence
+showed up on the first live run: the model answered with three fields, omitted C<tense>,
+C<aspect>, C<polarity>, C<modality> and C<speech_act>, and the constrained decoder was
+perfectly happy because nothing had been required.
+
+C<oneOf> with C<const> on the tag is the standard way to say it, and it is checked rather
+than assumed: llama.cpp compiles both into grammar alternation, and a model instructed in
+as many words to emit only C<{"kind": "express"}> cannot, because no path through the
+grammar closes the object early. B<The omission stops being something to reject and
+becomes something the decoder cannot produce.>
+
+The three fields that stay optional each have a real default that C<intent-from> applies:
+C<arguments> to C<[]>, C<nominal_predicate> to C<False>, C<tense> to a timeless identity.
+
+=head2 What the schema still cannot express, and who catches it
 
 An absent tense is legal only on a nominal predicate, because a verb without a tense
-morpheme is not a word. JSON Schema can say that with C<if>/C<then>, and llama.cpp
-converts a schema into a grammar, so the more of that conversion a schema leans on the
-more ways there are for it to be quietly unsupported.
+morpheme is not a word. That is a constraint over I<which stem was chosen>, so expressing
+it in the grammar would mean splitting the predicate enumeration into verbal and nominal
+halves and doubling the branches. C<if>/C<then> would say it directly and is the one part
+of JSON Schema llama.cpp's conversion does not handle.
 
-So the schema leaves C<tense> optional and says nothing about the pairing, and
-C<intent-from> refuses the combination with a message naming it. The rule lives in one
-place either way, and this is the place that cannot be silently unsupported.
+So the pairing stays with C<intent-from>, which refuses it with a message naming it. This
+is the place that cannot be silently unsupported.
+
+=head2 The vocabulary is free, and the conversation is not
+
+Worth knowing before optimizing the wrong half: the enumeration of stems costs B<zero>
+prompt tokens. C<response_format> is compiled to a sampling grammar server-side and never
+enters the context. Measured: the same request with and without a 91-stem enumeration
+reports 18 prompt tokens either way.
+
+What does cost tokens is Rono in the conversation itself, because C<Turn.text> reaches the
+model verbatim. See C<Ronosathwasha::LlamaTokenCounter>.
 
 =end pod
 
 unit module Ronosathwasha::ModelProtocol;
+
+use X::Ronosathwasha;
 
 use Ronosathwasha::Config;
 use Ronosathwasha::Intent;
@@ -82,21 +112,24 @@ sub enumerated(@values --> Hash) { %( type => 'string', enum => @values.List ) }
 #|
 #| Built from `answer-vocabulary` and `nameable` rather than written out, so the
 #| strings the decoder accepts and the strings the schema permits cannot drift apart.
-sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is export {
-    my %v = answer-vocabulary();
-    my @stems = nameable($lexicon, $morphology).keys.sort;
-
+#| The `express` branch: a thing to say, with everything `intent-from` will demand.
+#|
+#| The required list is not a judgement call. `intent-from` runs `speech_act`, `aspect`,
+#| `polarity` and `modality` through `pick`, which looks the value up in a table and
+#| dies when it is absent, because `%table{''}` is undefined. It checks `predicate`
+#| against `nameable`. So these six are exactly the fields whose absence is already
+#| fatal one layer up, moved to where the decoder can prevent it instead.
+sub express-branch(@stems, %v --> Hash) {
     %(
         type => 'object',
         additionalProperties => False,
-
-        # Only the discriminator. Everything else depends on which kind it is, and a
-        # schema that required `predicate` would make a gap impossible to express,
-        # which is the one answer this project most wants available.
-        required => ['kind'],
+        required => <kind predicate speech_act aspect polarity modality>.List,
 
         properties => %(
-            kind => enumerated(%v<kind>),
+            # `const`, not an enumeration of one. This is the tag that makes the union
+            # discriminated: the grammar can only reach this branch's fields after
+            # emitting this exact value, so a `gap`-shaped answer cannot borrow them.
+            kind => %( const => 'express' ),
 
             # An enumeration and not a string. This is the line that makes an
             # invented word unsayable rather than merely rejected.
@@ -107,12 +140,17 @@ sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is ex
             polarity   => enumerated(%v<polarity>),
             modality   => enumerated(%v<modality>),
 
-            # Absent for a timeless identity, which decision 22 made a meaning rather
-            # than an omission. The pairing rule is not expressed here; see the pod.
+            # The three optional ones, each because it has a real default rather than
+            # because nobody got round to requiring it.
+            #
+            # `tense` absent is a timeless identity, which decision 22 made a meaning
+            # rather than an omission, and the pairing rule stays out; see the pod.
             tense => enumerated(%v<tense>),
 
+            # `intent-from` reads this as `False` when absent.
             nominal_predicate => %( type => 'boolean' ),
 
+            # And this as `[]`, so a predicate with no arguments needs no key.
             arguments => %(
                 type  => 'array',
                 items => %(
@@ -125,14 +163,57 @@ sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is ex
                     ),
                 ),
             ),
+        ),
+    );
+}
 
-            # Free text, and the only free text in the schema. A gap is the model
-            # telling Kevin something the declarations cannot express, so constraining
-            # it to declared vocabulary would make it unable to say what is missing.
+#| The `gap` branch: the language cannot say it, and here is what is missing.
+#|
+#| Both fields required, matching `intent-from`, which refuses a gap without either.
+#| Free text, and the only free text in the schema: a gap is the model telling Kevin
+#| something the declarations cannot express, so constraining it to declared
+#| vocabulary would make it unable to say what is absent.
+sub gap-branch(--> Hash) {
+    %(
+        type => 'object',
+        additionalProperties => False,
+        required => <kind wanted missing>.List,
+
+        properties => %(
+            kind    => %( const => 'gap' ),
             wanted  => %( type => 'string' ),
             missing => %( type => 'string' ),
         ),
     );
+}
+
+sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is export {
+    my %v = answer-vocabulary();
+    my @stems = nameable($lexicon, $morphology).keys.sort;
+
+    my %branches =
+        express => express-branch(@stems, %v),
+        gap     => gap-branch();
+
+    # Driven off the vocabulary rather than written out, so a third kind added to
+    # `answer-vocabulary` without a branch here is a loud failure instead of an
+    # alternative the grammar silently lacks. The old flat schema got this for free by
+    # enumerating `%v<kind>` in one place; a union has to earn it.
+    my @missing = %v<kind>.grep({ not %branches{$_}:exists });
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason("no schema branch for kind { @missing.join(', ') }"),
+    ) if @missing;
+
+    # A tagged union, not one object with everything optional. Each branch pins `kind`
+    # with `const` and carries its own `required`, which is the standard JSON Schema
+    # way to say "these fields go together" without `if`/`then`.
+    #
+    # Verified against the real decoder rather than assumed: llama.cpp compiles `oneOf`
+    # and `const` into grammar alternation, and a model told in as many words to emit
+    # only `{"kind": "express"}` still could not, because the grammar has no path that
+    # closes the object early. That is the property this buys.
+    %( oneOf => %v<kind>.map({ %branches{$_} }).List );
 }
 
 #| The chat-completions request body, ready for JSON encoding.

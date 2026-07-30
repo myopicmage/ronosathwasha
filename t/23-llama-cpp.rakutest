@@ -75,7 +75,7 @@ is %sent<messages>[1]<content>, 'Lari thinəme.', 'and the turn verbatim';
 is %sent<temperature>, 0.7, 'with the configured sampling';
 is %sent<max_tokens>, 1024, 'and the reservation as max_tokens';
 is %sent<response_format><type>, 'json_schema', 'schema-constrained';
-ok %sent<response_format><json_schema><schema><properties><predicate><enum>.elems > 50,
+ok %sent<response_format><json_schema><schema><oneOf>[0]<properties><predicate><enum>.elems > 50,
     'against a schema enumerating the real lexicon rather than a placeholder';
 nok %sent<chat_template_kwargs><enable_thinking>, 'and thinking off';
 

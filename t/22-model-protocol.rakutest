@@ -11,7 +11,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 29;
+plan 37;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -19,6 +19,26 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $config     = load-config(repository-root.add('config/chatbot.toml'));
 
 my %schema = response-schema($lexicon, $morphology);
+my %v = answer-vocabulary();
+
+# ------------------------------------------------- a discriminated union ---
+#
+# One flat object with everything optional let the model omit five of six fields on the
+# first live run, and the decoder allowed it because nothing was required. A branch per
+# kind is what makes that omission unrepresentable rather than merely rejected.
+
+ok %schema<oneOf>:exists, 'the schema is a union rather than one flat object';
+is %schema<oneOf>.elems, %v<kind>.elems, 'with one branch per kind the decoder accepts';
+
+# Keyed by the tag rather than by position, so nothing here depends on the order
+# `answer-vocabulary` happens to list the kinds in.
+my %branch = %schema<oneOf>.map({ $_<properties><kind><const> => $_ }).Hash;
+
+is-deeply %branch.keys.sort.List, %v<kind>.sort.List,
+    'and each branch tagged with a `const`, which is what discriminates them';
+
+my %express = %branch<express>;
+my %gap     = %branch<gap>;
 
 # --------------------------------------------- the vocabulary cannot drift ---
 #
@@ -26,13 +46,14 @@ my %schema = response-schema($lexicon, $morphology);
 # must be a string `intent-from` accepts, and the failure this prevents is the one
 # `Morphology` already had: an enum grows, the table beside it does not, and the
 # symptom is a type check about the wrong thing.
+#
+# `kind` is excluded because it is no longer an enumeration anywhere: it is a `const`
+# per branch, asserted above.
 
-my %v = answer-vocabulary();
-
-for %v.keys.sort -> $field {
+for %v.keys.grep(* ne 'kind').sort -> $field {
     my @from-schema = $field eq 'role'
-        ?? %schema<properties><arguments><items><properties><role><enum>.List
-        !! %schema<properties>{$field}<enum>.List;
+        ?? %express<properties><arguments><items><properties><role><enum>.List
+        !! %express<properties>{$field}<enum>.List;
 
     # `.List` on both sides. `is-deeply` distinguishes an Array from a List, and
     # binding to an `@` variable coerces, so comparing them bare fails on the
@@ -43,41 +64,60 @@ for %v.keys.sort -> $field {
 
 # ------------------------------------ the predicate is a list, not a string ---
 
-ok %schema<properties><predicate><enum>:exists,
+ok %express<properties><predicate><enum>:exists,
     'the predicate is enumerated rather than a free string';
 
 my Set $known = nameable($lexicon, $morphology);
-is %schema<properties><predicate><enum>.elems, $known.elems,
+is %express<properties><predicate><enum>.elems, $known.elems,
     'and enumerates every nameable stem';
 
-is-deeply %schema<properties><predicate><enum>.List, $known.keys.sort.List,
+is-deeply %express<properties><predicate><enum>.List, $known.keys.sort.List,
     'sorted, so the schema is stable between runs';
 
-nok %schema<properties><predicate><enum>.grep('thinu'),
+nok %express<properties><predicate><enum>.grep('thinu'),
     'a word the lexicon does not have is not offered';
-ok %schema<properties><predicate><enum>.grep('thinə'),
+ok %express<properties><predicate><enum>.grep('thinə'),
     'while one it does have is';
 
 # Arguments carry stems too, and the same constraint has to reach them or a model can
 # invent a word in the one place nobody checked.
-is-deeply %schema<properties><arguments><items><properties><stem><enum>.List,
+is-deeply %express<properties><arguments><items><properties><stem><enum>.List,
     $known.keys.sort.List, 'argument stems are constrained the same way';
 
 # ---------------------------------------------------- refusing extra fields ---
 
-nok %schema<additionalProperties>, 'a field nobody asked for is refused';
-nok %schema<properties><arguments><items><additionalProperties>,
+nok %express<additionalProperties>, 'a field nobody asked for is refused';
+nok %gap<additionalProperties>, 'in either branch';
+nok %express<properties><arguments><items><additionalProperties>,
     'including inside an argument';
 
-# ------------------------------------------------------- only kind is required ---
-#
-# A schema requiring `predicate` would make a gap impossible to express, which is the
-# one answer this project most wants available.
+# The point of the union: neither branch can borrow the other's fields, so a half-formed
+# answer is not a shape the grammar can reach.
+nok %express<properties><wanted>:exists, 'an express has no gap fields to fill in';
+nok %gap<properties><predicate>:exists, 'and a gap cannot name a predicate';
 
-is-deeply %schema<required>.List, ('kind',), 'only the discriminator is required';
-ok %schema<properties><wanted>:exists, 'a gap has somewhere to say what it wanted';
-is %schema<properties><wanted><type>, 'string',
-    'as free text, since a gap is about what the declarations cannot express';
+# --------------------------------------------- what each branch demands ---
+#
+# Not a judgement call. These are exactly the fields whose absence already kills
+# `intent-from`: four go through `pick`, which dies on an absent value, and `predicate`
+# is checked against `nameable`.
+
+is-deeply %express<required>.sort.List,
+    <aspect kind modality polarity predicate speech_act>.List,
+    'an express must carry everything intent-from will demand of it';
+
+is-deeply %gap<required>.sort.List, <kind missing wanted>.List,
+    'and a gap must say both what it wanted and what is missing';
+
+# Three stay optional, each because it has a real default rather than because nobody
+# got round to requiring it.
+for <tense nominal_predicate arguments> -> $field {
+    nok %express<required>.grep($field),
+        "$field stays optional, since intent-from supplies a default for it";
+}
+
+is %gap<properties><wanted><type>, 'string',
+    'a gap is free text, since it is about what the declarations cannot express';
 
 # --------------------------------------------------------------- the request ---
 

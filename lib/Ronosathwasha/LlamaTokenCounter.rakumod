@@ -22,6 +22,13 @@ English runs 4.4 to 6.5 (C<understanding> is 2). So roughly two to three times t
 per character, which is smaller than it feels and still enough to matter over a long
 conversation.
 
+This is about Rono B<in the conversation>, which is the only place it costs anything.
+C<Turn.text> reaches the model verbatim, so a session conducted in Rono pays the rate
+above on every turn. The schema's enumeration of every nameable stem is free:
+C<response_format> is compiled to a sampling grammar server-side and never enters the
+context, measured at 18 prompt tokens with and without a 91-stem enumeration. Easy to
+get backwards, and it would send anyone optimizing the wrong half.
+
 =item The template adds framing that nothing in the pure half can see. Every message
 gets role markers and control tokens, once per message, so the error grows with the
 length of the conversation rather than staying constant. That is the shape that
