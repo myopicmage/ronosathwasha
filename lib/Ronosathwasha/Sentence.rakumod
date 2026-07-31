@@ -124,7 +124,13 @@ sub realize-word(
 #| value and passing it is how a caller says nothing goes on the front. That is a
 #| slightly uncomfortable way to express "somewhere else carries this", and the
 #| alternative is a second parameter that can disagree with the first.
-sub act-to-write(Lexicon:D $lexicon, Reading:D $reading --> SpeechAct) {
+#|
+#| `Asks:D` rather than `Reading:D`, because `Express` obeys the same rule when a
+#| sentence is generated instead of rebuilt, and two copies of this decision would
+#| be two chances for `totoro`. The role does not promise `.predicate`; both types
+#| that compose it carry one, and Raku checks at the call, which `CLAUDE.md`'s
+#| role-stub note is about.
+sub act-to-write(Lexicon:D $lexicon, Asks:D $reading --> SpeechAct) is export {
     return $reading.speech-act unless $reading.speech-act == Interrogative;
 
     # Another constituent carries it, and that word is rebuilt from its own
