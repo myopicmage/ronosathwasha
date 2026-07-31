@@ -1,0 +1,165 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Semantics;
+use Ronosathwasha::Actions;
+use Ronosathwasha::Dialogue;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Projection;
+
+plan 18;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+sub intent(%raw) { intent-from($lexicon, $morphology, %raw) }
+
+sub express(*%extra) {
+    intent(%(
+        kind       => 'express',
+        predicate  => 'thinə',
+        speech_act => 'declarative',
+        tense      => 'present',
+        aspect     => 'simple',
+        polarity   => 'affirmative',
+        modality   => 'asserted',
+        arguments  => [ $%( 'role' => 'subject', stem => 'la' ) ],
+        |%extra,
+    ))
+}
+
+sub identity(*%extra) {
+    my %raw =
+        kind       => 'express',
+        predicate  => 'mirire',
+        nominal_predicate => True,
+        speech_act => 'declarative',
+        aspect     => 'simple',
+        polarity   => 'affirmative',
+        modality   => 'asserted',
+        arguments  => [ $%( 'role' => 'subject', stem => 'la' ) ],
+        |%extra;
+
+    %raw<tense>:delete unless %extra<tense>:exists;
+
+    intent(%raw)
+}
+
+# ------------------------------------------- order is spelling, count is not ---
+#
+# Review 029's correction in both directions. Decision 17 frees constituent
+# order, so reordering must compare equal; nothing has ruled repetition
+# meaningless, so duplication must not.
+
+my $one = express(arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                                 $%( 'role' => 'object',  stem => 'runə' ) ]);
+my $two = express(arguments => [ $%( 'role' => 'object',  stem => 'runə' ),
+                                 $%( 'role' => 'subject', stem => 'la' ) ]);
+
+ok semantic-projection($one).matches(semantic-projection($two)),
+    'reordered participants are one meaning, since decision 17 frees the order';
+
+my $single = express();
+my $double = express(arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                                    $%( 'role' => 'subject', stem => 'la' ) ]);
+
+ok semantic-projection($single).matches(semantic-projection($single)),
+    'a projection matches itself';
+nok semantic-projection($single).matches(semantic-projection($double)),
+    'a repeated participant is not the single one, undecided rather than erased';
+is-deeply semantic-projection($single).differences(semantic-projection($double)),
+    ('participants',),
+    'and the report names the one axis that disagrees';
+
+# ------------------------- intent to realization to reading, meaning preserved ---
+#
+# The contract test plan 032 promised: what a model chooses, realized by the
+# grammar and read back by the grammar, projects to the same meaning. The
+# oracle will run this same comparison against live answers, through this
+# same module, which is why the two cannot disagree about what preservation
+# means.
+
+my @cases =
+    'a present declarative'    => express(),
+    'a past with two arguments' => express(:tense<past>,
+        arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                       $%( 'role' => 'object',  stem => 'runə' ) ]),
+    'a subject question'       => express(:speech_act<interrogative>,
+        :question_scope<subject>),
+    'an object question'       => express(:speech_act<interrogative>,
+        :question_scope<object>,
+        arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                       $%( 'role' => 'object',  stem => 'runə' ) ]),
+    'a negative potential'     => express(:polarity<negative>, :modality<potential>),
+    'the bare root in the past' => express(:predicate<miri>, :tense<past>),
+    'a timeless identity'      => identity(),
+    'a tensed identity'        => identity(:tense<present>);
+
+# Found by this file's first run, and older than this file: the realizer
+# gained nominal-predicate prefixes at `7cf70bd` and the reader never learned
+# them, so every denied, potential or questioned identity realizes cleanly
+# and reads back as NotUnderstood. `momirireswe` passes word validation and
+# fails sentence reading. t/10 hid it by testing the questioned identity's
+# realization only. TODO rather than removed, so the hole stays measured.
+my @unreadable =
+    'a denied identity'     => identity(:polarity<negative>),
+    'a questioned identity' => identity(:speech_act<interrogative>,
+        :question_scope<predicate>);
+
+for @cases -> (:key($case), :value($sent)) {
+    subtest $case => {
+        plan 2;
+
+        my $said  = realize-intent($script, $lexicon, $morphology, $sent);
+        my $heard = read-sentence($script, $lexicon, $morphology, $said);
+
+        isa-ok $heard, Understood, "the realization of $case reads back at all";
+
+        my $before = semantic-projection($sent);
+        my $after  = semantic-projection($heard.reading);
+
+        ok $before.matches($after),
+            "and means what was meant"
+                ~ ($before.matches($after)
+                    ?? ''
+                    !! ": differs on { $before.differences($after).join(', ') } in $said");
+    }
+}
+
+for @unreadable -> (:key($case), :value($sent)) {
+    my $said  = realize-intent($script, $lexicon, $morphology, $sent);
+    my $heard = read-sentence($script, $lexicon, $morphology, $said);
+
+    todo 'the reader has not learned prefixed nominal predicates', 1;
+    isa-ok $heard, Understood, "$case reads back: the known hole, kept measured";
+}
+
+# ------------------------------------------------ what the split now prevents ---
+#
+# Review 027's walk-through, run in full. The wire refuses `miriswe` as a
+# predicate since the vocabulary split (t/11 asserts it), and this is the
+# meaning change that refusal prevents: the realizer happily inflects the
+# finished infinitive, the reader happily divides the result, and the two
+# meanings disagree about what the predicate even is.
+
+my $imposter = Express.new(
+    :predicate('miriswe'), :speech-act(Declarative), :tense(Past),
+    :aspect(Simple), :polarity(Affirmative), :modality(Asserted),
+);
+
+my $said  = realize-intent($script, $lexicon, $morphology, $imposter);
+my $heard = read-sentence($script, $lexicon, $morphology, $said);
+
+is $said, 'miriswese.', 'the realizer happily inflects the finished infinitive';
+isa-ok $heard, Understood, 'and the reader happily divides the result';
+nok semantic-projection($imposter).matches(semantic-projection($heard.reading)),
+    'into a different meaning, which is what the split now makes unsendable';
+is-deeply semantic-projection($imposter).differences(semantic-projection($heard.reading)),
+    ('nominal', 'predicate'),
+    'a verbal miriswe became the nominal miri, named axis by axis';

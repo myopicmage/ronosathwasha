@@ -9,6 +9,7 @@
   "license": "NONE",
   "provides": {
     "Ronosathwasha::Capabilities": "lib/Ronosathwasha/Capabilities.rakumod",
+    "Ronosathwasha::Projection": "lib/Ronosathwasha/Projection.rakumod",
     "Ronosathwasha::Gloss": "lib/Ronosathwasha/Gloss.rakumod",
     "Ronosathwasha::Chatbot": "lib/Ronosathwasha/Chatbot.rakumod",
     "Ronosathwasha::Types": "lib/Ronosathwasha/Types.rakumod",
