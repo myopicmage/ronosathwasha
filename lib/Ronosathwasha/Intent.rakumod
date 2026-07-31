@@ -159,6 +159,13 @@ sub answer-vocabulary(--> Hash) is export {
         kind       => <express gap>,
 
         speech_act => %SPEECH-ACT.keys.sort.List,
+
+        # Beside `speech_act` because the two are one fact: an interrogative names a
+        # scope and nothing else may, which `Asks` enforces. The schema cannot say
+        # "required iff interrogative" without `if`/`then`, so the wire treats it as
+        # optional and the pairing is checked where the meaning types are built.
+        question_scope => %SCOPE.keys.sort.List,
+
         tense      => %TENSE.keys.sort.List,
         aspect     => %ASPECT.keys.sort.List,
         polarity   => %POLARITY.keys.sort.List,

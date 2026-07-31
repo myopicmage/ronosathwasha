@@ -72,6 +72,12 @@ of JSON Schema llama.cpp's conversion does not handle.
 So the pairing stays with C<intent-from>, which refuses it with a message naming it. This
 is the place that cannot be silently unsupported.
 
+C<question_scope> is the same shape a second time: legal exactly when C<speech_act> is
+C<interrogative>, which is a constraint I<between> fields and therefore C<if>/C<then>
+again. The wire leaves it optional and C<Semantics::Asks> refuses the mismatch, in the
+role all three meaning types compose, so the model's copy of the rule and the corpus's
+copy cannot be two rules.
+
 =head2 The vocabulary is free, and the conversation is not
 
 Worth knowing before optimizing the wrong half: the enumeration of stems costs B<zero>
@@ -139,6 +145,12 @@ sub express-branch(@stems, %v --> Hash) {
             aspect     => enumerated(%v<aspect>),
             polarity   => enumerated(%v<polarity>),
             modality   => enumerated(%v<modality>),
+
+            # Optional for the same reason `tense` is: absence is a meaning, not an
+            # omission. A declarative questions nothing, so it sends no scope, and
+            # "required iff interrogative" is an `if`/`then` the grammar cannot hold;
+            # see the pod. The pairing is refused by `Asks` when the intent is built.
+            question_scope => enumerated(%v<question_scope>),
 
             # The three optional ones, each because it has a real default rather than
             # because nobody got round to requiring it.

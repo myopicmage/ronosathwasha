@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 24;
+plan 26;
 
 my IO::Path $data = repository-root.add('data');
 my $morphology = load-morphology($data.add('morphology.toml'));
@@ -87,6 +87,13 @@ ok $text.contains('speech act:'), 'speech act is named without its underscore';
 ok $text.contains('argument role:'),
     'and the argument role is named as that rather than as case';
 
+# Asserted with its values rather than only its label, like the loop above but with
+# the underscore relaxed. The scope entered the vocabulary before it entered this
+# block, and in between a model could ask only the question the decoder permitted and
+# the prompt never offered: the interface gap this file exists to keep truthful.
+ok $text.contains("question scope: { %v<question_scope>.sort.join(', ') }"),
+    'the question scope axis lists exactly what the decoder accepts';
+
 nok $text.contains('kind:'),
     'the envelope discriminator is not offered as a feature of the language';
 
@@ -102,6 +109,13 @@ ok $text.contains('past continuous'),
 
 ok $text.contains('meaning, not spelling'),
     'the model is told it selects features rather than assembling forms';
+
+# The one pairing rule the axes have. "Independent" above is the broad claim that
+# prevents false gaps, and this is its stated exception, the same pattern as the
+# timeless tense: the block says it out loud rather than leaving the model to pair a
+# scope with a statement and be refused two layers later.
+ok $text.contains('accompanies an interrogative'),
+    'and the scope\'s pairing with the interrogative is stated rather than inferred';
 
 # ---------------------------------------------- a language gap is not an interface gap ---
 #

@@ -85,7 +85,9 @@ sub axis-of(MorphemeRole:D $role --> Str) {
 sub semantic-axes(--> Seq) {
     my %v = answer-vocabulary();
 
-    my @order = <speech_act tense aspect polarity modality role>;
+    # `question_scope` sits beside `speech_act` because the two are one fact, which
+    # is the same reason `Asks` owns both attributes.
+    my @order = <speech_act question_scope tense aspect polarity modality role>;
 
     @order.map(-> $axis {
         # `role` is the argument's role, which the morphology marks as case. Renamed
@@ -143,6 +145,10 @@ sub composition-rules(--> Str) {
         appears is decided by the stem's vowel class, not by you.
       - An absent tense is a timeless identity and is available only to a nominal
         predicate. A verb without a tense is not a well-formed word.
+      - A question scope accompanies an interrogative and nothing else. It says which
+        constituent the question is about; a statement carries none, and a question
+        always carries exactly one. Asking about the predicate asks what is
+        happening; asking about the subject or object asks who or what.
 
     You choose meaning, not spelling. Name the predicate and the features; the
     realizer assembles the word, applies harmony and orders the morphemes. Never
