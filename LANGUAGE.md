@@ -1039,6 +1039,34 @@ why this survived until somebody wrote it by hand.
   tense on a noun and `Lari thinəswe.` heads a clause with a form declared
   `nonfinite`. Related but larger than suffix order.
 
+## 25. The question marker lands on what is questioned
+
+**`te-/to-` attaches to basically anything, and where it sits is what the
+question is about.** It is not a clause-level particle with a fixed position;
+it is a prefix on a word, and the word it prefixes is the thing being asked:
+
+- `Nari tethinəme?`: marker on the verb, asking about the predication;
+- `Tororu thinəme?`: the question is inside `toro`, asking who;
+- `Tomwuyu thinəme?`: asking what;
+- `Tekevinri tethinəmedi?`: is Kevin eating right now.
+
+The marker makes a question and does not say which kind. The open-versus-polar
+distinction English draws is not a grammatical distinction here; what varies is
+where the marker landed, and nothing else.
+
+**More than one marker in a sentence is grammatical.** Each one questions its
+own host, as the last example shows: subject and verb both marked, asking about
+the whole proposition. A reader must therefore keep every marker it finds;
+keeping the first and dropping the rest reads a different, simpler sentence
+than the one written.
+
+**Implemented** partially. A single marker round-trips: the reader records
+where it sat (`QuestionScope`), the realizer writes it back there, and the
+chatbot's answer format offers the three positions an answer can carry. More
+than one marker is not yet representable: the semantic type holds one scope,
+and the reader currently keeps the first marker and erases the rest, which is
+exactly the silent simplification this decision forbids.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does
@@ -1060,3 +1088,15 @@ why this survived until somebody wrote it by hand.
   general marker meaning "stop or cease doing" could derive forget from
   `tonə`, while also expressing stop eating, stop going, and stop speaking.
   The grammatical job is useful and productive; its form remains open.
+- **The deliberative.** `Tororu dethinəme?` is roughly "who go-eat!", a command
+  at an open referent, and `tororu tedethinə(me)` with the Q-IMP stack would be
+  "who should eat". The leaning is toward an actual deliberative rather than
+  leaving the stack to carry it, since the stack also wants readings like
+  "really?" or "requesting confirmation?", and none of it is sitting right
+  yet. It would be the first mood morpheme, a neighbour of potential `li-`.
+- **Whether redundant question marking is a style violation.** Double marking
+  is grammatical per decision 25. The earlier judgment that it violates style
+  was made against `Tororu tethinəme?`, where `toro` already spells a
+  question; `Tekevinri tethinəmedi?` marks two words informatively and reads
+  fine. Whether the style judgment narrows to marking that adds nothing, or
+  dissolves entirely, is unsettled.
