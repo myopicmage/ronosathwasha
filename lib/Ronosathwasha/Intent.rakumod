@@ -248,29 +248,59 @@ sub optional-typed(%raw, Str:D $field, Mu:U $type) {
         unless %raw{$field} ~~ $type;
 }
 
-#| Every stem a model may name.
-#|
-#| The lexicon's words minus its bound morphology, plus the verb stems recovered
-#| from their infinitives. Exactly the set `Ronosathwasha::Words` will divide a
-#| word into, because a model naming something the grammar cannot then assemble
-#| would be a gap that only appears at realization.
-sub nameable(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
-    my @markers = $morphology.by-id('infinitive').forms;
+#| The single words the lexicon lists, which both vocabularies start from.
+sub listed-words(Lexicon:D $lexicon --> Seq) {
     my $affixes = $lexicon.affixes.map(*.roman).Set;
 
-    my @listed = $lexicon.entries
+    $lexicon.entries
         .map(*.roman)
         .grep({ not $affixes{$_} and not .contains(' ') });
+}
 
-    my @bare = @listed.map(-> $form {
-        with @markers.first({ $form.ends-with($_) && $form.chars > .chars }) -> $marker {
-            $form.substr(0, $form.chars - $marker.chars)
-        } else {
-            Empty
-        }
+#| The bare stem an infinitive recovers, or `Empty` for any other word.
+sub bare-stem-of(Str:D $form, @markers) {
+    with @markers.first({ $form.ends-with($_) && $form.chars > .chars }) -> $marker {
+        $form.substr(0, $form.chars - $marker.chars)
+    } else {
+        Empty
+    }
+}
+
+#| Every stem a model may name as a predicate: roots the realizer can inflect.
+#|
+#| The listed words minus the infinitive forms themselves, plus the bare stems
+#| those infinitives recover. The exclusion is review `027`'s finding: one flat
+#| set offered `miriswe` as a predicate root, and a surface verb already
+#| wearing its infinitive morpheme cannot be inflected again without changing
+#| meaning. `miriswese` is what the realizer built from it, and the reader
+#| necessarily divides that as the nominal `miri` plus copula plus tense: a
+#| verbal past became a nominal past, silently, end to end.
+sub predicate-roots(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
+    my @markers = $morphology.by-id('infinitive').forms;
+    my @listed  = listed-words($lexicon);
+
+    my @roots = @listed.map(-> $form {
+        my @bare = bare-stem-of($form, @markers);
+
+        @bare ?? @bare.Slip !! $form;
     });
 
-    (@listed, @bare).flat.Set;
+    @roots.Set;
+}
+
+#| Every stem a model may name as a participant: whole words that can stand as
+#| constituents.
+#|
+#| The infinitives stay in, because a nonfinite verb is a legal constituent and
+#| `Thinəswe twame` is corpus. The bare stems stay out, because `miri` is the
+#| piece of a word rather than a word, and a constituent built on it would not
+#| survive reading. The old flat set was wrong in both directions at once.
+#|
+#| The morphology parameter is unused and kept anyway: the two vocabularies are
+#| a pair, callers hold both arguments, and an asymmetric signature would make
+#| the swap between them a refactor instead of a name change.
+sub participant-stems(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
+    listed-words($lexicon).Set;
 }
 
 #| Turn what a model sent into an intent, or refuse it.
@@ -315,12 +345,17 @@ sub intent-from(
     optional-typed(%raw, 'nominal_predicate', Bool);
     optional-typed(%raw, 'arguments',         Positional);
 
-    my Set $known = nameable($lexicon, $morphology);
+    # Two vocabularies, by semantic position. A predicate must be a root the
+    # realizer can inflect and a participant must be a word that can stand as
+    # a constituent, and review `027` showed what one flat set costs in each
+    # direction.
+    my Set $roots = predicate-roots($lexicon, $morphology);
+    my Set $words = participant-stems($lexicon, $morphology);
 
     my Str $predicate = required-str(%raw, 'predicate', 'an express');
 
     die X::Ronosathwasha::Answer::Unknown.new(:field<predicate>, :value(%raw<predicate>))
-        unless $known{$predicate};
+        unless $roots{$predicate};
 
     for <speech_act aspect polarity modality> -> $field {
         required-str(%raw, $field, 'an express');
@@ -346,7 +381,7 @@ sub intent-from(
         # brackets are the word-quoting construct, so a space inside them makes
         # a two-element List rather than a string with a space in it.
         die X::Ronosathwasha::Answer::Unknown.new(:field('argument stem'), :value(%a<stem>))
-            unless $known{$stem};
+            unless $words{$stem};
 
         Participant.new(:role(pick(%ROLE, required-str(%a, 'role', 'an argument'), 'argument role')), :$stem);
     }

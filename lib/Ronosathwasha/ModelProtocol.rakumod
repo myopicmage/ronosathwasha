@@ -30,8 +30,12 @@ string cannot do the first step, which is why this role takes the list.
 
 This is the part worth the file. C<response_format> can carry a JSON schema, and the
 schema's C<predicate> is not C<{ "type": "string" }>: it is an enumeration of exactly
-the stems C<nameable> reports, currently 88 of them. B<A model cannot name a word the
-language does not have, because the decoder will not emit the tokens.>
+the roots C<predicate-roots> reports, and the argument stems enumerate
+C<participant-stems> separately. B<A model cannot name a word the language does not
+have, because the decoder will not emit the tokens.> The two sets differ by review
+C<027>'s finding: a predicate must be a root the realizer can inflect, so the bound
+infinitive forms are out, while a participant must be a word that can stand as a
+constituent, so the infinitives are in and the bare roots are out.
 
 C<intent-from> checks the same thing again afterwards, and that is deliberate rather
 than redundant. Plan C<014> asks for it in those words: reject unknown fields or
@@ -116,16 +120,17 @@ sub enumerated(@values --> Hash) { %( type => 'string', enum => @values.List ) }
 
 #| The schema a model's answer must satisfy.
 #|
-#| Built from `answer-vocabulary` and `nameable` rather than written out, so the
-#| strings the decoder accepts and the strings the schema permits cannot drift apart.
+#| Built from `answer-vocabulary`, `predicate-roots` and `participant-stems`
+#| rather than written out, so the strings the decoder accepts and the strings
+#| the schema permits cannot drift apart.
 #| The `express` branch: a thing to say, with everything `intent-from` will demand.
 #|
 #| The required list is not a judgement call. `intent-from` runs `speech_act`, `aspect`,
 #| `polarity` and `modality` through `pick`, which looks the value up in a table and
 #| dies when it is absent, because `%table{''}` is undefined. It checks `predicate`
-#| against `nameable`. So these six are exactly the fields whose absence is already
-#| fatal one layer up, moved to where the decoder can prevent it instead.
-sub express-branch(@stems, %v --> Hash) {
+#| against `predicate-roots`. So these six are exactly the fields whose absence is
+#| already fatal one layer up, moved to where the decoder can prevent it instead.
+sub express-branch(@predicates, @stems, %v --> Hash) {
     %(
         type => 'object',
         additionalProperties => False,
@@ -138,8 +143,10 @@ sub express-branch(@stems, %v --> Hash) {
             kind => %( const => 'express' ),
 
             # An enumeration and not a string. This is the line that makes an
-            # invented word unsayable rather than merely rejected.
-            predicate  => enumerated(@stems),
+            # invented word unsayable rather than merely rejected. Roots only:
+            # a finished infinitive here would be inflected into a different
+            # meaning, which is 027's `miriswe` walk-through.
+            predicate  => enumerated(@predicates),
 
             speech_act => enumerated(%v<speech_act>),
             aspect     => enumerated(%v<aspect>),
@@ -201,10 +208,11 @@ sub gap-branch(--> Hash) {
 
 sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is export {
     my %v = answer-vocabulary();
-    my @stems = nameable($lexicon, $morphology).keys.sort;
+    my @predicates = predicate-roots($lexicon, $morphology).keys.sort;
+    my @stems      = participant-stems($lexicon, $morphology).keys.sort;
 
     my %branches =
-        express => express-branch(@stems, %v),
+        express => express-branch(@predicates, @stems, %v),
         gap     => gap-branch();
 
     # Driven off the vocabulary rather than written out, so a third kind added to

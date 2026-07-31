@@ -9,7 +9,8 @@ What the language can currently express, derived from the declarations.
 C<PromptContext> requires two invariants and, until this module, B<nothing in C<lib/>
 built either one>. Every prompt that had ever existed was assembled by hand in a test or
 a probe script. The schema half was safe, because C<response-schema> derives its
-enumerations from C<answer-vocabulary> and C<nameable>. The prose telling the model what
+enumerations from C<answer-vocabulary>, C<predicate-roots> and
+C<participant-stems>. The prose telling the model what
 the language can do was the one part of the prompt with no source.
 
 That is not a tidiness problem. A hand-written block can assert a morpheme that does not

@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 57;
+plan 60;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -65,6 +65,20 @@ ok intent(%( %eat, predicate => 'rorothwa' )).defined,
 
 nok intent(%( %eat, predicate => 'me' )).defined,
     'while an affix is not a predicate, however real it is';
+
+# Review 027's split, by semantic position. The finished infinitive is not a
+# root: inflecting `miriswe` builds `miriswese`, which reads back as the
+# nominal `miri` with a copula and a tense, a silent meaning change. The same
+# form is a legal participant, since `Thinəswe twame` is corpus, and the bare
+# root is not, since it is the piece of a word rather than a word.
+nok intent(%( %eat, predicate => 'miriswe' )).defined,
+    'a bound infinitive form is refused as a predicate';
+
+ok intent(%( %eat, arguments => [ $%( 'role' => 'object', stem => 'thinəswe' ) ] )).defined,
+    'while an infinitive may stand as a participant';
+
+nok intent(%( %eat, arguments => [ $%( 'role' => 'object', stem => 'miri' ) ] )).defined,
+    'and a bare root may not';
 
 # ---------------------------------------------------------------------- gaps ---
 #
