@@ -306,6 +306,20 @@ polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject"]
 
+[[utterance]]
+text = "Lari metonəmo."
+english = "I don't know"
+status = "reviewed"
+derived_from = "Lari mothinəme."
+derivation = "back-harmonic tonə takes present -mo and the opposing front negator me-"
+speech_act = "declarative"
+predicate = "tonə"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject"]
+
 # ------------------------------------------------------- attested, 2026-07-29 ---
 #
 # Kevin's, written in conversation rather than onto the page. They close the

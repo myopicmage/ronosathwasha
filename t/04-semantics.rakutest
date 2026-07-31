@@ -18,13 +18,13 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 
 isa-ok $corpus, Coverage, 'the corpus parses into typed meaning';
 
-is $corpus.utterances.elems, 31, 'thirty-one utterances';
+is $corpus.utterances.elems, 32, 'thirty-two utterances';
 
 my %counts = $corpus.counts;
 is %counts<Attested>, 17, 'seventeen attested: the page, plus the three Kevin wrote on 2026-07-29';
 nok %counts<Derived>, 'nothing left unread';
-is %counts<Reviewed>, 12,
-    'twelve reviewed: eleven on 2026-07-30, and the invocation Kevin blessed from a train';
+is %counts<Reviewed>, 13,
+    'thirteen reviewed: eleven on 2026-07-30, the invocation, and I do not know';
 
 # The status exists for a sentence the rules permit and a speaker declines, and
 # these are the first two anybody has written down. They fail differently, which is
