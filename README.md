@@ -12,10 +12,11 @@ This started as a font for a constructed script I thought I had lost.
 
 It got out of hand.
 
-**Ronosathwasha is now a constructed language, a featural syllabary, a macOS
+Ronosathwasha is now a constructed language, a featural syllabary, a macOS
 keyboard layout, a generated reference site, and a Raku language-development
-harness attached to a local model.** The language is still being made. A lot of
-the machinery exists so attempted use can tell me what I forgot to decide.
+harness attached to a local model. The language is still being made. A lot of
+the machinery exists so I can try to use it and find out what I forgot to
+decide.
 
 `ronosathwasha` is `rono` + `sa` + `thwasha`, "people's language". `Rono` is
 the useful short form.
@@ -33,10 +34,10 @@ The project has four connected parts:
 - **The researcher.** A local Qwen model, running through `llama.cpp`, tries to
   use the language and reports where the available pieces are insufficient.
 
-This is not an "AI invents a language for me" project. That would remove the
-fun part. The model may combine declared pieces by declared rules, but it may
-not invent roots, morphemes, grammar or exceptions. **The model supplies
-pressure from use. I remain the language authority, for better or worse.**
+The model does not get to invent Rono for me. That would be a different
+project, and it would remove the fun part. It may combine declared pieces by
+declared rules, but it may not invent roots, morphemes, grammar or exceptions.
+It tries to use what exists. I decide what its failures mean.
 
 ## Start here
 
@@ -81,17 +82,17 @@ Input Sources, under **Others**.
 
 ## The language
 
-Rono is built from small pieces that are allowed to compose aggressively.
-Nouns can become predicates. Predicates take tense and aspect. The same
-question morpheme that marks a clause can attach to a noun and derive "who",
+Rono is built from small pieces that are allowed to compose aggressively. A
+noun can become a predicate. A predicate can take tense and aspect. The same
+question morpheme can mark a clause or attach to a noun to derive "who",
 "what", "where", "when" and "why".
 
-That flexibility is deliberate. **The language should generate consequences
-instead of requiring every useful form to be written down individually.** The
+That flexibility is deliberate. I want the grammar to generate consequences
+instead of requiring every useful form to be written down individually. The
 Raku side exists partly to find those consequences before I accidentally call
 all of them intentional.
 
-Some current load-bearing rules:
+Some current rules:
 
 - Every syllable is consonant plus vowel. There are no onsetless syllables,
   codas or consonant clusters.
@@ -110,26 +111,25 @@ exists now.**
 
 ## The researcher
 
-The chatbot is more accurately a **language-development environment disguised
-as a conversation**.
+The chatbot is a language-development environment disguised as a
+conversation.
 
-Its researcher is Lauri, a Finnish consultant commissioned to write the first
-book in Rono. The language cannot pronounce his name: `Lauri` begins with a
-diphthong, and Rono has nowhere to put one. It reaches `laari`, one vowel
+The researcher is named Lauri. It is a Finnish name; he is not Finnish. I
+picked it because Rono cannot pronounce it. `Lauri` begins with a diphthong,
+and Rono has nowhere to put one. The nearest it gets is `laari`, one vowel
 length away from `lari`, "I" with a subject marker.
 
-The language can, however, call him `tayare`, "think-person". This is his
-nickname and, regrettably for him, a valid derivation.
+Rono can call him `tayare`, "think-person". This is his nickname and,
+regrettably for him, a perfectly valid derivation.
 
-His job is to attempt real meanings. When the grammar cannot express one, or
-expresses something surprising instead, he reports the hole rather than
-quietly inventing a workaround. I can then decide whether the language needs a
-word, a rule, an idiom or nothing at all.
+His job is to try to express real meanings using the language as it exists.
+When the grammar cannot express one, or expresses something surprising
+instead, he reports the problem rather than quietly inventing a workaround. I
+can then decide whether Rono needs a word, a rule, an idiom or nothing at all.
 
-The harness currently has the language model, parser, realizer, structured
-intent protocol, conversation state, prompt construction, context budgeting
-and `llama.cpp` transport. **It is still under construction and does not yet
-have a finished conversation interface.**
+Most of the plumbing exists: the model, parser, realizer, structured intent
+protocol, conversation state, prompt construction, context budgeting and
+`llama.cpp` transport. The conversation interface is not finished yet.
 
 The selected model is Qwen3-14B at Q5_K_M, running locally with its native 32K
 context. Its GGUF lives in `~/models/`, never in this repository. A model file
@@ -145,8 +145,8 @@ The full design, including the model's authority boundary, is in
 11 consonants times 12 vowels gives 132 syllables. Each syllable occupies one
 code point in the Unicode Private Use Area.
 
-The script is featural: the shapes describe the sounds instead of assigning
-every sound an unrelated drawing.
+The script is featural. Related sounds use related shapes instead of giving
+every syllable an unrelated drawing.
 
 - A vertical stem marks voicing: `t` becomes `d`, and `th` becomes `dh`.
 - A crossbar marks a change of place: `s` becomes `sh`, and `l` becomes `r`.
@@ -215,14 +215,14 @@ make share             # the same site through a public cloudflared tunnel
 make serve PORT=9000
 ```
 
-The dictionary contains every entry in `data/lexicon.toml`, searchable by
-English gloss or romanisation, with each word rendered in the script.
-Conjugation tables are generated from the Raku morphology rather than copied
-into Python.
+The dictionary contains every entry in `data/lexicon.toml`. It is searchable
+by English gloss or romanisation, and every word is rendered in the script.
+Conjugation tables come from the Raku morphology rather than a second copy in
+Python.
 
-**Serve `build/`, never `docs/`.** Files under `docs/` are editable sources.
-The build rewrites them with the current font inlined, so they work on a
-machine that has never installed it.
+**Serve `build/`, never `docs/`.** `docs/` contains the editable sources. The
+build produces pages with the current font inlined, so they work on a machine
+that has never installed it.
 
 Inlining is necessary because the script uses private code points. A screenshot
 loses the text; the text alone loses the glyphs. The page has to carry its own
