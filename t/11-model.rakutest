@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 41;
+plan 45;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -159,15 +159,33 @@ ok $question.summary.contains('questions subject'),
 is intent(%( %asks, question_scope => 'predicate' )).question-scope, QuestionsPredicate,
     'the predicate is one scope among five rather than the only one';
 
-# The interface limit `023` asked to have stated rather than disguised. Decision 17
-# frees every position before the verb, so a questioned word carrying no particle is
-# grammatical and has no role these types can name.
-is intent(%( %asks, question_scope => 'constituent' )).question-scope, QuestionsConstituent,
-    'and an unnameable constituent is a value rather than a hole';
+# The wire offers three of the five scopes, and the two absences have a reason. A
+# `Reading` can question a locative or an unmarked word because the parsed sentence
+# contains the word the marker sat on; an `Express` cannot, so offering either would
+# invite a choice that ends in refusal every time. A model that needs them reports
+# the interface gap instead, which is the channel built for exactly this.
+nok intent(%( %asks, question_scope => 'locative' )).defined,
+    'a locative question is not offered, since an intent cannot carry one';
+nok intent(%( %asks, question_scope => 'constituent' )).defined,
+    'nor an unmarked constituent, for the same reason';
 
 my $invented-scope = intent(%( %asks, question_scope => 'polar' ));
-nok $invented-scope.defined, 'a scope outside the five is refused';
+nok $invented-scope.defined, 'a scope outside the three is refused';
 is $invented-scope.self.exception.field, 'question_scope', 'naming the field it came from';
+
+# A scope naming a constituent is a promise the marker has somewhere to land, and
+# `%eat` names only a subject. Same shape as the verb with no tense: two individually
+# legal fields whose combination means nothing.
+my $unmarked = intent(%( %eat, speech_act => 'interrogative', question_scope => 'object' ));
+nok $unmarked.defined, 'a question about an object the answer never names is refused';
+isa-ok $unmarked.self.exception, X::Ronosathwasha::Answer::Malformed,
+    'as a combination that means nothing rather than an unknown value';
+
+is intent(%( %asks,
+    question_scope => 'object',
+    arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                   $%( 'role' => 'object',  stem => 'runə' ) ],
+)).question-scope, QuestionsObject, 'while a question about an object it names is accepted';
 
 # ------------------------------------------------- the pair cannot disagree ---
 #

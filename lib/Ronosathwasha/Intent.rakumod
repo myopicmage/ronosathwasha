@@ -123,7 +123,7 @@ my constant %POLARITY = (affirmative => Affirmative, negative => Negative);
 my constant %MODALITY = (asserted => Asserted, potential => Potential);
 my constant %ROLE     = (subject => Subject, object => Object);
 
-#| The wire names for `Semantics::QuestionScope`.
+#| The wire names for `Semantics::QuestionScope`, and deliberately not all of it.
 #|
 #| Unprefixed, because the reason the enum's values carry `Questions` is a Raku one:
 #| an enum's values become symbols in every importing scope, and `Subject`, `Object`
@@ -131,14 +131,21 @@ my constant %ROLE     = (subject => Subject, object => Object);
 #| table to collide with, and `subject` here is the same string `%ROLE` uses for the
 #| same constituent.
 #|
+#| Three of five, which is the enum read through what an `Express` can carry. A
+#| `Reading` can question a locative or an unmarked word because the parsed sentence
+#| contains the word the marker sat on. An intent contains only a predicate and
+#| subject-or-object participants, so a scope beyond those would name a constituent
+#| the answer has no way to hold, and realization would refuse it every time. A
+#| decoder must not offer a choice that only ever ends in refusal; a model that
+#| needs the locative reports the interface gap instead, which is the channel the
+#| capabilities block teaches for exactly this.
+#|
 #| No open-versus-polar entry, deliberately. `to-` makes a question and does not imply
 #| a yes-or-no one, so there is no such choice for a model to get wrong.
 my constant %SCOPE    = (
-    predicate   => QuestionsPredicate,
-    subject     => QuestionsSubject,
-    object      => QuestionsObject,
-    locative    => QuestionsLocative,
-    constituent => QuestionsConstituent,
+    predicate => QuestionsPredicate,
+    subject   => QuestionsSubject,
+    object    => QuestionsObject,
 );
 
 #| Which strings a model may send for each enumerated field.
@@ -295,6 +302,22 @@ sub intent-from(
     my QuestionScope $scope = %raw<question_scope>.defined
         ?? pick(%SCOPE, %raw<question_scope>, 'question_scope')
         !! QuestionScope;
+
+    # A scope naming a constituent is a promise that the marker has somewhere to
+    # land. The schema cannot hold this either: it is a constraint between the scope
+    # and the argument list, `if`/`then` a second time. Checked with the other
+    # combination rule, because a question about an object the answer never names is
+    # the same bug as a verb with no tense: two individually legal fields whose
+    # combination means nothing.
+    my Argument $questioned = do given $scope {
+        when QuestionsSubject { Subject }
+        when QuestionsObject  { Object }
+        default               { Argument }
+    };
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason("a question about the { $questioned.key.lc } with no { $questioned.key.lc } to mark"),
+    ) if $questioned.defined and not @participants.grep(*.role == $questioned);
 
     return Express.new(
         :$predicate,
