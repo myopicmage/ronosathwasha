@@ -850,6 +850,14 @@ I am currently being Lauri.
 says the state is ongoing. It does not say anybody is working at it, and *actively*
 imports an agency the morpheme does not carry.
 
+**Continuous `-di/-du` requires a tense marker.** It cannot attach directly to
+the copularizer, so `mirireswedi` is not canonical Rono. It may eventually
+survive in speech as a colloquial contraction of `mirireswemedi`, like English
+*gonna*, but the grammar and semantic model do not recognize that contraction.
+
+Habitual aspect remains a separate, unresolved feature. It will receive its own
+marker when the form earns itself rather than borrowing the continuous marker.
+
 That distinction earns its keep immediately, because it keeps the copularizer out of
 the way of verbing a noun. If `-di` meant the identity was being *enacted*, then
 `mirireswemedi` and `mirireme` would be competing for one meaning. Read as duration
