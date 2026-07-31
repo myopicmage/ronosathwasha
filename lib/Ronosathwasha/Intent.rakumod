@@ -399,10 +399,15 @@ sub intent-from(
     # fields are the right shape and cannot guarantee that the combination means
     # anything.
     my Bool $timeless = not %raw<tense>.defined;
+    my Aspect $aspect = pick(%ASPECT, %raw<aspect>, 'aspect');
 
     die X::Ronosathwasha::Answer::Malformed.new(
         :reason('a verbal predicate with no tense; only an identity may be timeless'),
     ) if $timeless && not $nominal;
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason('continuous aspect requires a tense marker'),
+    ) if $timeless && $aspect == Continuous;
 
     # Decoded here and checked in `Asks`. The pair rule is one rule, so it lives in
     # the role all three meaning types compose rather than being restated as a third
@@ -445,7 +450,7 @@ sub intent-from(
         :question-scope($scope),
         :nominal-predicate($nominal),
         :tense($timeless ?? Tense !! pick(%TENSE, %raw<tense>, 'tense')),
-        :aspect(pick(%ASPECT, %raw<aspect>, 'aspect')),
+        :$aspect,
         :polarity(pick(%POLARITY, %raw<polarity>, 'polarity')),
         :modality(pick(%MODALITY, %raw<modality>, 'modality')),
         :@participants,

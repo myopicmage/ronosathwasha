@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 60;
+plan 63;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -189,6 +189,15 @@ isa-ok $refused.self.exception, X::Ronosathwasha::Answer::Malformed,
     'as a malformed answer rather than a default supplied quietly';
 ok $refused.self.exception.message.contains('only an identity may be timeless'),
     'saying which combination was wrong';
+
+my $continuous-identity = intent(%( %timeless, aspect => 'continuous' ));
+nok $continuous-identity.defined,
+    'an untensed continuous identity is refused';
+isa-ok $continuous-identity.self.exception,
+    X::Ronosathwasha::Answer::Malformed,
+    'at the model-answer boundary rather than after realization';
+ok $continuous-identity.self.exception.message.contains('requires a tense marker'),
+    'and names the canonical rule the fields violated';
 
 # --------------------------------------------------------- the question scope ---
 #
