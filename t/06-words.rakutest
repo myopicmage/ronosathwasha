@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 
-plan 33;
+plan 37;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -159,3 +159,38 @@ is split('mothinəme').prefixes.head.id, 'negation',
     'an unambiguous prefix is untouched by any of this';
 is split('mirireri').suffixes.head.id, 'subject',
     'and so is an unambiguous suffix';
+
+# ------------------------------- the nominal parser learns the prefix series ---
+#
+# Revision 3, stop 1. The realizer has written modality, polarity and speech
+# act on nominal predicates since `7cf70bd`; this parser knew only the suffix
+# side, so `momirireswe` swallowed `mo` into the stem, went MixedWord, and the
+# denied identity realized cleanly and read back as nothing.
+
+use Ronosathwasha::Script;
+my $script = load-script(repository-root.add('data').add('script.toml'));
+
+sub nominal(Str $w) { parse-nominal-predicate($script, $morphology, $w) }
+
+sub shape($parse) { ($parse.prefixes».id.List, $parse.stems.List, $parse.suffixes».id.List) }
+
+is-deeply nominal('momirireswe').&shape,
+    (('negation',), ('mirire',), ('copularizer',)),
+    'the denied identity divides, negator and copula around the stem';
+
+is-deeply nominal('temirireswe').&shape,
+    (('question',), ('mirire',), ('copularizer',)),
+    'and so does the questioned one';
+
+# The anti-harmonic negator is verified from the declarations, so a negator
+# leaning the *right* way is refused as a negator, and the word falls through
+# to what it can only be: a name that happens to start with `me`. Harmony
+# decides which reading survives, not a table in this file.
+is-deeply nominal('memirireswe').&shape,
+    ((), ('memirire',), ('copularizer',)),
+    'a right-leaning negator is no negator, just the start of a name';
+
+# Decision 16 fixes the order: modality, negation, speech act. The reversed
+# order must not divide, or the fixed order stops being recoverable structure.
+nok nominal('temomirireswe').defined,
+    'speech act before negation is not a word';
