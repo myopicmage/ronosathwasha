@@ -170,6 +170,8 @@ sub realize-nominal-predicate(
     my $class = profile-of($script, $stem);
 
     fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
+    fail X::Ronosathwasha::Form::UntensedAspect.new(:aspect<continuous>)
+        if $aspect == Continuous && not $tense.defined;
 
     my @suffixes;
     @suffixes.push: 'copularizer' if $copularized;

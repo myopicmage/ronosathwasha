@@ -14,7 +14,7 @@ my $script     = load-script($data.add('script.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
-plan $corpus.utterances.elems + 23;
+plan $corpus.utterances.elems + 26;
 
 sub verb(Str $stem, *%f) { realize-verb($script, $morphology, $stem, |%f) }
 
@@ -109,6 +109,18 @@ is realize-nominal-predicate(
     $script, $morphology, 'laari',
     :tense(Present), :aspect(Continuous),
 ), 'laariswemedi', 'aspect follows an explicitly tensed copular predicate';
+
+my $untensed-continuous = realize-nominal-predicate(
+    $script, $morphology, 'mirire',
+    :aspect(Continuous),
+);
+nok $untensed-continuous.defined,
+    'continuous aspect cannot attach to an untensed nominal predicate';
+isa-ok $untensed-continuous.self.exception,
+    X::Ronosathwasha::Form::UntensedAspect,
+    'the direct realizer reports a form error rather than inventing a contraction';
+ok $untensed-continuous.self.exception.message.contains('requires a tense marker'),
+    'and names the missing grammatical anchor';
 
 # ------------------------------------------------ 021's first finding, closed ---
 #

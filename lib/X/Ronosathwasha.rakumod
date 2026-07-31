@@ -253,6 +253,15 @@ class Form::NoSuchMorpheme is Exception {
     method message(--> Str) { "the declaration has no current morpheme $!wanted.raku()" }
 }
 
+#| An aspect whose form depends on a temporal anchor was requested without one.
+#| Kept as a form error rather than a model error because direct realization can
+#| reach it without any model being involved.
+class Form::UntensedAspect is Exception {
+    has Str $.aspect is required;
+
+    method message(--> Str) { "$!aspect aspect requires a tense marker" }
+}
+
 #| A question that does not say what it questions, or a scope on something that
 #| is not a question. The two fields are one fact and have to move together.
 #|
