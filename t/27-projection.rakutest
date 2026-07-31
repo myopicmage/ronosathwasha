@@ -99,17 +99,14 @@ my @cases =
     'a negative potential'     => express(:polarity<negative>, :modality<potential>),
     'the bare root in the past' => express(:predicate<miri>, :tense<past>),
     'a timeless identity'      => identity(),
-    'a tensed identity'        => identity(:tense<present>);
+    'a tensed identity'        => identity(:tense<present>),
 
-# Found by this file's first run, and older than this file: the realizer
-# gained nominal-predicate prefixes at `7cf70bd` and the reader never learned
-# them, so every denied, potential or questioned identity realizes cleanly
-# and reads back as NotUnderstood. `momirireswe` passes word validation and
-# fails sentence reading. t/10 hid it by testing the questioned identity's
-# realization only. TODO rather than removed, so the hole stays measured.
-my @unreadable =
-    'a denied identity'     => identity(:polarity<negative>),
-    'a questioned identity' => identity(:speech_act<interrogative>,
+    # These two were this file's founding TODO: found unreadable by its first
+    # run, since the realizer gained nominal-predicate prefixes at `7cf70bd`
+    # and the reader only learned them in revision 3's stop 1. Ordinary
+    # passing cases now, exactly as review 034 predicted they would become.
+    'a denied identity'        => identity(:polarity<negative>),
+    'a questioned identity'    => identity(:speech_act<interrogative>,
         :question_scope<predicate>);
 
 for @cases -> (:key($case), :value($sent)) {
@@ -132,13 +129,6 @@ for @cases -> (:key($case), :value($sent)) {
     }
 }
 
-for @unreadable -> (:key($case), :value($sent)) {
-    my $said  = realize-intent($script, $lexicon, $morphology, $sent);
-    my $heard = read-sentence($script, $lexicon, $morphology, $said);
-
-    todo 'the reader has not learned prefixed nominal predicates', 1;
-    isa-ok $heard, Understood, "$case reads back: the known hole, kept measured";
-}
 
 # ------------------------------------------------ what the split now prevents ---
 #

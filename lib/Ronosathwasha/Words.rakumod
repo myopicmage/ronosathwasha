@@ -379,11 +379,20 @@ sub open-nominal(Str:D $word --> WordParse) is export {
 }
 
 #| Parse an open nominal carrying the productive copularizer, optionally
-#| followed by tense and continuous aspect.
+#| preceded by the prefix series and followed by tense and continuous aspect.
 #|
 #| This is separate from `parse-word`: the general parser deliberately accepts
 #| only declared stems, while names are open vocabulary only in the grammatical
 #| position that proves they are nominal predicates.
+#|
+#| The prefixes are decision 16's series in its fixed order: modality,
+#| negation, speech act, each slot optional. The realizer has written them on
+#| nominal predicates since `7cf70bd`; this parser recognising only the suffix
+#| side is how `momirireswe` realized cleanly and read back as nothing, review
+#| `034`'s ownership call on artifact `033`'s finding. Harmony verifies the
+#| same way in both directions: every affix's form must be the one the stem's
+#| class selects, which the anti-harmonic negator passes because its crossed
+#| forms are crossed in `data/morphology.toml` itself, not here.
 sub parse-nominal-predicate(
     Script:D     $script,
     Morphology:D $morphology,
@@ -398,33 +407,67 @@ sub parse-nominal-predicate(
     my @sequences;
     @sequences.push: [$copularizer];
 
+    # Copula alone, copula plus tense, copula plus tense plus continuous, and
+    # deliberately never copula plus continuous: decision at `afeb506`,
+    # continuous requires a tense.
     for @tenses -> $tense {
         @sequences.push: [$copularizer, $tense];
         @sequences.push: [$copularizer, $tense, $continuous];
     }
 
-    @sequences .= sort({
-        $^b.map(*.forms.map(*.chars).max).sum
-            <=>
-        $^a.map(*.forms.map(*.chars).max).sum
+    # Each prefix slot is optional; the type object stands for an empty slot
+    # and greps away, so the order can never come out shuffled.
+    my @prefix-sequences;
+    my @modality = $morphology.current.grep(*.role == MarksModality);
+    my @polarity = $morphology.current.grep(*.role == MarksPolarity);
+    my @acts     = $morphology.current.grep(*.role == MarksSpeechAct);
+
+    for (Morpheme, |@modality) X (Morpheme, |@polarity) X (Morpheme, |@acts)
+        -> ($modal, $negator, $act)
+    {
+        @prefix-sequences.push: [($modal, $negator, $act).grep(*.defined)];
+    }
+
+    sub weight(@affixes) {
+        @affixes.map(*.forms.map(*.chars).max).sum;
+    }
+
+    # Longest affix material first, so `temirireswe` reads as the questioned
+    # identity rather than as a name that happens to start with `te`. The
+    # un-prefixed reading is still reachable: it is simply tried later, and a
+    # candidate whose stem breaks harmony falls through to it.
+    my @attempts = (@prefix-sequences X @sequences).sort({
+        weight($^b[0]) + weight($^b[1]) <=> weight($^a[0]) + weight($^a[1])
     });
 
-    for @sequences -> @suffixes {
-        my @endings = @suffixes.head.forms;
+    for @attempts -> ($prefixes, $suffixes) {
+        my @starts = '';
+        for @$prefixes -> $prefix {
+            @starts = @starts X~ $prefix.forms;
+        }
 
-        for @suffixes.skip(1) -> $suffix {
+        my @endings = $suffixes.head.forms;
+        for $suffixes.skip(1) -> $suffix {
             @endings = @endings X~ $suffix.forms;
         }
 
-        for @endings -> $ending {
-            next unless $text.ends-with($ending) && $text.chars > $ending.chars;
+        for @starts X @endings -> ($start, $ending) {
+            next unless $text.starts-with($start)
+                && $text.ends-with($ending)
+                && $text.chars > $start.chars + $ending.chars;
 
-            my Str $stem = $text.substr(0, $text.chars - $ending.chars);
+            my Str $stem = $text.substr(
+                $start.chars, $text.chars - $start.chars - $ending.chars,
+            );
             my $class = profile-of($script, $stem);
             next if $class == MixedWord;
-            next unless @suffixes.map({ .form-for($class) }).join eq $ending;
+            next unless @$prefixes.map({ .form-for($class) }).join eq $start;
+            next unless @$suffixes.map({ .form-for($class) }).join eq $ending;
 
-            return WordParse.new(:$text, :stems($stem), :@suffixes);
+            return WordParse.new(
+                :$text, :stems($stem),
+                :prefixes(@$prefixes), :suffixes(@$suffixes),
+            );
         }
     }
 
