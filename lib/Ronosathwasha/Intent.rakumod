@@ -60,9 +60,15 @@ role ResponseIntent is export {
 }
 
 #| Say this. Every field is a meaning; none of them is text.
-class Express does ResponseIntent is export {
+#|
+#| `Asks` carries the speech act and, when that act is `Interrogative`, which
+#| constituent the question landed on. Composed rather than restated, because this is
+#| the third type to hold that pair and review `023` objected to exactly that: an
+#| invariant written out once per type is an invariant with three chances to disagree
+#| with itself. `Semantics::Utterance` declares it, `Actions::Reading` derives it from
+#| a sentence, and this receives it from a model.
+class Express does ResponseIntent does Asks is export {
     has Str       $.predicate  is required;
-    has SpeechAct $.speech-act is required;
     has Aspect    $.aspect     is required;
     has Polarity  $.polarity   is required;
     has Modality  $.modality   is required;
@@ -86,9 +92,16 @@ class Express does ResponseIntent is export {
             ($!tense.defined ?? $!tense.key !! 'untensed'),
             $!aspect.key, $!polarity.key, $!modality.key,
         );
+
+        # A summary is lossy on purpose, but not about this. A question whose
+        # summary reads the same as another question's is the record of a
+        # distinction the interface accepted and then stopped carrying.
+        @parts.push("questions { $.question-scope.key.subst('Questions', '').lc }")
+            if $.question-scope.defined;
+
         my $kind = $!nominal-predicate ?? ' is-a' !! '';
 
-        "{ $!speech-act.key }$kind { $!predicate } ({ @parts.join(', ') })"
+        "{ $.speech-act.key }$kind { $!predicate } ({ @parts.join(', ') })"
     }
 }
 
@@ -109,6 +122,24 @@ my constant %ASPECT   = (simple => Simple, continuous => Continuous);
 my constant %POLARITY = (affirmative => Affirmative, negative => Negative);
 my constant %MODALITY = (asserted => Asserted, potential => Potential);
 my constant %ROLE     = (subject => Subject, object => Object);
+
+#| The wire names for `Semantics::QuestionScope`.
+#|
+#| Unprefixed, because the reason the enum's values carry `Questions` is a Raku one:
+#| an enum's values become symbols in every importing scope, and `Subject`, `Object`
+#| and `Predicate` are words this repo wants for other things. A model has no import
+#| table to collide with, and `subject` here is the same string `%ROLE` uses for the
+#| same constituent.
+#|
+#| No open-versus-polar entry, deliberately. `to-` makes a question and does not imply
+#| a yes-or-no one, so there is no such choice for a model to get wrong.
+my constant %SCOPE    = (
+    predicate   => QuestionsPredicate,
+    subject     => QuestionsSubject,
+    object      => QuestionsObject,
+    locative    => QuestionsLocative,
+    constituent => QuestionsConstituent,
+);
 
 #| Which strings a model may send for each enumerated field.
 #|
@@ -187,8 +218,14 @@ sub intent-from(
 
     if $kind eq 'gap' {
         for <wanted missing> -> $field {
+
+            # `(~%raw{$field}).chars`, parenthesised. `~` is looser than a method
+            # call, so `~%raw{$field}.chars` stringifies the *count* and yields
+            # `"0"` for an empty string, which is true. The guard read as written
+            # and tested as `True`, so an empty `wanted` passed it for as long as
+            # it has existed.
             die X::Ronosathwasha::Answer::Malformed.new(:reason("gap without $field"))
-                unless %raw{$field}.defined && ~%raw{$field}.chars;
+                unless %raw{$field}.defined && (~%raw{$field}).chars;
         }
 
         return Gap.new(:wanted(~%raw<wanted>), :missing(~%raw<missing>));
@@ -242,9 +279,20 @@ sub intent-from(
         :reason('a verbal predicate with no tense; only an identity may be timeless'),
     ) if $timeless && not $nominal;
 
+    # Decoded here and checked in `Asks`. The pair rule is one rule, so it lives in
+    # the role all three meaning types compose rather than being restated as a third
+    # guard beside the two above. What escapes is therefore
+    # `X::Ronosathwasha::Meaning::ScopeDisagrees` rather than an `Answer` exception,
+    # and that is the honest report: the shape of the answer was fine and the meaning
+    # it named was not.
+    my QuestionScope $scope = %raw<question_scope>.defined
+        ?? pick(%SCOPE, %raw<question_scope>, 'question_scope')
+        !! QuestionScope;
+
     return Express.new(
         :$predicate,
         :speech-act(pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act')),
+        :question-scope($scope),
         :nominal-predicate($nominal),
         :tense($timeless ?? Tense !! pick(%TENSE, %raw<tense>, 'tense')),
         :aspect(pick(%ASPECT, %raw<aspect>, 'aspect')),

@@ -113,7 +113,12 @@ my $back = scripted($lexicon, $morphology,
 is turn($back, $fresh, 'Lari thinəme.').said, 'lari runəyu thinəse.',
     'subject then object then verb, each particle agreeing with its own stem';
 
-my $asking = scripted($lexicon, $morphology, answer(speech_act => 'interrogative'));
+# `question_scope` is no longer optional on an interrogative. It stood implicit here,
+# and the implicit value was always `predicate`, which is what `023` objected to: the
+# only question a model could ask was the one the default happened to produce.
+my $asking = scripted($lexicon, $morphology,
+    answer(speech_act => 'interrogative', question_scope => 'predicate'));
+
 is turn($asking, $fresh, 'Lari thinəme.').said, 'lari tethinəme?',
     'a question carries its prefix and its borrowed mark';
 
