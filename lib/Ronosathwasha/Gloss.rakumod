@@ -412,8 +412,15 @@ sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) is export 
 
     # `Asks` guarantees an interrogative reading carries a scope, so the fallback
     # to the bare speech act is for the two acts that question nothing.
+    #
+    # The camel split is for the two-word value: `QuestionsUnmarkedConstituent`
+    # must render as "unmarked constituent", not mash into one word. Same
+    # transform `Capabilities::axis-of` applies to `MorphemeRole`.
     my @features = $reading.question-scope.defined
-        ?? "questions the { $reading.question-scope.key.subst(/^ Questions /, '').lc }"
+        ?? "questions the { $reading.question-scope.key
+            .subst(/^ Questions /, '')
+            .subst(/(<[a..z]>)(<[A..Z]>)/, { "$0 $1" }, :g)
+            .lc }"
         !! $reading.speech-act.key.lc;
 
     @features.push: $reading.tense.defined

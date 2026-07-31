@@ -29,7 +29,7 @@ for $corpus.utterances -> $declared {
     my $outcome = read($declared.text);
 
     subtest "{ $declared.text } means what it is declared to mean" => {
-        plan 8;
+        plan 9;
 
         isa-ok $outcome, Understood, 'it is understood at all';
 
@@ -41,6 +41,11 @@ for $corpus.utterances -> $declared {
         is $got.aspect,     $declared.aspect,     'aspect';
         is $got.polarity,   $declared.polarity,   'polarity';
         is $got.modality,   $declared.modality,   'modality';
+
+        # The axis review 026 found missing: every older one was compared and
+        # the newest was not, so a corpus entry could declare a scope the
+        # reader disagreed with and stay green.
+        is $got.question-scope, $declared.question-scope, 'question scope';
 
         is-deeply $got.arguments.sort.List, $declared.arguments.sort.List, 'arguments';
     }
@@ -166,7 +171,7 @@ is asked('Tomwuyu thinəme?').question-scope, QuestionsObject,
 # grammatical and has no role these types can name. Recorded rather than guessed
 # at: `Sho thinəme.` is the declarative precedent, and the corpus states its
 # arguments as empty for the same reason.
-is asked('Toro thinəme?').question-scope, QuestionsConstituent,
+is asked('Toro thinəme?').question-scope, QuestionsUnmarkedConstituent,
     'a questioned word with no particle is named as exactly that';
 
 # `tono` is a listed word beginning with `to` and is not a question, which is why

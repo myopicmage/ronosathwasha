@@ -74,7 +74,12 @@ our enum Predication is export <Timeless Anchored>;
 #| `Questions-` prefixed for the reason `MorphemeRole` is `Marks-` prefixed: an
 #| enum's values become symbols in every importing scope, and `Subject`, `Object`
 #| and `Predicate` are all words this repo wants for other things.
-#| `QuestionsConstituent` is the honest one. Decision 17 frees every position
+#| `QuestionsUnmarkedConstituent` is the honest fallback, and the name records
+#| evidence rather than a role: not that the word is inherently unclassifiable,
+#| but that no case, locative or predication marker classifies it in this
+#| sentence. Predicate, subject, object and locative are all constituents too,
+#| which is why the bare `Constituent` name said less than it seemed to; `026`
+#| made the point and the rename is its answer. Decision 17 frees every position
 #| before the verb and the particles say what each word is, so a questioned word
 #| carrying no particle is grammatical and has no role these types can name.
 #| `Sho thinəme.` is the declarative precedent: the corpus records its arguments
@@ -83,7 +88,7 @@ our enum Predication is export <Timeless Anchored>;
 #| limit be stated rather than disguised as a fact about the language.
 our enum QuestionScope is export <
     QuestionsPredicate QuestionsSubject QuestionsObject QuestionsLocative
-    QuestionsConstituent
+    QuestionsUnmarkedConstituent
 >;
 
 #| The speech act, and where the question landed when it is one.
@@ -293,9 +298,17 @@ my constant %ARGUMENT  = (subject => Subject, object => Object);
 #| Named for the constituent rather than for the morpheme, so an entry says
 #| `questioned = "subject"` and not `questioned = "to"`. The corpus states
 #| meaning; which allomorph spells it is the realizer's business.
+#|
+#| All five values, where the wire's `%SCOPE` in `Intent` offers three. The
+#| difference is deliberate and each table says why: an `Express` cannot carry
+#| a locative or an unmarked word, so the wire does not offer them, while the
+#| corpus records sentences that exist, and `Toro thinəme?` exists. Review
+#| `026` found the gap: the reader could derive the fallback scope and the
+#| declarative source could not state it.
 my constant %QUESTION-SCOPE = (
     predicate => QuestionsPredicate, subject  => QuestionsSubject,
     object    => QuestionsObject,    locative => QuestionsLocative,
+    'unmarked-constituent' => QuestionsUnmarkedConstituent,
 );
 my constant %STATUS    = (
     attested => Attested, derived => Derived, reviewed => Reviewed, rejected => Rejected,

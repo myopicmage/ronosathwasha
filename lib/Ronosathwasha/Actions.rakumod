@@ -143,7 +143,8 @@ sub questions(Set $interrogatives, WordParse:D $word --> Bool) {
 #|
 #| Read off the particles, because those are what say a word's role. A questioned
 #| word with no particle that is not the predicate is grammatical and unnameable
-#| here, which `QuestionsConstituent` records rather than guessing at.
+#| here, which `QuestionsUnmarkedConstituent` records rather than guessing at:
+#| the name states the evidence, that nothing classifies the word, not a role.
 sub scope-of(WordParse:D $word, Bool:D $is-predicate --> QuestionScope) {
     return QuestionsPredicate if $is-predicate;
 
@@ -154,7 +155,7 @@ sub scope-of(WordParse:D $word, Bool:D $is-predicate --> QuestionScope) {
 
     return QuestionsLocative if $word.has-role(MarksLocative);
 
-    QuestionsConstituent;
+    QuestionsUnmarkedConstituent;
 }
 
 #| Front is near, central is middle, back is far. See the module documentation:
