@@ -218,8 +218,14 @@ sub intent-from(
 
     if $kind eq 'gap' {
         for <wanted missing> -> $field {
+
+            # `(~%raw{$field}).chars`, parenthesised. `~` is looser than a method
+            # call, so `~%raw{$field}.chars` stringifies the *count* and yields
+            # `"0"` for an empty string, which is true. The guard read as written
+            # and tested as `True`, so an empty `wanted` passed it for as long as
+            # it has existed.
             die X::Ronosathwasha::Answer::Malformed.new(:reason("gap without $field"))
-                unless %raw{$field}.defined && ~%raw{$field}.chars;
+                unless %raw{$field}.defined && (~%raw{$field}).chars;
         }
 
         return Gap.new(:wanted(~%raw<wanted>), :missing(~%raw<missing>));

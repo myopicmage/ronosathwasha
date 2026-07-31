@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 39;
+plan 41;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -81,6 +81,16 @@ is $gap.missing, 'habitual aspect', 'carrying what the language lacks';
 
 nok intent(%( kind => 'gap', wanted => 'something' )).defined,
     'but a gap must say what is missing';
+
+# An empty string is the shape a model reaches for when it has nothing to say and
+# the schema demands a field anyway, so it is the case most likely to arrive. The
+# guard against it was inert: `~%raw{$field}.chars` stringifies the count, and `"0"`
+# is true, so it admitted everything it was written to refuse.
+nok intent(%( kind => 'gap', wanted => '', missing => 'habitual aspect' )).defined,
+    'an empty wanted is refused, not merely a missing one';
+
+nok intent(%( kind => 'gap', wanted => 'I usually eat', missing => '' )).defined,
+    'and an empty missing, which is a gap that reports nothing';
 
 # ------------------------------------------------------------------ malformed ---
 
