@@ -1089,6 +1089,34 @@ than one marker is not yet representable: the semantic type holds one scope,
 and the reader currently keeps the first marker and erases the rest, which is
 exactly the silent simplification this decision forbids.
 
+## 26. A bare nominal is a complete utterance
+
+**The subject-drop and copula-drop licenses compose.** The grammar already
+reads a subjectless predication (`Thinəme.`, `Mirireswe.`) and already reads a
+zero-copula identity when a subject precedes it (`Dələri Laari.`, decision 22).
+A single unmarked nominal standing alone is both licenses at once, and it
+reads as a subjectless zero-copula identity:
+
+- `Narame.`: "(it) is-a-hello": hello;
+- `Narathe.`: goodbye, the same way;
+- `Runə.`: "(it's a) dog!", exclamative naming;
+- `Laari.`: an introduction, since open nominals are already admitted in
+  nominal-predicate position;
+- `Ya.`: the withdrawal of decision 4, finally readable as the utterance it
+  already was in meaning;
+- `Toro?`: "who is it?", since the marker on the lone constituent scopes the
+  predicate.
+
+No minor-sentence category and no interjection class: greetings were never a
+separate kind of thing, only the intersection of two permissions the reader
+had not been taught to compose. The gap was found the day the chatbot could
+not be told hello.
+
+**Two bare nominals in a row remain unreadable.** With no marking anywhere
+there is no saying which is predicate and which is topic, and decision 17's
+particles cannot help words that carry none. That is a genuine ambiguity, not
+an oversight, and this decision does not license it.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does
