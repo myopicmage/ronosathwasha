@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 48;
+plan 50;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -150,9 +150,21 @@ is $who.aligned, "na-ri    toro\nyou-SBJ  who",
 # it as known and wrong at the time: the question lives inside `toro` and nothing
 # marked the clause, so the reader saw no marker anywhere and called the sentence a
 # statement. This assertion is the one that would have caught it, and it was written
-# to match the behaviour rather than the meaning.
-is $who.translation.render, '[who: interrogative, timeless]',
+# to match the behaviour rather than the meaning. Then `interrogative` stood here,
+# which was true and said less: where the question landed is the scope's whole
+# cargo, and a line that dropped it would be `023`'s bug in this module's clothes.
+is $who.translation.render, '[who: questions the predicate, timeless]',
     'and the gloss line and the translation line now name it the same way';
+
+# The three arrangements render as three different lines, which is the point:
+# `interrogative` flattened them into one.
+is gloss-sentence($script, $lexicon, $morphology, 'Tororu thinəme?').translation.render,
+    '[eat: questions the subject, present simple]',
+    'a questioned subject says so in the bracketed line';
+
+is gloss-sentence($script, $lexicon, $morphology, 'Tomwuyu thinəme?').translation.render,
+    '[eat: questions the object, present simple]',
+    'and a questioned object says which is different';
 
 # The productive division is still what happens when the lexicon has no word for
 # the whole thing, which is the case the question marker was declared for.

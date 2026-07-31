@@ -390,6 +390,12 @@ sub gloss-word(
 #| the writer never made. A timeless predication says so, since decision 22
 #| makes an absent tense a meaning rather than a silence.
 #|
+#| A question leads with what it questions, in place of the bare `interrogative`,
+#| which said less: `Tororu thinəme?` and `Tomwuyu thinəme?` are different
+#| questions, and a line that rendered both as `interrogative` would be the
+#| meaning-preservation bug from review `023` wearing this module's clothes. The
+#| wording comes off the enum key, so this stays a report and never a label.
+#|
 #| The predicate is given by its gloss label where one exists, so this line and
 #| the gloss line above it name the same thing the same way.
 #|
@@ -404,7 +410,11 @@ sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) is export 
 
     my Str $predicate = $sense.defined ?? $sense.label($host) !! $reading.predicate;
 
-    my @features = $reading.speech-act.key.lc;
+    # `Asks` guarantees an interrogative reading carries a scope, so the fallback
+    # to the bare speech act is for the two acts that question nothing.
+    my @features = $reading.question-scope.defined
+        ?? "questions the { $reading.question-scope.key.subst(/^ Questions /, '').lc }"
+        !! $reading.speech-act.key.lc;
 
     @features.push: $reading.tense.defined
         ?? "{ $reading.tense.key.lc } { $reading.aspect.key.lc }"
