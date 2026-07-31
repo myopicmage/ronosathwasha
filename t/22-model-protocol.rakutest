@@ -11,7 +11,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 39;
+plan 42;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -67,22 +67,35 @@ for %v.keys.grep(* ne 'kind').sort -> $field {
 ok %express<properties><predicate><enum>:exists,
     'the predicate is enumerated rather than a free string';
 
-my Set $known = nameable($lexicon, $morphology);
-is %express<properties><predicate><enum>.elems, $known.elems,
-    'and enumerates every nameable stem';
+# Two vocabularies by semantic position, which is review 027's correction to
+# one flat set: a predicate is a root the realizer can inflect, a participant
+# is a word that can stand as a constituent, and each set excludes what the
+# other needs.
+my Set $roots = predicate-roots($lexicon, $morphology);
+my Set $words = participant-stems($lexicon, $morphology);
 
-is-deeply %express<properties><predicate><enum>.List, $known.keys.sort.List,
-    'sorted, so the schema is stable between runs';
+is-deeply %express<properties><predicate><enum>.List, $roots.keys.sort.List,
+    'the predicate enumerates the inflectable roots, sorted and stable';
 
 nok %express<properties><predicate><enum>.grep('thinu'),
     'a word the lexicon does not have is not offered';
 ok %express<properties><predicate><enum>.grep('thinə'),
     'while one it does have is';
 
-# Arguments carry stems too, and the same constraint has to reach them or a model can
-# invent a word in the one place nobody checked.
+# 027's walk-through: predicate miriswe realized as miriswese and read back as
+# the nominal miri with a copula, a meaning change accepted end to end.
+nok %express<properties><predicate><enum>.grep('miriswe'),
+    'a bound infinitive form is not offered as a root';
+ok %express<properties><predicate><enum>.grep('miri'),
+    'its bare stem is what stands in the root list';
+
 is-deeply %express<properties><arguments><items><properties><stem><enum>.List,
-    $known.keys.sort.List, 'argument stems are constrained the same way';
+    $words.keys.sort.List, 'argument stems enumerate the standalone words';
+
+ok %express<properties><arguments><items><properties><stem><enum>.grep('miriswe'),
+    'where the infinitive is legal, since a nonfinite verb is a constituent';
+nok %express<properties><arguments><items><properties><stem><enum>.grep('miri'),
+    'and the bare root is not, since it is the piece of a word';
 
 # ---------------------------------------------------- refusing extra fields ---
 
