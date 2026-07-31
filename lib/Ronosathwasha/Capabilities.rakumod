@@ -136,8 +136,8 @@ sub composition-rules(--> Str) {
     q:to/RULES/.trim;
     How these combine:
 
-      - The axes above are independent. Any value of one combines with any value of
-        another. A past continuous, a negative interrogative future, a potential
+      - The axes above compose independently except for the pairing rules stated
+        below. A past continuous, a negative interrogative future, a potential
         present: all of these are ordinary, and none of them is a gap.
       - Every axis always has a value. Some values are written with no morpheme at
         all, which makes them unmarked rather than absent, and that is the realizer's
@@ -146,6 +146,8 @@ sub composition-rules(--> Str) {
         appears is decided by the stem's vowel class, not by you.
       - An absent tense is a timeless identity and is available only to a nominal
         predicate. A verb without a tense is not a well-formed word.
+      - Continuous aspect requires a tense marker. A timeless identity uses simple
+        aspect; never use continuous aspect with an absent tense.
       - A question scope accompanies an interrogative and nothing else. It says which
         constituent the question is about; a statement carries none, and a question
         always carries exactly one. Asking about the predicate asks what is

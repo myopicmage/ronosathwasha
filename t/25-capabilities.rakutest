@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 26;
+plan 28;
 
 my IO::Path $data = repository-root.add('data');
 my $morphology = load-morphology($data.add('morphology.toml'));
@@ -106,6 +106,10 @@ nok $text.contains('kind:'),
 ok $text.contains('independent'), 'the axes are stated to be independent';
 ok $text.contains('past continuous'),
     'and the pairing that was wrongly refused is named as ordinary';
+ok $text.contains('Continuous aspect requires a tense marker'),
+    'the continuous pairing rule is stated rather than left to the decoder';
+ok $text.contains('timeless identity uses simple'),
+    'and the valid untensed alternative is named';
 
 ok $text.contains('meaning, not spelling'),
     'the model is told it selects features rather than assembling forms';
