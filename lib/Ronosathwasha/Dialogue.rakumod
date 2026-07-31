@@ -104,8 +104,14 @@ class Exchange is export {
 #| from `realize-sentence`. Rebuilding a sentence has an order somebody chose;
 #| generating one has no source to respect, so decision 17's free positions are
 #| filled subject first, then object, then the verb where it must be.
+#|
+#| The question is written once, wherever the scope puts it, which is the same
+#| rule `realize-sentence` follows and half the same code: `act-to-write` decides
+#| for the predicate, and the constituent side applies the identical precedence,
+#| marker unless the stem already spells one.
 sub realize-intent(
     Script:D     $script,
+    Lexicon:D    $lexicon,
     Morphology:D $morphology,
     Express:D    $intent,
 ) is export {
@@ -116,9 +122,31 @@ sub realize-intent(
     my @order = ($intent.participants.grep(*.role == Subject),
                  $intent.participants.grep(*.role == Object)).flat;
 
-    my @words = @order.map({
-        realize-word($script, $morphology, [.stem], [%case{ .role.key }])
+    # Which participant the marker lands on, when it lands on one at all. The
+    # scope-to-role reading also appears in `intent-from`'s carrier check, which
+    # guarantees the participant this looks for exists.
+    my Argument $marked = do given $intent.question-scope {
+        when QuestionsSubject { Subject }
+        when QuestionsObject  { Object }
+        default               { Argument }
+    };
+
+    my $question = $morphology.by-id('question');
+
+    my @words = @order.map(-> $p {
+        # Unless the stem already spells it: `toro` is "who" with the question
+        # inside, and prefixing it again gives `totoro`, which is a film. The
+        # same precedence `act-to-write` applies to the predicate, read from the
+        # same declaration.
+        my Bool $questioned = $marked.defined
+            && $p.role == $marked
+            && not interrogative-words($lexicon){ $p.stem };
+
+        realize-word($script, $morphology, [$p.stem], [%case{ $p.role.key }],
+            :prefixes($questioned ?? [$question] !! []));
     });
+
+    my SpeechAct $act = act-to-write($lexicon, $intent);
 
     # The copularizer is always written when generating, which is the same choice
     # this sub already makes about word order: rebuilding a sentence respects what
@@ -128,12 +156,15 @@ sub realize-intent(
     @words.push: $intent.nominal-predicate
         ?? realize-nominal-predicate(
                $script, $morphology, $intent.predicate,
+               :speech-act($act),
                :tense($intent.tense),
                :aspect($intent.aspect),
+               :polarity($intent.polarity),
+               :modality($intent.modality),
            )
         !! realize-verb(
                $script, $morphology, $intent.predicate,
-               :speech-act($intent.speech-act),
+               :speech-act($act),
                :tense($intent.tense),
                :aspect($intent.aspect),
                :polarity($intent.polarity),
@@ -195,7 +226,7 @@ sub take-turn(
     die $intent.exception unless $intent.defined;
 
     my Str $said = $intent ~~ Express
-        ?? realize-intent($script, $morphology, $intent)
+        ?? realize-intent($script, $lexicon, $morphology, $intent)
         !! Str;
 
     return Exchange.new(

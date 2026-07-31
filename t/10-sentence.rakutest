@@ -19,7 +19,7 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
-plan $corpus.utterances.elems + 19;
+plan $corpus.utterances.elems + 22;
 
 sub read(Str $s)  { read-sentence($script, $lexicon, $morphology, $s) }
 sub write(Reading $r) { realize-sentence($script, $lexicon, $morphology, $r) }
@@ -74,6 +74,23 @@ my $that = read('Shamwuyu twame').reading;
 
 is realize-constituent($script, $morphology, $that.constituents.head), 'shamwuyu',
     'a compound takes its class from the whole compound, not from its head';
+
+# ------------------------------------------------- a prefix on a constituent ---
+#
+# For the generated question: `te-/to-` on the word being asked about, which until
+# now only the verb realizer could write. The alternant is the word's own choice,
+# exactly as with every suffix; nothing else in the sentence has a say.
+
+my $q = $morphology.by-id('question');
+
+is realize-word($script, $morphology, ['mwu'], [$morphology.by-id('object')], :prefixes([$q])),
+    'tomwuyu', 'a questioned back word takes the back alternant';
+
+is realize-word($script, $morphology, ['la'], [$morphology.by-id('subject')], :prefixes([$q])),
+    'telari', 'and a neutral word the front one, as its subject marker already does';
+
+is realize-word($script, $morphology, ['la'], [$morphology.by-id('subject')]),
+    'lari', 'while a word given no prefixes is what it always was';
 
 # --------------------------------------------------------------- order is kept ---
 
