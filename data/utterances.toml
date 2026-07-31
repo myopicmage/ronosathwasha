@@ -513,3 +513,17 @@ aspect = "simple"
 polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject"]
+
+[[utterance]]
+text = "Moluyosa dələthi dethinəme."
+english = "In the name of Moluyo: eat!"
+status = "reviewed"
+derived_from = "moluyosa dələthi, the [phrase] entry decision 27 blessed"
+derivation = "the invocation as an imperative's adjunct: possessive on moluyo, locative-in on dələ, and the plain commanded clause after it"
+speech_act = "imperative"
+predicate = "thinə"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+locative = "locative-in"
