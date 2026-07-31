@@ -2,7 +2,7 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 16;
+plan 20;
 
 my IO::Path $tool = repository-root.add('tools/validate.raku');
 
@@ -33,6 +33,16 @@ my Str $wrong-order-out = $wrong-order.out.slurp;
 is $wrong-order.exitcode, 1, 'an ordering error fails';
 like $wrong-order-out, /'INVALID sentence'/, 'as a sentence failure';
 like $wrong-order-out, /'must come last'/, 'with the grammar reason';
+
+# Decision 25 makes the doubly marked question grammatical; what fails is the
+# one-scope representation. A tool that printed INVALID here would blame the
+# language for the code's limit, which is the wrong defect report.
+my $loud = validate('sentence', 'Tororu tethinəme?');
+my Str $loud-out = $loud.out.slurp;
+is $loud.exitcode, 1, 'a doubly marked question still fails, since no meaning emerges';
+like $loud-out, /'UNREPRESENTABLE sentence'/, 'labelled as the representation\'s limit';
+unlike $loud-out, /'INVALID'/, 'and never as the language\'s';
+like $loud-out, /'one question scope'/, 'naming the limit itself';
 
 my $punctuation = validate('writing', '...');
 my Str $punctuation-out = $punctuation.out.slurp;

@@ -16,7 +16,7 @@ use Ronosathwasha::PromptContext;
 use Ronosathwasha::TokenCounter;
 use Ronosathwasha::Dialogue;
 
-plan 35;
+plan 38;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -159,6 +159,15 @@ my $unread = turn(scripted($lexicon, $morphology, answer()), $fresh, 'Lari thoth
 nok $unread.understood, 'a retired form is not understood';
 isa-ok $unread.understanding, NotUnderstood, 'and says so';
 ok $unread.said.defined, 'while the bot still answers, since its turn is separate';
+
+# The outcome plan 032 added: grammatical input the one-scope type cannot hold.
+# An ordinary turn, not a fault, which is the entire reason it is a
+# `SentenceOutcome` rather than an exception: `take-turn` needed no change for
+# this test to pass.
+my $loud = turn(scripted($lexicon, $morphology, answer()), $fresh, 'Tororu tethinəme?');
+nok $loud.understood, 'a doubly marked question is not understood into a meaning';
+isa-ok $loud.understanding, NotRepresentable, 'but is named as the type\'s limit';
+ok $loud.said.defined, 'and the conversation carries on around it';
 
 my $silent = turn(Silent.new, $fresh, 'Lari thinəme.');
 nok $silent.said.defined, 'a gap produces no Ronosathwasha at all';

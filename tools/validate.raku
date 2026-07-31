@@ -142,6 +142,16 @@ sub validate-sentence(
             return False;
         }
 
+        # Not `INVALID`, deliberately. Decision 25 makes the sentence
+        # grammatical; what fails is this software's one-scope representation,
+        # and a tool that called the language broken for the code's limit
+        # would be reporting the wrong defect.
+        when NotRepresentable {
+            say 'UNREPRESENTABLE sentence';
+            say "reason: { .summary }";
+            return False;
+        }
+
         when NotUnderstood {
             say 'INVALID sentence';
             say "word: { .word }";

@@ -111,6 +111,29 @@ class WrongOrder does SentenceOutcome is export {
     }
 }
 
+#| A sentence the grammar accepts and the semantic type cannot yet hold.
+#|
+#| Decision 25 makes more than one question marker grammatical, each questioning
+#| its own host, and `Reading` holds exactly one scope. Keeping the first marker
+#| and erasing the rest would read a simpler sentence than the one written,
+#| which is the meaning-preservation bug this codebase keeps refusing in new
+#| clothes; refusing to guess is the honest outcome.
+#|
+#| An ordinary value rather than an exception, because a grammatical sentence
+#| must not land on a fault path: `Dialogue::take-turn` carries every
+#| non-`Understood` outcome as a turn with no typed meaning, and this is one.
+#| Not `NotUnderstood`, because the sentence was understood far enough to name
+#| exactly what cannot be held.
+class NotRepresentable does SentenceOutcome is export {
+    has Str $.sentence is required;
+    has Str @.markers  is required;
+
+    method summary(--> Str) {
+        "$!sentence: { @!markers.join(' and ') }, "
+            ~ 'and a reading holds one question scope'
+    }
+}
+
 #| Whether this word carries the interrogative, by either of the two routes it has.
 #|
 #| The prefix is the productive one: `te-` on `thinə` gives `tethinəme`. The lexicon
@@ -137,6 +160,20 @@ sub questions(Set $interrogatives, WordParse:D $word --> Bool) {
     return True if $act.defined && $act.id eq 'question';
 
     so $word.stems.first({ $interrogatives{$_} });
+}
+
+#| How this word asks, said so a refusal can name every marker it found.
+#|
+#| The two routes `questions` checks, told apart because the difference is
+#| real to a reader of the refusal: a productive prefix was written by choice,
+#| while `toro` carries its question in the dictionary and could not shed it.
+sub question-evidence(Set $interrogatives, WordParse:D $word --> Str) {
+    my $act = $word.with-role(MarksSpeechAct);
+
+    return "a question marker on { $word.text }"
+        if $act.defined && $act.id eq 'question';
+
+    "the question inside { $word.stems.first({ $interrogatives{$_} }) }";
 }
 
 #| Where the interrogative landed, given the word carrying it.
@@ -316,17 +353,30 @@ sub read-sentence(
     # `Tomwuyu thinəme?` lost it the same way with the marker sitting on the object.
     my Set $interrogatives = interrogative-words($lexicon);
 
-    my $asked-at = @divisions.first({ questions($interrogatives, $_) }, :k);
+    # Every questioned word, not the first one. `first` was 026's finding: it
+    # accepted `Tororu tethinəme?` and `Tororu dethinəme?`, recorded one marker,
+    # and silently realized a simpler sentence than the one written. Decision 25
+    # then made the multi-marked forms grammatical, so the refusal below names
+    # the representation as the limit, never the grammar.
+    my @asked = @divisions.pairs.grep({ questions($interrogatives, .value) });
+
+    # A command marker can only conflict from the predicate, and only when the
+    # questioned word is elsewhere: the prefix slot is shared, so a questioned
+    # predicate carries `question` there and a command cannot coexist with it
+    # on the same word.
+    my Str @markers = @asked.map({ question-evidence($interrogatives, .value) });
+
+    @markers.push: "a command marker on { $predicate.text }"
+        if @asked && $act.defined && $act.id eq 'command';
+
+    return NotRepresentable.new(:$sentence, :@markers) if @markers.elems > 1;
+
+    my $asked-at = @asked ?? @asked.head.key !! Nil;
 
     my QuestionScope $question-scope = $asked-at.defined
         ?? scope-of(@divisions[$asked-at], $asked-at == $predicate-position)
         !! QuestionScope;
 
-    # A question outranks a command, and the pair cannot both be written on one
-    # predicate anyway: they are the same morpheme slot, so `data/morphology.toml`
-    # gives them one `speech-act` role and `with-role` returns whichever is there.
-    # The ordering only matters for a command whose *argument* is questioned, which
-    # nothing has yet written and which reads as a question when it is.
     my SpeechAct $speech-act = do {
         if $asked-at.defined                        { Interrogative }
         elsif $act.defined && $act.id eq 'command'  { Imperative    }

@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 41;
+plan $corpus.utterances.elems + 48;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -181,3 +181,36 @@ nok asked('Lari tonoyu thinəme.').question-scope.defined,
 
 nok asked('Lari thinəme.').question-scope.defined,
     'and a statement carries no scope at all';
+
+# ------------------------------------------------ markers the type cannot hold ---
+#
+# Decision 25 makes every one of these grammatical, each marker questioning its
+# own host, and `Reading` holds exactly one scope. Until review 026, `first`
+# kept whichever marker came earliest and erased the rest, so both of these
+# read as plain subject questions and realized simpler sentences than the ones
+# written. The refusal names the representation as the limit, never the grammar.
+
+my $twice = read('Tororu tethinəme?');
+
+isa-ok $twice, NotRepresentable, 'two question markers refuse rather than simplify';
+is-deeply $twice.markers.List,
+    ('the question inside toro', 'a question marker on tethinəme'),
+    'naming both carriers and how each asks';
+like $twice.summary, /'one question scope'/,
+    'with the one-scope limit said in so many words';
+
+my $mixed = read('Tororu dethinəme?');
+
+isa-ok $mixed, NotRepresentable, 'a question beside a command refuses the same way';
+is-deeply $mixed.markers.List,
+    ('the question inside toro', 'a command marker on dethinəme'),
+    'since keeping either one would erase the other';
+
+# The echo register, decision 25's full marking. `Telari tethinəme?` stands in
+# for `Tekevinri tethinəmedi?`, because a foreign name enters by decision 23's
+# transliteration first and `v` is not in the script.
+isa-ok read('Telari tethinəme?'), NotRepresentable,
+    'the echo, everything marked, is grammatical and not yet holdable';
+
+is read('Dethinəme.').reading.speech-act, Imperative,
+    'while a lone command still commands, refused by nothing';
