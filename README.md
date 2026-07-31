@@ -1,5 +1,13 @@
 # ronosathwasha
 
+<p align="center">
+  <img
+    src="docs/assets/moluyo-seal.png"
+    alt="Seal of Moluyo, the Well Formed"
+    width="480"
+  >
+</p>
+
 A font and a macOS keyboard layout for a constructed script: a strict
 consonant-plus-vowel syllabary, encoded in the Unicode Private Use Area.
 
