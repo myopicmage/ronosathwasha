@@ -1117,6 +1117,27 @@ there is no saying which is predicate and which is topic, and decision 17's
 particles cannot help words that carry none. That is a genuine ambiguity, not
 an oversight, and this decision does not license it.
 
+## 27. The locative reaches beyond place
+
+**The locative series extends metaphorically, fully blessed.** Spatial
+containment stands in for abstract relations the way it does in every natural
+language: authority, medium, condition. The first attested extension is the
+invocation, built entirely from morphemes the language already had:
+
+```text
+moluyo-sa dələ-thi
+crab-POSS name-LOC.IN
+"in the name of Moluyo"
+```
+
+`Moluyosa dələthi dethinəme.` reads as an imperative with the formula as its
+adjunct: "in the name of Moluyo: eat!" The phrase is in the lexicon under
+`[phrase]`, beside the fireball.
+
+Nothing here rules on *which* metaphors each locative licenses. That grows by
+usage, the way it grew here: a construction assembled from declared parts,
+found grammatical, and blessed.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

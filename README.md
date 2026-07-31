@@ -8,113 +8,171 @@
   >
 </p>
 
-A font and a macOS keyboard layout for a constructed script: a strict
-consonant-plus-vowel syllabary, encoded in the Unicode Private Use Area.
+This started as a font for a constructed script I thought I had lost.
 
-`ronosathwasha` is `rone` + `sa` + `thwasha`, "people's tongue".
+It got out of hand.
 
-11 consonants x 12 vowels = 132 syllables. Every syllable is exactly one
-consonant and one vowel: no onsetless syllables, no codas, no clusters.
+**Ronosathwasha is now a constructed language, a featural syllabary, a macOS
+keyboard layout, a generated reference site, and a Raku language-development
+harness attached to a local model.** The language is still being made. A lot of
+the machinery exists so attempted use can tell me what I forgot to decide.
 
-## Using it
+`ronosathwasha` is `rono` + `sa` + `thwasha`, "people's language". `Rono` is
+the useful short form.
 
-```sh
-nix develop 'path:.'   # or just cd in, direnv handles it
-make                   # list the targets
-make all               # font, dictionary, pages, keyboard layout
-make check             # 70 tests, then mypy strict
-```
+## The short version
 
-`make` re-enters the dev shell itself if the toolchain is not already on PATH,
-so it works from outside direnv too. Targets that produce a file are declared
-against that file, so `make serve` will not recompile a font to serve a page
-that has not changed. The underlying commands, if you want them directly:
+The project has four connected parts:
 
-```sh
-python3 -m tools.build_font       # declaration -> UFO -> build/Ronosathwasha.ttf
-python3 -m tools.build_dictionary # lexicon -> build/dictionary.html
-python3 -m tools.build_docs       # docs/*.html -> build/, font inlined
-python3 -m tools.build_keylayout  # -> layouts/Ronosathwasha.keylayout
-```
+- **The language.** Vocabulary, morphology, examples and attested utterances
+  live in `data/`. Those files state what Rono is now.
+- **The script.** Python turns one phonological declaration into a font, a
+  macOS keyboard layout, a searchable dictionary and reference pages.
+- **The grammar.** Raku parses words, realizes meanings, reads sentences back
+  into structured intents and tests the boundary between them.
+- **The researcher.** A local Qwen model, running through `llama.cpp`, tries to
+  use the language and reports where the available pieces are insufficient.
 
-Install both halves:
+This is not an "AI invents a language for me" project. That would remove the
+fun part. The model may combine declared pieces by declared rules, but it may
+not invent roots, morphemes, grammar or exceptions. **The model supplies
+pressure from use. I remain the language authority, for better or worse.**
 
-```sh
-./scripts/install.sh
-```
-
-Builds and installs together, on purpose: a font one encoding behind a keyboard
-renders as fluent nonsense rather than as an error. It enters the dev shell
-itself if it needs to.
-
-## The dictionary
+## Start here
 
 ```sh
-python3 -m tools.build_dictionary
-open build/dictionary.html
+nix develop 'path:.'   # or just cd in, if direnv is active
+make                   # list the useful targets
+make all               # font, dictionary, pages and keyboard layout
+make check             # Python, Raku and strict mypy
 ```
 
-Every word in `data/lexicon.toml`, searchable by English gloss or by
-romanisation, each one shown in the script.
+`make` re-enters the dev shell itself if the toolchain is not already on
+`PATH`, so the targets also work outside direnv.
 
-**The font is inlined into the page**, so it renders on a machine that has never
-installed anything here. That is not a convenience: the script lives in the
-private use area, and a PUA code point with the wrong font renders either as
-tofu or, if some other font claims the same block, as somebody else's letters.
-The page has to carry its own decoder.
-
-The font is compiled during the build rather than read from `build/`, for the
-same reason `install.sh` builds both halves together.
-
-Searching matches the gloss and the romanisation, never the encoded text. The
-PUA gets nothing from Unicode's casefolding or collation, so a search over it
-could only ever be an exact substring match, on characters with no keys.
-
-## Showing it to someone else
+To poke the language directly:
 
 ```sh
-make serve             # build/ at http://localhost:8000
-make share             # the same, through a public cloudflared tunnel
-make serve PORT=9000   # either one, elsewhere
+make validate TEXT='Lari thinəme.'
+make validate LEVEL=word TEXT='mothinəme'
+make dict && open build/dictionary.html
+make syllabary && open build/syllabary.html
+make speak
 ```
 
-**Serve `build/`, never `docs/`.** A page in `docs/` is a source file: it names
-the font and points at a path, which is right for editing and wrong for anyone
-else. `build_docs` rewrites that `@font-face` rule to carry the font it just
-compiled, and writes the result next to the dictionary.
+The validator has three levels:
 
-The `local("Ronosathwasha")` in a source page is the trap worth knowing about.
-It resolves against the *installed* font, so the page looks correct here however
-stale it is, and shows nothing recognisable anywhere else. `pytest` fails if a
-built page can still reach outside itself for a font.
+- `writing` checks whether the text can be represented by the script;
+- `word` also checks word structure and harmony;
+- `sentence` reads the sentence as grammar and reports what it means.
 
-A quick tunnel is public: anyone with the URL can read it while the tunnel is
-up, and the URL is the only thing gating it. `make share` says so before it
-starts, and stops the local server again on the way out.
+To install the font and keyboard layout on macOS:
 
-**It refuses a port something else is already on**, rather than tunnelling to
-it. cloudflared cannot serve files, so `share` proxies a local server, and if
-that server fails to bind while another one answers on the same port, the
-tunnel goes up in front of whatever that other thing is.
+```sh
+make install
+```
 
-`cloudflared` comes from the dev shell. Showing this script to anyone means
-showing them a page: a screenshot loses the text, and the text on its own is
-unreadable without the font, so there is nothing to paste into a message.
+The installer builds both halves together on purpose. A font one encoding
+behind its keyboard renders as fluent nonsense rather than as an error.
 
-Fonts refresh immediately. **The keyboard layout needs a log out and back in**,
-because macOS only scans that directory at login, and the script says so only
-when the layout actually changed. Then enable it under System Settings >
-Keyboard > Input Sources, at the bottom of the list under **Others**.
+**The keyboard layout needs a log out and back in** because macOS only scans
+that directory at login. Then enable it under System Settings > Keyboard >
+Input Sources, under **Others**.
 
-## Typing
+## The language
 
-Consonants are dead keys: they emit nothing and arm a state. The vowel fires
-and emits the whole syllable. **Every consonant sits on the letter it is
-romanised with**, so you type what you would write and the layout needs no
-diagram. Shift is only the glide.
+Rono is built from small pieces that are allowed to compose aggressively.
+Nouns can become predicates. Predicates take tense and aspect. The same
+question morpheme that marks a clause can attach to a noun and derive "who",
+"what", "where", "when" and "why".
 
-`H` is not a phoneme here, which frees it to complete the digraphs: `t` followed
-by `h` can only ever have meant `th`.
+That flexibility is deliberate. **The language should generate consequences
+instead of requiring every useful form to be written down individually.** The
+Raku side exists partly to find those consequences before I accidentally call
+all of them intentional.
+
+Some current load-bearing rules:
+
+- Every syllable is consonant plus vowel. There are no onsetless syllables,
+  codas or consonant clusters.
+- Front `i e` and back `u o` participate in vowel harmony. Central `ə a` are
+  transparent.
+- Harmony covers the phonological word, including bound morphology, but not
+  the whole sentence.
+- Negation is intentionally anti-harmonic. It always leans the wrong way.
+- Subjects, objects, possession, tense, aspect, speech act and location are
+  expressed with productive morphology.
+
+The current decisions and their reasoning live in [`LANGUAGE.md`](LANGUAGE.md).
+The original Scrivener notes survive under `notes/` as archaeology, not as
+competing truth. **Every TOML file under `data/` describes the language as it
+exists now.**
+
+## The researcher
+
+The chatbot is more accurately a **language-development environment disguised
+as a conversation**.
+
+Its researcher is Lauri, a Finnish consultant commissioned to write the first
+book in Rono. The language cannot pronounce his name: `Lauri` begins with a
+diphthong, and Rono has nowhere to put one. It reaches `laari`, one vowel
+length away from `lari`, "I" with a subject marker.
+
+The language can, however, call him `tayare`, "think-person". This is his
+nickname and, regrettably for him, a valid derivation.
+
+His job is to attempt real meanings. When the grammar cannot express one, or
+expresses something surprising instead, he reports the hole rather than
+quietly inventing a workaround. I can then decide whether the language needs a
+word, a rule, an idiom or nothing at all.
+
+The harness currently has the language model, parser, realizer, structured
+intent protocol, conversation state, prompt construction, context budgeting
+and `llama.cpp` transport. **It is still under construction and does not yet
+have a finished conversation interface.**
+
+The selected model is Qwen3-14B at Q5_K_M, running locally with its native 32K
+context. Its GGUF lives in `~/models/`, never in this repository. A model file
+under the project would be copied into the nix store on every `path:`
+evaluation, which is an exciting way to turn one ten-gigabyte file into a disk
+space emergency.
+
+The full design, including the model's authority boundary, is in
+[`CHATBOT.md`](CHATBOT.md).
+
+## The script
+
+11 consonants times 12 vowels gives 132 syllables. Each syllable occupies one
+code point in the Unicode Private Use Area.
+
+The script is featural: the shapes describe the sounds instead of assigning
+every sound an unrelated drawing.
+
+- A vertical stem marks voicing: `t` becomes `d`, and `th` becomes `dh`.
+- A crossbar marks a change of place: `s` becomes `sh`, and `l` becomes `r`.
+- A vowel mark points toward its position in the vowel trapezoid.
+- A glide adds a tick at the vowel mark's tail.
+
+Backness is therefore both phonology and geometry. A harmonic word leans in
+one direction, and the anti-harmonic negator visibly disagrees with it.
+
+![harmonic and disharmonic words](docs/harmony.png)
+
+Every glyph is drawn as a centreline and stroked with one nib. Change `PEN` in
+`sources/strokes.py` and the whole font changes weight.
+
+The font uses the Private Use Area because this is not an encoded Unicode
+script. That means the font is not decoration. **Without the matching font,
+the text has no portable identity at all.** The same code points may render as
+tofu or as somebody else's private alphabet.
+
+## Typing it
+
+The macOS layout is a dead-key state machine. A consonant key emits nothing and
+arms a state; the following vowel emits the complete syllable.
+
+Every consonant sits on the key used to romanise it. Shift marks the glide.
+`H` is not a phoneme, so it completes the three digraphs.
 
 | key | letter |
 |---|---|
@@ -126,94 +184,124 @@ by `h` can only ever have meant `th`.
 | `L` | l |
 | `R` | r |
 | `Y` | y |
-| `H` | completes a digraph: `T H` = th, `D H` = dh, `S H` = sh |
-| `A` `E` `I` `O` `U` `;` | a e i o u ə, with shift for the glide |
+| `H` | completes `th`, `dh` or `sh` |
+| `A` `E` `I` `O` `U` `;` | a e i o u ə |
+| shifted vowel | the corresponding glide |
 
+To type the language's name:
 
-Fifteen keys for the whole writing system. To type the language's own name:
-
+```text
+R  O   N  O   S  A   T H  Shift+A   S H  A
+ro     no     sa     thwa           sha
 ```
-R  O   N  E   S  A   T H  Shift+A   S H  A
-ro     ne     sa     thwa           sha
+
+Two things that look broken but are not:
+
+- **A consonant appears to do nothing.** The layout is waiting for its vowel.
+- **A vowel does nothing in the neutral state.** Rono has no onsetless
+  syllables, so the keyboard refuses to manufacture one.
+
+Numbers and punctuation remain Latin. Questions, commands and negation are
+already morphological, but a question mark is still useful to anyone reading
+the sentence, so the language is not going to pretend punctuation has become
+obsolete.
+
+## Dictionary and reference pages
+
+```sh
+make site
+make serve             # build/ at http://localhost:8000
+make share             # the same site through a public cloudflared tunnel
+make serve PORT=9000
 ```
 
-Two things that look like bugs and are not:
+The dictionary contains every entry in `data/lexicon.toml`, searchable by
+English gloss or romanisation, with each word rendered in the script.
+Conjugation tables are generated from the Raku morphology rather than copied
+into Python.
 
-- **A consonant key appears to do nothing.** That is a dead key working. The
-  syllable appears when you press the vowel.
-- **A vowel key does nothing at all.** You are in the neutral state and there is
-  no consonant for it to attach to. This language has no onsetless syllables, so
-  the layout has no state in which one is reachable.
+**Serve `build/`, never `docs/`.** Files under `docs/` are editable sources.
+The build rewrites them with the current font inlined, so they work on a
+machine that has never installed it.
 
-## Numbers and punctuation
+Inlining is necessary because the script uses private code points. A screenshot
+loses the text; the text alone loses the glyphs. The page has to carry its own
+decoder.
 
-Latin, for now, and that includes punctuation. **The script uses English
-punctuation** rather than marks of its own, and borrows the digits too.
-
-Grammar still does the work that punctuation does elsewhere: questions,
-negation and commands are all marked morphologically, with `te-/to-`,
-anti-harmonic `me-/mo-` and `de-/do-`. So a question mark is redundant with the
-prefix that already made the sentence a question, and it is written anyway,
-because a borrowed convention everyone can already read costs nothing while the
-script has no answer of its own.
-
-The font carries no glyphs for any of it, so stops and digits come from whatever
-font the system falls back to. That works, and the only visible cost is that
-they will not match the script's weight.
+`make share` creates a public tunnel. Anyone with the URL can read the site
+while it is running. The script checks that it owns the local port before
+opening the tunnel, because accidentally publishing whichever process already
+occupied port 8000 would be an extremely educational bug.
 
 ## How it fits together
 
-Everything is generated from one declaration, so nothing is stated twice.
+```text
+data/script.toml        phonology, code points and script derivation
+data/lexicon.toml       declared words
+data/morphology.toml    productive morphemes and their behavior
+data/examples.toml      current sentence examples
+data/utterances.toml    attested usage and provenance
 
+ronosathwasha/          Python models for the script and font pipeline
+sources/strokes.py      consonant letterforms as centrelines
+sources/*.ufo           generated font source
+layouts/                generated macOS keyboard layout
+
+lib/Ronosathwasha/      Raku grammar and local-model harness
+t/                      Raku tests
+tests/                  Python, shaping and keyboard tests
+
+tools/                  font, page, keyboard, speech and validator tools
+docs/                   hand-written page sources and project images
+notes/                  historical sources and design archaeology
+config/chatbot.toml     local model, context and researcher configuration
+
+LANGUAGE.md             current language decisions and their reasoning
+SCRIPT.md               script decisions
+CHATBOT.md              researcher and harness design
+GLOSSARY.md             font and typography terms
 ```
-Makefile               every command worth running, and what it depends on
-data/script.toml       the inventory, the PUA block, the derivation rules
-data/lexicon.toml      the words: a romanisation and a gloss, nothing derivable
-data/examples.toml     the sentence examples, checked against the page that shows them
-ronosathwasha/         those files parsed into models that cannot hold a broken one
-sources/strokes.py     the consonant letterforms, as centrelines
-tools/                 the generators: UFO, font, keyboard layout, dictionary
-docs/                  hand-written pages; rebuilt into build/ with the font in them
-notes/                 material that is not a declaration: source history, design sketches
-layouts/               the generated .keylayout
-scripts/install.sh     build both and put them where macOS looks
-scripts/share.sh       serve build/ and open a public tunnel at it
-tests/                 model, shaping (HarfBuzz), shaping (CoreText), keyboard
-GLOSSARY.md            font and typography terms, in the order you meet them
-```
 
-Deliberately absent from `data/script.toml`, because both are derivable and a
-second copy is a second thing that can disagree:
+The split is intentional:
 
-- **The six glide vowels.** A glide is its plain vowel plus a tick at a fixed
-  code point offset, so it is computed.
-- **Every vowel's chevron direction.** It falls out of height and backness,
-  because the mark is a picture of where the vowel sits in the mouth. Front is
-  left, back is right, open is down, and the one vowel with no position is drawn
-  as a ring instead of an arrow.
+- **TOML declares facts about the language.**
+- **Raku owns linguistic behavior.**
+- **Python owns typography and generated artifacts.**
+- **`llama.cpp` owns local inference and model-specific tokenization.**
 
-## The script
+Nothing gets to quietly become a second authority.
 
-Both halves are featural: the shape of a letter encodes the phonology rather
-than being arbitrary.
+## Generated files
 
-- **A vertical stem marks voicing.** `t`->`d`, `th`->`dh`.
-- **A crossbar marks place**, alveolar moving back to post-alveolar. `s`->`sh`,
-  `l`->`r`.
-- **A vowel is a chevron pointing at its cell** in the vowel trapezoid, and the
-  glide adds a tick at the chevron's tail, always opposite its point.
+`sources/Ronosathwasha.ufo` and
+`layouts/Ronosathwasha.keylayout` are generated and overwritten by their
+builders. Edit `sources/strokes.py` for letterforms and `data/script.toml` for
+the inventory.
 
-Every glyph is a single centreline stroked with one nib. Change `PEN` in
-`sources/strokes.py` and the whole font re-weights.
+The test suite fails if either generated artifact has drifted from its source.
+This is checked rather than remembered, because I am fallible meat and the
+computer is here to reduce my cognitive load.
 
-## Notes
+`build/`, `.raku/` and the model weights are not tracked.
 
-`sources/Ronosathwasha.ufo` and `layouts/Ronosathwasha.keylayout` are generated
-and overwritten on every build. Edit `sources/strokes.py` for the letterforms
-and `data/script.toml` for the inventory.
+## Moluyo
 
-**`pytest` fails if either has been hand-edited or has drifted from its
-generator**, so this is checked rather than remembered. The UFO also carries the
-warning in `info.note`, which font editors display on open.
+Moluyo is a very well-formed crab.
 
-`build/` is not tracked.
+He emerged from a perfectly valid but deeply questionable piece of Rono and
+became the patron of things whose structure is correct and whose consequences
+are indefensible.
+
+**Well formed does not imply sane. It is known.**
+
+<details>
+  <summary>The motto has a vernacular translation.</summary>
+
+  <p align="center">
+    <img
+      src="docs/assets/moluyo-vernacular-seal.png"
+      alt="Vernacular seal of Moluyo, That Fucking Crab"
+      width="480"
+    >
+  </p>
+</details>
