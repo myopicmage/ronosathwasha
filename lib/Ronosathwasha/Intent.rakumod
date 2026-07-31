@@ -193,6 +193,61 @@ sub pick(%table, $sent, Str:D $field) {
     $value;
 }
 
+#| The exact keys each answer shape may carry, mirroring `response-schema`'s
+#| properties one for one.
+#|
+#| Plan `014` requires rejecting unknown fields even when the server claims
+#| schema success, and `ModelProtocol`'s pod has promised the check happens
+#| twice since the beginning; review `027` found it happening once, in the
+#| sampling grammar only. A key outside these sets is a model answering a
+#| question nobody asked, and a `gap` carrying `predicate` is a model answering
+#| two at once.
+my constant $EXPRESS-KEYS = <
+    kind predicate speech_act question_scope tense aspect polarity modality
+    nominal_predicate arguments
+>.Set;
+my constant $GAP-KEYS      = <kind wanted missing>.Set;
+my constant $ARGUMENT-KEYS = <role stem>.Set;
+
+sub refuse(Str:D $reason) {
+    die X::Ronosathwasha::Answer::Malformed.new(:$reason);
+}
+
+sub exact-keys(%raw, Set:D $allowed, Str:D $shape) {
+    my @unknown = %raw.keys.grep({ not $allowed{$_} }).sort;
+
+    refuse("$shape carrying { @unknown.join(', ') }, which it has no field for")
+        if @unknown;
+}
+
+#| A required field: present, not null, and a string.
+#|
+#| Distinguished from absent-with-a-default, because JSON has three ways to not
+#| say something and they do not mean the same thing: a missing key is an
+#| omission the shape may define, an explicit null is a refusal to answer, and
+#| a wrong type is a different answer entirely. `~`-coercion used to flatten
+#| all three into a string, which is how `wanted = 42` became the well-typed
+#| gap `"42"` on its way to the evidence log.
+sub required-str(%raw, Str:D $field, Str:D $shape --> Str) {
+    refuse("$shape without $field") unless %raw{$field}:exists;
+    refuse("$field is null") unless %raw{$field}.defined;
+    refuse("$field is { %raw{$field}.^name }, not a string")
+        unless %raw{$field} ~~ Str;
+
+    %raw{$field};
+}
+
+#| An optional field: absence is a meaning, so only presence is checked, and a
+#| present value must be non-null and of the given type.
+sub optional-typed(%raw, Str:D $field, Mu:U $type) {
+    return unless %raw{$field}:exists;
+
+    refuse("$field is null; omit the field to mean its absence")
+        unless %raw{$field}.defined;
+    refuse("$field is { %raw{$field}.^name }, not { $type.^name.lc }")
+        unless %raw{$field} ~~ $type;
+}
+
 #| Every stem a model may name.
 #|
 #| The lexicon's words minus its bound morphology, plus the verb stems recovered
@@ -231,29 +286,45 @@ sub intent-from(
     my Str $kind = ~(%raw<kind> // '');
 
     if $kind eq 'gap' {
-        for <wanted missing> -> $field {
+        exact-keys(%raw, $GAP-KEYS, 'a gap');
 
-            # `(~%raw{$field}).chars`, parenthesised. `~` is looser than a method
-            # call, so `~%raw{$field}.chars` stringifies the *count* and yields
-            # `"0"` for an empty string, which is true. The guard read as written
-            # and tested as `True`, so an empty `wanted` passed it for as long as
-            # it has existed.
-            die X::Ronosathwasha::Answer::Malformed.new(:reason("gap without $field"))
-                unless %raw{$field}.defined && (~%raw{$field}).chars;
-        }
+        my Str $wanted  = required-str(%raw, 'wanted',  'a gap');
+        my Str $missing = required-str(%raw, 'missing', 'a gap');
 
-        return Gap.new(:wanted(~%raw<wanted>), :missing(~%raw<missing>));
+        # An empty string is the shape a model reaches for when the schema
+        # demands a field it has nothing to put in, and a gap that reports
+        # nothing is worse than no gap: the gap channel is the evidence log.
+        refuse("a gap with an empty $_") for <wanted missing>.grep({ !%raw{$_}.chars });
+
+        return Gap.new(:$wanted, :$missing);
     }
 
     die X::Ronosathwasha::Answer::Malformed.new(:reason("unknown kind { $kind.raku }"))
         unless $kind eq 'express';
 
+    exact-keys(%raw, $EXPRESS-KEYS, 'an express');
+
+    # The optional fields, where absence is a meaning the shape defines and an
+    # explicit null is a refusal to answer. Checked before anything reads them,
+    # because `.defined`-style reads treat null and absent alike, and review
+    # `027` showed exactly what that flattening costs: `nominal_predicate =
+    # "false"` was a nominal, and a null tense was a timeless identity nobody
+    # declared.
+    optional-typed(%raw, 'question_scope',    Str);
+    optional-typed(%raw, 'tense',             Str);
+    optional-typed(%raw, 'nominal_predicate', Bool);
+    optional-typed(%raw, 'arguments',         Positional);
+
     my Set $known = nameable($lexicon, $morphology);
 
-    my Str $predicate = ~(%raw<predicate> // '');
+    my Str $predicate = required-str(%raw, 'predicate', 'an express');
 
     die X::Ronosathwasha::Answer::Unknown.new(:field<predicate>, :value(%raw<predicate>))
         unless $known{$predicate};
+
+    for <speech_act aspect polarity modality> -> $field {
+        required-str(%raw, $field, 'an express');
+    }
 
     my Participant @participants = @(%raw<arguments> // []).map: -> $a {
 
@@ -266,7 +337,10 @@ sub intent-from(
             unless $a ~~ Associative;
 
         my %a := $a;
-        my Str $stem = ~(%a<stem> // '');
+
+        exact-keys(%a, $ARGUMENT-KEYS, 'an argument');
+
+        my Str $stem = required-str(%a, 'stem', 'an argument');
 
         # `:field('argument stem')`, not `:field<argument stem>`. The angle
         # brackets are the word-quoting construct, so a space inside them makes
@@ -274,12 +348,14 @@ sub intent-from(
         die X::Ronosathwasha::Answer::Unknown.new(:field('argument stem'), :value(%a<stem>))
             unless $known{$stem};
 
-        Participant.new(:role(pick(%ROLE, %a<role>, 'argument role')), :$stem);
+        Participant.new(:role(pick(%ROLE, required-str(%a, 'role', 'an argument'), 'argument role')), :$stem);
     }
 
     # `return`, because the `CATCH` below is the last statement of the sub and
-    # would otherwise supply its value.
-    my Bool $nominal = ?(%raw<nominal_predicate> // False);
+    # would otherwise supply its value. Typed by `optional-typed` above, so
+    # this default fills absence only, never repairs a string pretending to be
+    # a boolean.
+    my Bool $nominal = (%raw<nominal_predicate>:exists) ?? %raw<nominal_predicate> !! False;
 
     # An absent tense is a timeless identity, and only a nominal predicate has one.
     # A verb without a tense morpheme is not a well-formed word, so this refuses the
@@ -303,21 +379,30 @@ sub intent-from(
         ?? pick(%SCOPE, %raw<question_scope>, 'question_scope')
         !! QuestionScope;
 
-    # A scope naming a constituent is a promise that the marker has somewhere to
-    # land. The schema cannot hold this either: it is a constraint between the scope
-    # and the argument list, `if`/`then` a second time. Checked with the other
-    # combination rule, because a question about an object the answer never names is
-    # the same bug as a verb with no tense: two individually legal fields whose
-    # combination means nothing.
+    # A scope naming a constituent is a promise that the marker has exactly one
+    # place to land. Zero was always refused; more than one is review `029`'s
+    # finding: the schema permits repeated roles, so "question the subject"
+    # with two subjects marked both (`telari tenari thinəme?`) while the type
+    # recorded one scoped constituent, and nothing said which. Until the type
+    # can identify a carrier, the combination is refused. This does not decide
+    # whether repeated participants are grammatical Rono; it refuses to claim
+    # the interface can question one without representing which one.
     my Argument $questioned = do given $scope {
         when QuestionsSubject { Subject }
         when QuestionsObject  { Object }
         default               { Argument }
     };
 
+    my Int $carriers = $questioned.defined
+        ?? @participants.grep(*.role == $questioned).elems
+        !! 1;
+
     die X::Ronosathwasha::Answer::Malformed.new(
-        :reason("a question about the { $questioned.key.lc } with no { $questioned.key.lc } to mark"),
-    ) if $questioned.defined and not @participants.grep(*.role == $questioned);
+        :reason("a question about the { $questioned.key.lc } with "
+            ~ ($carriers == 0
+                ?? "no { $questioned.key.lc } to mark"
+                !! "$carriers { $questioned.key.lc }s and a scope that names one")),
+    ) if $carriers != 1;
 
     return Express.new(
         :$predicate,

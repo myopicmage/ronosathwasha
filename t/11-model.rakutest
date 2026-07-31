@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 45;
+plan 57;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -96,6 +96,40 @@ nok intent(%( kind => 'gap', wanted => 'I usually eat', missing => '' )).defined
 
 nok intent(%( kind => 'chat', predicate => 'thinə' )).defined,
     'a kind outside the two is refused rather than guessed at';
+
+# ------------------------------------------------- the shape is checked twice ---
+#
+# Plan 014's requirement, promised in ModelProtocol's pod since the beginning
+# and found by review 027 happening only in the sampling grammar. These are
+# 027's probes, each of which was previously accepted: coercion flattened
+# JSON's three silences and two mistypings into plausible values.
+
+nok intent(%( %eat, extra => 'field' )).defined,
+    'an express carrying a key it has no field for is refused';
+
+nok intent(%( %eat,
+    arguments => [ $%( 'role' => 'subject', stem => 'la', mood => 'x' ) ],
+)).defined, 'and so is an argument carrying one';
+
+my $stringy = intent(%( %eat, nominal_predicate => 'false' ));
+nok $stringy.defined, 'a string pretending to be a boolean is refused';
+isa-ok $stringy.self.exception, X::Ronosathwasha::Answer::Malformed,
+    'rather than truthified into a nominal, which is what it became before';
+
+my $numeric = intent(%( kind => 'gap', wanted => 42, missing => 'habitual aspect' ));
+nok $numeric.defined, 'a gap whose wanted is a number is refused';
+ok $numeric.self.exception.message.contains('not a string'),
+    'instead of stringified into well-typed evidence, the worst of the five';
+
+nok intent(%( kind => 'gap', wanted => 'x', missing => 'y', predicate => 'thinə' )).defined,
+    'a gap carrying an express field is answering two questions at once';
+
+# Null and absent are different silences: a missing tense is the timeless
+# identity, an explicit null is a refusal to answer.
+my $null = intent(%( %eat, nominal_predicate => True, tense => Any ));
+nok $null.defined, 'an explicit null tense is refused';
+ok $null.self.exception.message.contains('omit the field'),
+    'and told apart from the absence that means something';
 
 # There is no field anywhere in an intent that could hold Ronosathwasha, which
 # is the architectural commitment stated as a type rather than as a promise.
@@ -186,6 +220,25 @@ is intent(%( %asks,
     arguments => [ $%( 'role' => 'subject', stem => 'la' ),
                    $%( 'role' => 'object',  stem => 'runə' ) ],
 )).question-scope, QuestionsObject, 'while a question about an object it names is accepted';
+
+# Review 029's other half of the carrier rule: exactly one, not at least one.
+# The schema permits repeated roles, so "question the subject" with two
+# subjects marked both, `telari tenari thinəme?`, while the type recorded one
+# scoped constituent and nothing said which.
+my $crowd = intent(%( %asks,
+    arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                   $%( 'role' => 'subject', stem => 'ro' ) ],
+));
+nok $crowd.defined, 'a question about the subject with two subjects is refused';
+ok $crowd.self.exception.message.contains('a scope that names one'),
+    'since the type cannot say which one is asked about';
+
+# This does not decide what a repeated participant means, which is undecided
+# language; the refusal is only about a scope that cannot point.
+ok intent(%( %eat,
+    arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                   $%( 'role' => 'subject', stem => 'ro' ) ],
+)).defined, 'a declarative may still repeat a role, undecided rather than refused';
 
 # ------------------------------------------------- the pair cannot disagree ---
 #
