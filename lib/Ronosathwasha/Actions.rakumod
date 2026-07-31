@@ -310,6 +310,21 @@ sub read-sentence(
             $predicate-position = $candidate-position;
             $nominal-predicate = True;
         }
+
+        # Decision 26: the subject-drop and copula-drop licenses compose. A
+        # single unmarked nominal standing alone is a subjectless zero-copula
+        # identity, which is how `Narame.` means hello and bare `Ya.` finally
+        # reads as the withdrawal decision 4 says it is. One constituent only:
+        # two bare nominals in a row stay unreadable, because nothing marks
+        # which would be the predicate, and that ambiguity is the language's.
+        if !$predicate && @divisions.elems == 1
+            && !$candidate.prefixes
+            && !$candidate.suffixes
+        {
+            $predicate = $candidate;
+            $predicate-position = $candidate-position;
+            $nominal-predicate = True;
+        }
     }
 
     return NotUnderstood.new(

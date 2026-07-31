@@ -19,7 +19,7 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
-plan $corpus.utterances.elems + 22;
+plan $corpus.utterances.elems + 26;
 
 sub read(Str $s)  { read-sentence($script, $lexicon, $morphology, $s) }
 sub write(Reading $r) { realize-sentence($script, $lexicon, $morphology, $r) }
@@ -150,6 +150,14 @@ is round-trip('Tomwuyu thinəme?'), 'tomwuyu thinəme?',
 
 is round-trip('Nari tethinəme?'), 'nari tethinəme?',
     'a questioned predicate still writes the marker it needs';
+
+# Decision 26: a bare nominal alone is a subjectless zero-copula identity, so
+# the greeting, the exclamative naming, the withdrawal and the lone question
+# all survive text to meaning to text.
+for 'Narame.', 'Runə.', 'Ya.', 'Toro?' -> $utterance {
+    is round-trip($utterance), bare($utterance),
+        "$utterance survives text to meaning to text";
+}
 
 # The nominal predicate reached by the productive route rather than the lexicalised
 # one. Nothing spells the marker here, so it has to be written.
