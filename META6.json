@@ -23,6 +23,7 @@
     "Ronosathwasha::Words": "lib/Ronosathwasha/Words.rakumod",
     "Ronosathwasha::ParseResult": "lib/Ronosathwasha/ParseResult.rakumod",
     "Ronosathwasha::Actions": "lib/Ronosathwasha/Actions.rakumod",
+    "Ronosathwasha::Alternants": "lib/Ronosathwasha/Alternants.rakumod",
     "Ronosathwasha::Realizer": "lib/Ronosathwasha/Realizer.rakumod",
     "Ronosathwasha::Sentence": "lib/Ronosathwasha/Sentence.rakumod",
     "Ronosathwasha::Config": "lib/Ronosathwasha/Config.rakumod",
