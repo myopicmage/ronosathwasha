@@ -7,7 +7,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Alternants;
 
-plan 5;
+plan 10;
 
 # Every alternating affix in the repository, checked against the harmony class
 # of the stem it attached to. `Ronosathwasha::Alternants` carries the reasoning;
@@ -59,6 +59,33 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 
 my $audit = alternants($script, $lexicon, $morphology);
+
+# ------------------------------------------------- the engines, on purpose ---
+#
+# The sweep below is only as good as what `check` can see, and a sweep that
+# reports nothing looks identical whether it is clean or blind. These five pin
+# each path so that a regression shows up here, named, rather than as a silent
+# green over a hole.
+#
+# The prefixed case is the one that was missing: rebuilding cannot reach a
+# prefixed word the lexicon lists, because `parse-word` treats a listed word as
+# one indivisible stem. `toro` respelled `tero` was accepted as its own stem and
+# reported by nothing at all.
+
+is $audit.check('tero'), 'toro',
+    'a prefixed word carrying the wrong alternant is caught by decomposition';
+
+nok $audit.check('toro').defined,
+    'and the correctly prefixed word it was built from is not';
+
+is $audit.check('domirime'), 'demirime',
+    'an inflected form the lexicon does not list is caught by rebuilding';
+
+nok $audit.check('rorothwaswo').defined,
+    'a longer base spelling the word correctly clears a shorter one that does not';
+
+nok $audit.check('thinəswe').defined,
+    'and a word that is simply right stays quiet';
 
 # ------------------------------------------------------------- the harvest ---
 

@@ -120,23 +120,44 @@ class Alternants is export {
         Str;
     }
 
-    #| Split the word into a listed base and a run of affixes, then ask what
-    #| those affixes should have been.
+    #| Split the word into an optional prefix, a listed base, and a run of
+    #| suffixes, then ask what those affixes should have been.
+    #|
+    #| The prefix half is not decoration. Rebuilding cannot reach a prefixed word
+    #| that the lexicon lists, because `parse-word` treats a listed word as one
+    #| indivisible stem, so `toro` respelled `tero` would be accepted as its own
+    #| stem and reported by nothing. Decomposition is the only engine that can see
+    #| it, and it can only see it by trying the prefix itself.
     method !by-decomposition(Str:D $word --> Str) {
-        for @!bases.grep({ .chars < $word.chars && $word.starts-with($_) }) -> $base {
-            my $parts = self!segment($word.substr($base.chars));
-            next unless $parts.defined && $parts.elems;
+        my @corrections;
 
-            my $class = profile-of($!script, $base);
-            next if $class == MixedWord;
+        for self!openings($word) -> ($prefix, $rest) {
+            for @!bases.grep({ .chars <= $rest.chars && $rest.starts-with($_) }) -> $base {
+                my $parts = self!segment($rest.substr($base.chars));
+                next unless $parts.defined;
 
-            my $correct = $base ~ $parts.map({ .form-for($class) }).join;
-            next if $correct eq $word;
+                # Something has to alternate, or there is nothing to be wrong
+                # about. A bare listed word is not evidence about anything.
+                next unless $parts.elems || $prefix.defined;
 
-            return $correct;
+                my $class = profile-of($!script, $base);
+                next if $class == MixedWord;
+
+                my $correct = ($prefix.defined ?? $prefix.form-for($class) !! '')
+                    ~ $base
+                    ~ $parts.map({ .form-for($class) }).join;
+
+                # One division agreeing is enough to clear the word. A short base
+                # can segment the tail of a longer one by accident, and reporting
+                # that would convict `rorothwaswo` on the strength of `roro` while
+                # `rorothwa` was sitting right there spelling it correctly.
+                return Str if $correct eq $word;
+
+                @corrections.push: $correct;
+            }
         }
 
-        Str;
+        @corrections ?? @corrections.head !! Str;
     }
 
     #| Parse the word as the grammar would and reassemble it from the stem's
@@ -162,6 +183,23 @@ class Alternants is export {
         return Str if $correct eq $word;
 
         $correct;
+    }
+
+    #| The ways the word might open: bare, then carrying each prefix alternant it
+    #| begins with. Both halves of a pair are offered, because the whole question
+    #| is whether the one that was written is the one the stem selects.
+    method !openings(Str:D $word --> Seq) {
+        gather {
+            take (Morpheme, $word);
+
+            for @!prefixes -> $m {
+                for ($m.front-stem, $m.back-stem) -> $surface {
+                    next unless $word.starts-with($surface) && $word.chars > $surface.chars;
+
+                    take ($m, $word.substr($surface.chars));
+                }
+            }
+        }
     }
 
     #| A remainder read as a sequence of alternating suffixes, either half
