@@ -1048,17 +1048,31 @@ it is a prefix on a word, and the word it prefixes is the thing being asked:
 - `Nari tethinəme?`: marker on the verb, asking about the predication;
 - `Tororu thinəme?`: the question is inside `toro`, asking who;
 - `Tomwuyu thinəme?`: asking what;
-- `Tekevinri tethinəmedi?`: is Kevin eating right now.
+- `Tekevinri thinəmedi?`: is it Kevin eating right now; the eating is given.
 
 The marker makes a question and does not say which kind. The open-versus-polar
 distinction English draws is not a grammatical distinction here; what varies is
-where the marker landed, and nothing else.
+where the marker landed, and nothing else. The last example is the same
+construction as `Tororu thinəmedi?` with a name in the marked slot instead of
+an interrogative stem: an open question and a confirmation question are one
+shape with different fillers.
+
+**An unmarked word in a question reads as given.** The difference between
+`Tekevinri thinəmedi?` and `Kevinri tethinəmedi?` is the split Korean draws
+between 이/가 and 은/는: the marked word is at issue, everything unmarked is
+presupposed. "Is it Kevin eating?" against "as for Kevin, is he eating?".
+Korean also supplies the corroborating restriction: a question word never
+takes the topic particle (누가 asks who; 누는 is impossible), and the
+interrogative words here obey that structurally, since the question is spelled
+inside them.
 
 **More than one marker in a sentence is grammatical.** Each one questions its
-own host, as the last example shows: subject and verb both marked, asking about
-the whole proposition. A reader must therefore keep every marker it finds;
-keeping the first and dropping the rest reads a different, simpler sentence
-than the one written.
+own host. Marking everything, `Tekevinri tethinəmedi?`, is the echo register:
+"KEVIN is EATING?!". That register is deliberately not grammaticalized: no
+mirative category, and `totororu` ("WHO?!") gets to exist the way
+"abso-bloody-lutely" does, expressive and owed nothing by the grammar. A
+reader must still keep every marker it finds; keeping the first and dropping
+the rest reads a different, simpler sentence than the one written.
 
 **Implemented** partially. A single marker round-trips: the reader records
 where it sat (`QuestionScope`), the realizer writes it back there, and the
@@ -1088,15 +1102,13 @@ exactly the silent simplification this decision forbids.
   general marker meaning "stop or cease doing" could derive forget from
   `tonə`, while also expressing stop eating, stop going, and stop speaking.
   The grammatical job is useful and productive; its form remains open.
-- **The deliberative.** `Tororu dethinəme?` is roughly "who go-eat!", a command
-  at an open referent, and `tororu tedethinə(me)` with the Q-IMP stack would be
-  "who should eat". The leaning is toward an actual deliberative rather than
-  leaving the stack to carry it, since the stack also wants readings like
-  "really?" or "requesting confirmation?", and none of it is sitting right
-  yet. It would be the first mood morpheme, a neighbour of potential `li-`.
-- **Whether redundant question marking is a style violation.** Double marking
-  is grammatical per decision 25. The earlier judgment that it violates style
-  was made against `Tororu tethinəme?`, where `toro` already spells a
-  question; `Tekevinri tethinəmedi?` marks two words informatively and reads
-  fine. Whether the style judgment narrows to marking that adds nothing, or
-  dissolves entirely, is unsettled.
+- **The deliberative.** "Should I eat?" is not the Q-IMP stack: `tedethinəme`
+  reads as questioning the command itself, requesting confirmation ("you're
+  telling me to eat?"), which is decision 25 applied inside the word, the
+  marker questioning the morpheme it sits over. The lean is a dedicated
+  deliberative morpheme instead, the first true mood, a neighbour of potential
+  `li-` in the modality slot decision 16 fixed. Its form is undecided.
+- **How far the given/presupposed reading extends.** Decision 25 has unmarked
+  constituents in a question read as given. Whether that generalizes, and
+  whether declaratives ever want topic machinery of their own or topic-hood
+  stays visible only as what questions decline to mark, is unsettled.
