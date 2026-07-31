@@ -8,7 +8,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 
-plan 22;
+plan 24;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -72,6 +72,44 @@ throws-like { Utterance.new(
     :question-scope(QuestionsSubject),
 ) }, X::Ronosathwasha::Meaning::ScopeDisagrees,
     'and so is a scope on something that asks nothing';
+
+# ------------------------------------------- the fifth scope enters the corpus ---
+#
+# Review 026: the reader could derive the fallback scope and the declarative
+# source could not state it, so the exact sentence that justified widening the
+# enum, `Toro thinəme?`, was unrecordable. Synthetic rather than a real corpus
+# entry, because whether that sentence belongs in `data/utterances.toml` is
+# Kevin's call and the loader's vocabulary is this file's.
+
+my IO::Path $scratch = $*TMPDIR.add("ronosathwasha-scope-{ $*PID }.toml");
+LEAVE $scratch.unlink;
+
+sub corpus-with(Str:D $questioned --> IO::Path) {
+    $scratch.spurt: qq:to/TOML/;
+        schema_version = 1
+
+        [[utterance]]
+        text = "Toro thinəme?"
+        english = "who eats?"
+        status = "derived"
+        speech_act = "interrogative"
+        predicate = "thinə"
+        tense = "present"
+        aspect = "simple"
+        polarity = "affirmative"
+        modality = "asserted"
+        questioned = "$questioned"
+        TOML
+
+    $scratch;
+}
+
+is load-utterances(corpus-with('unmarked-constituent')).utterances.head.question-scope,
+    QuestionsUnmarkedConstituent,
+    'an utterance may state that its question marks an unmarked word';
+
+nok load-utterances(corpus-with('constituent')).defined,
+    'while the old bare name is not in the vocabulary';
 
 my $teaching = $corpus.utterances.first(*.text eq 'Mirireri layi mirimedi.');
 is $teaching.shape, Transitive, 'subject and object make a transitive shape';
