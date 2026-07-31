@@ -86,19 +86,30 @@ sub realize-constituent(
 #| one. Generating a sentence from a model's intent does not: the model names a
 #| role and a stem, and there is nothing to divide. So the actual work lives
 #| here and both callers reach it.
+#|
+#| Prefixes exist for one caller and one morpheme: a generated question puts
+#| `te-/to-` on the constituent being asked about, which until now only the verb
+#| realizer could write. The alternant is chosen by the word's own class, like
+#| every suffix: `tomwuyu` is back because `mwu` is, and nothing else in the
+#| sentence has a say.
 sub realize-word(
     Script:D     $script,
     Morphology:D $morphology,
     @stems,
     @suffixes,
+    :@prefixes,
 ) is export {
     my Str $stem = @stems.join;
 
+    # Once, from the stems, before anything is attached on either side. An affix
+    # cannot vote on the class that selects it.
     my $class = profile-of($script, $stem);
 
     fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
-    $stem ~ @suffixes.map({ .form-for($class) }).join;
+    @prefixes.map({ .form-for($class) }).join
+        ~ $stem
+        ~ @suffixes.map({ .form-for($class) }).join;
 }
 
 #| Which speech act to write on the predicate, which is not always the sentence's.
