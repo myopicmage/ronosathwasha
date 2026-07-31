@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 48;
+plan $corpus.utterances.elems + 53;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -136,8 +136,13 @@ ok $present-classification.reading.tense.defined,
 
 isa-ok read('Lari nu thinəme.'), NotUnderstood,
     'an open-looking word in a verbal clause remains unknown';
-isa-ok read('Laari.'), NotUnderstood,
-    'a bare unknown form is not assumed to be a name without clause structure';
+# Decision 26 reversed this assertion knowingly: it used to insist a bare
+# unknown form was not a name without clause structure, and the ruling is that
+# a lone unmarked nominal IS the nominal-predicate position, so `Laari.` is an
+# introduction. The cost, accepted with it: a typo'd single word now reads as
+# an identity of gibberish rather than diagnosing as unknown.
+is read('Laari.').reading.predicate, 'laari',
+    'a bare open form standing alone is an introduction';
 
 # ---------------------------------------------- the question is found anywhere ---
 #
@@ -217,3 +222,22 @@ isa-ok read('Telari tethinəme?'), NotRepresentable,
 
 is read('Dethinəme.').reading.speech-act, Imperative,
     'while a lone command still commands, refused by nothing';
+
+# ---------------------------------------- decision 26: a bare nominal utters ---
+#
+# The subject-drop and copula-drop licenses compose, so a single unmarked
+# nominal is a subjectless zero-copula identity. Found the day the chatbot
+# could not be told hello.
+
+my $hello = read('Narame.').reading;
+
+is $hello.predicate, 'narame', 'hello reads, at last';
+ok $hello.nominal-predicate && !$hello.explicit-copula,
+    'as a zero-copula identity with no subject';
+nok $hello.tense.defined, 'timeless, since nothing wrote a tense';
+
+is asked('Toro?').question-scope, QuestionsPredicate,
+    'a lone questioned word asks about the predicate: who is it?';
+
+isa-ok read('Runə thinə.'), NotUnderstood,
+    'while two bare nominals stay out, neither marked as the predicate';
