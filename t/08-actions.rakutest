@@ -206,9 +206,12 @@ is-deeply $mixed.markers.List,
     ('the question inside toro', 'a command marker on dethinəme'),
     'since keeping either one would erase the other';
 
-# The echo register, decision 25's full marking. `Telari tethinəme?` stands in
-# for `Tekevinri tethinəmedi?`, because a foreign name enters by decision 23's
-# transliteration first and `v` is not in the script.
+# The echo register, decision 25's full marking, on the declared stem `la`
+# rather than on a name. A name cannot carry the marker yet on two independent
+# counts: `read-sentence` admits an open nominal only as a whole bare word, so
+# `Telaariri` and even `Laariri` fail to divide, and `Tekevinri` additionally
+# needs decision 23's transliteration since `v` is not in the script. When
+# open nominals learn affixes, `Telaariri tethinəme?` belongs here.
 isa-ok read('Telari tethinəme?'), NotRepresentable,
     'the echo, everything marked, is grammatical and not yet holdable';
 
