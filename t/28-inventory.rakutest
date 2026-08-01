@@ -57,7 +57,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 
 my @roots = predicate-roots($lexicon, $morphology).keys.sort;
 my @stems = participant-stems($lexicon, $morphology).keys.sort;
-my @interrogatives = interrogative-words($lexicon).keys.sort;
+my @interrogatives = $lexicon.interrogative-words.keys.sort;
 
 my %map;
 my Int $cases = 0;

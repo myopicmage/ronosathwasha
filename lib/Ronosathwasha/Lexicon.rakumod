@@ -42,6 +42,23 @@ class Lexicon is export {
         @!entries.map(*.roman).Set;
     }
 
+    #| The words that already spell an interrogative, as stems.
+    #|
+    #| Here rather than in `Ronosathwasha::Actions`, where it began, because three
+    #| layers need it and they do not all sit above reading. Reading asks whether
+    #| the marker is there, realization asks whether to write one, and `Intent`
+    #| now asks whether a model named a question word while claiming to declare.
+    #| `Intent` cannot import `Actions` without closing a cycle, and every caller
+    #| already imports this module, so the section name lives once beside the
+    #| other section queries.
+    #|
+    #| **Not "the word starts with `to`".** `tono` does, `tono` is a listed word,
+    #| and it is not a question. The `[interrogative]` section is what separates
+    #| the two.
+    method interrogative-words(--> Set) {
+        self.in-section('interrogative').map(*.roman).Set;
+    }
+
     method sections(--> Seq) {
         @!entries.map(*.section).unique;
     }
