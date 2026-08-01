@@ -303,6 +303,80 @@ sub participant-stems(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is e
     listed-words($lexicon).Set;
 }
 
+#| Refuse an answer whose stems ask a question its other fields deny.
+#|
+#| `toro` is "who". A model naming it has asked something, whatever `speech_act`
+#| claims, because the question is inside the word and no field can take it back
+#| out. So the answer is self-inconsistent: not a language failure, not a gap,
+#| just a model contradicting itself, and review `038` classifies it as
+#| malformed for that reason.
+#|
+#| This is the check that needs nothing but decoded fields and declarations,
+#| which is why plan `039` puts it here rather than above `intent-from`. It
+#| cannot see spelling collisions and does not try; that is the boundary the
+#| next stop builds, and it needs the realizer and the reader to see anything at
+#| all.
+#|
+#| Forty of `t/28`'s forty-seven acknowledged mismatches are this one rule
+#| unstated: five interrogatives times eight shapes, every one of them an answer
+#| that named a question word and then described a sentence that was not a
+#| question, or was a question about somewhere else.
+sub check-interrogative-consistency(
+    Lexicon:D      $lexicon,
+    Str:D          $predicate,
+    Participant    @participants,
+    SpeechAct:D    $act,
+    QuestionScope  $scope,
+) {
+    my Set $interrogatives = $lexicon.interrogative-words;
+
+    # Every constituent that named one, paired with the scope that would agree
+    # with it.
+    #
+    # `(QuestionsPredicate) => $predicate`, and the parentheses are load-bearing.
+    # A bare identifier to the left of `=>` is auto-quoted, so writing it without
+    # them yields the *string* "QuestionsPredicate" as the key, and the
+    # comparison below then fails against every enum value forever. The parens
+    # force it to be read as a term.
+    my Pair @named = (
+        ($interrogatives{$predicate} ?? ((QuestionsPredicate) => $predicate) !! Empty),
+        @participants.grep({ $interrogatives{ .stem } }).map({
+            .role == Subject
+                ?? ((QuestionsSubject) => .stem)
+                !! ((QuestionsObject)  => .stem)
+        }),
+    ).flat;
+
+    return unless @named;
+
+    # More than one, and the type cannot say which the marker sat on. The same
+    # limit review `029` found for repeated roles, reached from the other side:
+    # `Toro tomwuyu thinəme?` ("who eats what?") may well be grammatical Rono,
+    # and this refuses to claim the interface can carry it rather than ruling on
+    # the language.
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason("{ @named.elems } question words ({ @named.map(*.value).join(', ') })"
+            ~ ', and the scope can point at only one'),
+    ) if @named > 1;
+
+    # `.key` twice over would be two different `.key`s: the Pair's, then the enum
+    # value's own name. Named once here rather than read as a chain.
+    my Pair          $only   = @named[0];
+    my QuestionScope $agrees = $only.key;
+    my Str           $where  = $agrees.key.subst('Questions', '').lc;
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason("{ $act.key.lc } naming the question word { $only.value.raku }"
+            ~ ", which asks whatever the speech act says"),
+    ) unless $act == Interrogative;
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason("the question word { $only.value.raku } is the $where"
+            ~ ", but the scope questions the "
+            ~ ($scope.defined ?? $scope.key.subst('Questions', '').lc !! 'nothing named')),
+    ) unless $scope.defined && $scope == $agrees;
+}
+
 #| Turn what a model sent into an intent, or refuse it.
 #|
 #| No return type, so a refusal stays inert; see `Ronosathwasha::Types`. The
@@ -444,9 +518,13 @@ sub intent-from(
                 !! "$carriers { $questioned.key.lc }s and a scope that names one")),
     ) if $carriers != 1;
 
+    my SpeechAct $act = pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act');
+
+    check-interrogative-consistency($lexicon, $predicate, @participants, $act, $scope);
+
     return Express.new(
         :$predicate,
-        :speech-act(pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act')),
+        :speech-act($act),
         :question-scope($scope),
         :nominal-predicate($nominal),
         :tense($timeless ?? Tense !! pick(%TENSE, %raw<tense>, 'tense')),
