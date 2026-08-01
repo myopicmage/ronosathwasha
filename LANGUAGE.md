@@ -1175,6 +1175,36 @@ Nothing here rules on *which* metaphors each locative licenses. That grows by
 usage, the way it grew here: a construction assembled from declared parts,
 found grammatical, and blessed.
 
+## 28. `reason` is `nootha`, because a rule outranks a listed word
+
+**The noun for "reason, cause" was `ðoru`, which is also what decision 7's
+subject particle makes of the pronoun `ðo`.** So `ðoru thinəme.` could not mean
+"they eat": the participant dissolved into a noun, and the sentence read as an
+identity about reasons.
+
+Only one side could move. `ðoru` is *derived*, one of the four back-vowel plural
+subjects decision 7 lists, and a rule that produces a collision cannot be
+respelled without unpicking the paradigm that produces it. A listed word can.
+So the noun became **`nootha`**, and `to`-prefixation gives **`tonootha`** for
+"why".
+
+The `ð` had to go with it. Every respelling holding the old skeleton (`ðora`,
+`ðuro`, `ðəru`) sits one vowel from the pronoun, which is the confusion being
+removed rather than a smaller version of it.
+
+`nootha` takes a long vowel on purpose, joining `luumo` and `duruu`. The three
+non-participant interrogative bases are place, time and reason, and they now
+share a shape as well as a job. Length is also what holds the word clear of
+`no`: `nootha` is not `no` plus anything, because decision 20 made length
+contrastive.
+
+The five bases stay back words, so all five still take `to`, and they now begin
+on five different consonants: `toro`, `tomwu`, `toluumo`, `toduruu`,
+`tonootha`.
+
+Found by `t/28`'s inventory matrix, which had carried the collision as its own
+acknowledged class. That class is gone rather than smaller.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

@@ -149,7 +149,7 @@ status = "current"
 #   tomwu    to + mwu     thing    what
 #   toluumo  to + luumo   place    where
 #   toduruu  to + duruu   time     when
-#   toðoru   to + ðoru    reason   why
+#   tonootha to + nootha  reason   why
 #
 # All five bases are back words, so all five take `to`, and the rule reproduces
 # every listed form with nothing left over. The lexicon entries are therefore

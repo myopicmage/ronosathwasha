@@ -119,7 +119,7 @@ nok $morphology.by-id('command').declared-for(NominalStem),
 # fails here rather than in prose.
 my %interrogative =
     ro => 'toro', mwu => 'tomwu', luumo => 'toluumo',
-    duruu => 'toduruu', 'ðoru' => 'toðoru';
+    duruu => 'toduruu', nootha => 'tonootha';
 
 my $forms = $lexicon.forms;
 
