@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 63;
+plan 72;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -275,3 +275,50 @@ isa-ok $unscoped.self.exception, X::Ronosathwasha::Meaning::ScopeDisagrees,
 
 my $scoped-statement = intent(%( %eat, question_scope => 'subject' ));
 nok $scoped-statement.defined, 'and so is a declarative that claims to question something';
+
+# ------------------------------------------- a question word asks regardless ---
+#
+# Plan 039 stop 4. `toro` is "who": the marker is inside the word, so no field
+# can take it back out, and an answer whose other fields describe a statement is
+# contradicting itself rather than reporting a language failure. These are forty
+# of t/28's forty-seven acknowledged mismatches, which is why the class is worth
+# its own rule rather than a note.
+
+my $declared-who = intent(%( %eat, predicate => 'toro' ));
+nok $declared-who.defined, 'a declarative whose predicate is a question word is refused';
+ok $declared-who.self.exception.message.contains('naming the question word'),
+    'and says the word asked whatever the speech act claimed';
+
+nok intent(%( %eat, arguments => [ $%( 'role' => 'subject', stem => 'toro' ) ] )).defined,
+    'the same when the question word is a participant rather than the predicate';
+
+# The third shape, and the one a scope alone cannot catch: the answer does ask,
+# and asks about somewhere the question word is not.
+my $wrong-place = intent(%( %eat,
+    speech_act => 'interrogative', question_scope => 'predicate',
+    arguments => [ $%( 'role' => 'subject', stem => 'toro' ) ],
+));
+nok $wrong-place.defined, 'a question about the predicate whose subject is the question word is refused';
+ok $wrong-place.self.exception.message.contains('the scope questions the predicate'),
+    'naming both the constituent that asked and the one the scope pointed at';
+
+# The agreeing shapes, which must stay accepted: this rule refuses disagreement,
+# never the interrogative words themselves.
+ok intent(%( %eat, predicate => 'toro',
+    speech_act => 'interrogative', question_scope => 'predicate' )).defined,
+    'a question about the predicate may have a question word as its predicate';
+
+ok intent(%( %eat, speech_act => 'interrogative', question_scope => 'subject',
+    arguments => [ $%( 'role' => 'subject', stem => 'toro' ) ] )).defined,
+    'and a question about the subject may have one as its subject';
+
+# Two of them, refused for the reason review 029 refused two subjects: the type
+# holds one scope. This does not rule on whether `Toro tomwuyu thinəme?` is
+# grammatical Rono; it declines to claim the interface could carry the answer.
+my $two = intent(%( %eat, predicate => 'toro',
+    speech_act => 'interrogative', question_scope => 'subject',
+    arguments => [ $%( 'role' => 'subject', stem => 'tomwu' ) ],
+));
+nok $two.defined, 'two question words in one answer are refused';
+ok $two.self.exception.message.contains('question words'),
+    'because one scope cannot point at both';
