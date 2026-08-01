@@ -3,16 +3,18 @@ use Test;
 use Ronosathwasha::Capabilities;
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 28;
+plan 34;
 
 my IO::Path $data = repository-root.add('data');
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 
-my $invariant = capabilities-invariant($morphology);
+my $invariant = capabilities-invariant($lexicon, $morphology);
 my Str $text = $invariant.text;
 
 isa-ok $invariant, PromptInvariant, 'it is a prompt invariant';
@@ -139,7 +141,7 @@ ok $text.contains('the interface'),
 # Drop a morpheme and the inventory must lose it.
 
 my @fewer = $morphology.morphemes.grep({ .id ne 'continuous' });
-my $reduced = capabilities-invariant(Morphology.new(:morphemes(@fewer)));
+my $reduced = capabilities-invariant($lexicon, Morphology.new(:morphemes(@fewer)));
 
 ok $text.contains('continuous (di/du)'), 'the real morphology yields the inventory entry';
 nok $reduced.text.contains('continuous (di/du)'),
@@ -152,3 +154,17 @@ nok $reduced.text.contains('continuous (di/du)'),
 # failed against prose that names the pairing.
 ok $reduced.text.contains('aspect: continuous, simple'),
     'while the axis still offers the value, since that comes from the other source';
+
+# --------------------------------------- the constraint the schema cannot express ---
+#
+# Plan 039 stop 4. Naming a question word commits the whole answer, and `intent-from`
+# refuses it otherwise, which ends the turn as a malformed answer. A JSON schema has no
+# way to say "interrogative iff one of these stems appears", so the block is the only
+# place the model can learn it.
+
+ok $text.contains('already carry the question inside them'),
+    'the block warns that some stems are questions in themselves';
+
+for $lexicon.interrogative-words.keys -> $word {
+    ok $text.contains($word), "and names $word, so the warning points at something";
+}
