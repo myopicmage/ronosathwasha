@@ -278,6 +278,8 @@ isa-ok $collided.intent, Express, 'the admitted intent is still the turn meaning
 ok $collided.summary.contains('inadmissible'), 'and the summary says what happened';
 
 # A gap must not be dragged through the boundary: there is no sentence to check.
-my $silent = turn(Silent.new, $fresh, 'Lari thinəme.');
-nok $silent.inadmissible.defined, 'a gap is not an inadmissible intent';
-ok $silent.gap.defined, 'and still arrives as the finding it is';
+# `$silent` is taken further up, and Raku only warns about the redeclaration, so
+# the second `my` would have shadowed quietly inside a passing suite.
+my $gapped = turn(Silent.new, $fresh, 'Lari thinəme.');
+nok $gapped.inadmissible.defined, 'a gap is not an inadmissible intent';
+ok $gapped.gap.defined, 'and still arrives as the finding it is';
