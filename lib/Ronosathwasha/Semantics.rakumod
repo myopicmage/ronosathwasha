@@ -30,6 +30,7 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Data;
 
 our enum SpeechAct  is export <Declarative Interrogative Imperative>;
+our enum QuestionKind is export <OpenQuestion SelectiveQuestion>;
 our enum Tense      is export <Past Present Future>;
 our enum Aspect     is export <Simple Continuous>;
 our enum Polarity   is export <Affirmative Negative>;
@@ -61,10 +62,10 @@ our enum Predication is export <Timeless Anchored>;
 
 #| Which constituent the interrogative marker attaches to.
 #|
-#| `to-`/`te-` is one operation, not two. Kevin's ruling: it makes a question, and
-#| it does not imply a yes-or-no one. So this says *where the question landed* and
-#| never which of two kinds it is. The open-versus-polar distinction English draws
-#| is deliberately absent; a review proposed importing it and was corrected.
+#| Scope and kind are independent axes. This says *where the question landed*;
+#| `QuestionKind` says whether it asks openly or selects from a salient set. The
+#| open-versus-polar distinction English draws is deliberately absent; a review
+#| proposed importing it and was corrected.
 #|
 #| The values enumerate the constituents these types can currently name, which is
 #| the honest bound. `toduruu` used as a bare temporal adjunct has nowhere to go
@@ -105,6 +106,7 @@ our enum QuestionScope is export <
 role Asks is export {
     has SpeechAct     $.speech-act is required;
     has QuestionScope $.question-scope;
+    has QuestionKind  $.question-kind;
 
     #| An interrogative says what it questions, and nothing else may.
     #|
@@ -121,10 +123,22 @@ role Asks is export {
         my Bool $asking = $!speech-act == Interrogative;
         my Bool $scoped = $!question-scope.defined;
 
+        # Existing questions predate the distinction and are open questions.
+        # Defaulting here keeps that meaning while a selective question must say
+        # so explicitly. A non-question keeps the type object, meaning absent.
+        $!question-kind = OpenQuestion if $asking && not $!question-kind.defined;
+
+        my Bool $kinded = $!question-kind.defined;
+
         die X::Ronosathwasha::Meaning::ScopeDisagrees.new(
             :speech-act($!speech-act.key.lc),
             :scope($scoped ?? $!question-scope.key !! 'none'),
         ) if $asking != $scoped;
+
+        die X::Ronosathwasha::Meaning::QuestionKindDisagrees.new(
+            :speech-act($!speech-act.key.lc),
+            :question-kind($!question-kind.key.lc),
+        ) if $asking != $kinded;
     }
 }
 
@@ -215,6 +229,7 @@ class Utterance does Asks is export {
 #| notices.
 our constant %REQUIRED is export = (
     'speech act'  => (Declarative, Interrogative, Imperative),
+    'question kind' => (OpenQuestion, SelectiveQuestion),
     'tense'       => (Past, Present, Future),
     'predication' => (Timeless, Anchored),
     'aspect'      => (Simple, Continuous),
@@ -230,6 +245,7 @@ class Coverage is export {
     method !values-for(Str $dimension, @from) {
         given $dimension {
             when 'speech act'  { @from.map(*.speech-act)  }
+            when 'question kind' { @from.map(*.question-kind).grep(*.defined) }
             when 'aspect'      { @from.map(*.aspect)      }
             when 'polarity'    { @from.map(*.polarity)    }
             when 'modality'    { @from.map(*.modality)    }
@@ -287,6 +303,9 @@ class Coverage is export {
 
 my constant %SPEECH-ACT = (
     declarative => Declarative, interrogative => Interrogative, imperative => Imperative,
+);
+my constant %QUESTION-KIND = (
+    open => OpenQuestion, selective => SelectiveQuestion,
 );
 my constant %TENSE     = (past => Past, present => Present, future => Future);
 my constant %ASPECT    = (simple => Simple, continuous => Continuous);
@@ -362,6 +381,9 @@ sub load-utterances(IO::Path:D $path) is export {
             :question-scope(%u<questioned>.defined
                 ?? decode(%QUESTION-SCOPE, %u<questioned>, 'questioned', $text, $path)
                 !! QuestionScope),
+            :question-kind(%u<question_kind>.defined
+                ?? decode(%QUESTION-KIND, %u<question_kind>, 'question_kind', $text, $path)
+                !! QuestionKind),
 
             # Defaults false, so every existing entry keeps meaning what it meant
             # and only a sentence that says so is read as copular.

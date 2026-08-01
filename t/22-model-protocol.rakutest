@@ -11,7 +11,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 42;
+plan 44;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -126,7 +126,7 @@ is-deeply %gap<required>.sort.List, <kind missing wanted>.List,
 # nobody got round to requiring it: no tense is a timeless identity, no scope is a
 # sentence that questions nothing. "Required iff interrogative" is an `if`/`then`
 # the grammar cannot hold, so the scope's pairing rule lives in `Semantics::Asks`.
-for <tense nominal_predicate arguments question_scope> -> $field {
+for <tense nominal_predicate arguments question_scope question_kind> -> $field {
     nok %express<required>.grep($field),
         "$field stays optional, since absence means something intent-from understands";
 }

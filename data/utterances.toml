@@ -541,3 +541,21 @@ aspect = "simple"
 polarity = "affirmative"
 modality = "asserted"
 locative = "locative-in"
+
+# ----------------------------------------- decision 29, reviewed selective ---
+
+[[utterance]]
+text = "Twemirireri mirime?"
+english = "Which teacher teaches?"
+status = "reviewed"
+derived_from = "Mirireri mirime."
+derivation = "selective question twe- on the front-harmonic subject mirire"
+speech_act = "interrogative"
+question_kind = "selective"
+questioned = "subject"
+predicate = "miri"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]

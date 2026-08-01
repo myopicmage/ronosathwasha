@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 50;
+plan 54;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -33,6 +33,8 @@ is $morphology.current.map(*.gloss).repeated.elems, 0,
 is $morphology.by-id('past').gloss, 'PST', 'the past is Leipzig PST';
 is $morphology.by-id('past-je').gloss, 'PST',
     'and the morpheme it superseded keeps the label of the job it did';
+is $morphology.by-id('selective-question').gloss, 'Q.SEL',
+    'the selective interrogative names both the question and its restriction';
 
 # ----------------------------------------------------- the label is required ---
 #
@@ -170,6 +172,17 @@ is gloss-sentence($script, $lexicon, $morphology, 'Tomwuyu thinəme?').translati
 # the whole thing, which is the case the question marker was declared for.
 is gloss-sentence($script, $lexicon, $morphology, 'Nari tethinəme?').words.tail.line,
     'Q-eat-PRS', 'a word the lexicon does not list is still divided productively';
+
+my $which-teacher = gloss-sentence(
+    $script, $lexicon, $morphology, 'Twemirireri mirime?'
+);
+is $which-teacher.words.head.form, 'twe-mirire-ri',
+    'the selective question exposes its three morphemes';
+is $which-teacher.words.head.line, 'Q.SEL-teacher-SBJ',
+    'with the selective Leipzig label rather than the open Q';
+is $which-teacher.translation.render,
+    '[teach: selectively questions the subject, present simple]',
+    'and the reading summary preserves the discourse-linked distinction';
 
 # The trailing `?` is punctuation and not a morpheme, so it must not reach the
 # parser. `read-sentence` strips the same set for the same reason.

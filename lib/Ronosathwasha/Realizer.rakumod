@@ -100,12 +100,15 @@ sub prefix-ids(
     SpeechAct:D $speech-act,
     Polarity:D  $polarity,
     Modality:D  $modality,
+    QuestionKind:D $question-kind,
     --> Seq
 ) {
     my %wanted =
         'modality'   => ($modality == Potential  ?? 'potential' !! Str),
         'polarity'   => ($polarity == Negative   ?? 'negation'  !! Str),
-        'speech-act' => %ACT-MORPHEME{ $speech-act.key };
+        'speech-act' => $speech-act == Interrogative && $question-kind == SelectiveQuestion
+            ?? 'selective-question'
+            !! %ACT-MORPHEME{ $speech-act.key };
 
     @PREFIX-ORDER.map({ %wanted{$_} }).grep(*.defined);
 }
@@ -122,6 +125,7 @@ sub realize-verb(
     Aspect:D    :$aspect     = Simple,
     Polarity:D  :$polarity   = Affirmative,
     Modality:D  :$modality   = Asserted,
+    QuestionKind:D :$question-kind = OpenQuestion,
 ) is export {
 
     # Once, from the stem, before anything is attached. See the module
@@ -130,7 +134,7 @@ sub realize-verb(
 
     fail X::Ronosathwasha::Form::NoClass.new(:$stem) if $class == MixedWord;
 
-    my @prefixes = prefix-ids($speech-act, $polarity, $modality);
+    my @prefixes = prefix-ids($speech-act, $polarity, $modality, $question-kind);
 
     my @suffixes = (
         %TENSE-MORPHEME{ $tense.key },
@@ -166,6 +170,7 @@ sub realize-nominal-predicate(
     Aspect:D    :$aspect      = Simple,
     Polarity:D  :$polarity    = Affirmative,
     Modality:D  :$modality    = Asserted,
+    QuestionKind:D :$question-kind = OpenQuestion,
 ) is export {
     my $class = profile-of($script, $stem);
 
@@ -179,7 +184,7 @@ sub realize-nominal-predicate(
     @suffixes.push: 'continuous' if $aspect == Continuous;
 
     return (
-        prefix-ids($speech-act, $polarity, $modality)
+        prefix-ids($speech-act, $polarity, $modality, $question-kind)
             .map({ form-of($morphology, $_, $class) }),
         $stem,
         @suffixes.map({ form-of($morphology, $_, $class) }),

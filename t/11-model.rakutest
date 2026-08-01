@@ -9,7 +9,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Intent;
 
-plan 72;
+plan 79;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -210,8 +210,26 @@ my %asks = %eat, speech_act => 'interrogative', question_scope => 'subject';
 my $question = intent(%asks);
 isa-ok $question, Express, 'a model may ask about a constituent';
 is $question.question-scope, QuestionsSubject, 'and the scope is typed rather than a string';
+is $question.question-kind, OpenQuestion,
+    'an omitted question kind preserves the established open reading';
 ok $question.summary.contains('questions subject'),
     'with the summary carrying it, since two questions that differ must read differently';
+
+is-deeply answer-vocabulary()<question_kind>.List, <open selective>.List,
+    'the wire offers the two members of the interrogative paradigm';
+
+my $selective = intent(%( %asks, question_kind => 'selective' ));
+is $selective.question-kind, SelectiveQuestion,
+    'a model may choose the discourse-linked selective question';
+ok $selective.summary.contains('question kind selective'),
+    'and the summary does not flatten it into an open question';
+
+my $selective-statement = intent(%( %eat, question_kind => 'selective' ));
+nok $selective-statement.defined,
+    'a declarative cannot carry a selective question kind';
+isa-ok $selective-statement.self.exception,
+    X::Ronosathwasha::Meaning::QuestionKindDisagrees,
+    'as a disagreement in meaning rather than an unknown wire value';
 
 is intent(%( %asks, question_scope => 'predicate' )).question-scope, QuestionsPredicate,
     'the predicate is one scope among five rather than the only one';
@@ -307,6 +325,10 @@ ok $wrong-place.self.exception.message.contains('the scope questions the predica
 ok intent(%( %eat, predicate => 'toro',
     speech_act => 'interrogative', question_scope => 'predicate' )).defined,
     'a question about the predicate may have a question word as its predicate';
+
+nok intent(%( %eat, predicate => 'toro', speech_act => 'interrogative',
+    question_scope => 'predicate', question_kind => 'selective' )).defined,
+    'a selective question uses the base noun rather than an open question word';
 
 ok intent(%( %eat, speech_act => 'interrogative', question_scope => 'subject',
     arguments => [ $%( 'role' => 'subject', stem => 'toro' ) ] )).defined,

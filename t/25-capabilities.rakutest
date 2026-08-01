@@ -8,7 +8,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 34;
+plan 37;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -95,8 +95,10 @@ ok $text.contains('argument role:'),
 # the prompt never offered: the interface gap this file exists to keep truthful.
 ok $text.contains("question scope: { %v<question_scope>.sort.join(', ') }"),
     'the question scope axis lists exactly what the decoder accepts';
+ok $text.contains("question kind: { %v<question_kind>.sort.join(', ') }"),
+    'the question kind axis lists open and selective';
 
-nok $text.contains('kind:'),
+nok $text.lines.grep(*.starts-with('  kind:')),
     'the envelope discriminator is not offered as a feature of the language';
 
 # ------------------------------------------------------ the composition statement ---
@@ -122,6 +124,10 @@ ok $text.contains('meaning, not spelling'),
 # scope with a statement and be refused two layers later.
 ok $text.contains('accompanies an interrogative'),
     'and the scope\'s pairing with the interrogative is stated rather than inferred';
+ok $text.contains('salient set'),
+    'the selective reading is defined by its discourse restriction';
+ok $text.contains('plain base noun'),
+    'and the model is told not to reuse an open question word for it';
 
 # ---------------------------------------------- a language gap is not an interface gap ---
 #

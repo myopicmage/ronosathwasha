@@ -84,6 +84,7 @@ class SemanticProjection is export {
     has Bool          $.nominal    is required;
     has SpeechAct     $.speech-act is required;
     has QuestionScope $.question-scope;
+    has QuestionKind  $.question-kind;
     has Tense         $.tense;
     has Aspect        $.aspect     is required;
     has Polarity      $.polarity   is required;
@@ -97,6 +98,7 @@ class SemanticProjection is export {
             'nominal'        => $!nominal,
             'speech-act'     => $!speech-act,
             'question-scope' => $!question-scope,
+            'question-kind'  => $!question-kind,
             'tense'          => $!tense,
             'aspect'         => $!aspect,
             'polarity'       => $!polarity,
@@ -177,6 +179,7 @@ multi sub semantic-projection(
         :nominal($intent.nominal-predicate),
         :speech-act($intent.speech-act),
         :question-scope($intent.question-scope),
+        :question-kind($intent.question-kind),
         :tense($intent.tense),
         :aspect($intent.aspect),
         :polarity($intent.polarity),
@@ -216,6 +219,7 @@ multi sub semantic-projection(
         :nominal($reading.nominal-predicate),
         :speech-act($reading.speech-act),
         :question-scope($reading.question-scope),
+        :question-kind($reading.question-kind),
         :tense($reading.tense),
         :aspect($reading.aspect),
         :polarity($reading.polarity),

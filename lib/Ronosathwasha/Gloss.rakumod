@@ -417,7 +417,7 @@ sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) is export 
     # must render as "unmarked constituent", not mash into one word. Same
     # transform `Capabilities::axis-of` applies to `MorphemeRole`.
     my @features = $reading.question-scope.defined
-        ?? "questions the { $reading.question-scope.key
+        ?? "{ $reading.question-kind == SelectiveQuestion ?? 'selectively questions' !! 'questions' } the { $reading.question-scope.key
             .subst(/^ Questions /, '')
             .subst(/(<[a..z]>)(<[A..Z]>)/, { "$0 $1" }, :g)
             .lc }"

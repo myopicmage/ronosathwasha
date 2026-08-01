@@ -116,7 +116,7 @@ sub semantic-axes(--> Seq) {
 
     # `question_scope` sits beside `speech_act` because the two are one fact, which
     # is the same reason `Asks` owns both attributes.
-    my @order = <speech_act question_scope tense aspect polarity modality role>;
+    my @order = <speech_act question_scope question_kind tense aspect polarity modality role>;
 
     @order.map(-> $axis {
         # `role` is the argument's role, which the morphology marks as case. Renamed
@@ -182,6 +182,9 @@ sub composition-rules(Lexicon:D $lexicon --> Str) {
         constituent the question is about; a statement carries none, and a question
         always carries exactly one. Asking about the predicate asks what is
         happening; asking about the subject or object asks who or what.
+      - A question kind also accompanies an interrogative. Open asks for an
+        unconstrained answer. Selective means "which" and presupposes a salient set
+        of possible answers already in the discourse.
       - Some stems already carry the question inside them, and naming one commits
         the whole answer: the speech act must be interrogative and the scope must
         name the very constituent you put it in. A statement that names one, or a
@@ -191,6 +194,8 @@ sub composition-rules(Lexicon:D $lexicon --> Str) {
       - You are not limited to those. A question word is the question marker plus an
         ordinary noun, so to ask about anything they do not cover, name the plain
         stem and set the scope to its constituent. The marker is written for you.
+        Those listed question words are open questions. For a selective question,
+        name the plain base noun instead and choose the selective question kind.
 
     You choose meaning, not spelling. Name the predicate and the features; the
     realizer assembles the word, applies harmony and orders the morphemes. Never
