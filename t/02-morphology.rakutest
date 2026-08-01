@@ -9,7 +9,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Script;
 use Ronosathwasha::Harmony;
 
-plan 44;
+plan 48;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -48,16 +48,16 @@ is-deeply ($declared (-) $written).keys.sort.List, (),
 is-deeply ($written (-) $declared).keys.sort.List, (),
     'every affix in the lexicon is claimed by a current morpheme';
 
-is $morphology.current.elems, 18, 'eighteen current morphemes';
+is $morphology.current.elems, 19, 'nineteen current morphemes';
 
-# Thirty-one distinct forms from eighteen morphemes: sixteen alternating pairs
-# and invariant `sa` would naively make thirty-three, but two complete pairs are
+# Thirty-three distinct forms from nineteen morphemes: seventeen alternating pairs
+# and invariant `sa` would naively make thirty-five, but two complete pairs are
 # shared. The negator reuses present `me/mo`, and the copularizer reuses
 # infinitive `swe/swo`. Counting forms and counting morphemes give different
 # answers here, and the gap is precisely what a file keyed by surface form
 # could not have held.
-is $declared.elems, 31, 'covering thirty-one distinct surface forms';
-is $lexicon.affixes.elems, 31, 'which is every bound morpheme the lexicon lists';
+is $declared.elems, 33, 'covering thirty-three distinct surface forms';
+is $lexicon.affixes.elems, 33, 'which is every bound morpheme the lexicon lists';
 
 # --------------------------------------------------------- choosing a form ---
 #
@@ -105,6 +105,16 @@ ok $question.declared-for(VerbStem),
     'the question marker is declared for a verb, which is the polar question';
 ok $question.declared-for(NominalStem),
     'and for a nominal, which is where the interrogative words came from';
+
+my $selective = $morphology.by-id('selective-question');
+is $selective.form-for(FrontWord), 'twe',
+    'a front nominal takes selective question twe-';
+is $selective.form-for(BackWord), 'two',
+    'and a back nominal takes selective question two-';
+ok $selective.declared-for(NominalStem),
+    'the selective question is canonically adnominal';
+nok $selective.declared-for(VerbStem),
+    'and does not claim the open question marker\'s verbal job';
 
 # The trap this guards: `VerbStem` is the first value of `Host` and an enum
 # value in Raku is numeric, so it is 0 and therefore falsy. A `declared-for`

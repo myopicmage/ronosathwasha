@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 50;
+plan 51;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -33,6 +33,8 @@ is $morphology.current.map(*.gloss).repeated.elems, 0,
 is $morphology.by-id('past').gloss, 'PST', 'the past is Leipzig PST';
 is $morphology.by-id('past-je').gloss, 'PST',
     'and the morpheme it superseded keeps the label of the job it did';
+is $morphology.by-id('selective-question').gloss, 'Q.SEL',
+    'the selective interrogative names both the question and its restriction';
 
 # ----------------------------------------------------- the label is required ---
 #
