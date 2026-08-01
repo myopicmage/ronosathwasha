@@ -16,7 +16,7 @@ use Ronosathwasha::PromptContext;
 use Ronosathwasha::TokenCounter;
 use Ronosathwasha::Dialogue;
 
-plan 52;
+plan 54;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -137,6 +137,12 @@ is turn(scripted($lexicon, $morphology, ask(question_scope => 'subject')),
     'telari thinəme?', 'a subject question marks the subject and not the verb';
 
 is turn(scripted($lexicon, $morphology, ask(
+            question_scope => 'subject', question_kind => 'selective',
+            arguments => [ $%( 'role' => 'subject', stem => 'mirire' ) ],
+        )), $fresh, 'Lari thinəme.').said,
+    'twemirireri thinəme?', 'a selective subject question writes twe- on its noun';
+
+is turn(scripted($lexicon, $morphology, ask(
             question_scope => 'object',
             arguments => [ $%( 'role' => 'subject', stem => 'la' ),
                            $%( 'role' => 'object',  stem => 'mwu' ) ],
@@ -241,6 +247,10 @@ my %which = identity(speech_act => 'interrogative', question_scope => 'predicate
 
 is turn(scripted($lexicon, $morphology, %which), $fresh, 'Lari thinəme.').said,
     'lari temirireswe?', 'and a questioned identity keeps its question';
+
+%which<question_kind> = 'selective';
+is turn(scripted($lexicon, $morphology, %which), $fresh, 'Lari thinəme.').said,
+    'lari twemirireswe?', 'a selective predicate question keeps the distinct marker';
 
 # ------------------------------------------------- the admissibility boundary ---
 #

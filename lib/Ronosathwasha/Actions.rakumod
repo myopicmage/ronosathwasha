@@ -147,7 +147,7 @@ class NotRepresentable does SentenceOutcome is export {
 sub questions(Set $interrogatives, WordParse:D $word --> Bool) {
     my $act = $word.with-role(MarksSpeechAct);
 
-    return True if $act.defined && $act.id eq 'question';
+    return True if $act.defined && $act.id eq any(<question selective-question>);
 
     so $word.stems.first({ $interrogatives{$_} });
 }
@@ -160,10 +160,24 @@ sub questions(Set $interrogatives, WordParse:D $word --> Bool) {
 sub question-evidence(Set $interrogatives, WordParse:D $word --> Str) {
     my $act = $word.with-role(MarksSpeechAct);
 
-    return "a question marker on { $word.text }"
-        if $act.defined && $act.id eq 'question';
+    return "a { $act.id } marker on { $word.text }"
+        if $act.defined && $act.id eq any(<question selective-question>);
 
     "the question inside { $word.stems.first({ $interrogatives{$_} }) }";
+}
+
+#| Which member of the interrogative paradigm this word carries.
+sub question-kind-of(Set $interrogatives, WordParse:D $word --> QuestionKind) {
+    my $act = $word.with-role(MarksSpeechAct);
+
+    return SelectiveQuestion
+        if $act.defined && $act.id eq 'selective-question';
+
+    return OpenQuestion
+        if ($act.defined && $act.id eq 'question')
+            || $word.stems.first({ $interrogatives{$_} });
+
+    QuestionKind;
 }
 
 #| Where the interrogative landed, given the word carrying it.
@@ -382,6 +396,10 @@ sub read-sentence(
         ?? scope-of(@divisions[$asked-at], $asked-at == $predicate-position)
         !! QuestionScope;
 
+    my QuestionKind $question-kind = $asked-at.defined
+        ?? question-kind-of($interrogatives, @divisions[$asked-at])
+        !! QuestionKind;
+
     my SpeechAct $speech-act = do {
         if $asked-at.defined                        { Interrogative }
         elsif $act.defined && $act.id eq 'command'  { Imperative    }
@@ -405,6 +423,7 @@ sub read-sentence(
         :text($sentence),
         :$speech-act,
         :$question-scope,
+        :$question-kind,
         :predicate($predicate.stems.join),
         # Undefined when nothing was written, rather than Present. A verb always
         # carries a tense morpheme, so the absence only ever arises on the nominal

@@ -98,6 +98,8 @@ class Express does ResponseIntent does Asks is export {
         # distinction the interface accepted and then stopped carrying.
         @parts.push("questions { $.question-scope.key.subst('Questions', '').lc }")
             if $.question-scope.defined;
+        @parts.push("question kind { $.question-kind.key.subst('Question', '').lc }")
+            if $.question-kind.defined;
 
         my $kind = $!nominal-predicate ?? ' is-a' !! '';
 
@@ -147,6 +149,10 @@ my constant %SCOPE    = (
     subject   => QuestionsSubject,
     object    => QuestionsObject,
 );
+my constant %QUESTION-KIND = (
+    open => OpenQuestion,
+    selective => SelectiveQuestion,
+);
 
 #| Which strings a model may send for each enumerated field.
 #|
@@ -172,6 +178,7 @@ sub answer-vocabulary(--> Hash) is export {
         # "required iff interrogative" without `if`/`then`, so the wire treats it as
         # optional and the pairing is checked where the meaning types are built.
         question_scope => %SCOPE.keys.sort.List,
+        question_kind  => %QUESTION-KIND.keys.sort.List,
 
         tense      => %TENSE.keys.sort.List,
         aspect     => %ASPECT.keys.sort.List,
@@ -203,7 +210,7 @@ sub pick(%table, $sent, Str:D $field) {
 #| question nobody asked, and a `gap` carrying `predicate` is a model answering
 #| two at once.
 my constant $EXPRESS-KEYS = <
-    kind predicate speech_act question_scope tense aspect polarity modality
+    kind predicate speech_act question_scope question_kind tense aspect polarity modality
     nominal_predicate arguments
 >.Set;
 my constant $GAP-KEYS      = <kind wanted missing>.Set;
@@ -327,6 +334,7 @@ sub check-interrogative-consistency(
     Participant    @participants,
     SpeechAct:D    $act,
     QuestionScope  $scope,
+    QuestionKind   $question-kind,
 ) {
     my Set $interrogatives = $lexicon.interrogative-words;
 
@@ -348,6 +356,10 @@ sub check-interrogative-consistency(
     ).flat;
 
     return unless @named;
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason('a selective question must mark a base noun, not name an open question word'),
+    ) if $question-kind.defined && $question-kind == SelectiveQuestion;
 
     # More than one, and the type cannot say which the marker sat on. The same
     # limit review `029` found for repeated roles, reached from the other side:
@@ -415,6 +427,7 @@ sub intent-from(
     # "false"` was a nominal, and a null tense was a timeless identity nobody
     # declared.
     optional-typed(%raw, 'question_scope',    Str);
+    optional-typed(%raw, 'question_kind',     Str);
     optional-typed(%raw, 'tense',             Str);
     optional-typed(%raw, 'nominal_predicate', Bool);
     optional-typed(%raw, 'arguments',         Positional);
@@ -493,6 +506,12 @@ sub intent-from(
         ?? pick(%SCOPE, %raw<question_scope>, 'question_scope')
         !! QuestionScope;
 
+    my SpeechAct $act = pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act');
+
+    my QuestionKind $question-kind = %raw<question_kind>.defined
+        ?? pick(%QUESTION-KIND, %raw<question_kind>, 'question_kind')
+        !! ($act == Interrogative ?? OpenQuestion !! QuestionKind);
+
     # A scope naming a constituent is a promise that the marker has exactly one
     # place to land. Zero was always refused; more than one is review `029`'s
     # finding: the schema permits repeated roles, so "question the subject"
@@ -518,14 +537,15 @@ sub intent-from(
                 !! "$carriers { $questioned.key.lc }s and a scope that names one")),
     ) if $carriers != 1;
 
-    my SpeechAct $act = pick(%SPEECH-ACT, %raw<speech_act>, 'speech_act');
-
-    check-interrogative-consistency($lexicon, $predicate, @participants, $act, $scope);
+    check-interrogative-consistency(
+        $lexicon, $predicate, @participants, $act, $scope, $question-kind,
+    );
 
     return Express.new(
         :$predicate,
         :speech-act($act),
         :question-scope($scope),
+        :$question-kind,
         :nominal-predicate($nominal),
         :tense($timeless ?? Tense !! pick(%TENSE, %raw<tense>, 'tense')),
         :$aspect,

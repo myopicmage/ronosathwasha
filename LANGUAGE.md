@@ -1095,9 +1095,10 @@ it is a prefix on a word, and the word it prefixes is the thing being asked:
 - `Tomwuyu thinəme?`: asking what;
 - `Tekevinri thinəmedi?`: is it Kevin eating right now; the eating is given.
 
-The marker makes a question and does not say which kind. The open-versus-polar
-distinction English draws is not a grammatical distinction here; what varies is
-where the marker landed, and nothing else. The last example is the same
+The marker makes a question and does not say open versus polar; that English
+distinction is not grammatical here. Decision 29 later splits the interrogative
+paradigm along a different axis, open versus selective, while keeping this
+scope rule intact. The last example is the same
 construction as `Tororu thinəmedi?` with a name in the marked slot instead of
 an interrogative stem: an open question and a confirmation question are one
 shape with different fillers.
@@ -1205,6 +1206,33 @@ on five different consonants: `toro`, `tomwu`, `toluumo`, `toduruu`,
 Found by `t/28`'s inventory matrix, which had carried the collision as its own
 acknowledged class. That class is gone rather than smaller.
 
+## 29. Open and selective questions are one paradigm with two markers
+
+**`te-`/`to-` asks an open question; `twe-`/`two-` asks a selective
+question.** The selective asks "which" from a salient set already in the
+discourse. The open form carries no such restriction.
+
+The distinction is chosen before harmony applies. Front and neutral hosts take
+`te-` or `twe-`; back hosts take `to-` or `two-`. Both pairs occupy the same
+speech-act prefix slot and take the same scope rules from decision 25. The `w`
+is contrastive, not an automatic glide:
+
+```text
+to-ro       who, open person question
+two-ro      which person, selective person question
+twe-mirire  which teacher, selective teacher question
+```
+
+The five lexical interrogatives remain the common open questions. A selective
+question is built productively from the ordinary base noun, so `toro` is not
+reused inside a selective intent. `tworo` and `twemirire` preserve the noun
+while explicitly adding the discourse-linked reading.
+
+This does not settle an adnominal demonstrative series. `she`, `sha` and `sho`
+remain pronominal, and nothing here overloads them. The new marker reaches
+"which teacher" directly without requiring the language to invent equivalents
+of "this teacher" and "that teacher" first.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does
@@ -1236,35 +1264,3 @@ acknowledged class. That class is gone rather than smaller.
   constituents in a question read as given. Whether that generalizes, and
   whether declaratives ever want topic machinery of their own or topic-hood
   stays visible only as what questions decline to mark, is unsettled.
-- **"Which" is a different concept from "who", and needs its own shape.** Ruled
-  2026-08-01; the form is open, and the lean is the Japanese/Korean route of a
-  determiner distinct from the interrogative pronoun.
-
-  What the grammar currently claims instead: `to-` plus a noun does both jobs,
-  and the reading falls out of how general the noun is. `to` + `ro` ("person")
-  is open enough to mean "who"; `te` + `mirire` ("teacher") is restricted enough
-  to mean "which teacher". On that model "who" is just "which person" with the
-  restriction vacuous, and the five listed interrogatives are the five most
-  general nouns in the language rather than a closed class. The distinction the
-  ruling wants is the one linguistics calls discourse-linking: "which teacher"
-  presupposes a set of teachers already in play and "who" presupposes nothing.
-
-  **The obstacle is that the shape question is downstream of a demonstrative
-  question the language has never had to answer.** `she`, `sha` and `sho` are
-  pronominal: `Sho thinəme.` and `Lari sha lithinəme.` both stand them alone as
-  arguments. Rono has これ/それ/あれ and has never needed この/その/あの. "Which"
-  is normally the interrogative member of the *adnominal* series, and there is
-  no adnominal series to be a member of. Korean splits the same way, 뭐 and 누구
-  standing alone against 어느 and 어떤 taking a noun.
-
-  Three shapes were considered. A fourth pronominal member gives "which one"
-  cheaply and does not reach "which teacher". A full adnominal series is the
-  ordinary answer and means coining three words nobody has needed in order to
-  get the one that is wanted. A partitive built from existing parts, "who among
-  the teachers", costs no new series and fits the language's derivational habit,
-  at the risk of being a phrase where every other language reached for a word.
-
-  Note against all three: the same morphology is already doing two jobs, since
-  decision 25 has `to-` landing on any constituent for a focus question
-  (`telari thinəme?`, "is it Lauri eating?"). A distinct "which" would be a
-  third reading in that slot.

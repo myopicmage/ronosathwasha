@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 53;
+plan $corpus.utterances.elems + 55;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -29,7 +29,7 @@ for $corpus.utterances -> $declared {
     my $outcome = read($declared.text);
 
     subtest "{ $declared.text } means what it is declared to mean" => {
-        plan 9;
+        plan 10;
 
         isa-ok $outcome, Understood, 'it is understood at all';
 
@@ -46,6 +46,7 @@ for $corpus.utterances -> $declared {
         # the newest was not, so a corpus entry could declare a scope the
         # reader disagreed with and stay green.
         is $got.question-scope, $declared.question-scope, 'question scope';
+        is $got.question-kind, $declared.question-kind, 'question kind';
 
         is-deeply $got.arguments.sort.List, $declared.arguments.sort.List, 'arguments';
     }
@@ -163,6 +164,12 @@ is $lexicalised.speech-act, Interrogative,
     'a lexicalised interrogative makes its clause a question';
 is $lexicalised.question-scope, QuestionsPredicate,
     'and `toro` is the predicate, so that is what is asked about';
+is $lexicalised.question-kind, OpenQuestion,
+    'a lexicalised interrogative is the open member of the paradigm';
+
+my $selective = asked('Twemirireri mirime?');
+is $selective.question-kind, SelectiveQuestion,
+    'the selective prefix survives parsing as its own question kind';
 
 is asked('Nari tethinəme?').question-scope, QuestionsPredicate,
     'the productive prefix on a verb scopes the same way';

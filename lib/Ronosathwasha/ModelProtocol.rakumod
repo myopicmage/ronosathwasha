@@ -158,6 +158,7 @@ sub express-branch(@predicates, @stems, %v --> Hash) {
             # "required iff interrogative" is an `if`/`then` the grammar cannot hold;
             # see the pod. The pairing is refused by `Asks` when the intent is built.
             question_scope => enumerated(%v<question_scope>),
+            question_kind  => enumerated(%v<question_kind>),
 
             # The three optional ones, each because it has a real default rather than
             # because nobody got round to requiring it.

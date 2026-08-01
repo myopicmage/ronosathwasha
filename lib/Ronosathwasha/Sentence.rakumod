@@ -77,7 +77,10 @@ sub realize-constituent(
     Morphology:D $morphology,
     WordParse:D  $word,
 ) is export {
-    realize-word($script, $morphology, $word.stems, $word.suffixes);
+    realize-word(
+        $script, $morphology, $word.stems, $word.suffixes,
+        :prefixes($word.prefixes),
+    );
 }
 
 #| The same thing without a parse to read it from.
@@ -87,9 +90,8 @@ sub realize-constituent(
 #| role and a stem, and there is nothing to divide. So the actual work lives
 #| here and both callers reach it.
 #|
-#| Prefixes exist for one caller and one morpheme: a generated question puts
-#| `te-/to-` on the constituent being asked about, which until now only the verb
-#| realizer could write. The alternant is chosen by the word's own class, like
+#| Prefixes exist for generated questions: `te-/to-` or `twe-/two-` goes on the
+#| constituent being asked about. The alternant is chosen by the word's own class, like
 #| every suffix: `tomwuyu` is back because `mwu` is, and nothing else in the
 #| sentence has a say.
 sub realize-word(
@@ -164,6 +166,7 @@ sub realize-sentence(
             $script, $morphology, $reading.predicate,
             :copularized($reading.explicit-copula),
             :speech-act($act),
+            :question-kind($reading.question-kind // OpenQuestion),
             :tense($reading.tense),
             :aspect($reading.aspect),
             :polarity($reading.polarity),
@@ -173,6 +176,7 @@ sub realize-sentence(
         @words.push: realize-verb(
             $script, $morphology, $reading.predicate,
             :speech-act($act),
+            :question-kind($reading.question-kind // OpenQuestion),
             :tense($reading.tense),
             :aspect($reading.aspect),
             :polarity($reading.polarity),
@@ -181,7 +185,7 @@ sub realize-sentence(
     }
 
     # English punctuation, borrowed whole, because the script has none of its
-    # own. The marks are redundant with the morphology, since `te-/to-` already
+    # own. The marks are redundant with the morphology, since the question prefix already
     # made this a question, and they are written anyway: a convention every
     # reader can parse costs nothing while the script has no answer of its own.
     #

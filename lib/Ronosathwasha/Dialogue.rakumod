@@ -216,7 +216,11 @@ sub realize-intent(
         default               { Argument }
     };
 
-    my $question = $morphology.by-id('question');
+    my $question = $morphology.by-id(
+        $intent.question-kind.defined && $intent.question-kind == SelectiveQuestion
+            ?? 'selective-question'
+            !! 'question'
+    );
 
     my @words = @order.map(-> $p {
         # Unless the stem already spells it: `toro` is "who" with the question
@@ -225,7 +229,8 @@ sub realize-intent(
         # same declaration.
         my Bool $questioned = $marked.defined
             && $p.role == $marked
-            && not $lexicon.interrogative-words{ $p.stem };
+            && ($intent.question-kind.defined && $intent.question-kind == SelectiveQuestion
+                || not $lexicon.interrogative-words{ $p.stem });
 
         realize-word($script, $morphology, [$p.stem], [%case{ $p.role.key }],
             :prefixes($questioned ?? [$question] !! []));
@@ -242,6 +247,7 @@ sub realize-intent(
         ?? realize-nominal-predicate(
                $script, $morphology, $intent.predicate,
                :speech-act($act),
+               :question-kind($intent.question-kind // OpenQuestion),
                :tense($intent.tense),
                :aspect($intent.aspect),
                :polarity($intent.polarity),
@@ -250,6 +256,7 @@ sub realize-intent(
         !! realize-verb(
                $script, $morphology, $intent.predicate,
                :speech-act($act),
+               :question-kind($intent.question-kind // OpenQuestion),
                :tense($intent.tense),
                :aspect($intent.aspect),
                :polarity($intent.polarity),

@@ -11,7 +11,7 @@ use Ronosathwasha::Dialogue;
 use Ronosathwasha::Intent;
 use Ronosathwasha::Projection;
 
-plan 23;
+plan 26;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -97,6 +97,8 @@ my @cases =
                        $%( 'role' => 'object',  stem => 'runə' ) ]),
     'a subject question'       => express(:speech_act<interrogative>,
         :question_scope<subject>),
+    'a selective subject question' => express(:speech_act<interrogative>,
+        :question_scope<subject>, :question_kind<selective>),
     'an object question'       => express(:speech_act<interrogative>,
         :question_scope<object>,
         arguments => [ $%( 'role' => 'subject', stem => 'la' ),
@@ -133,6 +135,18 @@ for @cases -> (:key($case), :value($sent)) {
                     !! ": differs on { $before.differences($after).join(', ') } in $said");
     }
 }
+
+my $open-question = express(
+    :speech_act<interrogative>, :question_scope<subject>, :question_kind<open>,
+);
+my $selective-question = express(
+    :speech_act<interrogative>, :question_scope<subject>, :question_kind<selective>,
+);
+
+nok project($open-question).matches(project($selective-question)),
+    'open and selective questions are not admitted as the same meaning';
+is-deeply project($open-question).differences(project($selective-question)),
+    ('question-kind',), 'and the projection names the lost distinction';
 
 
 # ------------------------------------------------ what the split now prevents ---

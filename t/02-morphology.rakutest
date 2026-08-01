@@ -112,9 +112,9 @@ is $selective.form-for(FrontWord), 'twe',
 is $selective.form-for(BackWord), 'two',
     'and a back nominal takes selective question two-';
 ok $selective.declared-for(NominalStem),
-    'the selective question is canonically adnominal';
-nok $selective.declared-for(VerbStem),
-    'and does not claim the open question marker\'s verbal job';
+    'the selective question may restrict a nominal referent';
+ok $selective.declared-for(VerbStem),
+    'and may select a predicate from salient alternatives';
 
 # The trap this guards: `VerbStem` is the first value of `Host` and an enum
 # value in Raku is numeric, so it is 0 and therefore falsy. A `declared-for`

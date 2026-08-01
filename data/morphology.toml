@@ -173,14 +173,15 @@ status = "current"
 # A second member of the interrogative paradigm. `te-`/`to-` asks an open
 # question; `twe-`/`two-` asks the listener to select from a salient set.
 # The glide is the whole surface contrast, so the relationship is visible in
-# both the romanisation and the script. Its canonical host is nominal because
+# both the romanisation and the script. Its usual host is nominal because
 # selection restricts a referent: `tworo` is "which person", against open
-# `toro`, "who". Kevin's ruling, 2026-08-01.
+# `toro`, "who". Like the open marker, it may instead select a predicate from
+# a salient set of actions. Kevin's ruling, 2026-08-01.
 [[morpheme]]
 id = "selective-question"
 gloss = "Q.SEL"
 role = "speech-act"
-attaches_to = ["nominal"]
+attaches_to = ["verb", "nominal"]
 position = "prefix"
 alternation = "harmonic"
 front_stem = "twe"

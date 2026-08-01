@@ -280,6 +280,18 @@ class Meaning::ScopeDisagrees is Exception {
     }
 }
 
+#| A question kind belongs only to an interrogative. Kept separate from scope:
+#| scope says where the marker landed, while kind says whether the answer is open
+#| or selected from a salient set.
+class Meaning::QuestionKindDisagrees is Exception {
+    has Str $.speech-act   is required;
+    has Str $.question-kind is required;
+
+    method message(--> Str) {
+        "a $!speech-act sentence cannot carry question kind $!question-kind"
+    }
+}
+
 # ----------------------------------------------------------------- the model ---
 
 #| The model named something the declarations do not contain. Carries what it
