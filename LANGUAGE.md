@@ -157,6 +157,31 @@ The writable lexicon now contains no disharmonious entries, and the test suite
 enforces that invariant. The Scrivener project retains the attested forms
 unchanged; `data/examples.toml` has been brought forward with everything else.
 
+### The repair was declared complete twice, and finished the second time
+
+The paragraph above was written on 2026-07-28 and was wrong about being done.
+Three entries survived it: `thwaswo`, `twaswo` and `thwashaswo`, repaired on
+2026-08-01 to `thwaswe`, `twaswe` and `thwashaswe`.
+
+**They survived because the invariant that was enforced is not the invariant
+that was needed.** "No disharmonious entries" asks whether a word's vowels agree
+with each other. `thwaswo` is `a` plus `o`, which is neutral plus back, so it
+agrees with itself perfectly. It was never disharmonious. It was built from the
+wrong alternant, and those are different properties.
+
+The three are exactly the neutral stems. Before harmony, `-swo` was simply the
+infinitive; the repair pass converted every stem that was visibly front and left
+the neutral ones alone, because nothing about them looked broken. Every front and
+back infinitive in the lexicon was already correct.
+
+**The rule they were checked against was never in doubt.** Governance is by the
+stem, and neutral counts as front, which `data/lexicon.toml` states on the marker
+entries themselves: `swe` is glossed "front or neutral".
+
+`t/29-alternants.rakutest` now enforces the invariant that was missing, over every
+file in the repository rather than the lexicon and corpus alone. That scope is
+deliberate: `tumame` below was reached by neither.
+
 **Two corrections to the 2023 record**, which the Scrivener source preserves
 faithfully and should keep preserving:
 
@@ -196,6 +221,18 @@ could notice.
 One thing it cost: the autonym was the smoke test in `tests/test_coretext.py`
 partly because `rone-` exercised the left-pointing chevron, and `rono-` does not.
 `tumame` covers that position, and the comment there now says so.
+
+**`tumame` is not a Ronosathwasha word and is not meant to be.** It is `u`, `a`,
+`e`, so it holds a back vowel and a front vowel at once and violates harmony
+outright. That is deliberate and it cannot be otherwise: the chevron points at
+where the vowel sits, so up-right is close back `u` and left is mid front `e`,
+and no harmonic word can contain both. A shaping test needs the two glyph
+directions in one run; the grammar forbids the word that would produce them. The
+test wins, because it is testing CoreText rather than the language.
+
+Recorded here because a plausible-looking word in a test file is exactly what
+gets copied into the corpus by someone in a hurry. `t/29-alternants.rakutest`
+carries it as a named exemption rather than leaving the intent in a comment.
 
 ## 7. The subject particle is `-ri/-ru`
 
@@ -370,7 +407,7 @@ grammar:
 
 - `thwashamwu`: language-expression, from `thwasha` (language) plus `mwu`
   (thing);
-- `thwashaswo`: to speak or say, the language noun made verbal;
+- `thwashaswe`: to speak or say, the language noun made verbal;
 - `teswe`: to ask, the front question marker `te` made verbal.
 
 `thwashamwu` denotes a bounded piece of language without specifying its size.
@@ -378,7 +415,7 @@ In ordinary use, the smallest convenient language-thing is usually a word, so
 "word" is its default reading. Context may widen it to an expression,
 utterance, passage, or inscription.
 
-`thwashaswo` does not yet absorb "tell." Saying content and telling a recipient
+`thwashaswe` does not yet absorb "tell." Saying content and telling a recipient
 have different argument structures, so that extension needs an explicit
 decision rather than an English gloss silently merging them.
 

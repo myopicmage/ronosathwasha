@@ -1,0 +1,201 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Alternants;
+
+plan 10;
+
+# Every alternating affix in the repository, checked against the harmony class
+# of the stem it attached to. `Ronosathwasha::Alternants` carries the reasoning;
+# this file decides where to look.
+#
+# ## What gets swept, and the principle
+#
+# `t/03-harmony.rakutest` checks the lexicon and the corpus, which is where words
+# were assumed to live. `tumame` reached neither: it exists in a Python test file
+# and in a sentence in `LANGUAGE.md`, and it violates harmony outright. Narrowing
+# the sweep to the data files is what let it survive from December 2023.
+#
+# So the rule here is not a directory list. **Everything that claims to state
+# current Ronosathwasha is swept**, wherever it lives: the declarations, the
+# published pages, the design record, and the word lists the font pipeline
+# shapes.
+#
+# What is excluded is excluded for saying the opposite. `t/` and `lib/` are full
+# of deliberately wrong words, because that is what a parser's tests are made of:
+# `memirireswe` carries the wrong negator on purpose and `@bad-corpus` is named
+# for it. Sweeping them would assert that a fixture is a claim about the
+# language, which inverts its meaning.
+#
+# Comments are excluded everywhere for a duller reason: English divides as
+# Ronosathwasha more often than is comfortable. `lose`, `tone`, `done`, `lone`
+# and `detonate` all parse, and the map would grow with every paragraph anyone
+# writes. Markdown is the exception, because backticks mark the language there
+# and prose is already separated from citation.
+#
+# ## Why an expected map rather than a clean zero
+#
+# The same argument as `t/28-inventory.rakutest`. Some mismatches are correct:
+# `LANGUAGE.md` cites `rone` and `thwaswo` as the forms that were repaired, and
+# a document about repairing them has to be able to name them. `%expected` is
+# every such case, and it is the assertion. A new entry fails as an unclassified
+# defect, a disappearing entry fails as a silent repair, and a changed correction
+# fails as a changed defect.
+#
+# English is not swept. `the`, `me`, `no`, `so`, `to` and `di` are all live
+# morphemes, so prose would drown this in false hits. Only marked spans are read:
+# backticks in Markdown, quoted literals in code, and the structured fields of
+# the data files.
+
+my IO::Path $root = repository-root;
+my IO::Path $data = $root.add('data');
+
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+my $audit = alternants($script, $lexicon, $morphology);
+
+# ------------------------------------------------- the engines, on purpose ---
+#
+# The sweep below is only as good as what `check` can see, and a sweep that
+# reports nothing looks identical whether it is clean or blind. These five pin
+# each path so that a regression shows up here, named, rather than as a silent
+# green over a hole.
+#
+# The prefixed case is the one that was missing: rebuilding cannot reach a
+# prefixed word the lexicon lists, because `parse-word` treats a listed word as
+# one indivisible stem. `toro` respelled `tero` was accepted as its own stem and
+# reported by nothing at all.
+
+is $audit.check('tero'), 'toro',
+    'a prefixed word carrying the wrong alternant is caught by decomposition';
+
+nok $audit.check('toro').defined,
+    'and the correctly prefixed word it was built from is not';
+
+is $audit.check('domirime'), 'demirime',
+    'an inflected form the lexicon does not list is caught by rebuilding';
+
+nok $audit.check('rorothwaswo').defined,
+    'a longer base spelling the word correctly clears a shorter one that does not';
+
+nok $audit.check('thinəswe').defined,
+    'and a word that is simply right stays quiet';
+
+# ------------------------------------------------------------- the harvest ---
+
+#| Everything worth checking, as file-relative location to word.
+my @candidates;
+
+sub offer(Str:D $where, Int:D $line, Str:D $span) {
+    for $span.words -> $raw {
+        my $word = $raw.subst(/^ <[-`'"]>+ /, '').subst(/ <[.?!,;:*`'"-]>+ $/, '').lc;
+
+        next unless $word.chars > 1;
+
+        # Anything holding a character Ronosathwasha cannot spell is an
+        # identifier, a path or a language that is not this one.
+        next if $word ~~ / <-[a..z əðθ]> /;
+
+        @candidates.push: %( :$where, :$line, :$word );
+    }
+}
+
+#| The directories a working tree accumulates, plus the two that hold fixtures
+#| rather than claims. See the header for why `t/` and `lib/` are not read.
+my $ignored = /^ [ '.' | '__' ] | ^ [ build | node_modules | t | lib ] $ /;
+
+sub walk(IO::Path:D $dir) {
+    gather for $dir.dir.sort -> $entry {
+        next if $entry.basename ~~ $ignored;
+        next if $entry.basename.ends-with('.ufo');
+
+        $entry.d ?? take slip walk($entry) !! take $entry;
+    }
+}
+
+my @files = walk($root).grep({ .extension ~~ any <md py html toml> });
+
+for @files -> $file {
+    my $where = $file.relative($root);
+    my $ext   = $file.extension;
+
+    for $file.slurp.lines.kv -> $i, $line {
+        my $at = $i + 1;
+
+        # Comments stripped before anything is read, everywhere but Markdown.
+        # `#` inside a string literal takes the rest of the line with it, which
+        # loses a little and costs nothing: no Ronosathwasha word contains one.
+        my $source = $ext eq 'md' ?? $line !! $line.subst(/ '#' .* /, '');
+
+        given $ext {
+            when 'md' {
+                offer($where, $at, ~.<s>) for $source.match(/ '`' $<s>=[<-[`]>+] '`' /, :g);
+            }
+
+            when 'html' {
+                offer($where, $at, ~.<s>) for $source.match(/ 'aria-label="' $<s>=[<-["]>+] '"' /, :g);
+            }
+
+            default {
+                offer($where, $at, ~.<s>) for $source.match(/ '"' $<s>=[<-["]>*] '"' /, :g);
+                offer($where, $at, ~.<s>) for $source.match(/ "'" $<s>=[<-[']>*] "'" /, :g);
+            }
+        }
+    }
+}
+
+# ------------------------------------------------------------- the verdict ---
+
+my %found;
+my $checked = 0;
+
+for @candidates -> %c {
+    $checked++;
+
+    my $correct = $audit.check(%c<word>);
+    next unless $correct.defined;
+
+    # Keyed by file and word rather than by line, so moving a paragraph does not
+    # rewrite the map. Two spellings of the same error in one file are one entry.
+    %found{ "%c<where> %c<word>" } = $correct;
+}
+
+# --------------------------------------------------- the acknowledged cases ---
+
+my %expected =
+    # A document about repairing these forms has to be able to name them.
+    'LANGUAGE.md rone'        => 'rono',
+    'LANGUAGE.md thwaswo'     => 'thwaswe',
+    'LANGUAGE.md twaswo'      => 'twaswe',
+    'LANGUAGE.md thwashaswo'  => 'thwashaswe',
+
+    # Deliberately not Ronosathwasha. `u` is back and `e` is front, so no legal
+    # word holds both, and a shaping test needs the two chevron directions in one
+    # run. Decision 6 carries the full argument.
+    'LANGUAGE.md tumame'              => 'tumamo',
+    'tests/test_coretext.py tumame'   => 'tumamo',
+
+    # `ladu` ("but") is one morpheme and divides as `la` plus the continuous
+    # marker by coincidence. Decomposition cannot tell those apart; a listed word
+    # is the authority on itself.
+    'data/lexicon.toml ladu' => 'ladi',
+    ;
+
+ok @files.elems > 20, "the sweep reaches more than one directory ({ @files.elems } files)";
+
+ok $checked > 500, "and it actually reads them ($checked candidate words)";
+
+is-deeply (%found.keys.Set (-) %expected.keys.Set).keys.sort.List, (),
+    'no unclassified mismatches: a new entry here is a new defect';
+
+is-deeply (%expected.keys.Set (-) %found.keys.Set).keys.sort.List, (),
+    'no stale exemptions: a repaired entry must leave this map';
+
+is-deeply %found.keys.grep({ %found{$_} ne (%expected{$_} // '') }).sort.List, (),
+    'no reclassifications: a changed correction is a changed defect';

@@ -25,10 +25,19 @@ pytestmark = [
     pytest.mark.skipif(shutil.which("swift") is None, reason="needs the Swift toolchain"),
 ]
 
+# Chosen for glyph geometry, not for grammar. The chevron points at where the
+# vowel sits, so backness is the horizontal direction and height the vertical,
+# and covering every direction is what this list is for.
 WORDS = [
     "ronosathwasha",  # the autonym: right twice, below, glide, below
     "nishimi",        # up-left, and a derived consonant
-    "tumame",         # up-right, and left, which the autonym lost on being repaired
+    # NOT RONOSATHWASHA, on purpose. `u` is back and `e` is front, so this
+    # violates harmony and no legal word could replace it: up-right and left are
+    # the two directions the language will not put in one word. The autonym lost
+    # left on being repaired to `rono-`, and a shaping test still needs it.
+    # `t/29-alternants.rakutest` carries this word as a named exemption. Do not
+    # copy it into the lexicon or the corpus.
+    "tumame",         # up-right, and left
     "twatha",         # a glide over a derived consonant
     "dhələ",          # both marks, and the ring that encloses rather than sits
 ]
