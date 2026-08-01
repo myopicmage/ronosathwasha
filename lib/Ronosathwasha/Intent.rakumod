@@ -282,17 +282,31 @@ sub bare-stem-of(Str:D $form, @markers) {
 #| meaning. `miriswese` is what the realizer built from it, and the reader
 #| necessarily divides that as the nominal `miri` plus copula plus tense: a
 #| verbal past became a nominal past, silently, end to end.
+#| Vocabularies derived from the declarations, kept per declaration object.
+#|
+#| Keyed on `.WHICH`, so two `Lexicon` objects built from the same file get
+#| separate entries and a mutated one could never be served a stale answer.
+#| Nothing mutates a declaration after loading.
+#|
+#| These are pure functions of files read once, and `intent-from` rebuilt both on
+#| every single call. `t/28` alone made roughly a thousand identical
+#| recomputations of each. A `Set` is safe to cache where a `Seq` would not be,
+#| since it is a value rather than a one-shot iterator.
+my %VOCABULARY;
+
 sub predicate-roots(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
-    my @markers = $morphology.by-id('infinitive').forms;
-    my @listed  = listed-words($lexicon);
+    %VOCABULARY{"roots|{ $lexicon.WHICH }|{ $morphology.WHICH }"} //= do {
+        my @markers = $morphology.by-id('infinitive').forms;
+        my @listed  = listed-words($lexicon);
 
-    my @roots = @listed.map(-> $form {
-        my @bare = bare-stem-of($form, @markers);
+        my @roots = @listed.map(-> $form {
+            my @bare = bare-stem-of($form, @markers);
 
-        @bare ?? @bare.Slip !! $form;
-    });
+            @bare ?? @bare.Slip !! $form;
+        });
 
-    @roots.Set;
+        @roots.Set;
+    };
 }
 
 #| Every stem a model may name as a participant: whole words that can stand as
@@ -307,7 +321,7 @@ sub predicate-roots(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is exp
 #| a pair, callers hold both arguments, and an asymmetric signature would make
 #| the swap between them a refactor instead of a name change.
 sub participant-stems(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
-    listed-words($lexicon).Set;
+    %VOCABULARY{"stems|{ $lexicon.WHICH }"} //= listed-words($lexicon).Set;
 }
 
 #| Refuse an answer whose stems ask a question its other fields deny.

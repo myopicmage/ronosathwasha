@@ -132,26 +132,34 @@ class SemanticProjection is export {
 #| begins with `to` and is not a question, so only words the `[interrogative]`
 #| section names are candidates, and even then only when what remains is itself a
 #| declared word.
+#| Kept per declaration pair, for the reason `Intent` keeps its vocabularies:
+#| this is a pure function of files read once, and `semantic-projection` rebuilt
+#| it on every call, twice per comparison. A `Map` is a value, so caching it
+#| carries none of the one-shot hazard a `Seq` would.
+my %BASES;
+
 sub interrogative-bases(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
-    my @prefixes = $morphology.by-id('question').forms;
-    my Set $listed = $lexicon.forms;
+    %BASES{"{ $lexicon.WHICH }|{ $morphology.WHICH }"} //= do {
+        my @prefixes = $morphology.by-id('question').forms;
+        my Set $listed = $lexicon.forms;
 
-    my %bases;
+        my %bases;
 
-    for $lexicon.interrogative-words.keys -> $word {
-        for @prefixes -> $prefix {
-            next unless $word.starts-with($prefix);
+        for $lexicon.interrogative-words.keys -> $word {
+            for @prefixes -> $prefix {
+                next unless $word.starts-with($prefix);
 
-            my Str $base = $word.substr($prefix.chars);
+                my Str $base = $word.substr($prefix.chars);
 
-            next unless $listed{$base};
+                next unless $listed{$base};
 
-            %bases{$word} = $base;
-            last;
+                %bases{$word} = $base;
+                last;
+            }
         }
-    }
 
-    %bases.Map;
+        %bases.Map;
+    };
 }
 
 #| The canonical stem: an interrogative word becomes its noun, everything else

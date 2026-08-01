@@ -77,11 +77,16 @@ plan 7;
 # decode, a realization, and a full sentence reading. The question dimensions are
 # most of it, 324 runs from the two questioned classes and their kinds.
 #
-# That is now the slowest thing in `make check` by a wide margin, and the fix
-# when it stops being tolerable is memoization rather than coverage:
-# `predicate-roots`, `participant-stems` and `interrogative-bases` are rebuilt
-# from the declarations on every single call, so roughly a thousand identical
-# recomputations of three sets that cannot change during a run.
+# That is the slowest thing in `make check` by a wide margin, and this comment
+# used to name the wrong fix. Memoizing the derived vocabularies looked like the
+# answer and was measured at a few percent: `predicate-roots`,
+# `participant-stems`, `interrogative-bases`, `listed-stems` and `stems-from` are
+# cached per declaration object now, and it barely moved.
+#
+# **The cost is `read-sentence`, at roughly a third of a second a call.** Nine
+# hundred of those is the runtime, near enough. Anything that helps has to make
+# the reader cheaper or the case list shorter, and the case list is the thing
+# this file exists to be long.
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));

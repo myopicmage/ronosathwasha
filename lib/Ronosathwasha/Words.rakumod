@@ -158,27 +158,52 @@ grammar Lexicalised is Morphemes {
 #| Left in, `di` and `me` and `yi` compete with real stems, and `medime` divides
 #| as negation plus `di` plus `me`, which is three morphemes that all exist and a
 #| word that means nothing.
-sub listed-stems(Lexicon:D $lexicon --> Seq) {
-    my $affixes = $lexicon.affixes.map(*.roman).Set;
+#| Derived-from-declarations results, kept per declaration object.
+#|
+#| Keyed on `.WHICH`, which for a class instance is its identity, so two
+#| `Lexicon` objects built from the same file get separate entries and a mutated
+#| one could never be served a stale answer. Nothing here mutates a declaration
+#| after loading, and the cache would be wrong rather than slow if anything did.
+#|
+#| Worth the machinery because these are pure functions of files that are read
+#| once and then never change, called once per word per parse. `t/28` alone made
+#| roughly a thousand identical recomputations of each.
+my %STEM-CACHE;
 
-    $lexicon.entries
-        .map(*.roman)
-        .grep({ not $affixes{$_} and not .contains(' ') });
+#| **A `List` goes in the cache and the `Seq` is made on the way out.** Caching
+#| the `Seq` instead caches a one-shot iterator: the first caller drains it and
+#| every later one gets an exhausted sequence, which does not error where it was
+#| cached. It surfaces as a perfectly ordinary word failing to parse, three
+#| frames away, because the stem inventory silently arrived empty.
+#|
+#| The parentheses are what put `.Seq` on the assignment's value rather than on
+#| the `do` block, and that one character of precedence is the whole difference.
+sub listed-stems(Lexicon:D $lexicon --> Seq) {
+    (%STEM-CACHE{"listed|{ $lexicon.WHICH }"} //= do {
+        my $affixes = $lexicon.affixes.map(*.roman).Set;
+
+        $lexicon.entries
+            .map(*.roman)
+            .grep({ not $affixes{$_} and not .contains(' ') })
+            .List;
+    }).Seq;
 }
 
 sub stems-from(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
-    my $infinitive = $morphology.by-id('infinitive');
-    my @markers = $infinitive.forms;
+    (%STEM-CACHE{"from|{ $lexicon.WHICH }|{ $morphology.WHICH }"} //= do {
+        my $infinitive = $morphology.by-id('infinitive');
+        my @markers = $infinitive.forms;
 
-    my @listed = listed-stems($lexicon);
+        my @listed = listed-stems($lexicon);
 
-    my @bare = @listed.map(-> $form {
-        @markers.first({ $form.ends-with($_) && $form.chars > .chars })
-            ?? $form.substr(0, $form.chars - @markers.first({ $form.ends-with($_) }).chars)
-            !! Empty
-    });
+        my @bare = @listed.map(-> $form {
+            @markers.first({ $form.ends-with($_) && $form.chars > .chars })
+                ?? $form.substr(0, $form.chars - @markers.first({ $form.ends-with($_) }).chars)
+                !! Empty
+        });
 
-    (@listed, @bare).flat.unique;
+        (@listed, @bare).flat.unique.List;
+    }).Seq;
 }
 
 #| The lexicon section whose entries are predicates. Everything else that can be
@@ -350,10 +375,25 @@ sub divide(
     Mu           $grammar,
                  @inventory,
 ) {
-    my @current = $morphology.current;
+    # Partitioned once per morphology rather than once per word. This runs on
+    # every division, and with the tie-break a word can now be divided twice.
+    my %by-position = %STEM-CACHE{"pos|{ $morphology.WHICH }"} //= do {
+        my @current = $morphology.current;
 
-    my @prefix-morphemes = @current.grep(*.position == Prefix);
-    my @suffix-morphemes = @current.grep(*.position == Suffix);
+        %(
+            prefix => @current.grep(*.position == Prefix).List,
+            suffix => @current.grep(*.position == Suffix).List,
+        );
+    };
+
+    # `@( )` rather than a bare lookup. A `List` stored as a hash value arrives
+    # itemized, in a scalar container, so `my @x = %h<k>` makes a one-element
+    # array holding the List instead of flattening it. The symptom is two frames
+    # away and names the wrong thing entirely: "No such method 'forms' for
+    # invocant of type 'List'", because the loop below then iterates one element
+    # that is the whole list.
+    my @prefix-morphemes = @(%by-position<prefix>);
+    my @suffix-morphemes = @(%by-position<suffix>);
 
     my @*PREFIXES = @prefix-morphemes.map({ .forms.Slip }).unique;
     my @*SUFFIXES = @suffix-morphemes.map({ .forms.Slip }).unique;
