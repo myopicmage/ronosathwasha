@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 
-plan 37;
+plan 43;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -194,3 +194,35 @@ is-deeply nominal('memirireswe').&shape,
 # order must not divide, or the fixed order stops being recoverable structure.
 nok nominal('temomirireswe').defined,
     'speech act before negation is not a word';
+
+# ------------------------------------------------- fewest stems breaks the tie ---
+#
+# The two passes both succeed on a `to`-prefixed `ro`-initial stem, and until the
+# tie-break the listed one won unconditionally. `toro` is a listed word, so
+# `torororu` divided as the compound `toro` + `ro`, "who-person", rather than as
+# `roro` under a question marker, which is what was said.
+#
+# `Morphemes` has claimed the governing rule since it was written: taking the
+# fewest stems "prefers inflection over compounding, which is the reading the
+# corpus attests". The listed-first pass was quietly violating it.
+
+is-deeply split('torororu').stems.List, ('roro',),
+    'a one-stem inflection beats a two-stem compound';
+is-deeply split('torororu').prefixes.map(*.id).List, ('question',),
+    'so the marker is recognised as the prefix it is';
+
+is-deeply split('tororotwatharu').stems.List, ('rorotwatha',),
+    'and the longer stem too, where the compound would have been three';
+
+# The tie still goes to the listed division, which is the half that must not
+# move: both of these are one stem against one.
+is-deeply split('tomwuyu').stems.List, ('tomwu',),
+    'a tie keeps the listed word, so tomwu does not become to plus mwu';
+is-deeply split('thinəmedi').stems.List, ('thinə',),
+    'and thinəmedi stays an inflection rather than the compound thinə plus medi';
+
+# `rono` is the case the tie-break cannot reach, and the one Kevin has not ruled
+# on: `toro` + plural and `to` + `rono` are one stem each, so the listed reading
+# wins by the tie rule and "which people" loses to "who (plural)".
+is-deeply split('toronoru').stems.List, ('toro',),
+    'rono is one stem against one, so the tie leaves it where it was';

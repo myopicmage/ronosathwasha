@@ -67,13 +67,11 @@ plan 7;
 # are realized, so they leave the matrix entirely rather than being classified
 # by it: the forty did not become correct, they became unaskable.
 #
-# The twenty-four owed entries are the questioned classes, and their headings
-# below say what they are. Short version: this matrix drove declaratives
-# thoroughly and questions barely, so every construction the capabilities block
-# promises the model about asking went unmeasured. Twelve of them were found by
-# review 047, nine more by looking at the questioned predicate nobody had driven,
-# and three by driving decision 29's selective marker, which arrived on main
-# outside this file entirely.
+# The nine owed entries are the questioned classes, and their heading below says
+# what is left. Twenty-four were measured once this file started driving the
+# question dimensions it had been skipping; `parse-word`'s fewest-stems tie-break
+# repaired fifteen of them, and the remainder is `rono`, which needs a ruling,
+# plus the questioned face of the six declared lexicalizations.
 #
 # This file costs about two minutes on its own: 918 pipeline runs, each an intent
 # decode, a realization, and a full sentence reading. The question dimensions are
@@ -238,50 +236,37 @@ my %listed-inflection =
 # anything the language decided, kept so the repair has something to shrink,
 # which is what this map was originally for.
 #
-# **One mechanism, across all twenty-four.** `to` plus any stem beginning with
-# `ro` also divides as the listed word `toro`, and `parse-word`'s `Lexicalised`
-# pass prefers a listed word reached with zero prefixes. That pass exists to stop
-# `toro` decomposing into `to` plus `ro`, so this is the `totoro` guard producing
-# wrong readings rather than a parser bug. `classify` already returns `Ambiguous`
-# for every one of them; `Actions` then takes the frugal division deliberately,
-# because refusing would reject `Lari thinəmedi`, which Kevin wrote. The
-# resolution policy is the defect and nothing is hidden at the parse layer.
+# **Fifteen of these were repaired by `parse-word`'s fewest-stems tie-break**,
+# and what is left divides into exactly two remainders.
 #
-# The three lexicalized stems fail for the other reason already on the ledger:
-# `nara`, `she` and `thwa` inflect onto listed words, so questioning them lands
-# on `tenarame`, `tesheme` and `tethwame` whichever marker is used.
+# The repaired ones were `to` plus a `ro`-initial stem also dividing as the
+# listed word `toro`. The tie-break applies the rule `Morphemes` had claimed all
+# along, that fewest stems "prefers inflection over compounding": `torororu`
+# stops being the two-stem compound `toro`+`ro` and becomes the one-stem `roro`
+# under a question marker, which is what was said.
 #
-# The proposed repair, unbuilt: tie-break by fewest stems, then prefer the listed
-# division. `Morphemes` already claims fewest stems "prefers inflection over
-# compounding", and the listed-first pass violates it, taking `toro`+`ro` (two
-# stems) over `roro` (one). That clears the `ro`-initial entries and leaves
-# `tomwuyu` and `thinəmedi` untouched, both being one stem against one.
+# **`rono` survived it, and that is the ruling Kevin has not made.** Both its
+# divisions have one stem, `toro`+plural against `to`+`rono`, so nothing
+# mechanical separates "who (plural)" from "which people". Three entries wait on
+# it, and only on it.
 #
-# The runtime boundary refuses all of them correctly. What is wrong is that the
+# **`nara`, `she` and `thwa` survived for the other reason on the ledger.** They
+# inflect onto listed words, so questioning them lands on `tenarame`, `tesheme`
+# and `tethwame` whichever marker is used, and `twe-` cannot help with a
+# collision that is about the stem. These six are the questioned face of the six
+# declared lexicalizations above, so a ruling that those are deliberate arguably
+# reaches these too; nobody has said so and this does not assume it.
+#
+# The runtime boundary refuses all nine correctly. What is wrong is that the
 # capabilities block promises the model this construction works, so the prose is
-# ahead of the grammar until they are repaired.
+# ahead of the grammar until they are repaired or declared.
 my %questioned-participants =
     'questioned open participant rono subject' => 'changes participants (toronoru thinəme?)',
-    'questioned open participant rono object' => 'changes participants (toronoyu thinəme?)',
-    'questioned open participant roro subject' => 'changes participants (torororu thinəme?)',
-    'questioned open participant roro object' => 'changes participants (tororoyu thinəme?)',
-    'questioned open participant rorotwatha subject' => 'changes participants (tororotwatharu thinəme?)',
-    'questioned open participant rorotwatha object' => 'changes participants (tororotwathayu thinəme?)',
-    'questioned open participant roroso subject' => 'unreadable (tororosoru thinəme?)',
-    'questioned open participant roroso object' => 'unreadable (tororosoyu thinəme?)',
-    'questioned open participant rorotho subject' => 'unreadable (tororothoru thinəme?)',
-    'questioned open participant rorotho object' => 'unreadable (tororothoyu thinəme?)',
-    'questioned open participant rorotwathaso subject' => 'unreadable (tororotwathasoru thinəme?)',
-    'questioned open participant rorotwathaso object' => 'unreadable (tororotwathasoyu thinəme?)';
+    'questioned open participant rono object' => 'changes participants (toronoyu thinəme?)';
 
 # The class neither review looked at, both having watched the participants.
 my %questioned-predicates =
     'questioned open predicate rono' => 'changes predicate (toronomo?)',
-    'questioned open predicate roro' => 'changes predicate (tororomo?)',
-    'questioned open predicate rorotwatha' => 'changes predicate (tororotwathamo?)',
-    'questioned open predicate roroso' => 'changes predicate,tense (tororosomo?)',
-    'questioned open predicate rorotho' => 'changes predicate,tense (tororothomo?)',
-    'questioned open predicate rorotwathaso' => 'changes predicate,tense (tororotwathasomo?)',
     'questioned open predicate nara' => 'unreadable (tenarame?)',
     'questioned open predicate she' => 'unreadable (tesheme?)',
     'questioned open predicate thwa' => 'unreadable (tethwame?)',
@@ -312,7 +297,7 @@ is-deeply %map.keys.grep({ (%expected{$_}:exists) && %map{$_} ne %expected{$_} }
     (), 'no reclassifications: a changed mechanism is a changed defect';
 
 is %map.elems, %expected.elems,
-    'the boundary is exactly seven declared entries plus twenty-four owed';
+    'the boundary is exactly seven declared entries plus nine owed';
 
 # The ruling was for six, named one by one. A seventh arriving in that hash
 # without a ruling behind it is the thing this pins: the split is the record of

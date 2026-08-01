@@ -312,9 +312,34 @@ sub parse-word(
 
     my $listed = divide($lexicon, $morphology, $word, Lexicalised, listed-stems($lexicon));
 
-    return $listed if $listed.defined;
+    # One stem cannot be beaten, and most words are one stem, so the productive
+    # pass is skipped entirely for them. Exact rather than approximate: the
+    # comparison below can only prefer a division with *fewer* stems, and one is
+    # the floor.
+    return $listed if $listed.defined && $listed.stems.elems == 1;
 
-    divide($lexicon, $morphology, $word, Morphemes, stems-from($lexicon, $morphology));
+    my $productive = divide($lexicon, $morphology, $word, Morphemes, stems-from($lexicon, $morphology));
+
+    return $productive unless $listed.defined;
+    return $listed unless $productive.defined;
+
+    # Fewest stems wins, and only then does the listed reading. The grammar has
+    # claimed this since `Morphemes` was written: taking the fewest stems
+    # "prefers inflection over compounding, which is the reading the corpus
+    # attests". The listed-first pass was quietly violating it.
+    #
+    # `torororu` is the case that exposed it. Listed gives `toro` + `ro`, two
+    # stems, a compound meaning "who-person"; productive gives `roro` under a
+    # question marker, one stem, which is what was actually said. Preferring the
+    # listed word was right when it stopped `toro` decomposing into `to` + `ro`,
+    # and wrong the moment a longer `ro`-initial stem existed.
+    #
+    # The tie still goes to the listed division, which is what keeps `tomwuyu`
+    # reading as the word `tomwu` rather than as `to` + `mwu`, and `thinəmedi`
+    # reading as an inflection rather than the compound `thinə` + `medi`.
+    return $productive if $productive.stems.elems < $listed.stems.elems;
+
+    $listed;
 }
 
 #| One pass: a grammar and a stem inventory, applied.
