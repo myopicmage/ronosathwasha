@@ -11,7 +11,7 @@ use Ronosathwasha::Dialogue;
 use Ronosathwasha::Intent;
 use Ronosathwasha::Projection;
 
-plan 18;
+plan 23;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -19,6 +19,11 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 
 sub intent(%raw) { intent-from($lexicon, $morphology, %raw) }
+
+#| The declarations threaded once. `semantic-projection` needs them because an
+#| interrogative word projects as the noun it was built from, and knowing which
+#| words those are is a question for the lexicon.
+sub project($meaning) { semantic-projection($lexicon, $morphology, $meaning) }
 
 sub express(*%extra) {
     intent(%(
@@ -62,18 +67,18 @@ my $one = express(arguments => [ $%( 'role' => 'subject', stem => 'la' ),
 my $two = express(arguments => [ $%( 'role' => 'object',  stem => 'runə' ),
                                  $%( 'role' => 'subject', stem => 'la' ) ]);
 
-ok semantic-projection($one).matches(semantic-projection($two)),
+ok project($one).matches(project($two)),
     'reordered participants are one meaning, since decision 17 frees the order';
 
 my $single = express();
 my $double = express(arguments => [ $%( 'role' => 'subject', stem => 'la' ),
                                     $%( 'role' => 'subject', stem => 'la' ) ]);
 
-ok semantic-projection($single).matches(semantic-projection($single)),
+ok project($single).matches(project($single)),
     'a projection matches itself';
-nok semantic-projection($single).matches(semantic-projection($double)),
+nok project($single).matches(project($double)),
     'a repeated participant is not the single one, undecided rather than erased';
-is-deeply semantic-projection($single).differences(semantic-projection($double)),
+is-deeply project($single).differences(project($double)),
     ('participants',),
     'and the report names the one axis that disagrees';
 
@@ -118,8 +123,8 @@ for @cases -> (:key($case), :value($sent)) {
 
         isa-ok $heard, Understood, "the realization of $case reads back at all";
 
-        my $before = semantic-projection($sent);
-        my $after  = semantic-projection($heard.reading);
+        my $before = project($sent);
+        my $after  = project($heard.reading);
 
         ok $before.matches($after),
             "and means what was meant"
@@ -148,8 +153,58 @@ my $heard = read-sentence($script, $lexicon, $morphology, $said);
 
 is $said, 'miriswese.', 'the realizer happily inflects the finished infinitive';
 isa-ok $heard, Understood, 'and the reader happily divides the result';
-nok semantic-projection($imposter).matches(semantic-projection($heard.reading)),
+nok project($imposter).matches(project($heard.reading)),
     'into a different meaning, which is what the split now makes unsendable';
-is-deeply semantic-projection($imposter).differences(semantic-projection($heard.reading)),
+is-deeply project($imposter).differences(project($heard.reading)),
     ('nominal', 'predicate'),
     'a verbal miriswe became the nominal miri, named axis by axis';
+
+# ---------------------------------- an interrogative word is its noun, questioned ---
+#
+# Kevin's ruling: an interrogative word is `to-` plus a relevant noun by
+# formation, so `to+mwu+yu` and `tomwu+yu` are convergence rather than ambiguity.
+# Unnormalised, this round trip reports a changed participant on a corpus
+# sentence: asking about the object `mwu` writes `tomwuyu`, and the reader
+# divides that as the listed word `tomwu`, because it is one.
+#
+# Found by plan 039 stop 4's admissibility boundary, which refused the sentence.
+# t/28 could not have found it: its matrix drives participants in declaratives
+# only, so an ordinary noun that becomes an interrogative when marked was never
+# questioned by it at all.
+
+my $asked = intent(%(
+    kind => 'express', predicate => 'thinə', speech_act => 'interrogative',
+    question_scope => 'object', tense => 'present', aspect => 'simple',
+    polarity => 'affirmative', modality => 'asserted',
+    arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                   $%( 'role' => 'object',  stem => 'mwu' ) ],
+));
+
+my $written = realize-intent($script, $lexicon, $morphology, $asked);
+my $back    = read-sentence($script, $lexicon, $morphology, $written);
+
+is $written, 'lari tomwuyu thinəme?', 'asking about a thing writes the corpus word';
+ok project($asked).matches(project($back.reading)),
+    'and mwu-under-object-question is the same meaning as tomwu';
+
+# Both constructors, not just the reading. Naming `tomwu` directly must land on
+# the same canonical form, or the normalisation would only move the mismatch.
+my $named = intent(%(
+    kind => 'express', predicate => 'thinə', speech_act => 'interrogative',
+    question_scope => 'object', tense => 'present', aspect => 'simple',
+    polarity => 'affirmative', modality => 'asserted',
+    arguments => [ $%( 'role' => 'subject', stem => 'la' ),
+                   $%( 'role' => 'object',  stem => 'tomwu' ) ],
+));
+
+ok project($named).matches(project($asked)),
+    'naming the question word and marking the noun are one meaning';
+
+# The guard that stops it stripping by accident. `tono` is a drink, not a
+# question about `no`, and only the `[interrogative]` section may license a cut.
+my Map $bases = interrogative-bases($lexicon, $morphology);
+
+is-deeply $bases.keys.sort.List,
+    ('toduruu', 'toluumo', 'tomwu', 'tonootha', 'toro'),
+    'every interrogative recovers its noun';
+nok $bases{'tono'}:exists, 'and a listed word that merely starts with to does not';

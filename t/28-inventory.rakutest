@@ -80,8 +80,8 @@ sub check(Str:D $key, %raw) {
         return;
     }
 
-    my $before = semantic-projection($sent);
-    my $after  = semantic-projection($heard.reading);
+    my $before = semantic-projection($lexicon, $morphology, $sent);
+    my $after  = semantic-projection($lexicon, $morphology, $heard.reading);
 
     return if $before.matches($after);
 
