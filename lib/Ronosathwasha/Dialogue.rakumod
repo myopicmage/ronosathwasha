@@ -50,6 +50,30 @@ way a model naming a nonexistent word does. An unreadable input and an
 inexpressible meaning are ordinary results carried inside the C<Exchange>; a
 prompt that cannot be assembled is a broken configuration.
 
+=head2 Semantic admissibility, and why it is here
+
+Plan C<039> stop 4. C<intent-from> checks what the declarations can know: that
+C<thinu> is not a word, that a verb carries a tense, that an answer does not name
+a question word while claiming to declare. What it cannot know is whether the
+sentence built from an admitted intent still I<means> that intent, because
+answering needs the realizer, the reader and C<Projection>, all of which sit
+above it and none of which it may import.
+
+So the check lives here, in the turn, where all three are already in hand. The
+division is the point: the decoder checks what declarations can know, the turn
+checks what only the whole machinery can know, and neither reaches into the
+other.
+
+B<An inadmissible intent is not a C<Gap>.> The meaning exists, the morphemes
+exist, and the spelling is taken; nothing about the language is missing. A false
+gap looks exactly like a real finding, and the entire value of the gap channel is
+that Kevin can trust it, so this gets its own ordinary result. C<Inadmissible> is
+not a C<ResponseIntent> and never reaches C<LanguageEvidence.note>, which is
+enforced by the type rather than by a guard somebody has to remember.
+
+If the oracle wants the same check, that is when it extracts into a boundary
+module of its own. Not before: one caller is not a shared abstraction.
+
 =end pod
 
 unit module Ronosathwasha::Dialogue;
@@ -65,11 +89,53 @@ use Ronosathwasha::Actions;
 use Ronosathwasha::Realizer;
 use Ronosathwasha::Sentence;
 use Ronosathwasha::Intent;
+use Ronosathwasha::Projection;
 use Ronosathwasha::Model;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::ContextPolicy;
 use Ronosathwasha::TokenCounter;
+
+#| How an admitted intent failed to survive being said.
+#|
+#| Three, and they are genuinely different findings rather than three names for
+#| one. `NotRealized` means the grammar could not write it at all. `NotRead`
+#| means it wrote a sentence the reader could not divide. `MeaningChanged` means
+#| it wrote a perfectly good sentence that means something else, which is the
+#| dangerous one: it is the only failure that produces valid Ronosathwasha.
+our enum Inadmissibility is export <NotRealized NotRead MeaningChanged>;
+
+#| An intent the declarations admitted and the language could not carry.
+#|
+#| Deliberately not a `ResponseIntent`. The model chose a meaning and the choice
+#| was fine; what failed was expressing it, which is a fact about the language's
+#| spelling rather than about the answer. Composing `ResponseIntent` would let
+#| this reach `ConversationState`'s `meaning` slot and `LanguageEvidence.note`,
+#| and the latter's `Gap` candidate is exactly the thing plan `039` refuses to
+#| let a collision impersonate.
+class Inadmissible is export {
+    has Express         $.intent    is required;
+    has Inadmissibility $.mechanism is required;
+
+    #| The sentence the realizer wrote, when it got that far. Undefined for
+    #| `NotRealized` and defined for the other two, which is the whole difference
+    #| between "could not say it" and "said it and it meant something else".
+    has Str $.attempted;
+
+    #| Which projection axes disagreed, for `MeaningChanged` and empty otherwise.
+    #| A report that explains a mismatch rather than announcing one.
+    has Str @.axes;
+
+    method summary(--> Str) {
+        my $what = do given $!mechanism {
+            when NotRealized    { "could not be written" }
+            when NotRead        { "wrote { $!attempted.raku }, which does not read" }
+            when MeaningChanged { "wrote { $!attempted.raku }, which changes { @!axes.join(',') }" }
+        };
+
+        "inadmissible: { $!intent.summary } $what"
+    }
+}
 
 #| Everything one turn produced, including the parts that failed.
 class Exchange is export {
@@ -82,6 +148,11 @@ class Exchange is export {
     #| added. Feed it straight back into the next `take-turn`.
     has PromptContext:D $.context is required;
 
+    #| Set when the model's meaning was admitted and the sentence for it was not.
+    #| `said` is undefined whenever this is defined, and the pair is the whole
+    #| difference between "the bot answered" and "the bot had an answer".
+    has Inadmissible $.inadmissible;
+
     #| The conversation inside it. A method rather than a second attribute, so
     #| there is no way to hold a state that disagrees with the context holding it.
     method state(--> ConversationState) { $!context.state }
@@ -91,8 +162,22 @@ class Exchange is export {
     method gap(--> Gap) { $!intent ~~ Gap ?? $!intent !! Gap }
 
     method summary(--> Str) {
-        my $in  = self.understood ?? 'understood' !! $!understanding.summary;
-        my $out = $!said.defined  ?? $!said       !! ($!intent andthen .summary orelse 'nothing');
+        my $in = self.understood ?? 'understood' !! $!understanding.summary;
+
+        my $out = do {
+            if $!said.defined {
+                $!said
+            }
+            elsif $!inadmissible.defined {
+                $!inadmissible.summary
+            }
+            elsif $!intent.defined {
+                $!intent.summary
+            }
+            else {
+                'nothing'
+            }
+        };
 
         "$!heard -> $in -> $out"
     }
@@ -176,6 +261,48 @@ sub realize-intent(
     CATCH { default { .fail } }
 }
 
+#| Write the intent, then prove the sentence still means it.
+#|
+#| Returns the sentence, or an `Inadmissible` saying how it failed. Two return
+#| types from one sub is the shape here because they are one answer: every caller
+#| has to branch on which happened, and a sub that returned `Str` and signalled
+#| the rest through a `Failure` would put a real, expected, non-exceptional
+#| outcome on the exception path.
+#|
+#| This is the same round trip `t/28` drives across the whole declared surface,
+#| which is deliberate: the matrix measures the boundary and this enforces it, and
+#| a second implementation of "does it survive" would be a second answer to it.
+sub admit-intent(
+    Script:D     $script,
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Express:D    $intent,
+) is export {
+    my $said = realize-intent($script, $lexicon, $morphology, $intent);
+
+    # `.defined` marks the `Failure` handled. `~~ Failure` does not, and neither
+    # does `.exception`; the same trap `take-turn` documents below, where the
+    # unhandled object complains at destruction long after the fact.
+    return Inadmissible.new(:$intent, :mechanism(NotRealized)) unless $said.defined;
+
+    my $heard = read-sentence($script, $lexicon, $morphology, $said);
+
+    return Inadmissible.new(:$intent, :mechanism(NotRead), :attempted($said))
+        unless $heard ~~ Understood;
+
+    my $meant = semantic-projection($lexicon, $morphology, $intent);
+    my $read  = semantic-projection($lexicon, $morphology, $heard.reading);
+
+    return $said if $meant.matches($read);
+
+    return Inadmissible.new(
+        :$intent,
+        :mechanism(MeaningChanged),
+        :attempted($said),
+        :axes($meant.differences($read)),
+    );
+}
+
 #| Take one turn.
 #|
 #| No return type, so a failure stays inert; see `Ronosathwasha::Types`. Only a
@@ -225,15 +352,26 @@ sub take-turn(
     # a `Failure` goes to lose its cause.
     die $intent.exception unless $intent.defined;
 
-    my Str $said = $intent ~~ Express
-        ?? realize-intent($script, $lexicon, $morphology, $intent)
+    # The boundary, immediately after the answer is decoded and before it is
+    # recorded or emitted. A `Gap` never reaches it: there is no sentence to
+    # check, and the gap is the finding rather than a failure to produce one.
+    my $written = $intent ~~ Express
+        ?? admit-intent($script, $lexicon, $morphology, $intent)
         !! Str;
 
+    my Inadmissible $inadmissible = $written ~~ Inadmissible ?? $written !! Inadmissible;
+    my Str          $said         = $written ~~ Inadmissible ?? Str      !! $written;
+
+    # The intent stays the turn's meaning even when it was inadmissible, because
+    # it was: the model chose something the declarations admit, and the sentence
+    # is what failed. Recording the failure as the meaning would lose the choice
+    # and teach the next turn that nothing was decided.
     return Exchange.new(
         :$heard,
         :$understanding,
         :$intent,
         :$said,
+        :$inadmissible,
         :context($fitted.with(:state($fitted.state.said(Bot, $said // '', $intent)))),
     );
 

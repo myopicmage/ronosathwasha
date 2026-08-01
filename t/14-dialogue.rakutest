@@ -16,7 +16,7 @@ use Ronosathwasha::PromptContext;
 use Ronosathwasha::TokenCounter;
 use Ronosathwasha::Dialogue;
 
-plan 40;
+plan 52;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -241,3 +241,43 @@ my %which = identity(speech_act => 'interrogative', question_scope => 'predicate
 
 is turn(scripted($lexicon, $morphology, %which), $fresh, 'Lari thinəme.').said,
     'lari temirireswe?', 'and a questioned identity keeps its question';
+
+# ------------------------------------------------- the admissibility boundary ---
+#
+# Plan 039 stop 4. `intent-from` admits these: every stem is declared and every
+# combination is legal. What it cannot see is that the sentence, once written,
+# reads back as something else, because seeing that needs the realizer, the
+# reader and Projection, none of which it may import.
+
+# `nara` is "good" and `nara` + present spells `narame`, which the lexicon lists
+# as the phrase "hello". Kevin ruled the collision deliberate, so the reader is
+# right and the realizer is what must refuse. One of t/28's seven.
+my %hello = answer(predicate => 'nara', tense => 'present');
+%hello<arguments> = [];
+
+my $collided = turn(scripted($lexicon, $morphology, %hello), $fresh, 'Lari thinəme.');
+
+nok $collided.said.defined, 'a meaning whose sentence means something else says nothing';
+ok $collided.inadmissible.defined, 'and carries why instead';
+is $collided.inadmissible.mechanism, MeaningChanged,
+    'the dangerous mechanism: it wrote perfectly good Ronosathwasha';
+is $collided.inadmissible.attempted, 'narame.',
+    'naming the sentence it wrote, which is the evidence';
+ok $collided.inadmissible.axes.elems > 0, 'and the axes that disagreed';
+
+# The point of the whole type. A collision is not missing language: the meaning
+# exists, the morphemes exist, and the spelling is taken by something else.
+nok $collided.inadmissible ~~ ResponseIntent,
+    'an inadmissible intent is not a response intent';
+nok $collided.gap.defined, 'so it never reaches the gap channel';
+is $collided.state.gaps.elems, 0, 'and the conversation records no gap';
+
+# The choice was fine and stays recorded. Losing it would teach the next turn
+# that the model decided nothing.
+isa-ok $collided.intent, Express, 'the admitted intent is still the turn meaning';
+ok $collided.summary.contains('inadmissible'), 'and the summary says what happened';
+
+# A gap must not be dragged through the boundary: there is no sentence to check.
+my $silent = turn(Silent.new, $fresh, 'Lari thinəme.');
+nok $silent.inadmissible.defined, 'a gap is not an inadmissible intent';
+ok $silent.gap.defined, 'and still arrives as the finding it is';
