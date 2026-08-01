@@ -40,12 +40,40 @@ meaning: allomorph choice, which C<Harmony> decides; whether the copularizer
 was written, which decision 22 lets ordinary speech drop; constituent order;
 punctuation; and the sentence text itself.
 
+=head2 An interrogative word projects as the noun it was built from
+
+Kevin's ruling, recorded with the question-scope work: an interrogative word is
+C<to-> plus a relevant noun I<by formation>, so the series is open and the
+C<to+mwu+yu> / C<tomwu+yu> surface collapse is convergence rather than
+ambiguity. The normalisation was flagged there and not built.
+
+This is where it had to be built, because it is a statement about I<canonical
+meaning> and nowhere else gets a vote. Asking about the object C<mwu> ("thing")
+writes C<tomwuyu>, and the reader necessarily divides that as the listed word
+C<tomwu> ("what"), since it is one. Compared unnormalised, the round trip
+reports a changed participant on a sentence that is in the corpus and perfectly
+correct.
+
+B<Both constructors normalise, not just the reading.> Halving it would only move
+the mismatch: an intent that names C<toro> directly realizes and reads back as
+C<toro>, so normalising one side alone would break the case that already worked.
+The rule is the same on both, which is what makes it a canonical form rather
+than a repair.
+
+Unconditional, and deliberately not gated on the question scope. A lexical
+interrogative carries its question inside the word, so it is its base noun under
+a question wherever it appears; the scope is compared as its own axis anyway,
+and a normalisation that consulted it would be answering the same question
+twice.
+
 =end pod
 
 unit module Ronosathwasha::Projection;
 
 use Ronosathwasha::Types;
 use Ronosathwasha::Semantics;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
 use Ronosathwasha::Words;
 use Ronosathwasha::Actions;
 use Ronosathwasha::Intent;
@@ -91,15 +119,61 @@ class SemanticProjection is export {
     }
 }
 
+#| Each lexical interrogative paired with the noun it was built from.
+#|
+#| Derived rather than listed, which is the same discipline `data/morphology.toml`
+#| already documents: `toro` is `to` + `ro`, and the five entries are consequences
+#| of the rule rather than five primitives. A sixth interrogative therefore needs
+#| no edit here.
+#|
+#| The listed-word guard is what stops it stripping by accident: `tono` ("drink")
+#| begins with `to` and is not a question, so only words the `[interrogative]`
+#| section names are candidates, and even then only when what remains is itself a
+#| declared word.
+sub interrogative-bases(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
+    my @prefixes = $morphology.by-id('question').forms;
+    my Set $listed = $lexicon.forms;
+
+    my %bases;
+
+    for $lexicon.interrogative-words.keys -> $word {
+        for @prefixes -> $prefix {
+            next unless $word.starts-with($prefix);
+
+            my Str $base = $word.substr($prefix.chars);
+
+            next unless $listed{$base};
+
+            %bases{$word} = $base;
+            last;
+        }
+    }
+
+    %bases.Map;
+}
+
+#| The canonical stem: an interrogative word becomes its noun, everything else
+#| stays as it is.
+sub canonical-stem(Map:D $bases, Str:D $stem --> Str) {
+    $bases{$stem} // $stem;
+}
+
 #| One participant, as the string the `Bag` counts.
 sub participant-key(Str:D $role, Str:D $stem --> Str) {
     "$role $stem";
 }
 
 #| What a model chose to say.
-multi sub semantic-projection(Express:D $intent --> SemanticProjection) is export {
+multi sub semantic-projection(
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Express:D    $intent,
+    --> SemanticProjection
+) is export {
+    my Map $bases = interrogative-bases($lexicon, $morphology);
+
     SemanticProjection.new(
-        :predicate($intent.predicate),
+        :predicate(canonical-stem($bases, $intent.predicate)),
         :nominal($intent.nominal-predicate),
         :speech-act($intent.speech-act),
         :question-scope($intent.question-scope),
@@ -108,7 +182,7 @@ multi sub semantic-projection(Express:D $intent --> SemanticProjection) is expor
         :polarity($intent.polarity),
         :modality($intent.modality),
         :participants($intent.participants.map({
-            participant-key(.role.key.lc, .stem)
+            participant-key(.role.key.lc, canonical-stem($bases, .stem))
         }).Bag),
     );
 }
@@ -121,17 +195,24 @@ multi sub semantic-projection(Express:D $intent --> SemanticProjection) is expor
 #| marks. `MarksCase` ids are `subject` and `object`, the same strings
 #| `Argument`'s keys lowercase to, so the two constructors meet in one
 #| vocabulary.
-multi sub semantic-projection(Reading:D $reading --> SemanticProjection) is export {
+multi sub semantic-projection(
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Reading:D    $reading,
+    --> SemanticProjection
+) is export {
+    my Map $bases = interrogative-bases($lexicon, $morphology);
+
     my @pairs = $reading.constituents.map(-> $word {
         my $case = $word.with-role(MarksCase);
 
         $case.defined
-            ?? participant-key($case.id, $word.stems.join)
+            ?? participant-key($case.id, canonical-stem($bases, $word.stems.join))
             !! Empty;
     });
 
     SemanticProjection.new(
-        :predicate($reading.predicate),
+        :predicate(canonical-stem($bases, $reading.predicate)),
         :nominal($reading.nominal-predicate),
         :speech-act($reading.speech-act),
         :question-scope($reading.question-scope),
