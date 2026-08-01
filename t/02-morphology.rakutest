@@ -9,7 +9,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Script;
 use Ronosathwasha::Harmony;
 
-plan 43;
+plan 44;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -128,6 +128,13 @@ for %interrogative.kv -> $base, $whole {
         "question + $base derives the listed $whole";
     ok $forms{$base}, "and $base is a word the lexicon declares";
 }
+
+# The table above is hand-written, so it can only fail on a word it names. This
+# is the assertion that fails on a word it does not: `Lexicon.interrogative-words`
+# is what three layers now ask, and a sixth interrogative arriving in the section
+# without a line above would otherwise be checked by nothing at all.
+is-deeply $lexicon.interrogative-words.keys.sort.List, %interrogative.values.sort.List,
+    'and the section lists exactly the five the table derives';
 
 my $mixed = $present.form-for(MixedWord);
 nok $mixed.defined, 'a disharmonic stem selects nothing';

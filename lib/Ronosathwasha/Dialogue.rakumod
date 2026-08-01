@@ -140,7 +140,7 @@ sub realize-intent(
         # same declaration.
         my Bool $questioned = $marked.defined
             && $p.role == $marked
-            && not interrogative-words($lexicon){ $p.stem };
+            && not $lexicon.interrogative-words{ $p.stem };
 
         realize-word($script, $morphology, [$p.stem], [%case{ $p.role.key }],
             :prefixes($questioned ?? [$question] !! []));

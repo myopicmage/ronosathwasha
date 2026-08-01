@@ -140,7 +140,7 @@ sub act-to-write(Lexicon:D $lexicon, Asks:D $reading --> SpeechAct) is export {
 
     # Or the predicate is a word that already spells it. `toro` is "who", and
     # prefixing the marker to it again gives `totoro`, which is a film.
-    return Declarative if interrogative-words($lexicon){ $reading.predicate };
+    return Declarative if $lexicon.interrogative-words{ $reading.predicate };
 
     Interrogative;
 }
