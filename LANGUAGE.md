@@ -1236,3 +1236,35 @@ acknowledged class. That class is gone rather than smaller.
   constituents in a question read as given. Whether that generalizes, and
   whether declaratives ever want topic machinery of their own or topic-hood
   stays visible only as what questions decline to mark, is unsettled.
+- **"Which" is a different concept from "who", and needs its own shape.** Ruled
+  2026-08-01; the form is open, and the lean is the Japanese/Korean route of a
+  determiner distinct from the interrogative pronoun.
+
+  What the grammar currently claims instead: `to-` plus a noun does both jobs,
+  and the reading falls out of how general the noun is. `to` + `ro` ("person")
+  is open enough to mean "who"; `te` + `mirire` ("teacher") is restricted enough
+  to mean "which teacher". On that model "who" is just "which person" with the
+  restriction vacuous, and the five listed interrogatives are the five most
+  general nouns in the language rather than a closed class. The distinction the
+  ruling wants is the one linguistics calls discourse-linking: "which teacher"
+  presupposes a set of teachers already in play and "who" presupposes nothing.
+
+  **The obstacle is that the shape question is downstream of a demonstrative
+  question the language has never had to answer.** `she`, `sha` and `sho` are
+  pronominal: `Sho thinəme.` and `Lari sha lithinəme.` both stand them alone as
+  arguments. Rono has これ/それ/あれ and has never needed この/その/あの. "Which"
+  is normally the interrogative member of the *adnominal* series, and there is
+  no adnominal series to be a member of. Korean splits the same way, 뭐 and 누구
+  standing alone against 어느 and 어떤 taking a noun.
+
+  Three shapes were considered. A fourth pronominal member gives "which one"
+  cheaply and does not reach "which teacher". A full adnominal series is the
+  ordinary answer and means coining three words nobody has needed in order to
+  get the one that is wanted. A partitive built from existing parts, "who among
+  the teachers", costs no new series and fits the language's derivational habit,
+  at the risk of being a phrase where every other language reached for a word.
+
+  Note against all three: the same morphology is already doing two jobs, since
+  decision 25 has `to-` landing on any constituent for a focus question
+  (`telari thinəme?`, "is it Lauri eating?"). A distinct "which" would be a
+  third reading in that slot.
