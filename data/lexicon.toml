@@ -105,7 +105,7 @@
 "tomwu" = "what (question-thing)"
 "toluumo" = "where (question-place)"
 "toduruu" = "when (question-time)"
-"toðoru" = "why (question-reason)"
+"tonootha" = "why (question-reason)"
 
 
 [conjunction]
@@ -136,7 +136,7 @@
 "mwu" = "thing"
 "dələ" = "name"
 "luumo" = "place"
-"ðoru" = "reason, cause"
+"nootha" = "reason, cause"
 
 
 # The w-infix turns a body-relative direction into a compass one.

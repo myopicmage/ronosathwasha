@@ -21,7 +21,7 @@ plan 5;
 # fails as changed. Stop 4 shrinks this map toward empty in its own diffs,
 # and until then the debt is executable rather than narrated.
 #
-# Three mechanisms, all measured at 3bfdd1c-era baselines and re-derived at
+# Two mechanisms, all measured at 3bfdd1c-era baselines and re-derived at
 # d186c5c after the nominal parser learned its prefixes:
 #
 #   - the question-word constraint, 40 entries: every lexical interrogative
@@ -33,8 +33,12 @@ plan 5;
 #     thwa+PRS, rorotwatha+PST likewise), and the lexical parse wins exactly
 #     as designed, so a verbal intent reads back as a bare nominal identity.
 #     Review 034 found five of these; the matrix found two more.
-#   - stem-plus-case collision, 1 entry: ðo under the subject particle is
-#     ðoru, "reason", and the participant dissolves into a different word.
+#
+# A third mechanism was here and is gone. The stem-plus-case collision was
+# `ðo` under the subject particle spelling `ðoru`, which the lexicon listed as
+# "reason", so the participant dissolved into a different word. Decision 7
+# derives that subject form by rule, so the pronoun could not move and the noun
+# did: `nootha`, and `tonootha` for "why". See LANGUAGE.md decision 28.
 #
 # The membership reproduces review 034's probe exactly: 22 of the predicate
 # cases, 11 of the participant cases. Classifications differ from 034 where
@@ -136,23 +140,22 @@ my %expected =
     'interrogative tomwu as declarative predicate' => 'changes question-scope,speech-act (tomwumo.)',
     'interrogative tomwu as declarative subject' => 'changes question-scope,speech-act (tomwuru thinəme.)',
     'interrogative tomwu as subject of predicate question' => 'unreadable (tomwuru tethinəme?)',
+    'interrogative tonootha as declarative predicate' => 'changes question-scope,speech-act (tonoothamo.)',
+    'interrogative tonootha as declarative subject' => 'changes question-scope,speech-act (tonootharu thinəme.)',
+    'interrogative tonootha as subject of predicate question' => 'unreadable (tonootharu tethinəme?)',
     'interrogative toro as declarative predicate' => 'changes question-scope,speech-act (toromo.)',
     'interrogative toro as declarative subject' => 'changes question-scope,speech-act (tororu thinəme.)',
     'interrogative toro as subject of predicate question' => 'unreadable (tororu tethinəme?)',
-    'interrogative toðoru as declarative predicate' => 'changes question-scope,speech-act (toðorumo.)',
-    'interrogative toðoru as declarative subject' => 'changes question-scope,speech-act (toðoruru thinəme.)',
-    'interrogative toðoru as subject of predicate question' => 'unreadable (toðoruru tethinəme?)',
     'participant toduruu object' => 'changes question-scope,speech-act (toduruuyu thinəme.)',
     'participant toduruu subject' => 'changes question-scope,speech-act (toduruuru thinəme.)',
     'participant toluumo object' => 'changes question-scope,speech-act (toluumoyu thinəme.)',
     'participant toluumo subject' => 'changes question-scope,speech-act (toluumoru thinəme.)',
     'participant tomwu object' => 'changes question-scope,speech-act (tomwuyu thinəme.)',
     'participant tomwu subject' => 'changes question-scope,speech-act (tomwuru thinəme.)',
+    'participant tonootha object' => 'changes question-scope,speech-act (tonoothayu thinəme.)',
+    'participant tonootha subject' => 'changes question-scope,speech-act (tonootharu thinəme.)',
     'participant toro object' => 'changes question-scope,speech-act (toroyu thinəme.)',
     'participant toro subject' => 'changes question-scope,speech-act (tororu thinəme.)',
-    'participant toðoru object' => 'changes question-scope,speech-act (toðoruyu thinəme.)',
-    'participant toðoru subject' => 'changes question-scope,speech-act (toðoruru thinəme.)',
-    'participant ðo subject' => 'changes participants (ðoru thinəme.)',
     'predicate nara future' => 'changes nominal,predicate,tense (narathe.)',
     'predicate nara present' => 'changes nominal,predicate,tense (narame.)',
     'predicate roro future' => 'changes nominal,predicate,tense (rorotho.)',
@@ -169,12 +172,12 @@ my %expected =
     'predicate tomwu future' => 'changes question-scope,speech-act (tomwutho.)',
     'predicate tomwu past' => 'changes question-scope,speech-act (tomwuso.)',
     'predicate tomwu present' => 'changes question-scope,speech-act (tomwumo.)',
+    'predicate tonootha future' => 'changes question-scope,speech-act (tonoothatho.)',
+    'predicate tonootha past' => 'changes question-scope,speech-act (tonoothaso.)',
+    'predicate tonootha present' => 'changes question-scope,speech-act (tonoothamo.)',
     'predicate toro future' => 'changes question-scope,speech-act (torotho.)',
     'predicate toro past' => 'changes question-scope,speech-act (toroso.)',
-    'predicate toro present' => 'changes question-scope,speech-act (toromo.)',
-    'predicate toðoru future' => 'changes question-scope,speech-act (toðorutho.)',
-    'predicate toðoru past' => 'changes question-scope,speech-act (toðoruso.)',
-    'predicate toðoru present' => 'changes question-scope,speech-act (toðorumo.)';
+    'predicate toro present' => 'changes question-scope,speech-act (toromo.)';
 
 is $cases,
     @roots.elems * 3 + @stems.elems * 2 + @interrogatives.elems * 5,
@@ -190,4 +193,4 @@ is-deeply %map.keys.grep({ (%expected{$_}:exists) && %map{$_} ne %expected{$_} }
     (), 'no reclassifications: a changed mechanism is a changed defect';
 
 is %map.elems, %expected.elems,
-    'the boundary is exactly the acknowledged one, all 48 of it';
+    'the boundary is exactly the acknowledged one, all 47 of it';

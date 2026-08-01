@@ -34,9 +34,9 @@ are enforced. They are not, deliberately, and permanently.
 The question marker. On a verb it questions the predicate, which is
 C<Nari tethinəme?>. On a nominal it questions the referent, and that use built
 the entire interrogative series: C<toro>, C<tomwu>, C<toluumo>, C<toduruu> and
-C<toðoru> are C<to> prefixed to C<ro>, C<mwu>, C<luumo>, C<duruu> and C<ðoru>,
-five nouns the lexicon already declares. All five bases are back words, so all
-five take C<to>, and nothing is left over.
+C<tonootha> are C<to> prefixed to C<ro>, C<mwu>, C<luumo>, C<duruu> and
+C<nootha>, five nouns the lexicon already declares. All five bases are back
+words, so all five take C<to>, and nothing is left over.
 
 The two uses are in complementary distribution. C<Nari toro?> needs no clause
 marking because the interrogative word is already carrying the morpheme.
@@ -88,7 +88,7 @@ class Morpheme is export {
     #|
     #| Plural because the question marker has two. On a verb it questions the
     #| predicate and on a nominal it questions the referent, and the second use
-    #| is where `toro`, `tomwu`, `toluumo`, `toduruu` and `toðoru` come from.
+    #| is where `toro`, `tomwu`, `toluumo`, `toduruu` and `tonootha` come from.
     has Host @.hosts is required;
 
     #| Every surface form this morpheme can take.

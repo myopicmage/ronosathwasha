@@ -53,7 +53,7 @@ An inventory invites a false negative. Given tense values and aspect values as t
 and no statement about how they relate, a model can conclude that a particular pairing is
 unavailable, and one did: asked for a past continuous it reported that Ronosathwasha
 "lacks a past continuous tense construction". It composes without difficulty,
-C<thinəsedi> and C<toðorusodu>.
+C<thinəsedi> and C<tonoothasodu>.
 
 B<A false gap is worse than an invented morpheme.> An invented morpheme is conspicuous and
 C<intent-from> rejects it outright. A false gap looks exactly like a real finding, and the
