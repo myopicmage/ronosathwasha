@@ -11,23 +11,24 @@ use Ronosathwasha::Dialogue;
 use Ronosathwasha::Intent;
 use Ronosathwasha::Projection;
 
-plan 6;
+plan 7;
 
 # The inventory boundary, from plan 039's stop 2: every intent the schema
 # offers, driven through realization and reading, compared through the
 # canonical projection. A new mismatch fails as unclassified, a repaired one
 # fails as silently-better, a reclassified one fails as changed.
 #
-# **The map below is a declaration, not a to-do list.** It was written as debt
-# and Kevin ruled otherwise on 2026-08-01, shown all eight entries: six are
-# deliberate lexicalizations, "entirely on purpose". The reader is therefore
-# right about every one of them and the realizer is what must refuse, which is
-# what `Dialogue`'s admissibility boundary now does.
+# **The map below is partly a declaration and partly a debt, and the split is
+# the point.** Seven entries are the language as Kevin ruled it and will not be
+# repaired; twelve are defects review 047 found and are waiting for one. Reading
+# the map as either one thing loses the distinction that took a ruling to
+# establish.
 #
-# So this file's exit condition is not an empty map and never was. An entry
-# leaving is a language change, and it has to be argued for as one.
+# So there is no single exit condition here. A declared entry leaving is a
+# language change and has to be argued for as one; an owed entry leaving is a
+# repair and is the point of measuring it.
 #
-# The six, all one mechanism: an inflection lands on a word the lexicon already
+# The six declared, all one mechanism: an inflection lands on a word the lexicon already
 # lists, and the lexical parse wins exactly as designed, so a verbal intent reads
 # back as a bare nominal identity. They arrived by two different routes, which is
 # worth seeing because only one of them is a pattern:
@@ -66,10 +67,15 @@ plan 6;
 # are realized, so they leave the matrix entirely rather than being classified
 # by it: the forty did not become correct, they became unaskable.
 #
-# This file costs roughly a minute: 428 pipeline runs, each an intent decode,
-# a realization, and a full sentence reading. If that grows painful, the
-# vocabulary computations inside intent-from are the memoization candidates,
-# not the coverage.
+# The twelve owed entries are class 2b, and their heading below says what they
+# are. Short version: an ordinary noun becomes an interrogative word once the
+# marker lands on it, and this matrix had never questioned one, so a whole
+# construction the capabilities block promises the model went unmeasured.
+#
+# This file costs a minute or two: 594 pipeline runs, each an intent decode, a
+# realization, and a full sentence reading. Class 2b added 166 of those. If it
+# grows painful, the vocabulary computations inside intent-from are the
+# memoization candidates, not the coverage.
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -134,6 +140,30 @@ for @stems -> $stem {
     }
 }
 
+# Class 2b: the same stems again, this time as the questioned constituent.
+#
+# Review 047's finding, and the hole was mine: class 2 drove every participant
+# in a declarative only, so an ordinary noun that becomes an interrogative word
+# once the marker lands on it was never questioned by this matrix at all. That
+# is precisely the shape plan 039 stop 4's admissibility boundary refused on its
+# first run, `lari tomwuyu thinəme?`, and the matrix stayed green through it.
+#
+# It is not optional coverage. The capabilities block now tells the model that
+# the question series is open, so naming a plain stem and scoping its
+# constituent is a form the interface promises, and every promise the interface
+# makes belongs in the declared surface this file measures.
+#
+# Class 3's questioned-subject case is now a special case of this one. Left
+# where it is rather than folded in: it exists to state something about lexical
+# interrogatives specifically, and the duplicated work is a second of runtime.
+for @stems -> $stem {
+    for <subject object> -> $role {
+        check("questioned participant $stem $role",
+            express(:speech_act<interrogative>, :question_scope($role),
+                arguments => [ $%( 'role' => $role, stem => $stem ) ]));
+    }
+}
+
 # Class 3: every lexical interrogative in matching and conflicting scopes.
 for @interrogatives -> $w {
     check("interrogative $w as declarative predicate", express(:predicate($w)));
@@ -173,10 +203,45 @@ my %lexicalized =
 my %listed-inflection =
     'predicate thwa present' => 'changes nominal,predicate,tense (thwame.)';
 
-my %expected = |%lexicalized, |%listed-inflection;
+# Debt, and the only entries here that are. Review 047 measured what class 2b
+# was not looking at, and these twelve are defects awaiting repair rather than
+# anything the language decided. They are here so the repair has something to
+# shrink, which is what this map was originally for.
+#
+# Every one of them is a stem beginning with `ro`, and they fail in three
+# different ways rather than one:
+#
+#   - `rono` is divided further than it was named. It genuinely is `ro` plus the
+#     plural, so the reader takes it apart and the projection compares `ro`
+#     against `rono`. Bases are tried shortest first, which is the same
+#     preference the alternant audit hit, and it runs against `e0662af`: a word
+#     the lexicon lists should beat the derivation of it.
+#   - `roro` and `rorotwatha` keep the question marker inside the stem. The
+#     reader returns `tororo` and `tororotwatha`, so `to` was never recognised
+#     as the prefix it is.
+#   - the three `-so`/`-tho` time words do not divide at all.
+#
+# The runtime boundary refuses all twelve correctly. What was wrong is that the
+# capabilities block promises the model this construction works, so the prose is
+# ahead of the grammar until these are repaired.
+my %questioned-participants =
+    'questioned participant rono subject' => 'changes participants (toronoru thinəme?)',
+    'questioned participant rono object' => 'changes participants (toronoyu thinəme?)',
+    'questioned participant roro subject' => 'changes participants (torororu thinəme?)',
+    'questioned participant roro object' => 'changes participants (tororoyu thinəme?)',
+    'questioned participant rorotwatha subject' => 'changes participants (tororotwatharu thinəme?)',
+    'questioned participant rorotwatha object' => 'changes participants (tororotwathayu thinəme?)',
+    'questioned participant roroso subject' => 'unreadable (tororosoru thinəme?)',
+    'questioned participant roroso object' => 'unreadable (tororosoyu thinəme?)',
+    'questioned participant rorotho subject' => 'unreadable (tororothoru thinəme?)',
+    'questioned participant rorotho object' => 'unreadable (tororothoyu thinəme?)',
+    'questioned participant rorotwathaso subject' => 'unreadable (tororotwathasoru thinəme?)',
+    'questioned participant rorotwathaso object' => 'unreadable (tororotwathasoyu thinəme?)';
+
+my %expected = |%lexicalized, |%listed-inflection, |%questioned-participants;
 
 is $cases,
-    @roots.elems * 3 + @stems.elems * 2 + @interrogatives.elems * 5,
+    @roots.elems * 3 + @stems.elems * 4 + @interrogatives.elems * 5,
     'the matrix covers the declared surface, derived rather than counted by hand';
 
 is-deeply (%map.keys.Set (-) %expected.keys.Set).keys.sort.List, (),
@@ -189,10 +254,17 @@ is-deeply %map.keys.grep({ (%expected{$_}:exists) && %map{$_} ne %expected{$_} }
     (), 'no reclassifications: a changed mechanism is a changed defect';
 
 is %map.elems, %expected.elems,
-    'the boundary is exactly what the language declares, six of it plus thwame';
+    'the boundary is exactly seven declared entries plus twelve owed';
 
 # The ruling was for six, named one by one. A seventh arriving in that hash
 # without a ruling behind it is the thing this pins: the split is the record of
 # what Kevin decided, so it must not be somewhere a later edit can quietly widen.
 is %lexicalized.elems, 6,
     'and six is what was ruled deliberate, not however many are in the hash';
+
+# Not a count, which would only restate the hash. The finding is that every
+# broken questioned participant is a stem beginning with `ro`, so a thirteenth
+# of some other shape means a different defect arrived and should not slip in
+# under this one's heading.
+is-deeply %questioned-participants.keys.map({ .words[2] }).grep({ not .starts-with('ro') }).sort.List,
+    (), 'and every stem this class fails on begins with ro, which is the finding';
