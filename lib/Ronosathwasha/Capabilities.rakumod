@@ -38,11 +38,21 @@ speech act, then the stem, then tense and aspect. Telling the model the order wo
 telling it how to do a job it does not have, and decision C<019> is specifically wary of
 inviting it to manufacture forms.
 
-B<The lexicon.> Every nameable stem is already in the schema, where it costs nothing:
-C<response_format> becomes a sampling grammar and never enters the context. Repeating 88
-stems in the prompt would move them from free to expensive for no gain. Hence a signature
-taking only C<Morphology>, where the plan for this module had said C<Lexicon> and
-C<Script> too.
+B<The lexicon, with one exception.> Every nameable stem is already in the schema, where it
+costs nothing: C<response_format> becomes a sampling grammar and never enters the context.
+Repeating 88 stems in the prompt would move them from free to expensive for no gain.
+
+The exception is the interrogative words, and it is not a softening of that rule. A stem
+in the schema is a stem the decoder will accept; these five carry a I<constraint> as well,
+because naming one commits the whole answer to being a question about the constituent
+holding it, and C<intent-from> refuses the answer otherwise. A JSON schema cannot say
+that: the same C<if>/C<then> limitation that stops it requiring a scope only for
+interrogatives. So the constraint has nowhere to live but here, and the five words have to
+come with it or it names nothing.
+
+Derived from C<Lexicon.interrogative-words> rather than typed out, for the reason
+everything in this module is derived. A sixth interrogative appears in the prompt the day
+it appears in the lexicon.
 
 B<Both allomorphs as separate entries.> Harmony is stated as a rule and the pair is shown
 once, because C<Harmony> decides which one appears and the model does not choose.
@@ -60,11 +70,29 @@ C<intent-from> rejects it outright. A false gap looks exactly like a real findin
 entire value of the gap channel is that Kevin can trust it. So the block says the axes are
 independent rather than leaving it to be inferred.
 
+=head2 What plan 039's boundary added, and what it deliberately did not
+
+Two of the three additions are constraints the model would otherwise break. Naming a
+question word commits the answer to being a question about that constituent, and breaking
+that is a malformed answer that ends the turn: this is the one rule here whose absence
+costs a conversation rather than a nuance. Beside it, the fact that makes the constraint
+survivable: the question series is open, so questioning an ordinary noun is how you ask
+about anything the five listed words do not cover.
+
+B<The third addition tells the model to stop worrying, which is the point.> C<Dialogue>
+verifies that every sentence it writes reads back to the meaning that was chosen, and a
+handful of inflections do land on words the lexicon already lists. Naming them here would
+be an inventory of traps, and this module's own history says what an inventory does to a
+model: it reads restrictions into it and reports gaps that are not there. The model cannot
+predict a collision and does not need to, so the block says so and says the checking is
+handled.
+
 =end pod
 
 unit module Ronosathwasha::Capabilities;
 
 use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
@@ -132,8 +160,10 @@ sub morpheme-groups(Morphology:D $morphology --> Seq) {
 #| carry, because a hand-written sentence is exactly the hole this module closes and a
 #| plausible-sounding example is the easiest way to reopen it. The first draft of this
 #| text said "a potential habitual-in-effect" and there is no habitual.
-sub composition-rules(--> Str) {
-    q:to/RULES/.trim;
+sub composition-rules(Lexicon:D $lexicon --> Str) {
+    my Str $questions = $lexicon.interrogative-words.keys.sort.join(', ');
+
+    qq:to/RULES/.trim;
     How these combine:
 
       - The axes above compose independently except for the pairing rules stated
@@ -152,10 +182,24 @@ sub composition-rules(--> Str) {
         constituent the question is about; a statement carries none, and a question
         always carries exactly one. Asking about the predicate asks what is
         happening; asking about the subject or object asks who or what.
+      - Some stems already carry the question inside them, and naming one commits
+        the whole answer: the speech act must be interrogative and the scope must
+        name the very constituent you put it in. A statement that names one, or a
+        question about somewhere else, is a self-contradiction and will be refused.
+        Name at most one of them per answer. They are:
+          $questions
+      - You are not limited to those. A question word is the question marker plus an
+        ordinary noun, so to ask about anything they do not cover, name the plain
+        stem and set the scope to its constituent. The marker is written for you.
 
     You choose meaning, not spelling. Name the predicate and the features; the
     realizer assembles the word, applies harmony and orders the morphemes. Never
     report a gap because you are unsure how a form would be written.
+
+    Nor because you suspect a word might collide with another one. Every sentence
+    written for you is read back and checked against the meaning you chose, and the
+    rare inflection that lands on some other listed word is handled without you.
+    Choose the plainest meaning; do not work around a collision you cannot see.
 
     Two different kinds of limit, and they must not be confused:
 
@@ -175,7 +219,11 @@ sub composition-rules(--> Str) {
 #|
 #| Derived rather than written, so this cannot claim a morpheme the declarations lack
 #| and cannot omit one they have.
-sub capabilities-invariant(Morphology:D $morphology --> PromptInvariant) is export {
+sub capabilities-invariant(
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    --> PromptInvariant
+) is export {
     my Str $text = (
         'This is the whole of what Ronosathwasha currently expresses. Anything absent'
             ~ ' from both lists below is a genuine gap and worth reporting.',
@@ -188,7 +236,7 @@ sub capabilities-invariant(Morphology:D $morphology --> PromptInvariant) is expo
             ~ ' than the language:',
         |morpheme-groups($morphology),
         '',
-        composition-rules(),
+        composition-rules($lexicon),
     ).join("\n");
 
     PromptInvariant.new(:label('language capabilities'), :$text);
