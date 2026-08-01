@@ -11,22 +11,45 @@ use Ronosathwasha::Dialogue;
 use Ronosathwasha::Intent;
 use Ronosathwasha::Projection;
 
-plan 5;
+plan 6;
 
 # The inventory boundary, from plan 039's stop 2: every intent the schema
 # offers, driven through realization and reading, compared through the
-# canonical projection. The expected map below is the exact acknowledged
-# boundary, review 038's correction to a TODO design: a new mismatch fails as
-# unclassified, a repaired one fails as silently-better, a reclassified one
-# fails as changed.
+# canonical projection. A new mismatch fails as unclassified, a repaired one
+# fails as silently-better, a reclassified one fails as changed.
 #
-# One mechanism left, of the three this file was built holding:
+# **The map below is a declaration, not a to-do list.** It was written as debt
+# and Kevin ruled otherwise on 2026-08-01, shown all eight entries: six are
+# deliberate lexicalizations, "entirely on purpose". The reader is therefore
+# right about every one of them and the realizer is what must refuse, which is
+# what `Dialogue`'s admissibility boundary now does.
 #
-#   - lexicalized collisions, 7 entries: inflection lands on a listed word
-#     (nara+PRS is narame "hello", roro+PST is roroso "far past", she+PRS,
-#     thwa+PRS, rorotwatha+PST likewise), and the lexical parse wins exactly
-#     as designed, so a verbal intent reads back as a bare nominal identity.
-#     Review 034 found five of these; the matrix found two more.
+# So this file's exit condition is not an empty map and never was. An entry
+# leaving is a language change, and it has to be argued for as one.
+#
+# The six, all one mechanism: an inflection lands on a word the lexicon already
+# lists, and the lexical parse wins exactly as designed, so a verbal intent reads
+# back as a bare nominal identity. They arrived by two different routes, which is
+# worth seeing because only one of them is a pattern:
+#
+#   - the tense suffix turned derivational, four entries in `[time]`. `roro`
+#     ("very") plus past is `roroso` ("far past"), plus future is `rorotho`;
+#     `rorotwatha` ("ancient") plus past is `rorotwathaso`; `she` ("this") plus
+#     present is `sheme` ("today"). A productive-looking series, and the reason
+#     the language has a time vocabulary at all.
+#   - lexicalized greetings, two entries in `[phrase]`. `nara` ("good") plus
+#     present is `narame` ("hello") and plus future is `narathe` ("goodbye").
+#     One-offs rather than a series.
+#
+# Review 034 found five of these; the matrix found two more.
+#
+# **The seventh is not a lexicalization**, and Kevin took it off the ledger in
+# the same ruling. `thwame` is listed in `[phrase]` as "I like", but that is just
+# the regular present of `thwaswe` with the subject dropped, tangled up with
+# `-swe`. The mismatch it produces is real and stays measured; what it is
+# evidence about is a lexicon entry duplicating an ordinary inflection, not a
+# collision the language decided on. It is here under protest rather than by
+# declaration.
 #
 # The stem-plus-case collision was `ðo` under the subject particle spelling
 # `ðoru`, which the lexicon listed as "reason", so the participant dissolved
@@ -126,16 +149,31 @@ for @interrogatives -> $w {
             arguments => [ $%( 'role' => 'subject', stem => $w ) ]));
 }
 
-# ---------------------------------------------------- the acknowledged boundary ---
+# ------------------------------------------- the declared boundary, and one more ---
 
-my %expected =
-    'predicate nara future' => 'changes nominal,predicate,tense (narathe.)',
-    'predicate nara present' => 'changes nominal,predicate,tense (narame.)',
-    'predicate roro future' => 'changes nominal,predicate,tense (rorotho.)',
+# Ruled deliberate, 2026-08-01. A word here is not a defect and removing one is a
+# language change: the inflection genuinely spells a word the lexicon lists, and
+# the reader is right to find it.
+my %lexicalized =
+    # the tense suffix turned derivational, and the time vocabulary is the result
     'predicate roro past' => 'changes nominal,predicate,tense (roroso.)',
+    'predicate roro future' => 'changes nominal,predicate,tense (rorotho.)',
     'predicate rorotwatha past' => 'changes nominal,predicate,tense (rorotwathaso.)',
     'predicate she present' => 'changes nominal,predicate,tense (sheme.)',
+
+    # lexicalized greetings, one-offs rather than a series
+    'predicate nara present' => 'changes nominal,predicate,tense (narame.)',
+    'predicate nara future' => 'changes nominal,predicate,tense (narathe.)';
+
+# Off the ledger in the same ruling, and here because the mismatch still fires.
+# `thwame` is the regular present of `thwaswe` with the subject dropped, listed
+# in `[phrase]` as though it were a fixed expression. Whether that entry should
+# exist is a lexicon question nobody has answered; until somebody does, this
+# measures it rather than blessing it.
+my %listed-inflection =
     'predicate thwa present' => 'changes nominal,predicate,tense (thwame.)';
+
+my %expected = |%lexicalized, |%listed-inflection;
 
 is $cases,
     @roots.elems * 3 + @stems.elems * 2 + @interrogatives.elems * 5,
@@ -145,10 +183,16 @@ is-deeply (%map.keys.Set (-) %expected.keys.Set).keys.sort.List, (),
     'no unclassified mismatches: a new entry here is a new defect';
 
 is-deeply (%expected.keys.Set (-) %map.keys.Set).keys.sort.List, (),
-    'no silently repaired entries: a fix must shrink the expected map itself';
+    'no silently repaired entries: an entry leaving is a language change';
 
 is-deeply %map.keys.grep({ (%expected{$_}:exists) && %map{$_} ne %expected{$_} }).sort.List,
     (), 'no reclassifications: a changed mechanism is a changed defect';
 
 is %map.elems, %expected.elems,
-    'the boundary is exactly the acknowledged one, all 7 of it';
+    'the boundary is exactly what the language declares, six of it plus thwame';
+
+# The ruling was for six, named one by one. A seventh arriving in that hash
+# without a ruling behind it is the thing this pins: the split is the record of
+# what Kevin decided, so it must not be somewhere a later edit can quietly widen.
+is %lexicalized.elems, 6,
+    'and six is what was ruled deliberate, not however many are in the hash';
