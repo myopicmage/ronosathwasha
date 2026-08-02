@@ -8,7 +8,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 37;
+plan 40;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -63,7 +63,8 @@ nok $text.contains('habitual'),
 # is the wrong shape of check: it guesses at what an id looks like instead of looking
 # where ids actually go.
 my $declared = $morphology.morphemes.map(*.id).Set;
-my @suspect = $text.comb(/ (<[a..z-]>+) \s* '(' /, :match)
+my Str $inventory = $text.substr($text.index('Every morpheme'));
+my @suspect = $inventory.comb(/ (<[a..z-]>+) \s* '(' /, :match)
     .map({ ~.[0] })
     .unique
     .grep({ not $declared{$_} });
@@ -128,6 +129,31 @@ ok $text.contains('salient set'),
     'the selective reading is defined by its discourse restriction';
 ok $text.contains('plain base noun'),
     'and the model is told not to reuse an open question word for it';
+
+# ------------------------------------------------------------ phrase entries ---
+#
+# A phrase can be the whole input turn, so its gloss is the small piece of lexicon the
+# model needs in the prompt. The lines are derived from the same entries, not copied into
+# this test or into the capability text.
+
+ok $text.contains('Declared phrase entries:'),
+    'the prompt names the phrase glossary';
+
+my @expected-phrases = $lexicon.in-section('phrase').sort(*.roman).map({
+    "  { .roman } = { .gloss }"
+});
+my Set $expected-phrase-lines = @expected-phrases.Set;
+my @actual-phrases = $text.lines.grep({ $expected-phrase-lines{$_} });
+
+is-deeply @actual-phrases.List, @expected-phrases.List,
+    'and carries every declared phrase with its gloss in sorted order';
+
+my $without-phrases = Lexicon.new(
+    :entries($lexicon.entries.grep({ .section ne 'phrase' })),
+);
+my $without-phrase-text = capabilities-invariant($without-phrases, $morphology).text;
+nok $without-phrase-text.contains('Declared phrase entries:'),
+    'removing phrase declarations removes the glossary rather than leaving fiction';
 
 # ---------------------------------------------- a language gap is not an interface gap ---
 #

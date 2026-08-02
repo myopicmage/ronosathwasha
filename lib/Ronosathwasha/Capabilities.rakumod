@@ -38,9 +38,10 @@ speech act, then the stem, then tense and aspect. Telling the model the order wo
 telling it how to do a job it does not have, and decision C<019> is specifically wary of
 inviting it to manufacture forms.
 
-B<The lexicon, with one exception.> Every nameable stem is already in the schema, where it
-costs nothing: C<response_format> becomes a sampling grammar and never enters the context.
-Repeating 88 stems in the prompt would move them from free to expensive for no gain.
+B<The lexicon, with two exceptions.> Every nameable stem is already in the schema, where
+it costs nothing: C<response_format> becomes a sampling grammar and never enters the
+context. Repeating 88 stems in the prompt would move them from free to expensive for no
+gain.
 
 The exception is the interrogative words, and it is not a softening of that rule. A stem
 in the schema is a stem the decoder will accept; these five carry a I<constraint> as well,
@@ -53,6 +54,11 @@ come with it or it names nothing.
 Derived from C<Lexicon.interrogative-words> rather than typed out, for the reason
 everything in this module is derived. A sixth interrogative appears in the prompt the day
 it appears in the lexicon.
+
+Declared phrase entries are the second exception. A phrase can be the whole of the
+user's turn, and a model cannot infer that C<narame> means hello from its spelling. These
+entries are shown with their declared glosses, while the model still chooses the typed
+C<phatic> response rather than writing any phrase itself.
 
 B<Both allomorphs as separate entries.> Harmony is stated as a rule and the pair is shown
 once, because C<Harmony> decides which one appears and the model does not choose.
@@ -153,6 +159,24 @@ sub morpheme-groups(Morphology:D $morphology --> Seq) {
     });
 }
 
+#| Phrase entries are the small lexical surface the model needs to interpret input.
+#|
+#| Stems stay in the schema because the decoder can enumerate them for free. Phrases
+#| need their glosses in the prompt instead: `narame` is a valid word, but its spelling
+#| does not tell a model that it is a greeting.
+sub phrase-entries(Lexicon:D $lexicon --> Seq) {
+    my @phrases = $lexicon.in-section('phrase').sort(*.roman).map({
+        "  { .roman } = { .gloss }"
+    });
+
+    return ().Seq unless @phrases;
+
+    return (
+        'Declared phrase entries:',
+        |@phrases,
+    ).Seq;
+}
+
 #| The rules that stop an inventory from being read as a set of restrictions.
 #|
 #| Every example here is a combination of values that appear in the lists above. Nothing
@@ -231,7 +255,7 @@ sub capabilities-invariant(
 ) is export {
     my Str $text = (
         'This is the whole of what Ronosathwasha currently expresses. Anything absent'
-            ~ ' from both lists below is a genuine gap and worth reporting.',
+            ~ ' from the choices and declarations below is a genuine gap and worth reporting.',
         '',
         'Choices the answer format lets you select:',
         |semantic-axes(),
@@ -240,8 +264,10 @@ sub capabilities-invariant(
             ~ ' `phatic_act: greeting` when the meaning is a greeting. The realizer'
             ~ ' supplies the declared phrase.',
         '',
+        |phrase-entries($lexicon),
+        '',
         'Every morpheme the language currently declares, by what it marks. This list is'
-            ~ ' larger than the one above, and the difference is the interface rather'
+            ~ ' larger than the answer choices, and the difference is the interface rather'
             ~ ' than the language:',
         |morpheme-groups($morphology),
         '',
