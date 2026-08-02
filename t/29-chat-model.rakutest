@@ -1,0 +1,98 @@
+use Test;
+
+use X::Ronosathwasha;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::ChatModel;
+use Ronosathwasha::Config;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::ModelProtocol;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::TokenCounter;
+
+plan 10;
+
+my IO::Path $data = repository-root.add('data');
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+my $config = Config.new(
+    :model(ModelFile.new(
+        :name<test>, :quantisation<none>, :path($*TMPDIR),
+    )),
+    :budget(Budget.new(:total(1_024), :reserved(128))),
+    :server(Server.new(:url<http://example.test>, :timeout-seconds(1))),
+    :sampling(Sampling.new(
+        :temperature(0.7), :top-p(0.9), :top-k(20), :thinking(False),
+    )),
+    :researcher(Researcher.new(:system<researcher>)),
+);
+
+my $context = PromptContext.new(
+    :schema(PromptInvariant.new(:label('response schema'), :text('kind express or gap'))),
+    :capabilities(PromptInvariant.new(:label('language capabilities'), :text('three tenses'))),
+    :state(ConversationState.new.said(Human, 'Lari thinəme.')),
+);
+
+#| A transport-free inference implementation. The adapter should not know or
+#| care whether these hashes came from HTTP, a test, or a future local backend.
+class Recorder does Inference is export {
+    has Hash:D $.answer is required;
+    has @.messages;
+
+    method complete(@messages --> Hash) {
+        @!messages.push: @messages.List;
+        $!answer;
+    }
+}
+
+my $answer = Recorder.new(
+    :answer(%(
+        kind       => 'express',
+        predicate  => 'thinə',
+        speech_act => 'declarative',
+        tense      => 'present',
+        aspect     => 'simple',
+        polarity   => 'affirmative',
+        modality   => 'asserted',
+        arguments  => [],
+    )),
+);
+
+my $model = chat-model($config, $lexicon, $morphology, $answer);
+my $intent = $model.respond($context);
+
+isa-ok $intent, Express, 'raw express JSON becomes a semantic intent';
+is $intent.predicate, 'thinə', 'and its meaning survives the adapter';
+is $answer.messages.elems, 1, 'the inference implementation is asked once';
+is $answer.messages[0].elems, 2, 'with the system and conversation messages';
+is $answer.messages[0][0]<role>, 'system', 'the invariant message is first';
+is $answer.messages[0][1]<role>, 'user', 'the human turn is a user message';
+is $answer.messages[0][1]<content>, 'Lari thinəme.', 'and its text is preserved';
+
+my $gap = Recorder.new(
+    :answer(%(kind => 'gap', wanted => 'a habitual', missing => 'an aspect')),
+);
+isa-ok chat-model($config, $lexicon, $morphology, $gap).respond($context), Gap,
+    'a model-reported gap remains a first-class answer';
+
+my $bad = Recorder.new(
+    :answer(%(
+        kind       => 'express',
+        predicate  => 'thinu',
+        speech_act => 'declarative',
+        tense      => 'present',
+        aspect     => 'simple',
+        polarity   => 'affirmative',
+        modality   => 'asserted',
+        arguments  => [],
+    )),
+);
+my $refused = chat-model($config, $lexicon, $morphology, $bad).respond($context);
+
+nok $refused.defined, 'an unknown predicate is not admitted';
+isa-ok $refused.self.exception, X::Ronosathwasha::Answer::Unknown,
+    'and the refusal names the model answer rather than hiding it';
