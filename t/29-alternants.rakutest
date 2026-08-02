@@ -7,7 +7,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::Alternants;
 
-plan 10;
+plan 12;
 
 # Every alternating affix in the repository, checked against the harmony class
 # of the stem it attached to. `Ronosathwasha::Alternants` carries the reasoning;
@@ -125,6 +125,8 @@ for @files -> $file {
     my $where = $file.relative($root);
     my $ext   = $file.extension;
 
+    my Bool $in-fence = False;
+
     for $file.slurp.lines.kv -> $i, $line {
         my $at = $i + 1;
 
@@ -135,7 +137,22 @@ for @files -> $file {
 
         given $ext {
             when 'md' {
-                offer($where, $at, ~.<s>) for $source.match(/ '`' $<s>=[<-[`]>+] '`' /, :g);
+                if $source.trim.starts-with('```') {
+                    $in-fence = !$in-fence;
+                    next;
+                }
+
+                if $in-fence {
+                    # A fence marks its whole content as documentation about the
+                    # language. Gloss and English lines stay in the stream, but
+                    # `offer`'s alphabet gate and the alternant checker decide
+                    # whether any token is actually Rono.
+                    offer($where, $at, $source);
+                }
+                else {
+                    offer($where, $at, ~.<s>)
+                        for $source.match(/ '`' $<s>=[<-[`]>+] '`' /, :g);
+                }
             }
 
             when 'html' {
@@ -190,6 +207,12 @@ my %expected =
 ok @files.elems > 20, "the sweep reaches more than one directory ({ @files.elems } files)";
 
 ok $checked > 500, "and it actually reads them ($checked candidate words)";
+
+my @language-words = @candidates.grep({ .<where> eq 'LANGUAGE.md' }).map(*.<word>);
+ok @language-words.grep({ $_ eq 'dələri' }).elems > 0,
+    'fenced Markdown contributes a Rono line with language-specific letters';
+ok @language-words.grep({ $_ eq 'laariswemedi' }).elems > 0,
+    'fenced Markdown contributes an ASCII-only Rono line as well';
 
 is-deeply (%found.keys.Set (-) %expected.keys.Set).keys.sort.List, (),
     'no unclassified mismatches: a new entry here is a new defect';
