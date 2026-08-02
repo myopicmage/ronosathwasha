@@ -59,6 +59,11 @@ sub case-data(--> Hash) {
 }
 
 sub raw-answer(%case --> Hash) {
+    return %(
+        kind       => %case<kind>,
+        phatic_act => %case<phatic_act>,
+    ) if %case<kind> eq 'phatic';
+
     my @arguments = %case<arguments>.List.map(-> Str:D $encoded {
         my ($role, $stem) = $encoded.split(':', 2);
         %( role => $role, stem => $stem );
@@ -82,14 +87,22 @@ sub raw-answer(%case --> Hash) {
     %raw;
 }
 
+sub strata(%case --> List) {
+    my @labels = %case<strata>.List;
+    @labels.push: "response_kind:{ %case<kind> }"
+        unless @labels.grep(*.starts-with('response_kind:'));
+    @labels.List;
+}
+
 sub response-invariant(--> PromptInvariant) {
     PromptInvariant.new(
         :label('response schema'),
         :text(q:to/SCHEMA/.trim),
             Return exactly one JSON object. Use `kind: express` for a meaning
-            the language can say. Use `kind: gap` when it cannot, naming
-            `wanted` and `missing`. The schema enforces the remaining fields
-            and declared vocabulary.
+            the language can say, or `kind: phatic` with `phatic_act: greeting`
+            for a declared social move. Use `kind: gap` when the language cannot
+            carry the meaning, naming `wanted` and `missing`. The schema enforces
+            the remaining fields and declared vocabulary.
             SCHEMA
     );
 }
@@ -152,7 +165,7 @@ sub evaluate(
         my $expected = intent-from($lexicon, $morphology, raw-answer(%case));
 
         die "evaluation case { %case<id> } has an invalid expected meaning"
-            unless $expected ~~ Express;
+            unless $expected ~~ ResponseIntent;
 
         my $actual = try $model.respond(
             evaluation-context($lexicon, $morphology, %case<prompt>),
@@ -161,7 +174,7 @@ sub evaluate(
         my Bool $correct = False;
         my Str  $status;
 
-        if $actual ~~ Express {
+        if $expected ~~ Express && $actual ~~ Express {
             my $admitted = admit-intent($script, $lexicon, $morphology, $actual);
 
             if $admitted ~~ Str {
@@ -175,6 +188,19 @@ sub evaluate(
             }
             else {
                 $status = "inadmissible: { $admitted.summary }";
+            }
+        }
+        elsif $expected ~~ Phatic && $actual ~~ Phatic {
+            my $said = try realize-phatic($lexicon, $actual);
+
+            if $said ~~ Str {
+                $correct = $expected.act == $actual.act;
+                $status = $correct
+                    ?? 'correct'
+                    !! 'wrong: phatic_act';
+            }
+            else {
+                $status = "inadmissible: { $said.exception.message }";
             }
         }
         elsif $actual ~~ Gap {
@@ -191,7 +217,7 @@ sub evaluate(
         @results.push: %(
             correct => $correct,
             latency => $seconds,
-            strata  => %case<strata>.List,
+            strata  => strata(%case),
         );
     }
 

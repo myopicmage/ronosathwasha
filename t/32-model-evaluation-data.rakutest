@@ -35,9 +35,16 @@ my @prompts = @cases.map(*<prompt>);
 is @ids.unique.elems, @ids.elems, 'case identifiers are unique';
 is @prompts.unique.elems, @prompts.elems, 'evaluation prompts are held out and unique';
 
+sub strata(%case --> List) {
+    my @labels = %case<strata>.List;
+    @labels.push: "response_kind:{ %case<kind> }"
+        unless @labels.grep(*.starts-with('response_kind:'));
+    @labels.List;
+}
+
 my %labels;
 for @cases -> %case {
-    for %case<strata>.List -> Str:D $label {
+    for strata(%case) -> Str:D $label {
         my ($axis, $value) = $label.split(':', 2);
         %labels{$axis}{$value} = True;
     }
@@ -52,9 +59,15 @@ is @underrepresented.elems, 0,
 my @unknown-axes = %labels.keys.grep({ not @axes.first(* eq $_).defined });
 is @unknown-axes.elems, 0, 'case strata use only declared evaluation axes';
 
-my @required = <id prompt kind predicate speech_act tense aspect polarity modality arguments strata>;
+sub required-fields(%case --> List) {
+    return <id prompt kind phatic_act strata>
+        if %case<kind> eq 'phatic';
+
+    <id prompt kind predicate speech_act tense aspect polarity modality arguments strata>;
+}
+
 my @missing = @cases.grep(-> %case {
-    @required.grep({ not %case{$_}:exists }).elems;
+    required-fields(%case).grep({ not %case{$_}:exists }).elems;
 });
 is @missing.elems, 0, 'every case declares the fields the evaluator needs';
 
@@ -64,6 +77,11 @@ my $lexicon    = load-lexicon($data-path.add('lexicon.toml'));
 my $morphology = load-morphology($data-path.add('morphology.toml'));
 
 sub expected(%case --> Hash) {
+    return %(
+        kind       => %case<kind>,
+        phatic_act => %case<phatic_act>,
+    ) if %case<kind> eq 'phatic';
+
     my @arguments = %case<arguments>.List.map(-> Str:D $encoded {
         my ($role, $stem) = $encoded.split(':', 2);
         %( role => $role, stem => $stem );
@@ -92,6 +110,12 @@ my @inadmissible;
 for @cases -> %case {
     my $intent = intent-from($lexicon, $morphology, expected(%case));
 
+    if $intent ~~ Phatic {
+        my $said = try realize-phatic($lexicon, $intent);
+        @inadmissible.push: %case<id> unless $said ~~ Str;
+        next;
+    }
+
     unless $intent ~~ Express {
         @invalid.push: %case<id>;
         next;
@@ -106,6 +130,6 @@ for @cases -> %case {
     @inadmissible.push: %case<id> unless $said ~~ Str;
 }
 
-is @invalid.elems, 0, 'every expected case is a valid typed express intent';
+is @invalid.elems, 0, 'every expected case is a valid typed response intent';
 is @inadmissible.elems, 0,
     'every expected case survives realization and read-back';

@@ -14,11 +14,21 @@ required_axes = [
     "modality",
     "argument_structure",
     "question_kind",
+    "response_kind",
 ]
 
 # `arguments` carries role and stem together because that is the semantic unit
 # the model returns. The evaluator turns `subject:la` into the wire object's
 # `{ role = "subject", stem = "la" }` at the boundary.
+
+# ------------------------------------------------------------- phatic / greeting --
+
+[[case]]
+id = "greeting"
+prompt = "Greet me."
+kind = "phatic"
+phatic_act = "greeting"
+strata = ["response_kind:phatic"]
 
 # -------------------------------------------------------------- eat / thinə ---
 

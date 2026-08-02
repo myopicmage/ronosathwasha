@@ -11,7 +11,7 @@ my Str $dry-out = $dry-run.out.slurp;
 my Str $dry-err = $dry-run.err.slurp;
 
 is $dry-run.exitcode, 0, 'the evaluator can inspect the corpus without a server';
-like $dry-out, /'cases: 50'/, 'dry-run reports the declared case count';
+like $dry-out, /'cases: 51'/, 'dry-run reports the declared case count';
 like $dry-out, /'overall >= 90.0%'/, 'dry-run reports the overall threshold';
 like $dry-out, /'each stratum >= 80.0%'/, 'dry-run reports the stratum threshold';
 like $dry-out, /'question_kind'/, 'dry-run reports the declared axes';
