@@ -111,6 +111,27 @@ else
   fi
 fi
 
+# Pay the prompt's cold cost here, where something is already waiting, rather
+# than on the first message, where somebody is.
+#
+# The system message is around 1700 tokens and llama-server keeps the longest
+# common prefix per slot, so the first turn of a session costs about fourteen
+# seconds of prompt evaluation and every turn after it costs the handful of
+# tokens it added. Moving that one payment in front of the prompt turns a
+# fourteen-second greeting into a startup that was already slow for other
+# reasons.
+#
+# Unconditional, including when attaching to a server somebody else started,
+# because a running server has whatever prefix its last conversation left and
+# there is no reason to assume it is this one. Warming an already-warm cache
+# costs about a second.
+#
+# Failure is deliberately not fatal. A cold cache is slower, not broken, and
+# refusing to open a conversation over a missed optimisation would cost more
+# than the optimisation was worth.
+echo "Warming the prompt cache..."
+bin/ronosathwasha-chat --warm || true
+
 # Not exec. Replacing this shell would discard the trap along with it, and the
 # server would outlive the conversation it was started for.
 bin/ronosathwasha-chat "$@"

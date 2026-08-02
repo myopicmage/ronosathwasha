@@ -29,6 +29,7 @@ sub usage(--> Str) {
 
       make chat                         start Lauri's terminal conversation
       --session=PATH                    store the session at PATH
+      --warm                            prime the server's prompt cache, then exit
       /budget                           show current context cost and budget
       /parse                            explain the last parsed exchange
       /gaps                             show language gaps found so far
@@ -43,6 +44,7 @@ sub usage(--> Str) {
 
 sub MAIN(
     Bool :$help = False,
+    Bool :$warm = False,
     Str  :$session = 'sessions/chat.jsonl',
 ) {
     if $help {
@@ -55,5 +57,22 @@ sub MAIN(
         ?? $session.IO
         !! $root.add($session);
 
-    load-app($root, $session-path).run;
+    my $app = load-app($root, $session-path);
+
+    # A warm-up that failed is worth saying out loud and not worth stopping for,
+    # so it reports a status a caller may consult and `scripts/chat-all.sh`
+    # deliberately ignores. A conversation with a cold cache is slower, not
+    # broken, and refusing to start one over a missed optimisation would be a
+    # worse outcome than the fourteen seconds it was trying to save.
+    if $warm {
+        if $app.warm {
+            say 'Prompt cache warmed.';
+            return;
+        }
+
+        note 'Warm-up failed; the first message will pay for the prompt.';
+        exit 1;
+    }
+
+    $app.run;
 }

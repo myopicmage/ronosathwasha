@@ -67,6 +67,31 @@ class App is export {
         $evidence
     }
 
+    #| Send one real request and throw the answer away, so a server has the
+    #| system prefix in its cache before anybody types.
+    #|
+    #| The cost being moved is measured rather than assumed. A first message
+    #| pays about fourteen seconds of prompt evaluation for roughly 1700 tokens
+    #| of system message, and every later turn in the same session pays for the
+    #| handful of tokens it added, because llama-server keeps the longest common
+    #| prefix per slot. So the expense is not per turn, it is once, and once can
+    #| happen while a script is already waiting for the server to load weights.
+    #|
+    #| It goes through C<respond> rather than a cheaper hand-built request on
+    #| purpose. A warm-up that assembles its own prompt would warm a prefix that
+    #| merely resembles the real one, and the divergence would be invisible:
+    #| the cache would simply miss, exactly as though nothing had been done.
+    #| Using the real path means the prefix is identical by construction, and it
+    #| pays the grammar compilation for the response schema at the same time.
+    #|
+    #| The answer to an empty conversation is meaningless and discarded. Nothing
+    #| is written to the log, because no turn happened.
+    method warm(--> Bool) {
+        my $intent = try $!model.respond($!context);
+
+        $intent.defined;
+    }
+
     #| Copy the durable stream for author review without exposing the log's
     #| representation to callers that only need the application shell.
     method export(IO::Path:D $destination --> IO::Path:D) {
