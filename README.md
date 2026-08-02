@@ -129,7 +129,29 @@ can then decide whether Rono needs a word, a rule, an idiom or nothing at all.
 
 Most of the plumbing exists: the model, parser, realizer, structured intent
 protocol, conversation state, prompt construction, context budgeting and
-`llama.cpp` transport. The conversation interface is not finished yet.
+`llama.cpp` transport. The terminal conversation is available through `make chat`.
+
+Start the model server separately, because the harness does not own its process
+lifecycle:
+
+```sh
+llama-server \
+  --model ~/models/Qwen3-14B-Q5_K_M.gguf \
+  --jinja \
+  --port 8080
+```
+
+In another terminal, from the repository:
+
+```sh
+make chat
+```
+
+Type a meaning in the `you>` prompt. Lauri answers with a realized sentence or
+reports a gap when the current language cannot express it. `/evidence` prints
+the findings retained during this run, and `/quit` exits. The conversation and
+its evidence are currently in memory, so export and durable-session storage
+remain future work.
 
 The selected model is Qwen3-14B at Q5_K_M, running locally with its native 32K
 context. Its GGUF lives in `~/models/`, never in this repository. A model file
