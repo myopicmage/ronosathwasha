@@ -1,0 +1,128 @@
+use Test;
+
+use Ronosathwasha::Actions;
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::Intent;
+use Ronosathwasha::LanguageEvidence;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Model;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Script;
+use Ronosathwasha::Terminal;
+use Ronosathwasha::TestModel;
+use Ronosathwasha::TokenCounter;
+
+plan 16;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $counter    = PerWord.new;
+my $budget     = Budget.new(:total(10_000), :reserved(100));
+
+sub context(--> PromptContext) {
+    PromptContext.new(
+        :schema(PromptInvariant.new(:label('response schema'), :text('kind express or gap'))),
+        :capabilities(PromptInvariant.new(:label('language capabilities'), :text('three tenses'))),
+        :state(ConversationState.new),
+    );
+}
+
+sub answer(*%extra) {
+    %(
+        kind       => 'express',
+        predicate  => 'thinə',
+        speech_act => 'declarative',
+        tense      => 'present',
+        aspect     => 'simple',
+        polarity   => 'affirmative',
+        modality   => 'asserted',
+        arguments  => [ $%( 'role' => 'subject', 'stem' => 'la' ) ],
+        |%extra,
+    )
+}
+
+sub session(Str:D $input-text, Model:D $model --> List) {
+    my Str $tag = "ronosathwasha-terminal-{ $*PID }";
+    my IO::Path $input-path  = $*TMPDIR.add("{ $tag }.in");
+    my IO::Path $output-path = $*TMPDIR.add("{ $tag }.out");
+
+    LEAVE {
+        $input-path.unlink if $input-path.e;
+        $output-path.unlink if $output-path.e;
+    }
+
+    $input-path.spurt($input-text);
+
+    my $input  = $input-path.open(:r);
+    my $output = $output-path.open(:w);
+
+    my $evidence = Terminal.new(
+        :$script, :$lexicon, :$morphology, :$model, :budget($budget), :counter($counter),
+        :context(context()), :input($input), :output($output),
+    ).run;
+
+    $input.close;
+    $output.close;
+
+    ($output-path.slurp, $evidence);
+}
+
+# --------------------------------------------------------- ordinary turns ---
+
+my $model = scripted($lexicon, $morphology, answer(), answer());
+my ($transcript, $evidence) = session(
+    "Lari thinəme.\nLari thinəme.\n/evidence\n/quit\n",
+    $model,
+);
+
+is $model.asked, 2, 'each language line reaches the model once';
+is $model.seen[1].state.depth, 3,
+    'the second turn receives the first human and bot turns';
+like $transcript, / 'you> laari> lari thinəme.' /,
+    'the terminal prints a bot sentence';
+ok $transcript.contains("you> laari> [evidence]\nnothing found yet\nyou>"),
+    'the evidence command does not create a model turn';
+is $evidence.elems, 0, 'ordinary turns produce no language evidence';
+
+# -------------------------------------------------------------- a gap ---
+
+my ($gap-transcript, $gap-evidence) = session(
+    "Lari thinəme.\n/evidence\n/quit\n",
+    Silent.new,
+);
+
+ok $gap-transcript.contains('laari> [gap] gap: something, needs a decision nobody has made'),
+    'a model gap is readable at the prompt';
+ok $gap-transcript.contains("laari> [evidence]\n[MissingMeaning] something:"),
+    'the evidence command reports the durable finding';
+is $gap-evidence.elems, 1, 'the gap is harvested once';
+is $gap-evidence.findings.head.seen, 1, 'and starts with one observation';
+
+# ------------------------------------------------------- unreadable input ---
+
+my ($bad-transcript, $bad-evidence) = session(
+    "Lari thothinəme.\n/quit\n",
+    Silent.new,
+);
+
+ok $bad-transcript.contains('laari> [input]'),
+    'an unreadable human turn is named instead of disappearing';
+ok $bad-transcript.contains('laari> [gap]'),
+    'the model still gets a chance to answer it';
+is $bad-evidence.elems, 2, 'the parser finding and model gap reach evidence';
+ok $bad-evidence.findings.first(*.kind.key eq 'RetiredUsage').defined,
+    'and keeps the specific retired-form classification';
+ok $bad-evidence.findings.first(*.kind.key eq 'MissingMeaning').defined,
+    'and retains the model-reported gap beside it';
+
+# ------------------------------------------------------------- blank input ---
+
+my ($blank-transcript, $blank-evidence) = session("\n/quit\n", Silent.new);
+
+is $blank-evidence.elems, 0, 'blank input is ignored';
+is $blank-transcript.comb('you> ').elems, 2,
+    'blank input still returns to the prompt without asking the model';
