@@ -369,6 +369,19 @@ sub take-turn(
     my Inadmissible $inadmissible = $written ~~ Inadmissible ?? $written !! Inadmissible;
     my Str          $said         = $written ~~ Inadmissible ?? Str      !! $written;
 
+    # The prompt carries turn text, not turn meaning. A failed answer therefore
+    # needs an explicit model-facing record even though it has no user-visible
+    # Ronosathwasha sentence. Keep the failure's meaning in the state as well:
+    # the next turn needs both what the model chose and why it could not be said.
+    my Str $context-text = $said // do {
+        if $inadmissible.defined {
+            "[inadmissible] { $inadmissible.summary }"
+        }
+        else {
+            "[gap] { $intent.summary }"
+        }
+    };
+
     # The intent stays the turn's meaning even when it was inadmissible, because
     # it was: the model chose something the declarations admit, and the sentence
     # is what failed. Recording the failure as the meaning would lose the choice
@@ -379,7 +392,7 @@ sub take-turn(
         :$intent,
         :$said,
         :$inadmissible,
-        :context($fitted.with(:state($fitted.state.said(Bot, $said // '', $intent)))),
+        :context($fitted.with(:state($fitted.state.said(Bot, $context-text, $intent)))),
     );
 
     CATCH { default { .fail } }

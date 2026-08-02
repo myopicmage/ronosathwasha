@@ -16,7 +16,7 @@ use Ronosathwasha::PromptContext;
 use Ronosathwasha::TokenCounter;
 use Ronosathwasha::Dialogue;
 
-plan 54;
+plan 58;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -179,6 +179,16 @@ my $silent = turn(Silent.new, $fresh, 'Lari thinəme.');
 nok $silent.said.defined, 'a gap produces no Ronosathwasha at all';
 isa-ok $silent.intent, Gap, 'the gap is carried out to the caller';
 is $silent.gap.missing, 'a decision nobody has made', 'with what was missing';
+is $silent.context.state.turns.tail.text,
+    '[gap] gap: something, needs a decision nobody has made',
+    'the next prompt names the gap instead of carrying an empty assistant turn';
+
+my $collision = turn(scripted($lexicon, $morphology, answer(predicate => 'nara')),
+    $fresh, 'Lari thinəme.');
+nok $collision.said.defined, 'an inadmissible answer has no user-visible sentence';
+isa-ok $collision.inadmissible, Inadmissible, 'the failed answer remains classified';
+like $collision.context.state.turns.tail.text, / '[inadmissible]' /,
+    'the next prompt names an inadmissible answer explicitly';
 
 # ----------------------------------------------------------- a broken model propagates ---
 #
