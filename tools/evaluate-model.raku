@@ -34,6 +34,8 @@ use Ronosathwasha::Intent;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::LlamaCpp;
 use Ronosathwasha::Morphology;
+use Ronosathwasha::Model;
+use Ronosathwasha::ModelProtocol;
 use Ronosathwasha::Projection;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Script;
@@ -94,6 +96,35 @@ sub strata(%case --> List) {
     @labels.List;
 }
 
+class RecordingInference does Inference {
+    has Inference:D $.inner is required;
+    has Mu $.last-answer is rw;
+
+    method clear(--> Nil) {
+        $!last-answer = Nil;
+    }
+
+    method complete(@messages) {
+        my $answer = $!inner.complete(@messages);
+        $!last-answer = $answer;
+        $answer;
+    }
+}
+
+sub safe-respond(Model:D $model, PromptContext:D $context) {
+    return $model.respond($context);
+
+    CATCH {
+        default { .fail }
+    }
+}
+
+sub with-raw(Str:D $status, $raw --> Str) {
+    return $status unless $raw.defined;
+
+    "$status; raw: { $raw ~~ Associative ?? $raw.raku !! $raw.^name }";
+}
+
 sub response-invariant(--> PromptInvariant) {
     PromptInvariant.new(
         :label('response schema'),
@@ -133,6 +164,7 @@ sub dry-run(%data, @cases --> Nil) {
     say "cases: { @cases.elems }";
     say "thresholds: { describe-thresholds(%data) }";
     say "axes: { %data<required_axes>.List.join(', ') }";
+    say 'diagnostics: raw model answers retained; failures preserve their cause';
     say 'model run: skipped';
 }
 
@@ -146,11 +178,14 @@ sub evaluate(
     @cases
     --> Int
 ) {
+    my $inference = RecordingInference.new(
+        :inner(llama-cpp($config, $lexicon, $morphology)),
+    );
     my $model = chat-model(
         $config,
         $lexicon,
         $morphology,
-        llama-cpp($config, $lexicon, $morphology),
+        $inference,
     );
 
     say "model: { $config.model.name } { $config.model.quantisation }";
@@ -167,7 +202,8 @@ sub evaluate(
         die "evaluation case { %case<id> } has an invalid expected meaning"
             unless $expected ~~ ResponseIntent;
 
-        my $actual = try $model.respond(
+        $inference.clear;
+        my $actual = safe-respond($model,
             evaluation-context($lexicon, $morphology, %case<prompt>),
         );
         my Numeric $seconds = now - $started;
@@ -209,10 +245,15 @@ sub evaluate(
         elsif $actual ~~ Failure {
             $status = "failure: { $actual.exception.message }";
         }
+        elsif !$actual.defined {
+            $status = 'failure: model returned no response (Any)';
+        }
         else {
-            $status = "unexpected: { $actual.^name }";
+            $status = "unexpected response type: { $actual.^name }";
         }
 
+        $status = with-raw($status, $inference.last-answer)
+            unless $correct;
         say "{ %case<id> }: { $status } ({ sprintf('%.3fs', $seconds) })";
         @results.push: %(
             correct => $correct,

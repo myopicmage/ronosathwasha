@@ -2,7 +2,7 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 9;
+plan 10;
 
 my IO::Path $tool = repository-root.add('tools/evaluate-model.raku');
 
@@ -15,6 +15,8 @@ like $dry-out, /'cases: 51'/, 'dry-run reports the declared case count';
 like $dry-out, /'overall >= 90.0%'/, 'dry-run reports the overall threshold';
 like $dry-out, /'each stratum >= 80.0%'/, 'dry-run reports the stratum threshold';
 like $dry-out, /'question_kind'/, 'dry-run reports the declared axes';
+like $dry-out, /'diagnostics: raw model answers retained'/,
+    'dry-run advertises raw-answer diagnostics';
 like $dry-out, /'model run: skipped'/, 'dry-run makes the no-inference boundary visible';
 is $dry-err, '', 'dry-run has no diagnostics';
 
