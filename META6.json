@@ -12,6 +12,7 @@
     "Ronosathwasha::Projection": "lib/Ronosathwasha/Projection.rakumod",
     "Ronosathwasha::Gloss": "lib/Ronosathwasha/Gloss.rakumod",
     "Ronosathwasha::Chatbot": "lib/Ronosathwasha/Chatbot.rakumod",
+    "Ronosathwasha::ChatModel": "lib/Ronosathwasha/ChatModel.rakumod",
     "Ronosathwasha::Types": "lib/Ronosathwasha/Types.rakumod",
     "Ronosathwasha::Data": "lib/Ronosathwasha/Data.rakumod",
     "Ronosathwasha::Script": "lib/Ronosathwasha/Script.rakumod",
@@ -41,7 +42,8 @@
     "Ronosathwasha::TokenCounter": "lib/Ronosathwasha/TokenCounter.rakumod",
     "Ronosathwasha::LanguageEvidence": "lib/Ronosathwasha/LanguageEvidence.rakumod",
     "Ronosathwasha::PromptContext": "lib/Ronosathwasha/PromptContext.rakumod",
-    "Ronosathwasha::ContextPolicy": "lib/Ronosathwasha/ContextPolicy.rakumod"
+    "Ronosathwasha::ContextPolicy": "lib/Ronosathwasha/ContextPolicy.rakumod",
+    "Ronosathwasha::Terminal": "lib/Ronosathwasha/Terminal.rakumod"
   },
   "depends": [
     "Config::TOML",

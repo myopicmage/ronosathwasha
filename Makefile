@@ -61,7 +61,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict syllabary pages keylayout serve share speak validate test raku-test typecheck check install clean
+.PHONY: help all site font dict syllabary pages keylayout serve share speak validate chat test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -115,6 +115,9 @@ speak: ## Speak the language into build/speech
 validate: $(RAKU_STAMP) ## Validate Rono in TEXT at writing, word, or sentence LEVEL
 	@test -n "$(TEXT)" || { echo "usage: make validate TEXT='Lari thinəme.' [LEVEL=sentence]"; exit 2; }
 	$(RAKU) raku -I lib tools/validate.raku --level="$(LEVEL)" "$(TEXT)"
+
+chat: $(RAKU_STAMP) ## Start the local Lauri conversation
+	$(RAKU) raku -I lib scripts/chatbot.raku
 
 serve: site ## Serve build/ over HTTP
 	$(PY) -m http.server -d build $(PORT)
