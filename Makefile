@@ -10,6 +10,7 @@
 
 PORT ?= 8000
 LEVEL ?= sentence
+CHECK_JOBS ?= 3
 
 # Empty under direnv, which is the usual case: the toolchain is already on
 # PATH. Outside it, every recipe re-enters the dev shell, the way
@@ -144,7 +145,8 @@ raku-test: $(RAKU_STAMP) ## Run the Raku test suite
 typecheck: ## Type-check, strict
 	$(PY) -m mypy
 
-check: test raku-test typecheck ## Test and type-check
+check: $(RAKU_STAMP) ## Test and type-check
+	+$(MAKE) -j$(CHECK_JOBS) test raku-test typecheck
 
 install: ## Build both halves and install them (macOS)
 	./scripts/install.sh
