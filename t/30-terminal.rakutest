@@ -2,6 +2,7 @@ use Test;
 
 use Ronosathwasha::Actions;
 use Ronosathwasha::Chatbot;
+use Ronosathwasha::Commands;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::Intent;
 use Ronosathwasha::LanguageEvidence;
@@ -14,7 +15,7 @@ use Ronosathwasha::Terminal;
 use Ronosathwasha::TestModel;
 use Ronosathwasha::TokenCounter;
 
-plan 16;
+plan 19;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -118,6 +119,20 @@ ok $bad-evidence.findings.first(*.kind.key eq 'RetiredUsage').defined,
     'and keeps the specific retired-form classification';
 ok $bad-evidence.findings.first(*.kind.key eq 'MissingMeaning').defined,
     'and retains the model-reported gap beside it';
+
+# -------------------------------------------------------------------- help ---
+
+# The reason this command exists: the list used to be reachable only from
+# `--help`, which means leaving the conversation to find out what `/parse` does.
+
+my $help-model = scripted($lexicon, $morphology, answer());
+my ($help-transcript, $) = session("/help\n/quit\n", $help-model);
+
+is $help-model.asked, 0, 'the help command does not reach the model';
+ok $help-transcript.contains('laari> [help]'),
+    'the help command names itself the way the other reports do';
+ok $help-transcript.contains(command-help()),
+    'and prints the declaration verbatim rather than a second copy of it';
 
 # ------------------------------------------------------------- blank input ---
 
