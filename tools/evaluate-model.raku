@@ -243,6 +243,7 @@ sub evaluate(
             $status = "gap: { $actual.summary }";
         }
         elsif $actual ~~ Failure {
+            $actual.defined;
             $status = "failure: { $actual.exception.message }";
         }
         elsif !$actual.defined {
