@@ -46,6 +46,12 @@ class Terminal is export {
     has Str:D $.input-prompt = 'you> ';
     has Str:D $.bot-prompt   = 'laari> ';
 
+    #| Optional observers let an outer shell retain durable records without
+    #| making the terminal responsible for a storage format. They are called
+    #| only after the turn has become an `Exchange` or updated evidence.
+    has Callable $.on-exchange;
+    has Callable $.on-evidence;
+
     #| Run until EOF, `/quit`, or an infrastructure/model failure. The evidence
     #| value is separate from the rolling context because folding is allowed to
     #| forget turns but never gets to erase a finding.
@@ -83,7 +89,9 @@ class Terminal is export {
 
             my Exchange $exchange = $result;
             $context = $exchange.context;
+            $!on-exchange($exchange) if $!on-exchange.defined;
             $evidence = self!record($exchange, $evidence);
+            $!on-evidence($evidence) if $!on-evidence.defined;
             self!display($exchange);
         }
 

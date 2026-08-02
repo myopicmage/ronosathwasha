@@ -1,0 +1,104 @@
+use Test;
+
+use Ronosathwasha::App;
+use Ronosathwasha::Capabilities;
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Config;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::LanguageEvidence;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Script;
+use Ronosathwasha::SessionLog;
+use Ronosathwasha::TestModel;
+use Ronosathwasha::TokenCounter;
+
+plan 14;
+
+my IO::Path $root = repository-root;
+my IO::Path $data = $root.add('data');
+my IO::Path $directory = $*TMPDIR.add("ronosathwasha-app-{ $*PID }");
+my IO::Path $input-path = $directory.add('input');
+my IO::Path $output-path = $directory.add('output');
+my IO::Path $log-path = $directory.add('session.jsonl');
+my IO::Path $export-path = $directory.add('exports').add('session.jsonl');
+
+LEAVE {
+    $export-path.unlink if $export-path.e;
+    $export-path.parent.rmdir if $export-path.parent.d;
+    $input-path.unlink if $input-path.e;
+    $output-path.unlink if $output-path.e;
+    $log-path.unlink if $log-path.e;
+    $directory.rmdir if $directory.d;
+}
+
+$directory.rmdir if $directory.d;
+$directory.mkdir;
+$input-path.spurt("Lari thinəme.\n/quit\n");
+
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+my $budget     = Budget.new(:total(10_000), :reserved(100));
+my $config     = Config.new(
+    :model(ModelFile.new(
+        :name('test-model'),
+        :quantisation('test-quantisation'),
+        :path($directory),
+    )),
+    :$budget,
+    :server(Server.new(:url('http://127.0.0.1:8080'), :timeout-seconds(1))),
+    :sampling(Sampling.new(
+        :temperature(0), :top-p(1), :top-k(1), :thinking(False),
+    )),
+    :researcher(Researcher.new(:system('test researcher'))),
+);
+my $context = PromptContext.new(
+    :schema(PromptInvariant.new(:label('response schema'), :text('express or gap'))),
+    :capabilities(PromptInvariant.new(:label('language capabilities'), :text('present'))),
+    :state(ConversationState.new),
+);
+
+my $input = $input-path.open(:r);
+my $output = $output-path.open(:w);
+my $app = App.new(
+    :$config,
+    :$script,
+    :$lexicon,
+    :$morphology,
+    :model(Silent.new),
+    :$context,
+    :counter(PerWord.new),
+    :log(session-log($log-path)),
+    :$input,
+    :$output,
+);
+
+my LanguageEvidence:D $evidence = $app.run;
+
+$input.close;
+$output.close;
+
+is $evidence.elems, 1, 'the composed app returns the terminal evidence';
+is $evidence.findings.head.subject, 'something',
+    'the model gap survives the composed run';
+
+my @records = session-log($log-path).records;
+is @records.elems, 4, 'start, exchange, evidence and end are durable records';
+is @records[0].event, 'session-started', 'the app records its session boundary';
+is @records[0].data<model>, 'test-model', 'the session identifies its model';
+is @records[1].event, 'exchange', 'the terminal observer records the exchange';
+is @records[1].data<heard>, 'Lari thinəme.', 'the exchange keeps the user text';
+is @records[2].event, 'evidence', 'the terminal observer records accumulated evidence';
+is @records[2].data<findings>[0]<subject>, 'something',
+    'the evidence record keeps the candidate gap';
+is @records[3].event, 'session-ended', 'the app records the closing boundary';
+is @records[3].data<findings>, 1, 'the closing boundary reports finding count';
+
+like $output-path.slurp, / '[gap] gap: something' /,
+    'the composed app still displays the terminal conversation';
+
+$app.export($export-path);
+ok $export-path.e, 'the app exposes explicit session export';
+is $export-path.slurp, $log-path.slurp, 'app export preserves the durable stream';

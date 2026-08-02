@@ -77,7 +77,9 @@ class SessionLog is export {
         self.append(
             'exchange',
             heard          => $exchange.heard,
-            understanding  => $exchange.understanding.summary,
+            understanding  => $exchange.understood
+                ?? 'understood'
+                !! $exchange.understanding.summary,
             understood     => $exchange.understood,
             intent         => $exchange.intent.defined ?? $exchange.intent.summary !! Nil,
             said           => $exchange.said.defined ?? $exchange.said !! Nil,
