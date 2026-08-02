@@ -148,10 +148,16 @@ make chat
 ```
 
 Type a meaning in the `you>` prompt. Lauri answers with a realized sentence or
-reports a gap when the current language cannot express it. `/evidence` prints
-the findings retained during this run, and `/quit` exits. The conversation and
-its evidence are currently in memory, so export and durable-session storage
-remain future work.
+reports a gap when the current language cannot express it. The session is
+durable in `sessions/chat.jsonl`, which is ignored as machine-local state.
+
+The prompt commands are:
+
+- `/budget` shows the current context cost, reservation and live-turn count;
+- `/parse` explains the most recent exchange;
+- `/gaps` (or `/evidence`) lists language findings;
+- `/export PATH` copies the session log for review;
+- `/quit` exits without creating another turn.
 
 The selected model is Qwen3-14B at Q5_K_M, running locally with its native 32K
 context. Its GGUF lives in `~/models/`, never in this repository. A model file

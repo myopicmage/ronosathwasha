@@ -2,9 +2,9 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 8;
+plan 13;
 
-my IO::Path $script = repository-root.add('scripts/chatbot.raku');
+my IO::Path $script = repository-root.add('bin/ronosathwasha-chat');
 
 my $help = run $*EXECUTABLE, $script, '--help', :out, :err;
 my Str $help-out = $help.out.slurp;
@@ -12,7 +12,12 @@ my Str $help-err = $help.err.slurp;
 
 is $help.exitcode, 0, 'the entry point has a model-free help path';
 like $help-out, /'make chat'/, 'help names the make target';
+ok $help-out.contains('--session=PATH'), 'help names the session option';
 ok $help-out.contains('/evidence'), 'help names the evidence command';
+ok $help-out.contains('/budget'), 'help names the budget command';
+ok $help-out.contains('/parse'), 'help names the parse command';
+ok $help-out.contains('/gaps'), 'help names the gaps command';
+ok $help-out.contains('/export PATH'), 'help names the export command';
 ok $help-out.contains('/quit'), 'help names the quit command';
 like $help-out, /'llama-server'/, 'help names the external server prerequisite';
 is $help-err, '', 'help does not write diagnostics';
@@ -21,4 +26,4 @@ my $dry-run = run 'make', '-n', 'chat', :out, :err;
 my Str $make-out = $dry-run.out.slurp;
 
 is $dry-run.exitcode, 0, 'make knows the chat target';
-ok $make-out.contains('scripts/chatbot.raku'), 'the target invokes the executable script';
+ok $make-out.contains('bin/ronosathwasha-chat'), 'the target invokes the executable script';

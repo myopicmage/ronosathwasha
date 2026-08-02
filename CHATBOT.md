@@ -257,3 +257,21 @@ The system must distinguish:
 
 The language develops through usage while the system preserves **why the
 language became what it is**.
+
+## The local CLI
+
+`make chat` starts `bin/ronosathwasha-chat` after `llama-server` has been
+started separately. The rolling prompt is temporary, while the ordinary
+transcript and candidate findings are appended to the ignored
+`sessions/chat.jsonl` session log.
+
+Inside the prompt:
+
+- `/budget` shows context cost against the reserved-response budget;
+- `/parse` explains the most recent exchange;
+- `/gaps` or `/evidence` shows findings retained so far;
+- `/export PATH` copies the durable log for author review;
+- `/quit` exits without another model turn.
+
+The log is evidence, not language authority. Accepting a rule remains an
+ordinary edit to the canonical TOML or documentation through learning mode.

@@ -20,6 +20,7 @@ unit module Ronosathwasha::Terminal;
 
 use Ronosathwasha::Actions;
 use Ronosathwasha::ConversationState;
+use Ronosathwasha::ContextPolicy;
 use Ronosathwasha::Dialogue;
 use Ronosathwasha::Intent;
 use Ronosathwasha::LanguageEvidence;
@@ -51,6 +52,7 @@ class Terminal is export {
     #| only after the turn has become an `Exchange` or updated evidence.
     has Callable $.on-exchange;
     has Callable $.on-evidence;
+    has Callable $.on-export;
 
     #| Run until EOF, `/quit`, or an infrastructure/model failure. The evidence
     #| value is separate from the rolling context because folding is allowed to
@@ -58,6 +60,7 @@ class Terminal is export {
     method run(--> LanguageEvidence) {
         my PromptContext  $context = $!context;
         my LanguageEvidence $evidence = LanguageEvidence.new;
+        my Exchange $last-exchange;
 
         loop {
             $!output.print($!input-prompt);
@@ -72,8 +75,27 @@ class Terminal is export {
             last if $heard eq '/quit';
 
             if $heard eq '/evidence' {
-                $!output.say("{ $!bot-prompt }[evidence]");
-                $!output.say($evidence.report);
+                self!display-evidence($evidence, 'evidence');
+                next;
+            }
+
+            if $heard eq '/gaps' {
+                self!display-evidence($evidence, 'gaps');
+                next;
+            }
+
+            if $heard eq '/budget' {
+                self!display-budget($context);
+                next;
+            }
+
+            if $heard eq '/parse' {
+                self!display-parse($last-exchange);
+                next;
+            }
+
+            if $heard eq '/export' || $heard.starts-with('/export ') {
+                self!export($heard);
                 next;
             }
 
@@ -88,6 +110,7 @@ class Terminal is export {
             }
 
             my Exchange $exchange = $result;
+            $last-exchange = $exchange;
             $context = $exchange.context;
             $!on-exchange($exchange) if $!on-exchange.defined;
             $evidence = self!record($exchange, $evidence);
@@ -96,6 +119,66 @@ class Terminal is export {
         }
 
         $evidence;
+    }
+
+    method !display-evidence(LanguageEvidence:D $evidence, Str:D $label) {
+        $!output.say("{ $!bot-prompt }[{ $label }]");
+        $!output.say($evidence.report);
+    }
+
+    #| The count uses the same counter and budget as the turn policy. It is an
+    #| operational view, not a second estimate hidden in the interface.
+    method !display-budget(PromptContext:D $context) {
+        my $cost = try context-cost($context, $!counter);
+
+        unless $cost.defined {
+            $!output.say("{ $!bot-prompt }[budget] unavailable: { $cost.self.exception.message }");
+            return;
+        }
+
+        my Str $fit = $!budget.fits($cost)
+            ?? 'fits'
+            !! "over by { $!budget.overflow($cost) }";
+
+        $!output.say(
+            "{ $!bot-prompt }[budget] cost { $cost }, available { $!budget.available }"
+                ~ " (window { $!budget.total }, reserved { $!budget.reserved }, "
+                ~ "{ $context.depth } live turns, { $fit })",
+        );
+    }
+
+    method !display-parse(Exchange $exchange) {
+        my Str $summary = $exchange.defined
+            ?? $exchange.summary
+            !! 'no turn has been parsed yet';
+
+        $!output.say("{ $!bot-prompt }[parse] { $summary }");
+    }
+
+    method !export(Str:D $command) {
+        my Str $raw-path = $command.substr('/export'.chars).trim;
+
+        unless $raw-path.chars {
+            $!output.say("{ $!bot-prompt }[export] usage: /export PATH");
+            return;
+        }
+
+        unless $!on-export.defined {
+            $!output.say("{ $!bot-prompt }[export] unavailable");
+            return;
+        }
+
+        my $destination = $raw-path.IO;
+        my $result = try $!on-export($destination);
+
+        if $result.defined {
+            $!output.say("{ $!bot-prompt }[export] wrote { $result }");
+        }
+        else {
+            $!output.say(
+                "{ $!bot-prompt }[export] failed: { $result.self.exception.message }",
+            );
+        }
     }
 
     #| Harvest only the findings the evidence queue is designed to hold. An

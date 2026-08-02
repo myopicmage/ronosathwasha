@@ -14,7 +14,7 @@ use Ronosathwasha::SessionLog;
 use Ronosathwasha::TestModel;
 use Ronosathwasha::TokenCounter;
 
-plan 14;
+plan 20;
 
 my IO::Path $root = repository-root;
 my IO::Path $data = $root.add('data');
@@ -35,7 +35,10 @@ LEAVE {
 
 $directory.rmdir if $directory.d;
 $directory.mkdir;
-$input-path.spurt("Lari thinəme.\n/quit\n");
+$input-path.spurt(
+    "/budget\n/parse\nLari thinəme.\n/parse\n/gaps\n"
+        ~ "/export { $export-path.Str }\n/quit\n",
+);
 
 my $script     = load-script($data.add('script.toml'));
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -83,6 +86,17 @@ $output.close;
 is $evidence.elems, 1, 'the composed app returns the terminal evidence';
 is $evidence.findings.head.subject, 'something',
     'the model gap survives the composed run';
+like $output-path.slurp, / '[budget] cost' /,
+    'the terminal exposes context-budget visibility';
+like $output-path.slurp, / '[parse] no turn has been parsed yet' /,
+    'the parse view explains an empty session';
+like $output-path.slurp, / '[parse] Lari thinəme. -> understood -> gap: something' /,
+    'the parse view explains the last exchange';
+like $output-path.slurp, / '[gaps]' /,
+    'the gaps view is separate from the evidence command';
+like $output-path.slurp, / '[export] wrote' /,
+    'the terminal reports an explicit export';
+ok $export-path.e, 'the terminal export creates its destination';
 
 my @records = session-log($log-path).records;
 is @records.elems, 4, 'start, exchange, evidence and end are durable records';

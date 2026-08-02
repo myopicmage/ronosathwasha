@@ -32,3 +32,6 @@ build/
 # here would be copied on every evaluation whether it is ignored or not.
 *.gguf
 models/
+
+# Durable chatbot transcripts are session state, not canonical language data.
+sessions/

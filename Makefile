@@ -117,7 +117,7 @@ validate: $(RAKU_STAMP) ## Validate Rono in TEXT at writing, word, or sentence L
 	$(RAKU) raku -I lib tools/validate.raku --level="$(LEVEL)" "$(TEXT)"
 
 chat: $(RAKU_STAMP) ## Start the local Lauri conversation
-	$(RAKU) raku -I lib scripts/chatbot.raku
+	$(RAKU) bin/ronosathwasha-chat
 
 serve: site ## Serve build/ over HTTP
 	$(PY) -m http.server -d build $(PORT)

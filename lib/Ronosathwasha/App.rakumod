@@ -90,6 +90,9 @@ class App is export {
             :on-evidence(-> LanguageEvidence:D $evidence {
                 $!log.record-evidence($evidence);
             }),
+            :on-export(-> IO::Path:D $destination --> IO::Path:D {
+                $!log.export($destination);
+            }),
         );
     }
 }

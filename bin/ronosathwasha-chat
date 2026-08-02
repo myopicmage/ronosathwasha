@@ -1,0 +1,59 @@
+#!/usr/bin/env raku
+
+=begin pod
+
+=head1 NAME
+
+ronosathwasha-chat - start the local Ronosathwasha conversation
+
+=head1 SYNOPSIS
+
+    bin/ronosathwasha-chat --help
+    bin/ronosathwasha-chat [--session=PATH]
+
+=head1 PREREQUISITES
+
+C<llama-server> must already be running at the URL in
+C<config/chatbot.toml>. The model weights stay outside this repository.
+
+=end pod
+
+use lib $?FILE.IO.parent.parent.add('lib').Str;
+
+use Ronosathwasha::App;
+use Ronosathwasha::Chatbot;
+
+sub usage(--> Str) {
+    q:to/USAGE/.trim;
+    Ronosathwasha local conversation
+
+      make chat                         start Lauri's terminal conversation
+      --session=PATH                    store the session at PATH
+      /budget                           show current context cost and budget
+      /parse                            explain the last parsed exchange
+      /gaps                             show language gaps found so far
+      /evidence                         alias for /gaps
+      /export PATH                      copy the durable session for review
+      /quit                              leave without creating another turn
+
+    The command expects llama-server at the configured URL. It does not start
+    the server or copy model weights into the repository.
+    USAGE
+}
+
+sub MAIN(
+    Bool :$help = False,
+    Str  :$session = 'sessions/chat.jsonl',
+) {
+    if $help {
+        say usage;
+        return;
+    }
+
+    my IO::Path $root = repository-root;
+    my IO::Path $session-path = $session.IO.is-absolute
+        ?? $session.IO
+        !! $root.add($session);
+
+    load-app($root, $session-path).run;
+}
