@@ -236,6 +236,10 @@ sub capabilities-invariant(
         'Choices the answer format lets you select:',
         |semantic-axes(),
         '',
+        'Phatic replies use a separate response shape: choose `kind: phatic` with'
+            ~ ' `phatic_act: greeting` when the meaning is a greeting. The realizer'
+            ~ ' supplies the declared phrase.',
+        '',
         'Every morpheme the language currently declares, by what it marks. This list is'
             ~ ' larger than the one above, and the difference is the interface rather'
             ~ ' than the language:',

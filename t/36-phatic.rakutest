@@ -1,0 +1,62 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::Dialogue;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::Script;
+use Ronosathwasha::TestModel;
+use Ronosathwasha::TokenCounter;
+use Ronosathwasha::Types;
+
+plan 11;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+my %raw = %( kind => 'phatic', phatic_act => 'greeting' );
+my $greeting = intent-from($lexicon, $morphology, %raw);
+
+isa-ok $greeting, Phatic, 'a greeting has a typed phatic intent';
+is $greeting.act, Greeting, 'and its act is the declared greeting member';
+is $greeting.summary, 'phatic: greeting', 'with a useful summary for state and logs';
+
+my $unknown = intent-from($lexicon, $morphology,
+    %( kind => 'phatic', phatic_act => 'farewell' ));
+nok $unknown.defined, 'an undeclared phatic act is refused';
+
+my $extra = intent-from($lexicon, $morphology,
+    %( %raw, wanted => 'hello' ));
+nok $extra.defined, 'a phatic response cannot borrow fields from another branch';
+
+is realize-phatic($lexicon, $greeting), 'narame.',
+    'the typed greeting realizes to the declared phrase';
+ok $lexicon.forms{'narame'}, 'and the phrase is still owned by the lexicon';
+
+my $context = PromptContext.new(
+    :schema(PromptInvariant.new(:label('response schema'), :text('express, phatic or gap'))),
+    :capabilities(PromptInvariant.new(:label('language capabilities'), :text('greetings'))),
+    :state(ConversationState.new),
+);
+my $exchange = take-turn(
+    $script,
+    $lexicon,
+    $morphology,
+    scripted($lexicon, $morphology, %raw),
+    $context,
+    Budget.new(:total(10_000), :reserved(100)),
+    PerWord.new,
+    'Narame.',
+);
+
+isa-ok $exchange.intent, Phatic, 'the dialogue carries the phatic meaning';
+is $exchange.said, 'narame.', 'and emits the greeting rather than a gap';
+is $exchange.context.state.turns.tail.text, 'narame.',
+    'the realized phrase is what the next prompt sees';
+is summarise($exchange.context.state.turns.tail), 'bot exchanged greeting',
+    'folding keeps the social act visible without retaining the text';

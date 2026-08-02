@@ -50,11 +50,12 @@ field nobody asked for is a model answering a different question.
 =head2 A tagged union, because the fields are not independent
 
 An C<express> needs a predicate and four features; a C<gap> needs two strings and would
-be impossible to express if the schema demanded a predicate. One flat object cannot say
-that, so it used to require only C<kind> and leave the rest optional. The consequence
-showed up on the first live run: the model answered with three fields, omitted C<tense>,
-C<aspect>, C<polarity>, C<modality> and C<speech_act>, and the constrained decoder was
-perfectly happy because nothing had been required.
+be impossible to express if the schema demanded a predicate; a C<phatic> chooses a
+declared social act. One flat object cannot say that, so it used to require only
+C<kind> and leave the rest optional. The consequence showed up on the first live run:
+the model answered with three fields, omitted C<tense>, C<aspect>, C<polarity>,
+C<modality> and C<speech_act>, and the constrained decoder was perfectly happy because
+nothing had been required.
 
 C<oneOf> with C<const> on the tag is the standard way to say it, and it is checked rather
 than assumed: llama.cpp compiles both into grammar alternation, and a model instructed in
@@ -207,6 +208,21 @@ sub gap-branch(--> Hash) {
     );
 }
 
+#| The `phatic` branch: a social act whose lexicalized phrase is supplied by the
+#| realizer. The model chooses no surface text and cannot invent one.
+sub phatic-branch(%v --> Hash) {
+    %(
+        type => 'object',
+        additionalProperties => False,
+        required => <kind phatic_act>.List,
+
+        properties => %(
+            kind       => %( const => 'phatic' ),
+            phatic_act => enumerated(%v<phatic_act>),
+        ),
+    );
+}
+
 sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is export {
     my %v = answer-vocabulary();
     my @predicates = predicate-roots($lexicon, $morphology).keys.sort;
@@ -214,7 +230,8 @@ sub response-schema(Lexicon:D $lexicon, Morphology:D $morphology --> Hash) is ex
 
     my %branches =
         express => express-branch(@predicates, @stems, %v),
-        gap     => gap-branch();
+        gap     => gap-branch(),
+        phatic  => phatic-branch(%v);
 
     # Driven off the vocabulary rather than written out, so a third kind added to
     # `answer-vocabulary` without a branch here is a loud failure instead of an

@@ -109,7 +109,7 @@ nok intent(%( kind => 'gap', wanted => 'I usually eat', missing => '' )).defined
 # ------------------------------------------------------------------ malformed ---
 
 nok intent(%( kind => 'chat', predicate => 'thinə' )).defined,
-    'a kind outside the two is refused rather than guessed at';
+    'a kind outside the three is refused rather than guessed at';
 
 # ------------------------------------------------- the shape is checked twice ---
 #

@@ -113,6 +113,7 @@ sub summarise(Turn:D $turn --> Str) is export {
         # carries no tense at all since decision 22. A summary is the wrong place
         # to learn that: it runs while folding, long after the turn it describes.
         when Express { "$who expressed { .predicate } ({ .tense.defined ?? .tense.key !! 'untensed' })" }
+        when Phatic  { "$who exchanged { .act.key.lc }" }
         when Gap     { "$who could not say { .wanted.raku }" }
         default      { "$who said something not understood" }
     }

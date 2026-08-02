@@ -107,6 +107,19 @@ class Express does ResponseIntent does Asks is export {
     }
 }
 
+#| A social move whose form is a declared phrase rather than productive grammar.
+#|
+#| The model chooses the act, not the phrase. `Dialogue::realize-phatic` owns the
+#| lexicalized surface form, which keeps `ResponseIntent` free of text while still
+#| giving a greeting a first-class place in the response protocol.
+our enum PhaticAct is export <Greeting>;
+
+class Phatic does ResponseIntent is export {
+    has PhaticAct $.act is required;
+
+    method summary(--> Str) { "phatic: { $!act.key.lc }" }
+}
+
 #| I want to say this and the language cannot. The output worth having.
 class Gap does ResponseIntent is export {
     has Str $.wanted  is required;
@@ -124,6 +137,7 @@ my constant %ASPECT   = (simple => Simple, continuous => Continuous);
 my constant %POLARITY = (affirmative => Affirmative, negative => Negative);
 my constant %MODALITY = (asserted => Asserted, potential => Potential);
 my constant %ROLE     = (subject => Subject, object => Object);
+my constant %PHATIC-ACT = (greeting => Greeting);
 
 #| The wire names for `Semantics::QuestionScope`, and deliberately not all of it.
 #|
@@ -169,7 +183,9 @@ sub answer-vocabulary(--> Hash) is export {
         # Not from a table, because the discriminator is not decoded through one:
         # `intent-from` branches on it directly. Listed here so the schema and the
         # branch cannot disagree about which kinds exist.
-        kind       => <express gap>,
+        kind       => <express gap phatic>,
+
+        phatic_act => %PHATIC-ACT.keys.sort.List,
 
         speech_act => %SPEECH-ACT.keys.sort.List,
 
@@ -214,6 +230,7 @@ my constant $EXPRESS-KEYS = <
     nominal_predicate arguments
 >.Set;
 my constant $GAP-KEYS      = <kind wanted missing>.Set;
+my constant $PHATIC-KEYS   = <kind phatic_act>.Set;
 my constant $ARGUMENT-KEYS = <role stem>.Set;
 
 sub refuse(Str:D $reason) {
@@ -427,6 +444,14 @@ sub intent-from(
         refuse("a gap with an empty $_") for <wanted missing>.grep({ !%raw{$_}.chars });
 
         return Gap.new(:$wanted, :$missing);
+    }
+
+    if $kind eq 'phatic' {
+        exact-keys(%raw, $PHATIC-KEYS, 'a phatic response');
+
+        my Str $act = required-str(%raw, 'phatic_act', 'a phatic response');
+
+        return Phatic.new(:act(pick(%PHATIC-ACT, $act, 'phatic_act')));
     }
 
     die X::Ronosathwasha::Answer::Malformed.new(:reason("unknown kind { $kind.raku }"))

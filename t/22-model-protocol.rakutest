@@ -11,7 +11,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 44;
+plan 47;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -39,6 +39,7 @@ is-deeply %branch.keys.sort.List, %v<kind>.sort.List,
 
 my %express = %branch<express>;
 my %gap     = %branch<gap>;
+my %phatic  = %branch<phatic>;
 
 # --------------------------------------------- the vocabulary cannot drift ---
 #
@@ -51,9 +52,17 @@ my %gap     = %branch<gap>;
 # per branch, asserted above.
 
 for %v.keys.grep(* ne 'kind').sort -> $field {
-    my @from-schema = $field eq 'role'
-        ?? %express<properties><arguments><items><properties><role><enum>.List
-        !! %express<properties>{$field}<enum>.List;
+    my @from-schema = do {
+        if $field eq 'role' {
+            %express<properties><arguments><items><properties><role><enum>.List
+        }
+        elsif $field eq 'phatic_act' {
+            %phatic<properties><phatic_act><enum>.List
+        }
+        else {
+            %express<properties>{$field}<enum>.List
+        }
+    };
 
     # `.List` on both sides. `is-deeply` distinguishes an Array from a List, and
     # binding to an `@` variable coerces, so comparing them bare fails on the
@@ -121,6 +130,11 @@ is-deeply %express<required>.sort.List,
 
 is-deeply %gap<required>.sort.List, <kind missing wanted>.List,
     'and a gap must say both what it wanted and what is missing';
+
+is-deeply %phatic<required>.sort.List, <kind phatic_act>.List,
+    'a phatic response must name its act';
+is-deeply %phatic<properties><phatic_act><enum>.List, <greeting>.List,
+    'and the phatic vocabulary currently contains greeting';
 
 # Four stay optional, each because absence has a real meaning rather than because
 # nobody got round to requiring it: no tense is a timeless identity, no scope is a

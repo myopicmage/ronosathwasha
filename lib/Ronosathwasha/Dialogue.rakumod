@@ -268,6 +268,23 @@ sub realize-intent(
     CATCH { default { .fail } }
 }
 
+#| Realize a lexicalized social act.
+#|
+#| This is intentionally separate from `realize-intent`: `narame` is a declared
+#| phrase, not a productive inflection, so sending it through the grammatical
+#| realizer would recreate the collision that made greetings look like gaps.
+sub realize-phatic(Lexicon:D $lexicon, Phatic:D $intent --> Str) is export {
+    my Str $form = do given $intent.act {
+        when Greeting { 'narame' }
+    };
+
+    die X::Ronosathwasha::Answer::Malformed.new(
+        :reason("the greeting phrase $form is not declared"),
+    ) unless $lexicon.forms{$form};
+
+    $form ~ '.';
+}
+
 #| Write the intent, then prove the sentence still means it.
 #|
 #| Returns the sentence, or an `Inadmissible` saying how it failed. Two return
@@ -362,9 +379,17 @@ sub take-turn(
     # The boundary, immediately after the answer is decoded and before it is
     # recorded or emitted. A `Gap` never reaches it: there is no sentence to
     # check, and the gap is the finding rather than a failure to produce one.
-    my $written = $intent ~~ Express
-        ?? admit-intent($script, $lexicon, $morphology, $intent)
-        !! Str;
+    my $written = do {
+        if $intent ~~ Express {
+            admit-intent($script, $lexicon, $morphology, $intent)
+        }
+        elsif $intent ~~ Phatic {
+            realize-phatic($lexicon, $intent)
+        }
+        else {
+            Str
+        }
+    };
 
     my Inadmissible $inadmissible = $written ~~ Inadmissible ?? $written !! Inadmissible;
     my Str          $said         = $written ~~ Inadmissible ?? Str      !! $written;

@@ -120,9 +120,10 @@ sub load-app(
             :label('response schema'),
             :text(q:to/SCHEMA/.trim),
                 Return exactly one JSON object. Use `kind: express` for a meaning
-                the language can say. Use `kind: gap` when it cannot, naming
-                `wanted` and `missing`. The schema enforces the remaining fields
-                and declared vocabulary.
+                the language can say, or `kind: phatic` with `phatic_act: greeting`
+                for a greeting. Use `kind: gap` when it cannot, naming `wanted` and
+                `missing`. The schema enforces the remaining fields and declared
+                vocabulary.
                 SCHEMA
         )),
         :capabilities(capabilities-invariant($lexicon, $morphology)),
