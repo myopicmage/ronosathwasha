@@ -10,6 +10,7 @@ chatbot.raku - start the local Ronosathwasha conversation
 
     make chat
     raku scripts/chatbot.raku --help
+    raku scripts/chatbot.raku --session=PATH
 
 =head1 PREREQUISITES
 
@@ -21,71 +22,40 @@ checked when the configuration loads.
 
 use lib $?FILE.IO.parent.parent.add('lib').Str;
 
-use Ronosathwasha::Capabilities;
-use Ronosathwasha::ChatModel;
+use Ronosathwasha::App;
 use Ronosathwasha::Chatbot;
-use Ronosathwasha::Config;
-use Ronosathwasha::ConversationState;
-use Ronosathwasha::LlamaCpp;
-use Ronosathwasha::LlamaTokenCounter;
-use Ronosathwasha::Lexicon;
-use Ronosathwasha::Morphology;
-use Ronosathwasha::PromptContext;
-use Ronosathwasha::Script;
-use Ronosathwasha::Terminal;
 
 sub usage(--> Str) {
     q:to/USAGE/.trim;
     Ronosathwasha local conversation
 
-      make chat       start Lauri's terminal conversation
-      /evidence       show durable language findings
-      /quit           leave without creating another turn
+      make chat                         start Lauri's terminal conversation
+      --session=PATH                    store the session at PATH
+      /budget                           show current context cost and budget
+      /parse                            explain the last parsed exchange
+      /gaps                             show language gaps found so far
+      /evidence                         alias for /gaps
+      /export PATH                      copy the durable session for review
+      /quit                             leave without creating another turn
 
     The command expects llama-server at the configured URL. It does not start
     the server or copy model weights into the repository.
     USAGE
 }
 
-sub MAIN(Bool :$help = False) {
+sub MAIN(
+    Bool :$help = False,
+    Str  :$session = 'sessions/chat.jsonl',
+) {
     if $help {
         say usage;
         return;
     }
 
     my IO::Path $root = repository-root;
-    my IO::Path $data = $root.add('data');
+    my IO::Path $session-path = $session.IO.is-absolute
+        ?? $session.IO
+        !! $root.add($session);
 
-    my $config     = load-config($root.add('config/chatbot.toml'));
-    my $script     = load-script($data.add('script.toml'));
-    my $lexicon    = load-lexicon($data.add('lexicon.toml'));
-    my $morphology = load-morphology($data.add('morphology.toml'));
-
-    my PromptContext $context = PromptContext.new(
-        :schema(PromptInvariant.new(
-            :label('response schema'),
-            :text(q:to/SCHEMA/.trim),
-                Return exactly one JSON object. Use `kind: express` for a meaning
-                the language can say. Use `kind: gap` when it cannot, naming
-                `wanted` and `missing`. The schema enforces the remaining fields
-                and declared vocabulary.
-                SCHEMA
-        )),
-        :capabilities(capabilities-invariant($lexicon, $morphology)),
-        :state(ConversationState.new),
-    );
-
-    my $inference = llama-cpp($config, $lexicon, $morphology);
-    my $model     = chat-model($config, $lexicon, $morphology, $inference);
-    my $counter   = llama-token-counter($config);
-
-    Terminal.new(
-        :$script,
-        :$lexicon,
-        :$morphology,
-        :$model,
-        :$context,
-        :budget($config.budget),
-        :counter($counter),
-    ).run;
+    load-app($root, $session-path).run;
 }

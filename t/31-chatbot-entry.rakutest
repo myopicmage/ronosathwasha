@@ -2,7 +2,7 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 18;
+plan 21;
 
 my IO::Path $script = repository-root.add('bin/ronosathwasha-chat');
 
@@ -21,6 +21,17 @@ ok $help-out.contains('/export PATH'), 'help names the export command';
 ok $help-out.contains('/quit'), 'help names the quit command';
 like $help-out, /'llama-server'/, 'help names the external server prerequisite';
 is $help-err, '', 'help does not write diagnostics';
+
+my IO::Path $legacy = repository-root.add('scripts/chatbot.raku');
+my $legacy-help = run $*EXECUTABLE, $legacy, '--help', :out, :err;
+my Str $legacy-out = $legacy-help.out.slurp;
+
+is $legacy-help.exitcode, 0,
+    'the legacy script keeps a model-free help path';
+like $legacy-out, /'--session=PATH'/,
+    'the legacy script exposes the durable session option';
+like $legacy-out, /'/budget'/,
+    'the legacy script exposes the current terminal commands';
 
 my $dry-run = run 'make', '-n', 'chat', :out, :err;
 my Str $make-out = $dry-run.out.slurp;
