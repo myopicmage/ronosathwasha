@@ -11,7 +11,7 @@ use Ronosathwasha::LlamaTokenCounter;
 use Ronosathwasha::ModelProtocol;
 use Ronosathwasha::TokenCounter;
 
-plan 19;
+plan 20;
 
 my $config = load-config(repository-root.add('config/chatbot.toml'));
 
@@ -63,11 +63,14 @@ is $t.payloads[1]<content>, "<|im_start|>system\nYou are a consultant.<|im_end|>
 ok $t.payloads[1]<add_special>,
     'with add_special, because a real request carries those tokens and is charged for them';
 
-# --------------------------------------- it satisfies the role, not TokenCounter ---
+# ----------------------------------------------- it satisfies both counter roles ---
 
 ok counter($t) ~~ PromptTokenizer, 'it is a prompt tokenizer';
-nok counter($t) ~~ TokenCounter,
-    'and deliberately not a TokenCounter, which cannot template a message list';
+ok counter($t) ~~ TokenCounter,
+    'and also satisfies the flat counter seam used by ContextPolicy';
+
+is counter($t).count(@messages.map(*<content>).join("\n")), 41,
+    'the flat counter uses the same live tokenizer route';
 
 # ------------------------------------------- the estimate it exists to replace ---
 #

@@ -47,6 +47,14 @@ attempt. Its pod already says so and says the fix is caching a count per turn ra
 than a cleverer search. That is not built, because nothing has profiled it and a long
 conversation on a local server is a few milliseconds either way.
 
+=head2 It also satisfies the flat counter seam
+
+C<ContextPolicy> currently receives the older C<TokenCounter> shape and measures the
+plain C<PromptContext.render> form. C<count-prompt> remains the exact message-list
+surface for callers that have the model template available; C<count> is the compatible
+flat-text surface used by the existing policy. Keeping both on one object lets the live
+interface use the real tokenizer without replacing the deterministic test counter.
+
 =head2 It shares C<LlamaCpp>'s transport, deliberately
 
 Same role, same fake in tests, same single place where a socket exists. A counter that
@@ -76,9 +84,10 @@ use X::Ronosathwasha;
 use Ronosathwasha::Config;
 use Ronosathwasha::LlamaCpp;
 use Ronosathwasha::ModelProtocol;
+use Ronosathwasha::TokenCounter;
 
 #| The real cost of a prompt, from the model that will charge it.
-class LlamaTokenCounter does PromptTokenizer is export {
+class LlamaTokenCounter does PromptTokenizer does TokenCounter is export {
     has Config:D    $.config    is required;
     has Transport:D $.transport is required;
 
@@ -94,6 +103,14 @@ class LlamaTokenCounter does PromptTokenizer is export {
         return self!tokenize($templated);
 
         CATCH { default { .fail } }
+    }
+
+    #| Count the flat prompt form expected by `ContextPolicy`.
+    #|
+    #| The exact message-list route remains `count-prompt`; this method is the
+    #| compatibility surface for the policy's current `TokenCounter` contract.
+    method count(Str:D $text --> Int) {
+        self!tokenize($text);
     }
 
     #| What the GGUF's own template makes of these messages.
