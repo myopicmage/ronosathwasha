@@ -1,0 +1,111 @@
+use Test;
+
+use Ronosathwasha::Actions;
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Data;
+use Ronosathwasha::Dialogue;
+use Ronosathwasha::Intent;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Script;
+
+plan 12;
+
+my $document = read-toml(repository-root.add('data/model-evaluation.toml'));
+isa-ok $document, RawDocument, 'the evaluation declaration is readable TOML';
+
+my %data := $document.data;
+my @cases = %data<case>.List;
+my @axes  = %data<required_axes>.List;
+
+ok %data<minimum_cases> ~~ Int && %data<minimum_cases> >= 50,
+    'the declaration requires at least fifty cases';
+ok %data<minimum_overall_accuracy> ~~ Numeric
+    && %data<minimum_overall_accuracy> >= 0.90
+    && %data<minimum_overall_accuracy> <= 1,
+    'the overall accuracy threshold is explicit and bounded';
+ok %data<minimum_stratum_accuracy> ~~ Numeric
+    && %data<minimum_stratum_accuracy> >= 0.80
+    && %data<minimum_stratum_accuracy> <= 1,
+    'the per-stratum accuracy threshold is explicit and bounded';
+ok @cases.elems >= %data<minimum_cases>, 'the corpus meets its declared size gate';
+
+my @ids     = @cases.map(*<id>);
+my @prompts = @cases.map(*<prompt>);
+is @ids.unique.elems, @ids.elems, 'case identifiers are unique';
+is @prompts.unique.elems, @prompts.elems, 'evaluation prompts are held out and unique';
+
+my %labels;
+for @cases -> %case {
+    for %case<strata>.List -> Str:D $label {
+        my ($axis, $value) = $label.split(':', 2);
+        %labels{$axis}{$value} = True;
+    }
+}
+
+my @underrepresented = @axes.grep({
+    not %labels{$_}:exists || %labels{$_}.keys.elems < 2
+});
+is @underrepresented.elems, 0,
+    'every declared evaluation axis has multiple represented values';
+
+my @unknown-axes = %labels.keys.grep({ not @axes.first(* eq $_).defined });
+is @unknown-axes.elems, 0, 'case strata use only declared evaluation axes';
+
+my @required = <id prompt kind predicate speech_act tense aspect polarity modality arguments strata>;
+my @missing = @cases.grep(-> %case {
+    @required.grep({ not %case{$_}:exists }).elems;
+});
+is @missing.elems, 0, 'every case declares the fields the evaluator needs';
+
+my IO::Path $data-path = repository-root.add('data');
+my $script     = load-script($data-path.add('script.toml'));
+my $lexicon    = load-lexicon($data-path.add('lexicon.toml'));
+my $morphology = load-morphology($data-path.add('morphology.toml'));
+
+sub expected(%case --> Hash) {
+    my @arguments = %case<arguments>.List.map(-> Str:D $encoded {
+        my ($role, $stem) = $encoded.split(':', 2);
+        %( role => $role, stem => $stem );
+    });
+
+    my %raw = %(
+        kind       => %case<kind>,
+        predicate  => %case<predicate>,
+        speech_act => %case<speech_act>,
+        tense      => %case<tense>,
+        aspect     => %case<aspect>,
+        polarity   => %case<polarity>,
+        modality   => %case<modality>,
+        arguments  => @arguments,
+    );
+
+    for <question_scope question_kind> -> $field {
+        %raw{$field} = %case{$field} if %case{$field}:exists;
+    }
+
+    %raw;
+}
+
+my @invalid;
+my @inadmissible;
+for @cases -> %case {
+    my $intent = intent-from($lexicon, $morphology, expected(%case));
+
+    unless $intent ~~ Express {
+        @invalid.push: %case<id>;
+        next;
+    }
+
+    my $said = admit-intent(
+        $script,
+        $lexicon,
+        $morphology,
+        $intent,
+    );
+    @inadmissible.push: %case<id> unless $said ~~ Str;
+}
+
+is @invalid.elems, 0, 'every expected case is a valid typed express intent';
+is @inadmissible.elems, 0,
+    'every expected case survives realization and read-back';

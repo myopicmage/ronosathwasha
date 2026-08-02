@@ -1,0 +1,711 @@
+schema_version = 1
+
+# The evaluator is allowed to say "not decided" only after this file has made
+# the decision visible. These are gates, not a score chosen after seeing a
+# candidate model's output.
+minimum_cases = 50
+minimum_overall_accuracy = 0.90
+minimum_stratum_accuracy = 0.80
+required_axes = [
+    "speech_act",
+    "tense",
+    "aspect",
+    "polarity",
+    "modality",
+    "argument_structure",
+    "question_kind",
+]
+
+# `arguments` carries role and stem together because that is the semantic unit
+# the model returns. The evaluator turns `subject:la` into the wire object's
+# `{ role = "subject", stem = "la" }` at the boundary.
+
+# -------------------------------------------------------------- eat / thinə ---
+
+[[case]]
+id = "eat-present-simple"
+prompt = "Say that I eat the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thinə"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-past-simple"
+prompt = "Say that I ate the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "declarative"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thinə"]
+strata = ["speech_act:declarative", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-future-continuous"
+prompt = "Say that I will be eating the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "declarative"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thinə"]
+strata = ["speech_act:declarative", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-present-negative"
+prompt = "Say that I do not eat the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject:la", "object:thinə"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-past-continuous-potential"
+prompt = "Say that I might have been eating the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "declarative"
+tense = "past"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:thinə"]
+strata = ["speech_act:declarative", "tense:past", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-command"
+prompt = "Command me to eat the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object:thinə"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "eat-negative-command"
+prompt = "Command me not to eat the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["object:thinə"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "eat-predicate-question"
+prompt = "Ask what I do with the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "interrogative"
+question_scope = "predicate"
+question_kind = "open"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thinə"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-subject-question"
+prompt = "Ask who ate the food."
+kind = "express"
+predicate = "thinə"
+speech_act = "interrogative"
+question_scope = "subject"
+question_kind = "open"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:ro", "object:thinə"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "eat-selective-object-question"
+prompt = "Ask which thing I might be eating continuously in the future."
+kind = "express"
+predicate = "thinə"
+speech_act = "interrogative"
+question_scope = "object"
+question_kind = "selective"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:selective", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+# ------------------------------------------------------------ drink / tono ---
+
+[[case]]
+id = "drink-present-simple"
+prompt = "Say that I drink the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:dooru"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-past-simple"
+prompt = "Say that I drank the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "declarative"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:dooru"]
+strata = ["speech_act:declarative", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-future-continuous"
+prompt = "Say that I will be drinking the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "declarative"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:dooru"]
+strata = ["speech_act:declarative", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-present-negative"
+prompt = "Say that I do not drink the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject:la", "object:dooru"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-past-continuous-potential"
+prompt = "Say that I might have been drinking the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "declarative"
+tense = "past"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:dooru"]
+strata = ["speech_act:declarative", "tense:past", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-command"
+prompt = "Command me to drink the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object:dooru"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "drink-negative-command"
+prompt = "Command me not to drink the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["object:dooru"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "drink-predicate-question"
+prompt = "Ask what I do with the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "interrogative"
+question_scope = "predicate"
+question_kind = "open"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:dooru"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-subject-question"
+prompt = "Ask who drank the coffee."
+kind = "express"
+predicate = "tono"
+speech_act = "interrogative"
+question_scope = "subject"
+question_kind = "open"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:ro", "object:dooru"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "drink-selective-object-question"
+prompt = "Ask which thing I might be drinking continuously in the future."
+kind = "express"
+predicate = "tono"
+speech_act = "interrogative"
+question_scope = "object"
+question_kind = "selective"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:selective", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+# ------------------------------------------------------------- teach / miri ---
+
+[[case]]
+id = "teach-present-simple"
+prompt = "Say that I teach the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:sene"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-past-simple"
+prompt = "Say that I taught the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "declarative"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:sene"]
+strata = ["speech_act:declarative", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-future-continuous"
+prompt = "Say that I will be teaching the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "declarative"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:sene"]
+strata = ["speech_act:declarative", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-present-negative"
+prompt = "Say that I do not teach the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject:la", "object:sene"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-past-continuous-potential"
+prompt = "Say that I might have been teaching the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "declarative"
+tense = "past"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:sene"]
+strata = ["speech_act:declarative", "tense:past", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-command"
+prompt = "Command me to teach the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object:sene"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "teach-negative-command"
+prompt = "Command me not to teach the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["object:sene"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "teach-predicate-question"
+prompt = "Ask what I do with the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "interrogative"
+question_scope = "predicate"
+question_kind = "open"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:sene"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-subject-question"
+prompt = "Ask who taught the cat."
+kind = "express"
+predicate = "miri"
+speech_act = "interrogative"
+question_scope = "subject"
+question_kind = "open"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:ro", "object:sene"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "teach-selective-object-question"
+prompt = "Ask which thing I might be teaching continuously in the future."
+kind = "express"
+predicate = "miri"
+speech_act = "interrogative"
+question_scope = "object"
+question_kind = "selective"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:selective", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+# -------------------------------------------------------------- think / taya ---
+
+[[case]]
+id = "think-present-simple"
+prompt = "Say that I think about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-past-simple"
+prompt = "Say that I thought about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "declarative"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:declarative", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-future-continuous"
+prompt = "Say that I will be thinking about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "declarative"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:declarative", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-present-negative"
+prompt = "Say that I do not think about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-past-continuous-potential"
+prompt = "Say that I might have been thinking about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "declarative"
+tense = "past"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:declarative", "tense:past", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-command"
+prompt = "Command me to think about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object:mwu"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "think-negative-command"
+prompt = "Command me not to think about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["object:mwu"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "think-predicate-question"
+prompt = "Ask what I do with the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "interrogative"
+question_scope = "predicate"
+question_kind = "open"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-subject-question"
+prompt = "Ask who thought about the thing."
+kind = "express"
+predicate = "taya"
+speech_act = "interrogative"
+question_scope = "subject"
+question_kind = "open"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:ro", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "think-selective-object-question"
+prompt = "Ask which thing I might be thinking about continuously in the future."
+kind = "express"
+predicate = "taya"
+speech_act = "interrogative"
+question_scope = "object"
+question_kind = "selective"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:selective", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+# -------------------------------------------------------- understand / meliya ---
+
+[[case]]
+id = "understand-present-simple"
+prompt = "Say that I understand the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thwasha"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-past-simple"
+prompt = "Say that I understood the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "declarative"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thwasha"]
+strata = ["speech_act:declarative", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-future-continuous"
+prompt = "Say that I will be understanding the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "declarative"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thwasha"]
+strata = ["speech_act:declarative", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-present-negative"
+prompt = "Say that I do not understand the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "declarative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["subject:la", "object:thwasha"]
+strata = ["speech_act:declarative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-past-continuous-potential"
+prompt = "Say that I might have been understanding the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "declarative"
+tense = "past"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:thwasha"]
+strata = ["speech_act:declarative", "tense:past", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-command"
+prompt = "Command me to understand the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["object:thwasha"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "understand-negative-command"
+prompt = "Command me not to understand the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "imperative"
+tense = "present"
+aspect = "simple"
+polarity = "negative"
+modality = "asserted"
+arguments = ["object:thwasha"]
+strata = ["speech_act:imperative", "tense:present", "aspect:simple", "polarity:negative", "modality:asserted", "argument_structure:object_only"]
+
+[[case]]
+id = "understand-predicate-question"
+prompt = "Ask what I do with the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "interrogative"
+question_scope = "predicate"
+question_kind = "open"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:la", "object:thwasha"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:present", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-subject-question"
+prompt = "Ask who understood the language."
+kind = "express"
+predicate = "meliya"
+speech_act = "interrogative"
+question_scope = "subject"
+question_kind = "open"
+tense = "past"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject:ro", "object:thwasha"]
+strata = ["speech_act:interrogative", "question_kind:open", "tense:past", "aspect:simple", "polarity:affirmative", "modality:asserted", "argument_structure:subject_object"]
+
+[[case]]
+id = "understand-selective-object-question"
+prompt = "Ask which thing I might be understanding continuously in the future."
+kind = "express"
+predicate = "meliya"
+speech_act = "interrogative"
+question_scope = "object"
+question_kind = "selective"
+tense = "future"
+aspect = "continuous"
+polarity = "affirmative"
+modality = "potential"
+arguments = ["subject:la", "object:mwu"]
+strata = ["speech_act:interrogative", "question_kind:selective", "tense:future", "aspect:continuous", "polarity:affirmative", "modality:potential", "argument_structure:subject_object"]
