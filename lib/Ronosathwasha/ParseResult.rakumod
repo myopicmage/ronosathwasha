@@ -139,7 +139,16 @@ sub retirement-in(Morphology:D $morphology, Str:D $word --> Morpheme) {
     Morpheme;
 }
 
-#| Read one word and say what happened.
+#| Classification is a pure function of the declarations and the bare word.
+#|
+#| `read-sentence` calls it once per word, and the inventory matrix reads many
+#| different sentences built from the same small vocabulary. Keep the outcome,
+#| not just the intermediate division: retirement, ambiguity and unwritable
+#| results are all stable values too. Declaration objects are keyed by identity,
+#| so a separately loaded or mutated declaration can never receive stale prose.
+my %CLASSIFY-CACHE;
+
+#| Read one word and say what happened, reusing a result for the same declarations.
 sub classify(
     Script:D     $script,
     Lexicon:D    $lexicon,
@@ -148,6 +157,23 @@ sub classify(
     --> ParseOutcome
 ) is export {
     my $bare = $word.lc.subst(/<[?.,!]>+$/, '');
+
+    my $key = "{ $script.WHICH }|{ $lexicon.WHICH }|{ $morphology.WHICH }|$bare";
+
+    return %CLASSIFY-CACHE{$key} if %CLASSIFY-CACHE{$key}:exists;
+
+    my $outcome = classify-uncached($script, $lexicon, $morphology, $bare);
+    %CLASSIFY-CACHE{$key} = $outcome;
+    $outcome;
+}
+
+sub classify-uncached(
+    Script:D     $script,
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Str:D        $bare,
+    --> ParseOutcome
+) {
 
     my $syllables = syllables-of($script, $bare);
 

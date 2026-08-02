@@ -8,7 +8,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::ParseResult;
 
-plan 18;
+plan 20;
 
 my IO::Path $data = repository-root.add('data');
 my $script     = load-script($data.add('script.toml'));
@@ -24,6 +24,8 @@ my $ok = read('mothinəme');
 isa-ok $ok, Recognised, 'a current word is recognised';
 is $ok.summary, 'mothinəme: negation + [thinə] + present',
     'and the summary names morphemes rather than letters';
+ok read('mothinəme') === $ok,
+    'repeating a classification reuses the pure outcome';
 
 isa-ok read('Nari'), Recognised, 'capitalisation does not matter';
 isa-ok read('Nari tethinəme?'.words[1] ~ '?'), Recognised,
@@ -34,6 +36,8 @@ isa-ok read('Nari tethinəme?'.words[1] ~ '?'), Recognised,
 my $bad = read('ame');
 isa-ok $bad, Unwritable, 'an onsetless string is not writable';
 is $bad.position, 0, 'reported at the character where it stops';
+ok read('ame') === $bad,
+    'and cached failures keep their typed outcome too';
 
 isa-ok read('thinəm'), Unwritable, 'and so is a trailing consonant';
 
