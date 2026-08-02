@@ -443,6 +443,12 @@ sub open-nominal(Str:D $word --> WordParse) is export {
     WordParse.new(:text($word.lc), :stems($word.lc));
 }
 
+#| Pure results of the nominal-predicate probe, kept per declaration object and
+#| normalized word. `read-sentence` asks this question for every word before it
+#| knows whether the clause needs an open nominal, so the same forms recur across
+#| the inventory matrix.
+my %NOMINAL-CACHE;
+
 #| Parse an open nominal carrying the productive copularizer, optionally
 #| preceded by the prefix series and followed by tense and continuous aspect.
 #|
@@ -464,6 +470,21 @@ sub parse-nominal-predicate(
     Str:D        $word,
     --> WordParse
 ) is export {
+    my Str $text = $word.lc;
+    my $key = "{ $script.WHICH }|{ $morphology.WHICH }|$text";
+
+    return %NOMINAL-CACHE{$key} if %NOMINAL-CACHE{$key}:exists;
+
+    my $parsed = parse-nominal-predicate-uncached($script, $morphology, $text);
+    %NOMINAL-CACHE{$key} = $parsed;
+    $parsed;
+}
+
+sub parse-nominal-predicate-uncached(
+    Script:D     $script,
+    Morphology:D $morphology,
+    Str:D        $word,
+) {
     my Str $text = $word.lc;
     my $copularizer = $morphology.by-id('copularizer');
     my @tenses = $morphology.current.grep(*.role == MarksTense);
