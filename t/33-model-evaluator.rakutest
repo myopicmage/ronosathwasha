@@ -1,0 +1,25 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+
+plan 9;
+
+my IO::Path $tool = repository-root.add('tools/evaluate-model.raku');
+
+my $dry-run = run $*EXECUTABLE, $tool, '--dry-run', :out, :err;
+my Str $dry-out = $dry-run.out.slurp;
+my Str $dry-err = $dry-run.err.slurp;
+
+is $dry-run.exitcode, 0, 'the evaluator can inspect the corpus without a server';
+like $dry-out, /'cases: 50'/, 'dry-run reports the declared case count';
+like $dry-out, /'overall >= 90.0%'/, 'dry-run reports the overall threshold';
+like $dry-out, /'each stratum >= 80.0%'/, 'dry-run reports the stratum threshold';
+like $dry-out, /'question_kind'/, 'dry-run reports the declared axes';
+like $dry-out, /'model run: skipped'/, 'dry-run makes the no-inference boundary visible';
+is $dry-err, '', 'dry-run has no diagnostics';
+
+my $help = run $*EXECUTABLE, $tool, '--help', :out, :err;
+my Str $help-out = $help.out.slurp;
+
+is $help.exitcode, 0, 'the evaluator has a model-free help path';
+like $help-out, /'--limit=1'/, 'help names the bounded smoke-test option';
