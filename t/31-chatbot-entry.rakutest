@@ -2,7 +2,7 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 18;
+plan 19;
 
 my IO::Path $script = repository-root.add('bin/ronosathwasha-chat');
 
@@ -32,8 +32,20 @@ my $whole-run = run 'make', '-n', 'chat-all', :out, :err;
 my Str $whole-out = $whole-run.out.slurp;
 
 is $whole-run.exitcode, 0, 'make knows the all-in-one chat target';
-ok $whole-out.contains('llama-server'), 'the all-in-one target starts the model server';
-ok $whole-out.contains('--jinja'), 'the all-in-one target uses the model chat template';
-ok $whole-out.contains('/health'), 'the all-in-one target waits for server readiness';
-ok $whole-out.contains('bin/ronosathwasha-chat'),
-    'the all-in-one target starts the conversation after the server';
+ok $whole-out.contains('scripts/chat-all.sh'),
+    'the all-in-one target delegates rather than orchestrating in a recipe';
+
+# The orchestration these assert on lives in the script now, so they read it
+# there. Asserting against `make -n` was asserting against where the code
+# happened to sit rather than against what the target does, which is why moving
+# it broke four tests that were still describing true behaviour.
+my Str $orchestration = repository-root.add('scripts/chat-all.sh').slurp;
+
+ok $orchestration.contains('llama-server'),
+    'the all-in-one path starts the model server';
+ok $orchestration.contains('--jinja'),
+    'the all-in-one path uses the model chat template';
+ok $orchestration.contains('/health'),
+    'the all-in-one path waits for server readiness';
+ok $orchestration.contains('bin/ronosathwasha-chat'),
+    'the all-in-one path starts the conversation after the server';
