@@ -1233,6 +1233,26 @@ remain pronominal, and nothing here overloads them. The new marker reaches
 "which teacher" directly without requiring the language to invent equivalents
 of "this teacher" and "that teacher" first.
 
+## 30. Plural `toro` is "who (plural)"
+
+When the open person question and plural `rono` meet, the surface is the
+plural of the lexical interrogative **`toro`**, not a productive `to-rono`
+division. This is the same lexical precedence already given to bare `toro`:
+the word says "who," and its number and case markers remain ordinary
+inflection.
+
+```text
+toronoru    who (plural)-SUBJ
+toronoyu    who (plural)-OBJ
+toronomo?   who (plural), as the questioned predicate
+```
+
+The spelling is a little odd in English because English usually says *who all*
+or *which people*, but it is a regular Rono plural. The selective form remains
+distinct: **`tworono`** asks "which people" from a salient set. The two forms
+therefore differ in question kind, while the older `toronoru` surface is no
+longer left to choose between two readings.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

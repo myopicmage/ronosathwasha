@@ -11,7 +11,7 @@ use Ronosathwasha::Dialogue;
 use Ronosathwasha::Intent;
 use Ronosathwasha::Projection;
 
-plan 7;
+plan 8;
 
 # The inventory boundary, from plan 039's stop 2: every intent the schema
 # offers, driven through realization and reading, compared through the
@@ -19,8 +19,8 @@ plan 7;
 # fails as silently-better, a reclassified one fails as changed.
 #
 # **The map below is partly a declaration and partly a debt, and the split is
-# the point.** Seven entries are the language as Kevin ruled it and will not be
-# repaired; twelve are defects review 047 found and are waiting for one. Reading
+# the point.** Ten entries are the settled language boundary and will not be
+# repaired; six are defects still waiting for one. Reading
 # the map as either one thing loses the distinction that took a ruling to
 # establish.
 #
@@ -28,7 +28,7 @@ plan 7;
 # language change and has to be argued for as one; an owed entry leaving is a
 # repair and is the point of measuring it.
 #
-# The six declared, all one mechanism: an inflection lands on a word the lexicon already
+# The six lexicalized entries, all one mechanism: an inflection lands on a word the lexicon already
 # lists, and the lexical parse wins exactly as designed, so a verbal intent reads
 # back as a bare nominal identity. They arrived by two different routes, which is
 # worth seeing because only one of them is a pattern:
@@ -52,6 +52,10 @@ plan 7;
 # collision the language decided on. It is here under protest rather than by
 # declaration.
 #
+# **The three plural interrogatives are a separate declared boundary.** The
+# lexical `toro` reading wins over `to` plus `rono` for every scope, so these
+# entries are settled by decision 30 rather than counted as repairs.
+#
 # The stem-plus-case collision was `ðo` under the subject particle spelling
 # `ðoru`, which the lexicon listed as "reason", so the participant dissolved
 # into a different word. Decision 7 derives that subject form by rule, so the
@@ -67,11 +71,12 @@ plan 7;
 # are realized, so they leave the matrix entirely rather than being classified
 # by it: the forty did not become correct, they became unaskable.
 #
-# The nine owed entries are the questioned classes, and their heading below says
-# what is left. Twenty-four were measured once this file started driving the
-# question dimensions it had been skipping; `parse-word`'s fewest-stems tie-break
-# repaired fifteen of them, and the remainder is `rono`, which needs a ruling,
-# plus the questioned face of the six declared lexicalizations.
+# The six owed entries are the questioned lexicalizations, and their heading
+# below says what is left. Twenty-four were measured once this file started
+# driving the question dimensions it had been skipping; `parse-word`'s
+# fewest-stems tie-break repaired fifteen of them, and Kevin's ruling now moves
+# the three `rono` cases into the settled boundary beside the six lexicalized
+# cases.
 #
 # This file costs about two minutes on its own: 918 pipeline runs, each an intent
 # decode, a realization, and a full sentence reading. The question dimensions are
@@ -250,10 +255,12 @@ my %listed-inflection =
 # stops being the two-stem compound `toro`+`ro` and becomes the one-stem `roro`
 # under a question marker, which is what was said.
 #
-# **`rono` survived it, and that is the ruling Kevin has not made.** Both its
+# **`rono` survived it, and Kevin has now ruled on the collision.** Both its
 # divisions have one stem, `toro`+plural against `to`+`rono`, so nothing
-# mechanical separates "who (plural)" from "which people". Three entries wait on
-# it, and only on it.
+# mechanical separates "who (plural)" from "which people". The lexical
+# `toro` reading wins for subject, object and predicate scope, while `tworono`
+# remains the selective "which people" form. Those three entries are declared
+# below rather than left as repair debt.
 #
 # **`nara`, `she` and `thwa` survived for the other reason on the ledger.** They
 # inflect onto listed words, so questioning them lands on `tenarame`, `tesheme`
@@ -262,16 +269,16 @@ my %listed-inflection =
 # declared lexicalizations above, so a ruling that those are deliberate arguably
 # reaches these too; nobody has said so and this does not assume it.
 #
-# The runtime boundary refuses all nine correctly. What is wrong is that the
+# The runtime boundary refuses all six correctly. What is wrong is that the
 # capabilities block promises the model this construction works, so the prose is
 # ahead of the grammar until they are repaired or declared.
-my %questioned-participants =
+my %declared-plural-interrogatives =
     'questioned open participant rono subject' => 'changes participants (toronoru thinəme?)',
-    'questioned open participant rono object' => 'changes participants (toronoyu thinəme?)';
+    'questioned open participant rono object' => 'changes participants (toronoyu thinəme?)',
+    'questioned open predicate rono' => 'changes predicate (toronomo?)';
 
 # The class neither review looked at, both having watched the participants.
 my %questioned-predicates =
-    'questioned open predicate rono' => 'changes predicate (toronomo?)',
     'questioned open predicate nara' => 'unreadable (tenarame?)',
     'questioned open predicate she' => 'unreadable (tesheme?)',
     'questioned open predicate thwa' => 'unreadable (tethwame?)',
@@ -284,9 +291,10 @@ my %questioned-predicates =
     'questioned selective predicate she' => 'unreadable (twesheme?)',
     'questioned selective predicate thwa' => 'unreadable (twethwame?)';
 
-my %owed = |%questioned-participants, |%questioned-predicates;
+my %owed = |%questioned-predicates;
 
-my %expected = |%lexicalized, |%listed-inflection, |%owed;
+my %expected = |%lexicalized, |%listed-inflection,
+    |%declared-plural-interrogatives, |%owed;
 
 is $cases,
     @roots.elems * 5 + @stems.elems * 6 + @interrogatives.elems * 5,
@@ -302,19 +310,21 @@ is-deeply %map.keys.grep({ (%expected{$_}:exists) && %map{$_} ne %expected{$_} }
     (), 'no reclassifications: a changed mechanism is a changed defect';
 
 is %map.elems, %expected.elems,
-    'the boundary is exactly seven declared entries plus nine owed';
+    'the boundary has seven pre-existing, three ruled interrogative, and six owed entries';
 
-# The ruling was for six, named one by one. A seventh arriving in that hash
+is %declared-plural-interrogatives.elems, 3,
+    'and three plural-toro collisions follow the new ruling';
+
+# The original ruling was for six, named one by one. A seventh arriving in that hash
 # without a ruling behind it is the thing this pins: the split is the record of
 # what Kevin decided, so it must not be somewhere a later edit can quietly widen.
 is %lexicalized.elems, 6,
     'and six is what was ruled deliberate, not however many are in the hash';
 
 # Not a count, which would only restate the hash. The finding is that the whole
-# owed set is two mechanisms and no more: a stem beginning with `ro`, which
-# collides with the listed `toro`, or one of the three that inflect onto a listed
-# word. A twenty-fifth entry of any other shape is a different defect and must
-# not slip in under these headings.
+# owed set is one mechanism: the questioned face of a lexicalized stem. A new
+# entry of any other shape is a different defect and must not slip in under this
+# heading.
 #
 # `.words[3]` is the stem in both key shapes, since "questioned <kind>
 # participant <stem> <role>" and "questioned <kind> predicate <stem>" agree up to
@@ -324,4 +334,4 @@ my $known = %owed.keys.map({ .words[3] }).grep({
 }).sort.List;
 
 is-deeply $known, (),
-    'every owed entry is the toro collision or a lexicalized stem, and nothing else';
+    'every owed entry is a questioned lexicalized stem, and nothing else';
