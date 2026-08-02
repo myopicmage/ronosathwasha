@@ -14,11 +14,18 @@ same loop can be driven by a person or by a focused test. C</quit> exits without
 creating a turn, and C</evidence> reports the durable findings without sending a
 message to the model.
 
+Which lines count as commands is not decided here. C<Ronosathwasha::Commands>
+declares them, this module binds a handler to each one, and C<run> refuses to
+start if the two disagree. That check is the point of the arrangement: a command
+added to the declaration without a handler, or a handler left behind after its
+command was removed, used to be discoverable only by typing it.
+
 =end pod
 
 unit module Ronosathwasha::Terminal;
 
 use Ronosathwasha::Actions;
+use Ronosathwasha::Commands;
 use Ronosathwasha::ConversationState;
 use Ronosathwasha::ContextPolicy;
 use Ronosathwasha::Dialogue;
@@ -62,6 +69,25 @@ class Terminal is export {
         my LanguageEvidence $evidence = LanguageEvidence.new;
         my Exchange $last-exchange;
 
+        # Closures over the loop's own containers rather than snapshots, so a
+        # command run on the fifth turn reports the fifth turn. Raku closes over
+        # the container, and nothing below rebinds these, only assigns to them.
+        #
+        # Every handler takes the argument text so dispatch stays uniform.
+        # Only `/export` reads it, and the others are better off ignoring a
+        # parameter than the dispatcher is deciding which shape to call.
+        my @commands = terminal-commands();
+        my %handler =
+            '/help'     => -> Str $ { self!display-help },
+            '/budget'   => -> Str $ { self!display-budget($context) },
+            '/parse'    => -> Str $ { self!display-parse($last-exchange) },
+            '/gaps'     => -> Str $ { self!display-evidence($evidence, 'gaps') },
+            '/evidence' => -> Str $ { self!display-evidence($evidence, 'evidence') },
+            '/export'   => -> Str $argument { self!export($argument) },
+        ;
+
+        self!verify-handlers(@commands, %handler);
+
         loop {
             $!output.print($!input-prompt);
             $!output.flush;
@@ -72,30 +98,11 @@ class Terminal is export {
             my Str $heard = $line.trim;
 
             next unless $heard.chars;
-            last if $heard eq '/quit';
 
-            if $heard eq '/evidence' {
-                self!display-evidence($evidence, 'evidence');
-                next;
-            }
+            with @commands.first(*.matches($heard)) -> $command {
+                last if $command.terminates;
 
-            if $heard eq '/gaps' {
-                self!display-evidence($evidence, 'gaps');
-                next;
-            }
-
-            if $heard eq '/budget' {
-                self!display-budget($context);
-                next;
-            }
-
-            if $heard eq '/parse' {
-                self!display-parse($last-exchange);
-                next;
-            }
-
-            if $heard eq '/export' || $heard.starts-with('/export ') {
-                self!export($heard);
+                %handler{ $command.name }($command.argument-of($heard));
                 next;
             }
 
@@ -121,9 +128,32 @@ class Terminal is export {
         $evidence;
     }
 
+    #| Refuse to run a session whose command list and handlers have drifted.
+    #|
+    #| Raku checks types when values bind, so a hash of closures is never
+    #| compared against a list of names on its own. This is the check that makes
+    #| one declaration worth having: without it the halves can still disagree,
+    #| and the symptom is a documented command that silently does nothing.
+    method !verify-handlers(@commands, %handler) {
+        my @faults = command-handler-faults(@commands, %handler);
+
+        return unless @faults.elems;
+
+        die "Ronosathwasha::Terminal disagrees with Ronosathwasha::Commands; "
+            ~ @faults.join('; ');
+    }
+
     method !display-evidence(LanguageEvidence:D $evidence, Str:D $label) {
         $!output.say("{ $!bot-prompt }[{ $label }]");
         $!output.say($evidence.report);
+    }
+
+    #| The same list `--help` prints, reachable from inside the conversation.
+    #| Somebody who needs to be told what `/parse` does is already talking to
+    #| Lauri, and was previously required to leave in order to find out.
+    method !display-help() {
+        $!output.say("{ $!bot-prompt }[help]");
+        $!output.say(command-help());
     }
 
     #| The count uses the same counter and budget as the turn policy. It is an
@@ -155,9 +185,10 @@ class Terminal is export {
         $!output.say("{ $!bot-prompt }[parse] { $summary }");
     }
 
-    method !export(Str:D $command) {
-        my Str $raw-path = $command.substr('/export'.chars).trim;
-
+    #| Receives the argument rather than the whole line, so the offset of the
+    #| path is computed from the command that actually matched instead of from
+    #| a copy of its name spelled out here.
+    method !export(Str:D $raw-path) {
         unless $raw-path.chars {
             $!output.say("{ $!bot-prompt }[export] usage: /export PATH");
             return;

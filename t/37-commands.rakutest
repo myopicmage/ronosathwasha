@@ -1,0 +1,91 @@
+use Test;
+
+use Ronosathwasha::Commands;
+
+plan 20;
+
+my @commands = terminal-commands();
+
+# ---------------------------------------------------------- the declaration ---
+
+ok @commands.elems > 0, 'the terminal declares at least one command';
+
+is @commands.map(*.name).unique.elems, @commands.elems,
+    'no command name is declared twice';
+
+is @commands.grep({ !.name.starts-with('/') }).elems, 0,
+    'every command is spelled with a leading slash';
+
+is @commands.grep({ !.summary.chars }).elems, 0,
+    'every command carries a summary, because the help text is derived from it';
+
+is-deeply @commands.grep(*.terminates).map(*.name).List, ('/quit',),
+    'exactly one command ends the session, and it is the one a reader expects';
+
+ok @commands.first(*.name eq '/help').defined,
+    'the command that lists the commands is itself declared';
+
+# ----------------------------------------------------------------- spelling ---
+
+is @commands.first(*.name eq '/export').spelling, '/export PATH',
+    'an argument-taking command spells its argument for the reader';
+
+is @commands.first(*.name eq '/gaps').spelling, '/gaps',
+    'and a command without one is spelled bare';
+
+# ----------------------------------------------------------------- matching ---
+
+my $gaps   = @commands.first(*.name eq '/gaps');
+my $export = @commands.first(*.name eq '/export');
+
+ok $gaps.matches('/gaps'), 'a bare command matches its own name';
+nok $gaps.matches('/gapsomething'),
+    'and does not match a longer word that merely starts the same way';
+
+ok $export.matches('/export'),
+    'an argument-taking command matches bare, so it can report its own usage';
+ok $export.matches('/export notes/session.jsonl'),
+    'and matches when an argument follows';
+nok $export.matches('/exported'),
+    'but a following character that is not a space is a different word';
+
+is $export.argument-of('/export notes/session.jsonl'), 'notes/session.jsonl',
+    'the argument is taken from after the name that matched';
+is $export.argument-of('/export'), '',
+    'and is empty rather than undefined when nothing follows';
+
+# --------------------------------------------------------------- help text ---
+
+my @lines = command-help().lines;
+
+is @lines.elems, @commands.elems,
+    'the rendered help has exactly one line per declared command';
+
+# The column is computed, and this is the test that says so. The hand-aligned
+# version this replaced had `/quit` a space out of true for long enough that
+# nobody noticed, which is what a literal column always eventually becomes.
+my @columns = @commands.map(-> $command {
+    @lines.first(*.contains($command.summary)).index($command.summary);
+});
+
+is @columns.unique.elems, 1,
+    'every summary starts in the same column, including the longest spelling';
+
+# ---------------------------------------------------- handlers agree or not ---
+
+# The expected set is derived from the declaration rather than written out, so
+# this stays honest when a command is added.
+my %complete = @commands.grep({ !.terminates }).map({ .name => sub ($) { } });
+
+is-deeply command-handler-faults(@commands, %complete), (),
+    'a complete set of handlers reports no faults, and /quit needs none';
+
+my %missing = %complete.clone;
+%missing{'/budget'}:delete;
+like command-handler-faults(@commands, %missing).join('; '), / '/budget' /,
+    'a declared command with no handler is named';
+
+my %extra = %complete.clone;
+%extra{'/invented'} = sub ($) { };
+like command-handler-faults(@commands, %extra).join('; '), / '/invented' /,
+    'and so is a handler with nothing declaring it';

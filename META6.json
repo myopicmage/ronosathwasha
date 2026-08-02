@@ -13,6 +13,7 @@
     "Ronosathwasha::Gloss": "lib/Ronosathwasha/Gloss.rakumod",
     "Ronosathwasha::Chatbot": "lib/Ronosathwasha/Chatbot.rakumod",
     "Ronosathwasha::ChatModel": "lib/Ronosathwasha/ChatModel.rakumod",
+    "Ronosathwasha::Commands": "lib/Ronosathwasha/Commands.rakumod",
     "Ronosathwasha::Types": "lib/Ronosathwasha/Types.rakumod",
     "Ronosathwasha::Data": "lib/Ronosathwasha/Data.rakumod",
     "Ronosathwasha::Script": "lib/Ronosathwasha/Script.rakumod",

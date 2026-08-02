@@ -22,20 +22,28 @@ use lib $?FILE.IO.parent.parent.add('lib').Str;
 
 use Ronosathwasha::App;
 use Ronosathwasha::Chatbot;
+use Ronosathwasha::Commands;
 
+#| The slash commands are rendered from C<Ronosathwasha::Commands> rather than
+#| repeated, because a second copy of the list is a second thing to forget.
+#|
+#| They are also separated from the invocation flags, which the previous single
+#| column implied were interchangeable. C<--session> is passed to start a
+#| session and C</budget> is typed inside one, and running them together read as
+#| though either would work in either place.
 sub usage(--> Str) {
-    q:to/USAGE/.trim;
+    my Str $commands = command-help();
+
+    qq:to/USAGE/.trim;
     Ronosathwasha local conversation
 
-      make chat                         start Lauri's terminal conversation
-      --session=PATH                    store the session at PATH
-      --warm                            prime the server's prompt cache, then exit
-      /budget                           show current context cost and budget
-      /parse                            explain the last parsed exchange
-      /gaps                             show language gaps found so far
-      /evidence                         alias for /gaps
-      /export PATH                      copy the durable session for review
-      /quit                              leave without creating another turn
+      make chat            start Lauri's terminal conversation
+      --session=PATH       store the session at PATH
+      --warm               prime the server's prompt cache, then exit
+
+    Once the conversation is running:
+
+    { $commands }
 
     The command expects llama-server at the configured URL. It does not start
     the server or copy model weights into the repository.
