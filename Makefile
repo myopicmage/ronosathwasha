@@ -12,6 +12,14 @@ PORT ?= 8000
 LEVEL ?= sentence
 CHECK_JOBS ?= 3
 
+# `chat` assumes the local server is already running. `chat-all` can own the
+# server for one conversation, while these knobs keep its launch details
+# visible and overridable without duplicating the model path in a script.
+CHAT_SERVER_URL ?= http://127.0.0.1:8080
+CHAT_SERVER_PORT ?= 8080
+CHAT_SERVER_WAIT ?= 120
+CHAT_MODEL_PATH ?= $(shell printf '%s' ~/models/Qwen3-14B-Q5_K_M.gguf)
+
 # Empty under direnv, which is the usual case: the toolchain is already on
 # PATH. Outside it, every recipe re-enters the dev shell, the way
 # scripts/install.sh does. `path:.` copies the working tree into the store on
@@ -61,7 +69,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict syllabary pages keylayout serve share speak validate chat test raku-test typecheck check install clean
+.PHONY: help all site font dict syllabary pages keylayout serve share speak validate chat chat-all test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -117,6 +125,42 @@ validate: $(RAKU_STAMP) ## Validate Rono in TEXT at writing, word, or sentence L
 	$(RAKU) raku -I lib tools/validate.raku --level="$(LEVEL)" "$(TEXT)"
 
 chat: $(RAKU_STAMP) ## Start the local Lauri conversation
+	$(RAKU) bin/ronosathwasha-chat
+
+chat-all: $(RAKU_STAMP) ## Start llama-server and the local Lauri conversation
+	@set -e; \
+	server_pid=; \
+	if curl -fsS --max-time 1 "$(CHAT_SERVER_URL)/health" >/dev/null 2>&1; then \
+		echo "Using llama-server at $(CHAT_SERVER_URL)"; \
+	else \
+		echo "Starting llama-server on port $(CHAT_SERVER_PORT)"; \
+		$(RESHELL) llama-server --model "$(CHAT_MODEL_PATH)" --jinja --port "$(CHAT_SERVER_PORT)" & \
+		server_pid=$$!; \
+		cleanup() { \
+			kill "$$server_pid" >/dev/null 2>&1 || true; \
+			wait "$$server_pid" >/dev/null 2>&1 || true; \
+		}; \
+		trap cleanup EXIT; \
+		ready=0; \
+		attempt=0; \
+		while [ "$$attempt" -lt "$(CHAT_SERVER_WAIT)" ]; do \
+			if curl -fsS --max-time 1 "$(CHAT_SERVER_URL)/health" >/dev/null 2>&1; then \
+				ready=1; \
+				break; \
+			fi; \
+			if ! kill -0 "$$server_pid" >/dev/null 2>&1; then \
+				if wait "$$server_pid"; then server_exit_code=0; else server_exit_code=$$?; fi; \
+				echo "llama-server exited before becoming healthy (status $$server_exit_code)" >&2; \
+				exit "$$server_exit_code"; \
+			fi; \
+			attempt=$$((attempt + 1)); \
+			sleep 1; \
+		done; \
+		if [ "$$ready" -ne 1 ]; then \
+			echo "llama-server did not become healthy after $(CHAT_SERVER_WAIT) seconds" >&2; \
+			exit 1; \
+		fi; \
+	fi; \
 	$(RAKU) bin/ronosathwasha-chat
 
 serve: site ## Serve build/ over HTTP

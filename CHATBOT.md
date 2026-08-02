@@ -261,9 +261,11 @@ language became what it is**.
 ## The local CLI
 
 `make chat` starts `bin/ronosathwasha-chat` after `llama-server` has been
-started separately. The rolling prompt is temporary, while the ordinary
-transcript and candidate findings are appended to the ignored
-`sessions/chat.jsonl` session log.
+started separately. `make chat-all` starts and supervises the local server for
+one conversation, reusing a healthy server and stopping only the process it
+started. The rolling prompt is temporary, while the ordinary transcript and
+candidate findings are appended to the ignored `sessions/chat.jsonl` session
+log.
 
 Inside the prompt:
 

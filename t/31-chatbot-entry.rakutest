@@ -2,7 +2,7 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 13;
+plan 18;
 
 my IO::Path $script = repository-root.add('bin/ronosathwasha-chat');
 
@@ -27,3 +27,13 @@ my Str $make-out = $dry-run.out.slurp;
 
 is $dry-run.exitcode, 0, 'make knows the chat target';
 ok $make-out.contains('bin/ronosathwasha-chat'), 'the target invokes the executable script';
+
+my $whole-run = run 'make', '-n', 'chat-all', :out, :err;
+my Str $whole-out = $whole-run.out.slurp;
+
+is $whole-run.exitcode, 0, 'make knows the all-in-one chat target';
+ok $whole-out.contains('llama-server'), 'the all-in-one target starts the model server';
+ok $whole-out.contains('--jinja'), 'the all-in-one target uses the model chat template';
+ok $whole-out.contains('/health'), 'the all-in-one target waits for server readiness';
+ok $whole-out.contains('bin/ronosathwasha-chat'),
+    'the all-in-one target starts the conversation after the server';

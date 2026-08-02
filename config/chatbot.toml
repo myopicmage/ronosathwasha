@@ -45,9 +45,9 @@ reserved = 1024
 
 [server]
 
-# `llama-server`, started separately. The harness does not launch it: a chatbot that
-# spawns its own inference server owns a process lifecycle nobody asked it to own,
-# and the failure modes are worse than "connection refused".
+# `llama-server`, normally started separately for `make chat`. `make chat-all`
+# may supervise one server process for a single conversation, while the Raku
+# harness itself still does not own a process lifecycle.
 url = "http://127.0.0.1:8080"
 
 # One local blocking request, so a generous ceiling rather than a tight one. A 14B

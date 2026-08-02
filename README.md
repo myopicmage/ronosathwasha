@@ -147,6 +147,16 @@ In another terminal, from the repository:
 make chat
 ```
 
+Or let Make start and supervise the local server for this conversation:
+
+```sh
+make chat-all
+```
+
+`chat-all` reuses a healthy server when one is already running. Otherwise it
+starts `llama-server`, waits for `/health`, runs the conversation, and stops
+the server it started when the session ends.
+
 Type a meaning in the `you>` prompt. Lauri answers with a realized sentence or
 reports a gap when the current language cannot express it. The session is
 durable in `sessions/chat.jsonl`, which is ignored as machine-local state.
