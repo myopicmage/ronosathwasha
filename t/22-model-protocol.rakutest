@@ -11,7 +11,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 47;
+plan 49;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -90,6 +90,10 @@ nok %express<properties><predicate><enum>.grep('thinu'),
     'a word the lexicon does not have is not offered';
 ok %express<properties><predicate><enum>.grep('thinə'),
     'while one it does have is';
+nok $roots{'narame'},
+    'a one-word phrase is not an expressive predicate root';
+nok $words{'narame'},
+    'and the same phrase is not an expressive participant stem';
 
 # 027's walk-through: predicate miriswe realized as miriswese and read back as
 # the nominal miri with a copula, a meaning change accepted end to end.

@@ -272,11 +272,16 @@ sub optional-typed(%raw, Str:D $field, Mu:U $type) {
         unless %raw{$field} ~~ $type;
 }
 
-#| The single words the lexicon lists, which both vocabularies start from.
+#| The single non-phrase words the lexicon lists, which both vocabularies start from.
+#|
+#| A phrase is a complete turn, even when it contains only one word. Keeping
+#| `[phrase]` out here is what stops `narame` (hello) from becoming an expressive
+#| predicate or participant; the phatic branch and its phrase glossary own it.
 sub listed-words(Lexicon:D $lexicon --> Seq) {
     my $affixes = $lexicon.affixes.map(*.roman).Set;
 
     $lexicon.entries
+        .grep({ .section ne 'phrase' })
         .map(*.roman)
         .grep({ not $affixes{$_} and not .contains(' ') });
 }
