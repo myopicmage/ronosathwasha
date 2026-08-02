@@ -5,8 +5,10 @@ use Ronosathwasha::Capabilities;
 use Ronosathwasha::Chatbot;
 use Ronosathwasha::Config;
 use Ronosathwasha::ConversationState;
+use Ronosathwasha::Intent;
 use Ronosathwasha::LanguageEvidence;
 use Ronosathwasha::Lexicon;
+use Ronosathwasha::Model;
 use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Script;
@@ -14,7 +16,17 @@ use Ronosathwasha::SessionLog;
 use Ronosathwasha::TestModel;
 use Ronosathwasha::TokenCounter;
 
-plan 20;
+plan 23;
+
+# A model that cannot be reached at all, which is the ordinary condition on a
+# machine where the server is started by hand. The concrete signature is not
+# decoration: a role enforces that `respond` exists and never that it matches,
+# so the typing that looks redundant here is what is actually holding.
+class Refuses does Model {
+    method respond(PromptContext:D $context --> ResponseIntent) {
+        die 'no server is running';
+    }
+}
 
 my IO::Path $root = repository-root;
 my IO::Path $data = $root.add('data');
@@ -108,6 +120,32 @@ is @records[2].event, 'evidence', 'the terminal observer records accumulated evi
 is @records[2].data<findings>[0]<subject>, 'something',
     'the evidence record keeps the candidate gap';
 is @records[3].event, 'session-ended', 'the app records the closing boundary';
+
+# ------------------------------------------------------------------- warming ---
+
+# A separate log, so the record assertions above stay about the session that
+# produced them. The point of the test below is that this file stays empty.
+my IO::Path $warm-log = $directory.add('warm.jsonl');
+LEAVE { $warm-log.unlink if $warm-log.e }
+
+sub warm-app(Model:D $model --> App) {
+    App.new(
+        :$config, :$script, :$lexicon, :$morphology, :$model, :$context,
+        :counter(PerWord.new),
+        :log(session-log($warm-log)),
+        :input($*IN), :output($*OUT),
+    );
+}
+
+ok warm-app(Silent.new).warm,
+    'warming succeeds on any answer the model gives, including a gap';
+
+nok $warm-log.e,
+    'and writes no durable record, because no turn happened';
+
+nok warm-app(Refuses.new).warm,
+    'an unreachable server is reported rather than thrown, so a cold cache '
+        ~ 'does not stop a conversation from opening';
 is @records[3].data<findings>, 1, 'the closing boundary reports finding count';
 
 like $output-path.slurp, / '[gap] gap: something' /,
