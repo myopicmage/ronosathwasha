@@ -1,0 +1,88 @@
+use Test;
+
+use Ronosathwasha::Actions;
+use Ronosathwasha::ConversationState;
+use Ronosathwasha::Dialogue;
+use Ronosathwasha::Intent;
+use Ronosathwasha::LanguageEvidence;
+use Ronosathwasha::ParseResult;
+use Ronosathwasha::PromptContext;
+use Ronosathwasha::SessionLog;
+
+plan 18;
+
+my IO::Path $directory = $*TMPDIR.add("ronosathwasha-session-log-{ $*PID }");
+my IO::Path $path      = $directory.add('session.jsonl');
+my IO::Path $exported  = $directory.add('exports').add('session.jsonl');
+
+LEAVE {
+    $exported.unlink if $exported.e;
+    $exported.parent.rmdir if $exported.parent.d && $exported.parent !~~ $*TMPDIR;
+    $path.unlink if $path.e;
+    $directory.rmdir if $directory.d;
+}
+
+$path.unlink if $path.e;
+$directory.rmdir if $directory.d;
+
+my $log = session-log($path);
+
+is $log.records.elems, 0, 'a new log has no records';
+
+my $first = $log.append('started', command => 'ronosathwasha-chat');
+
+is $first.sequence, 1, 'the first record starts at sequence one';
+is $first.event, 'started', 'the record keeps its event name';
+is $first.data<command>, 'ronosathwasha-chat', 'event data stays in the record';
+ok $path.e, 'appending creates the JSONL file';
+
+my $second = $log.append('note', text => 'a durable observation');
+
+is $second.sequence, 2, 'the sequence advances for the next record';
+is $log.records.elems, 2, 'records can be read back from disk';
+is $log.records[1].data<text>, 'a durable observation',
+    'read-back preserves event-specific data';
+
+my $recovered = session-log($path);
+is $recovered.next-sequence, 3, 'opening an existing log recovers its sequence';
+is $recovered.append('resumed').sequence, 3,
+    'a resumed session appends after the existing records';
+
+my $evidence = LanguageEvidence.new.note(
+    Gap.new(:wanted('a habitual action'), :missing('an aspect')),
+);
+my $evidence-record = $recovered.record-evidence($evidence);
+
+is $evidence-record.event, 'evidence', 'evidence has its own event type';
+is $evidence-record.data<findings>[0]<kind>, 'MissingMeaning',
+    'evidence stores the finding kind rather than a live object';
+is $evidence-record.data<findings>[0]<subject>, 'a habitual action',
+    'evidence stores the requested meaning';
+
+my $context = PromptContext.new(
+    :schema(PromptInvariant.new(:label('schema'), :text('express or gap'))),
+    :capabilities(PromptInvariant.new(:label('capabilities'), :text('present'))),
+    :state(ConversationState.new),
+);
+my $exchange = Exchange.new(
+    :heard('Lari thothinəme.'),
+    :understanding(NotUnderstood.new(
+        :sentence('Lari thothinəme.'),
+        :word('thothinəme'),
+        :because(UnknownStem.new(:word('thothinəme'))),
+    )),
+    :intent(Gap.new(:wanted('an answer'), :missing('a declared meaning'))),
+    :$context,
+);
+my $exchange-record = $recovered.record-exchange($exchange);
+
+is $exchange-record.event, 'exchange', 'an exchange has its own event type';
+is $exchange-record.data<heard>, 'Lari thothinəme.',
+    'the durable exchange keeps the heard text';
+is $exchange-record.data<understood>, False,
+    'the durable exchange keeps whether parsing succeeded';
+
+$recovered.export($exported);
+
+ok $exported.e, 'export creates the requested destination';
+is $exported.slurp, $path.slurp, 'export copies the complete JSONL stream';
