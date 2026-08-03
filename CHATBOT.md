@@ -245,6 +245,35 @@ verifying that candidate weights correctly encode known meanings *before* their
 failures are treated as language evidence, and that gate still sits behind the
 language coverage gate.
 
+### First deterministic model baseline
+
+On 2026-08-03, `tools/evaluate-model.raku` ran all 51 held-out meanings against
+Qwen3-14B Q5_K_M. Evaluation used its benchmark-only policy: greedy decoding at
+temperature -1, seed 0, prompt-cache reuse disabled, thinking disabled, and
+canonical JSON key order. The interactive chatbot keeps the stochastic, cached
+policy from `config/chatbot.toml`.
+
+The run took about thirteen minutes and scored **2.0% (1/51)**:
+
+- the declared greeting was correct;
+- all 50 expressive meanings were reported as gaps;
+- no expressive intent was produced, so there were no malformed expressive
+  intents or finer semantic mismatches to classify;
+- every expressive stratum scored zero, while the single phatic stratum scored
+  100%.
+
+This is a useful failure because it narrows the next hypothesis. The response
+schema enumerates legal predicate and participant spellings, but an enum does not
+teach the model what those roots mean. The capabilities prompt deliberately omits
+the ordinary lexicon on the assumption that its names already live in the schema.
+The raw gaps repeatedly ask for verbs and nouns the declarations do contain, while
+the greeting succeeds in the one place where the prompt explicitly pairs a phrase
+with its gloss (`narame = hello`).
+
+The next intervention is therefore lexical grounding, not another response-kind
+instruction: expose the glosses of nameable roots to the model, measure their token
+cost, and rerun a bounded expressive case before paying for another full corpus.
+
 ## Context boundaries
 
 The system must distinguish:
