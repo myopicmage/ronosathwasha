@@ -177,6 +177,36 @@ sub phrase-entries(Lexicon:D $lexicon --> Seq) {
     ).Seq;
 }
 
+#| The meanings of every identifier the expressive response schema can name.
+#|
+#| Predicate roots and participant stems are separate because the same spelling
+#| can denote different things at the two positions. `thinə` is both the verbal
+#| root recovered from "to eat" and the whole participant word "food". The maps
+#| come from `Intent`, beside the schema vocabulary itself, so this block cannot
+#| explain a name the decoder refuses or omit one it accepts.
+sub expressive-entries(Lexicon:D $lexicon, Morphology:D $morphology --> Seq) {
+    my Map $predicates = predicate-entries($lexicon, $morphology);
+    my Map $participants = participant-entries($lexicon, $morphology);
+
+    my @predicate-lines = $predicates.keys.sort.map(-> Str $root {
+        my Str $glosses = $predicates{$root}.map(*.gloss).unique.sort.join('; ');
+        "  $root = $glosses";
+    });
+    my @participant-lines = $participants.keys.sort.map(-> Str $stem {
+        my Str $glosses = $participants{$stem}.map(*.gloss).unique.sort.join('; ');
+        "  $stem = $glosses";
+    });
+
+    return (
+        'Declared expressive vocabulary:',
+        'Predicate roots, for the `predicate` field:',
+        |@predicate-lines,
+        '',
+        'Participant stems, for each argument `stem` field:',
+        |@participant-lines,
+    ).Seq;
+}
+
 #| The rules that stop an inventory from being read as a set of restrictions.
 #|
 #| Every example here is a combination of values that appear in the lists above. Nothing
@@ -262,6 +292,8 @@ sub capabilities-invariant(
         '',
         'Choices the answer format lets you select:',
         |semantic-axes(),
+        '',
+        |expressive-entries($lexicon, $morphology),
         '',
         'Phatic replies use a separate response shape: choose `kind: phatic` with'
             ~ ' `phatic_act: greeting` when the meaning is a greeting. The realizer'

@@ -272,18 +272,17 @@ sub optional-typed(%raw, Str:D $field, Mu:U $type) {
         unless %raw{$field} ~~ $type;
 }
 
-#| The single non-phrase words the lexicon lists, which both vocabularies start from.
+#| The single non-phrase entries the lexicon lists, which both vocabularies start from.
 #|
 #| A phrase is a complete turn, even when it contains only one word. Keeping
 #| `[phrase]` out here is what stops `narame` (hello) from becoming an expressive
 #| predicate or participant; the phatic branch and its phrase glossary own it.
-sub listed-words(Lexicon:D $lexicon --> Seq) {
+sub listed-entries(Lexicon:D $lexicon --> Seq) {
     my $affixes = $lexicon.affixes.map(*.roman).Set;
 
     $lexicon.entries
         .grep({ .section ne 'phrase' })
-        .map(*.roman)
-        .grep({ not $affixes{$_} and not .contains(' ') });
+        .grep({ not $affixes{.roman} and not .roman.contains(' ') });
 }
 
 #| The bare stem an infinitive recovers, or `Empty` for any other word.
@@ -316,19 +315,49 @@ sub bare-stem-of(Str:D $form, @markers) {
 #| since it is a value rather than a one-shot iterator.
 my %VOCABULARY;
 
-sub predicate-roots(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
-    %VOCABULARY{"roots|{ $lexicon.WHICH }|{ $morphology.WHICH }"} //= do {
+#| The declared entries that give each nameable predicate root its meanings.
+#|
+#| More than one entry may land on one root. `thinə` is the noun "food", while
+#| the infinitive `thinəswe` contributes the verbal sense "to eat" after its
+#| marker is removed. Keeping both entries is what lets a prompt ground the
+#| identifier without silently choosing one host class.
+sub predicate-entries(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
+    %VOCABULARY{"predicate-entries|{ $lexicon.WHICH }|{ $morphology.WHICH }"} //= do {
         my @markers = $morphology.by-id('infinitive').forms;
-        my @listed  = listed-words($lexicon);
+        my %by-root;
 
-        my @roots = @listed.map(-> $form {
-            my @bare = bare-stem-of($form, @markers);
+        for listed-entries($lexicon) -> $entry {
+            my @bare = bare-stem-of($entry.roman, @markers);
+            my Str $root = @bare ?? @bare.head !! $entry.roman;
 
-            @bare ?? @bare.Slip !! $form;
-        });
+            %by-root{$root}.push: $entry;
+        }
 
-        @roots.Set;
+        %by-root.map({ .key => .value.List }).Map;
     };
+}
+
+#| The declared entries that give each nameable participant stem its meanings.
+#|
+#| Participants name whole words, so infinitives remain bound here. This is the
+#| semantic half of `participant-stems`, derived before either the schema or the
+#| prompt asks for its keys. The morphology parameter stays for symmetry with
+#| `predicate-entries`, just as it does on the two vocabulary-set functions.
+sub participant-entries(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
+    %VOCABULARY{"participant-entries|{ $lexicon.WHICH }"} //= do {
+        my %by-stem;
+
+        for listed-entries($lexicon) -> $entry {
+            %by-stem{$entry.roman}.push: $entry;
+        }
+
+        %by-stem.map({ .key => .value.List }).Map;
+    };
+}
+
+sub predicate-roots(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
+    %VOCABULARY{"roots|{ $lexicon.WHICH }|{ $morphology.WHICH }"} //=
+        predicate-entries($lexicon, $morphology).keys.Set;
 }
 
 #| Every stem a model may name as a participant: whole words that can stand as
@@ -343,7 +372,8 @@ sub predicate-roots(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is exp
 #| a pair, callers hold both arguments, and an asymmetric signature would make
 #| the swap between them a refactor instead of a name change.
 sub participant-stems(Lexicon:D $lexicon, Morphology:D $morphology --> Set) is export {
-    %VOCABULARY{"stems|{ $lexicon.WHICH }"} //= listed-words($lexicon).Set;
+    %VOCABULARY{"stems|{ $lexicon.WHICH }"} //=
+        participant-entries($lexicon, $morphology).keys.Set;
 }
 
 #| Refuse an answer whose stems ask a question its other fields deny.

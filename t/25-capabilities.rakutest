@@ -8,7 +8,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 42;
+plan 49;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -122,6 +122,59 @@ ok $text.contains('Use `kind: phatic` only when the user explicitly requests'),
     'phatic is reserved for an explicitly requested social move';
 ok $text.contains('A request to say, ask or command a proposition is'),
     'ordinary meaning requests are directed to the expressive response';
+
+# ------------------------------------------------------ expressive vocabulary ---
+#
+# The schema can constrain a model to declared identifiers, but it cannot teach the
+# model what those identifiers denote. The prompt renders the exact same root-to-entry
+# maps that own the schema sets, keeping the full declared gloss rather than the shorter
+# interlinear label.
+
+ok $text.contains('Declared expressive vocabulary:'),
+    'the prompt names the expressive glossary';
+
+my Map $predicate-entries = predicate-entries($lexicon, $morphology);
+my @expected-predicates = $predicate-entries.keys.sort.map(-> Str $root {
+    "  $root = { $predicate-entries{$root}.map(*.gloss).unique.sort.join('; ') }"
+});
+my Str $predicate-block = $text.substr(
+    $text.index('Predicate roots, for the `predicate` field:'),
+    $text.index('Participant stems, for each argument `stem` field:')
+        - $text.index('Predicate roots, for the `predicate` field:'),
+);
+my Set $expected-predicate-lines = @expected-predicates.Set;
+my @actual-predicates = $predicate-block.lines.grep({ $expected-predicate-lines{$_} });
+
+is-deeply @actual-predicates.List, @expected-predicates.List,
+    'every nameable predicate root appears once with all its declared senses';
+
+my Map $participant-entries = participant-entries($lexicon, $morphology);
+my @expected-participants = $participant-entries.keys.sort.map(-> Str $stem {
+    "  $stem = { $participant-entries{$stem}.map(*.gloss).unique.sort.join('; ') }"
+});
+my Str $participant-block = $text.substr(
+    $text.index('Participant stems, for each argument `stem` field:'),
+    $text.index('Phatic replies use a separate response shape')
+        - $text.index('Participant stems, for each argument `stem` field:'),
+);
+my Set $expected-participant-lines = @expected-participants.Set;
+my @actual-participants = $participant-block.lines.grep({ $expected-participant-lines{$_} });
+
+is-deeply @actual-participants.List, @expected-participants.List,
+    'every nameable participant stem appears once with its declared senses';
+ok $predicate-block.contains('  thinə = food; to eat (food-verb)'),
+    'a shared spelling keeps both predicate senses';
+ok $participant-block.contains('  thinəswe = to eat (food-verb)'),
+    'while the participant vocabulary keeps the complete infinitive';
+nok ($predicate-block.contains('narame') || $participant-block.contains('narame')),
+    'declared phrases stay out of both expressive vocabularies';
+
+my $without-eat = Lexicon.new(
+    :entries($lexicon.entries.grep({ .roman ne 'thinəswe' })),
+);
+my Str $without-eat-text = capabilities-invariant($without-eat, $morphology).text;
+nok $without-eat-text.contains('to eat (food-verb)'),
+    'removing a lexical declaration removes its grounding rather than leaving prose';
 
 # The one pairing rule the axes have. "Independent" above is the broad claim that
 # prevents false gaps, and this is its stated exception, the same pattern as the

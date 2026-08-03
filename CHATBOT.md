@@ -270,9 +270,21 @@ The raw gaps repeatedly ask for verbs and nouns the declarations do contain, whi
 the greeting succeeds in the one place where the prompt explicitly pairs a phrase
 with its gloss (`narame = hello`).
 
-The next intervention is therefore lexical grounding, not another response-kind
-instruction: expose the glosses of nameable roots to the model, measure their token
-cost, and rerun a bounded expressive case before paying for another full corpus.
+The first intervention was therefore lexical grounding, not another response-kind
+instruction. The capabilities prompt now exposes the full declared glosses of every
+nameable predicate root and participant stem, derived from the same maps as the
+response schema.
+
+A deterministic two-case rerun kept the greeting correct and still reported “I eat
+the food” as a gap, claiming it needed the verb “to eat” even though that sense was
+now explicit in the prompt. Grounding raised the greeting prompt from 1,914 to 3,208
+tokens, an increase of 1,294 tokens or about 68%.
+
+Lexical grounding remains necessary because an identifier still needs a denotation,
+but it was not sufficient. The next hypothesis is response-shape pressure: `gap`
+requires three easy strings, while `express` requires a larger object whose fields
+must coordinate. Test that boundary with a bounded case before paying for another
+full corpus.
 
 ## Context boundaries
 
