@@ -120,7 +120,16 @@ class LlamaCpp does Inference is export {
     #| on a machine where it is started by hand.
     method complete(@messages) {
         my Str $url  = $!config.server.completions;
-        my Str $body = to-json(request-body($!config, $!lexicon, $!morphology, @messages));
+
+        # Stable bytes are part of deterministic inference. Raku hashes deliberately
+        # vary their iteration order between processes, and llama.cpp compiles the
+        # response schema into a token grammar in the order it receives. Without
+        # canonical keys, two equal schemas can therefore guide generation through
+        # different field orders.
+        my Str $body = to-json(
+            request-body($!config, $!lexicon, $!morphology, @messages),
+            :sorted-keys,
+        );
 
         my $reply = $!transport.post($url, $body);
 

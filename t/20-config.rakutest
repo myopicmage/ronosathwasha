@@ -6,7 +6,7 @@ use Ronosathwasha::Chatbot;
 use Ronosathwasha::Config;
 use Ronosathwasha::TokenCounter;
 
-plan 22;
+plan 24;
 
 my IO::Path $real = repository-root.add('config/chatbot.toml');
 
@@ -52,6 +52,8 @@ is $config.server.timeout-seconds, 120, 'generous, because a first request pays 
 is $config.sampling.temperature, 0.7, "Qwen3's own recommended temperature";
 is $config.sampling.top-p, 0.8, 'and top-p';
 is $config.sampling.top-k, 20, 'and top-k';
+is $config.sampling.seed, -1, 'interactive requests choose a fresh random seed';
+ok $config.sampling.cache-prompt, 'and reuse the expensive system-prompt prefix';
 
 # Reasoning tokens come out of the same window, and `ContextPolicy` cannot know a
 # model means to spend six hundred of them before answering.

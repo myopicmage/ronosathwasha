@@ -11,7 +11,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 49;
+plan 51;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -166,6 +166,8 @@ is %body<messages>.elems, 2, 'the body carries the message list';
 is %body<messages>[0]<role>, 'system', 'in the protocol\'s spelling';
 is %body<temperature>, 0.7, 'with the configured sampling';
 is %body<top_k>, 20, 'all of it';
+is %body<seed>, -1, 'including the interactive random seed';
+ok %body<cache_prompt>, 'and prompt-cache reuse';
 
 is %body<max_tokens>, $config.budget.reserved,
     'and max_tokens is the reservation, which is the other half of Budget\'s promise';

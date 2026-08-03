@@ -82,6 +82,13 @@ class Sampling is export {
     has Numeric $.top-p       is required;
     has Int     $.top-k       is required;
     has Bool    $.thinking    is required;
+
+    # llama.cpp uses -1 as a fresh random seed for each request. Prompt caching is
+    # on by default for an interactive session, where reusing the large system
+    # prefix matters more than bit-for-bit repeatability. An evaluator can replace
+    # both without changing the conversational configuration file.
+    has Int  $.seed         = -1;
+    has Bool $.cache-prompt = True;
 }
 
 class Config is export {

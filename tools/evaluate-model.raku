@@ -160,10 +160,46 @@ sub describe-thresholds(%data --> Str) {
         ~ "each stratum >= { percent(%data<minimum_stratum_accuracy>) }";
 }
 
+#| Greedy decoding for a benchmark whose score must be comparable across runs.
+#|
+#| The interactive configuration deliberately follows Qwen's non-thinking sampling
+#| recommendation. Evaluation has a different job. In llama.cpp, a negative
+#| temperature is greedy, top-p 1 and top-k 0 disable those filters, and a fixed seed
+#| removes the remaining RNG choice. Prompt caching is off because llama.cpp warns
+#| that cache reuse can change logits across batch sizes. Thinking is pinned too, so
+#| a future conversational change cannot silently move the benchmark.
+sub evaluation-sampling(--> Sampling) {
+    Sampling.new(
+        :temperature(-1),
+        :top-p(1),
+        :top-k(0),
+        :seed(0),
+        :cache-prompt(False),
+        :thinking(False),
+    );
+}
+
+sub evaluation-config(Config:D $configured --> Config) {
+    Config.new(
+        :model($configured.model),
+        :budget($configured.budget),
+        :server($configured.server),
+        :researcher($configured.researcher),
+        :sampling(evaluation-sampling()),
+    );
+}
+
+sub describe-sampling(Sampling:D $sampling --> Str) {
+    "greedy (temperature { $sampling.temperature }, top-p { $sampling.top-p }, "
+        ~ "top-k { $sampling.top-k }, seed { $sampling.seed }, "
+        ~ "cache-prompt { $sampling.cache-prompt.lc }, thinking { $sampling.thinking.lc })";
+}
+
 sub dry-run(%data, @cases --> Nil) {
     say "cases: { @cases.elems }";
     say "thresholds: { describe-thresholds(%data) }";
     say "axes: { %data<required_axes>.List.join(', ') }";
+    say "sampling: { describe-sampling(evaluation-sampling()) }";
     say 'diagnostics: raw model answers retained; failures preserve their cause';
     say 'model run: skipped';
 }
@@ -191,6 +227,7 @@ sub evaluate(
     say "model: { $config.model.name } { $config.model.quantisation }";
     say "weights: { $config.model.path }";
     say "context: { $config.budget.total } tokens, { $config.budget.reserved } reserved";
+    say "sampling: { describe-sampling($config.sampling) }";
     say 'memory: not exposed by the configured llama-server client';
 
     my @results;
@@ -321,7 +358,8 @@ sub MAIN(
     my @selected = $limit > 0 ?? @cases.head($limit) !! @cases;
     my IO::Path $root = repository-root;
     my IO::Path $data-path = $root.add('data');
-    my $config = load-config($root.add('config/chatbot.toml'));
+    my $configured = load-config($root.add('config/chatbot.toml'));
+    my $config = evaluation-config($configured);
     my $script = load-script($data-path.add('script.toml'));
     my $lexicon = load-lexicon($data-path.add('lexicon.toml'));
     my $morphology = load-morphology($data-path.add('morphology.toml'));

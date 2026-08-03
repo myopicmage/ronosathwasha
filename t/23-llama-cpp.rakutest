@@ -15,7 +15,7 @@ use Ronosathwasha::Prompt;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Semantics;
 
-plan 26;
+plan 27;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -69,6 +69,8 @@ is $rec.urls[0], 'http://127.0.0.1:8080/v1/chat/completions',
 
 my %sent = from-json($rec.bodies[0]);
 
+is $rec.bodies[0], to-json(%sent, :sorted-keys),
+    'the request is canonical JSON, so schema key order cannot vary by process';
 is %sent<messages>.elems, 2, 'carrying the message list';
 is %sent<messages>[0]<role>, 'system', 'system first';
 is %sent<messages>[1]<content>, 'Lari thinəme.', 'and the turn verbatim';

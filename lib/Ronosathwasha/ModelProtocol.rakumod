@@ -271,6 +271,8 @@ sub request-body(
         temperature => $config.sampling.temperature,
         top_p       => $config.sampling.top-p,
         top_k       => $config.sampling.top-k,
+        seed        => $config.sampling.seed,
+        cache_prompt => $config.sampling.cache-prompt,
 
         # The reservation, and the only place it is spent. `Budget.reserved` exists so
         # a prompt cannot fill the window; this is the other half of that promise,
