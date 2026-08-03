@@ -209,6 +209,9 @@ sub composition-rules(Lexicon:D $lexicon --> Str) {
       - A question kind also accompanies an interrogative. Open asks for an
         unconstrained answer. Selective means "which" and presupposes a salient set
         of possible answers already in the discourse.
+      - Use `kind: phatic` only when the user explicitly requests the declared social
+        move, currently a greeting. A request to say, ask or command a proposition is
+        `kind: express`; use `kind: gap` only when that proposition cannot be expressed.
       - Some stems already carry the question inside them, and naming one commits
         the whole answer: the speech act must be interrogative and the scope must
         name the very constituent you put it in. A statement that names one, or a

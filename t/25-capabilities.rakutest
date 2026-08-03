@@ -8,7 +8,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::PromptContext;
 use Ronosathwasha::Types;
 
-plan 40;
+plan 42;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -118,6 +118,10 @@ ok $text.contains('timeless identity uses simple'),
 
 ok $text.contains('meaning, not spelling'),
     'the model is told it selects features rather than assembling forms';
+ok $text.contains('Use `kind: phatic` only when the user explicitly requests'),
+    'phatic is reserved for an explicitly requested social move';
+ok $text.contains('A request to say, ask or command a proposition is'),
+    'ordinary meaning requests are directed to the expressive response';
 
 # The one pairing rule the axes have. "Independent" above is the broad claim that
 # prevents false gaps, and this is its stated exception, the same pattern as the
