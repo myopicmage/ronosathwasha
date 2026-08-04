@@ -559,3 +559,40 @@ aspect = "simple"
 polarity = "affirmative"
 modality = "asserted"
 arguments = ["subject"]
+
+# -------------------------------------- reviewed coordination, 2026-08-04 ---
+#
+# Kevin supplied the English proposition, accepted the derived Rono sentence,
+# and ordered it into this file. `luru` joins complete clauses, so neither
+# predicate is demoted to an adjunct and each keeps its own tense and arguments.
+
+[[coordination]]
+text = "Nasa tari thətaswethe luru lari yayi thwame."
+english = "Your house will be a fire elemental's house, and I like it."
+status = "reviewed"
+source = "Kevin, 2026-08-04"
+connectors = ["luru"]
+derivation = "future fire-home classification joined by clause-level luru to present transitive thwa"
+
+[[coordination.clauses]]
+text = "Nasa tari thətaswethe"
+english = "Your house will be a fire elemental's house"
+speech_act = "declarative"
+predicate = "thəta"
+nominal_predicate = true
+tense = "future"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject"]
+
+[[coordination.clauses]]
+text = "lari yayi thwame."
+english = "I like it"
+speech_act = "declarative"
+predicate = "thwa"
+tense = "present"
+aspect = "simple"
+polarity = "affirmative"
+modality = "asserted"
+arguments = ["subject", "object"]

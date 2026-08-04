@@ -117,22 +117,39 @@ sub validate-sentence(
     Str:D        $text,
     --> Bool
 ) {
+    sub report-clause(Reading:D $reading, Str:D $label = '') {
+        my Str $kind = $reading.nominal-predicate ?? 'nominal' !! 'verbal';
+        my Str $prefix = $label.chars ?? "$label " !! '';
+
+        say "{$prefix}predicate: { $reading.predicate }";
+        say "{$prefix}kind: $kind";
+        say "{$prefix}speech-act: { $reading.speech-act.key }";
+        # Reported as absent rather than as an implicit present. The old line
+        # printed `tense: Present (implicit)` for a sentence decision 22 says
+        # is not located in time, and a tool whose job is telling you what a
+        # sentence means should not name a tense that is not there.
+        say $reading.tense.defined
+            ?? "{$prefix}tense: { $reading.tense.key }"
+            !! "{$prefix}tense: none, an identity with no time attached";
+    }
+
     given read-sentence($script, $lexicon, $morphology, $text) {
         when Understood {
             my $reading = .reading;
-            my Str $kind = $reading.nominal-predicate ?? 'nominal' !! 'verbal';
 
             say 'VALID sentence';
-            say "predicate: { $reading.predicate }";
-            say "kind: $kind";
-            say "speech-act: { $reading.speech-act.key }";
-            # Reported as absent rather than as an implicit present. The old line
-            # printed `tense: Present (implicit)` for a sentence decision 22 says
-            # is not located in time, and a tool whose job is telling you what a
-            # sentence means should not name a tense that is not there.
-            say $reading.tense.defined
-                ?? "tense: { $reading.tense.key }"
-                !! 'tense: none, an identity with no time attached';
+
+            if $reading ~~ CoordinatedReading {
+                say "clauses: { $reading.clauses.elems }";
+                say "connectors: { $reading.connectors.join(', ') }";
+
+                for $reading.clauses.kv -> $index, $clause {
+                    report-clause($clause, "clause { $index + 1 }");
+                }
+            } else {
+                report-clause($reading);
+            }
+
             return True;
         }
 

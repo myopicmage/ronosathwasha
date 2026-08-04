@@ -2,7 +2,7 @@ use Test;
 
 use Ronosathwasha::Chatbot;
 
-plan 20;
+plan 24;
 
 my IO::Path $tool = repository-root.add('tools/validate.raku');
 
@@ -27,6 +27,18 @@ my Str $sentence-out = $sentence.out.slurp;
 is $sentence.exitcode, 0, 'a grammatical sentence passes';
 like $sentence-out, /'predicate: laari'/, 'with its recovered predicate';
 like $sentence-out, /'kind: nominal'/, 'and its clause kind';
+
+my $coordination = validate(
+    'sentence',
+    'Nasa tari thətaswethe luru lari yayi thwame.',
+);
+my Str $coordination-out = $coordination.out.slurp;
+is $coordination.exitcode, 0, 'a coordinated sentence passes';
+like $coordination-out, /'clauses: 2'/, 'and reports both clauses';
+like $coordination-out, /'clause 1 predicate: thəta'/,
+    'with the first predicate kept separate';
+like $coordination-out, /'connectors: luru'/,
+    'and the connector named explicitly';
 
 my $wrong-order = validate('sentence', 'thinəme Lari.');
 my Str $wrong-order-out = $wrong-order.out.slurp;

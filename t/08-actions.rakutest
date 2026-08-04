@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 61;
+plan $corpus.utterances.elems + $corpus.coordinations.elems + 67;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -49,6 +49,25 @@ for $corpus.utterances -> $declared {
         is $got.question-kind, $declared.question-kind, 'question kind';
 
         is-deeply $got.arguments.sort.List, $declared.arguments.sort.List, 'arguments';
+    }
+}
+
+for $corpus.coordinations -> $declared {
+    my $outcome = read($declared.text);
+
+    subtest "{ $declared.text } means what its clauses declare" => {
+        plan 5;
+
+        isa-ok $outcome, Understood, 'it is understood at all';
+        isa-ok $outcome.reading, CoordinatedReading, 'its meaning remains coordinated';
+        is-deeply $outcome.reading.connectors.List, $declared.connectors.List,
+            'the declared connector is preserved';
+        is-deeply $outcome.reading.clauses.map(*.predicate).List,
+            $declared.clauses.map(*.predicate).List,
+            'both predicates agree';
+        is-deeply $outcome.reading.clauses.map(*.tense).List,
+            $declared.clauses.map(*.tense).List,
+            'each clause keeps its own tense';
     }
 }
 
@@ -100,6 +119,24 @@ ok @deictic-locations[2].constituents.head.text.ends-with(
 
 is read('Lari taði medime').reading.locative, 'locative-towards',
     'the locative particle is reported by identity';
+
+# --------------------------------------------------------- clause coordination ---
+
+my $threat = read(
+    'Nasa tari thətaswethe luru lari yayi thwame.'
+);
+
+isa-ok $threat, Understood, 'a declared connector joins two complete clauses';
+isa-ok $threat.reading, CoordinatedReading,
+    'coordination is represented instead of forcing two predicates into one reading';
+is-deeply $threat.reading.connectors.List, ('luru',),
+    'the connector keeps its lexical identity';
+is-deeply $threat.reading.clauses.map(*.predicate).List, ('thəta', 'thwa'),
+    'each clause keeps its own predicate';
+is $threat.reading.clauses.head.tense, Future,
+    'the fire-home classification keeps its future anchoring';
+is-deeply $threat.reading.clauses.tail.arguments.sort.List, (Subject, Object).sort.List,
+    'the approval keeps both its subject and object';
 
 ok read('Lari thinəmedi').reading.ambiguous.elems,
     'an ambiguous word is used and recorded rather than silently resolved';

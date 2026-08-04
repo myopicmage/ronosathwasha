@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 54;
+plan 57;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -238,6 +238,26 @@ is $attested.translation.source, FromCorpus,
     'a sentence the corpus holds takes its translation from there';
 is $attested.translation.render, q{'(I) eat that food (over there)'},
     'and renders in single quotes, which is what Leipzig means by a free translation';
+
+my $threat = gloss-sentence(
+    $script, $lexicon, $morphology,
+    'Nasa tari thətaswethe luru lari yayi thwame.',
+    :$corpus,
+);
+
+is $threat.translation.source, FromCorpus,
+    'a coordinated utterance also takes its translation from the corpus';
+is $threat.translation.render,
+    q{'Your house will be a fire elemental's house, and I like it.'},
+    'the accepted threat survives as fluent English rather than an assembled gloss';
+
+my $unsourced-threat = gloss-sentence(
+    $script, $lexicon, $morphology,
+    'Nasa tari thətaswethe luru lari yayi thwame.',
+);
+
+is $unsourced-threat.translation.source, FromReading,
+    'without the corpus, coordination still falls back to both typed readings';
 
 # The same sentence with no corpus passed. Nothing is invented to fill the gap:
 # the reading is reported instead, and it is punctuated so it cannot be mistaken

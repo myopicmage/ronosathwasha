@@ -19,10 +19,10 @@ my $lexicon    = load-lexicon($data.add('lexicon.toml'));
 my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
-plan $corpus.utterances.elems + 30;
+plan $corpus.utterances.elems + $corpus.coordinations.elems + 32;
 
 sub read(Str $s)  { read-sentence($script, $lexicon, $morphology, $s) }
-sub write(Reading $r) { realize-sentence($script, $lexicon, $morphology, $r) }
+sub write(SentenceReading $r) { realize-sentence($script, $lexicon, $morphology, $r) }
 
 #| Only capitalisation is stripped, and the asymmetry is the point. Punctuation
 #| is part of the written language: the script borrows English marks, they
@@ -39,6 +39,13 @@ sub bare(Str $s) { $s.lc }
 # defect has to occur identically in both to survive this.
 
 for $corpus.utterances -> $u {
+    my $there = read($u.text);
+    my $back  = $there ~~ Understood ?? write($there.reading) !! Str;
+
+    is $back, bare($u.text), "{ $u.text } survives text to meaning to text";
+}
+
+for $corpus.coordinations -> $u {
     my $there = read($u.text);
     my $back  = $there ~~ Understood ?? write($there.reading) !! Str;
 
@@ -99,6 +106,14 @@ is write(read('layi Mirireri mirimedi.').reading), 'layi mirireri mirimedi.',
 
 is write(read('Mirireri layi mirimedi.').reading), 'mirireri layi mirimedi.',
     'and the other order comes back the other way';
+
+my $threat = read('Nasa tari thətaswethe luru lari yayi thwame.');
+
+isa-ok $threat.reading, CoordinatedReading,
+    'the complete threat retains its coordinated shape';
+is write($threat.reading),
+    'nasa tari thətaswethe luru lari yayi thwame.',
+    'both clauses and their connector survive text to meaning to text';
 
 # ------------------------------------------------------------------- refusals ---
 

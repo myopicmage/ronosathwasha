@@ -38,11 +38,17 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::ParseResult;
 
-#| What a sentence was found to mean. Deliberately not `Semantics::Utterance`:
+#| A meaning recovered from a complete written sentence.
+#|
+#| One clause and several connected clauses are different shapes. The role keeps
+#| `Understood` honest without giving every consumer a nullable second predicate.
+role SentenceReading is export { }
+
+#| What one clause was found to mean. Deliberately not `Semantics::Utterance`:
 #| that type is a declaration, carrying an English gloss, a review status and a
 #| source. This one is derived, and the point of the pair is that they can be
 #| compared.
-class Reading does Asks is export {
+class Reading does Asks does SentenceReading is export {
     has Str       $.text       is required;
     has Str       $.predicate  is required;
     has Aspect    $.aspect     is required;
@@ -85,10 +91,29 @@ class Reading does Asks is export {
     has WordParse @.constituents;
 }
 
+#| Several independently meaningful clauses joined by declared clause connectors.
+#|
+#| Connectors are stored by lexical identity rather than reduced to English
+#| "and". `luru` also carries discourse-continuation force, and a later connector
+#| must not be made synonymous merely because English glosses both with one word.
+class CoordinatedReading does SentenceReading is export {
+    has Str     $.text       is required;
+    has Reading @.clauses    is required;
+    has Str     @.connectors is required;
+
+    submethod TWEAK {
+        die 'a coordination requires at least two clauses'
+            if @!clauses.elems < 2;
+
+        die 'a coordination requires exactly one connector between each pair of clauses'
+            if @!connectors.elems != @!clauses.elems - 1;
+    }
+}
+
 role SentenceOutcome is export { }
 
 class Understood does SentenceOutcome is export {
-    has Reading $.reading is required;
+    has SentenceReading $.reading is required;
 }
 
 class NotUnderstood does SentenceOutcome is export {
@@ -215,7 +240,7 @@ sub deixis-of(Script:D $script, Str:D $stem --> Reference) {
 }
 
 #| Read a sentence into meaning.
-sub read-sentence(
+sub read-clause(
     Script:D     $script,
     Lexicon:D    $lexicon,
     Morphology:D $morphology,
@@ -444,5 +469,71 @@ sub read-sentence(
         :$explicit-copula,
         :@ambiguous,
         :constituents(@divisions[0 ..^ @divisions.end]),
+    ));
+}
+
+#| Read either one clause or a sequence of clauses joined by a declared connector.
+#|
+#| Splitting happens before clause parsing. Otherwise the first finite predicate
+#| appears before the end of the word sequence and decision 17 correctly, but
+#| misleadingly, reports it as a verb-order violation. Each side of a connector is
+#| a complete clause and keeps the same reader and invariants as a sentence that
+#| stands alone.
+sub read-sentence(
+    Script:D     $script,
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Str:D        $sentence,
+    --> SentenceOutcome
+) is export {
+    my @words = $sentence.words;
+    my Set $connectors = $lexicon.in-section('conjunction').map(*.roman).Set;
+    my @positions = @words.pairs.grep({
+        $connectors{ .value.lc.subst(/<[?.,!]>+$/, '') }
+    }).map(*.key);
+
+    return read-clause($script, $lexicon, $morphology, $sentence)
+        unless @positions;
+
+    my Reading @clauses;
+    my Str @found-connectors;
+    my Int $start = 0;
+
+    for @positions -> $position {
+        my Str $connector = @words[$position].lc.subst(/<[?.,!]>+$/, '');
+
+        return NotUnderstood.new(
+            :$sentence,
+            :word($connector),
+            :because(UnknownStem.new(:word($connector))),
+        ) if $position == $start;
+
+        my Str $clause-text = @words[$start ..^ $position].join(' ');
+        my $outcome = read-clause($script, $lexicon, $morphology, $clause-text);
+
+        return $outcome unless $outcome ~~ Understood;
+
+        @clauses.push: $outcome.reading;
+        @found-connectors.push: $connector;
+        $start = $position + 1;
+    }
+
+    return NotUnderstood.new(
+        :$sentence,
+        :word(@found-connectors.tail),
+        :because(UnknownStem.new(:word(@found-connectors.tail))),
+    ) if $start >= @words.elems;
+
+    my Str $last-text = @words[$start .. *].join(' ');
+    my $last = read-clause($script, $lexicon, $morphology, $last-text);
+
+    return $last unless $last ~~ Understood;
+
+    @clauses.push: $last.reading;
+
+    Understood.new(reading => CoordinatedReading.new(
+        :text($sentence),
+        :@clauses,
+        :connectors(@found-connectors),
     ));
 }

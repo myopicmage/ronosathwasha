@@ -404,7 +404,9 @@ sub gloss-word(
 #| identity clause glosses its predicate as a noun and a verbal one as a verb.
 #| An undeclared stem keeps its own spelling rather than becoming `?`, because a
 #| name is the usual case and printing `laari` says more than a question mark.
-sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) is export {
+proto sub reading-summary(|) is export {*}
+
+multi sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) {
     my $host = $reading.nominal-predicate ?? NominalStem !! VerbStem;
     my $sense = $tables.glosses{ $reading.predicate };
 
@@ -434,6 +436,22 @@ sub reading-summary(Reading:D $reading, StemTables:D $tables --> Str) is export 
     "$predicate: { @features.join(', ') }";
 }
 
+multi sub reading-summary(
+    CoordinatedReading:D $reading,
+    StemTables:D         $tables,
+    --> Str
+) {
+    my Str @parts;
+
+    for $reading.clauses.kv -> $index, $clause {
+        @parts.push: reading-summary($clause, $tables);
+        @parts.push: $reading.connectors[$index]
+            if $index < $reading.connectors.elems;
+    }
+
+    @parts.join(' ');
+}
+
 #| What the corpus says this sentence means, if it says anything.
 #|
 #| Matched on the text with case and trailing punctuation ignored, because
@@ -449,7 +467,7 @@ sub corpus-translation(Coverage $corpus, Str:D $sentence --> Translation) {
 
     my sub key(Str:D $s) { $s.trim.subst(/<[?.,!]>+$/, '').fc }
 
-    my $found = $corpus.utterances.first({ key(.text) eq key($sentence) });
+    my $found = $corpus.entries.first({ key(.text) eq key($sentence) });
 
     return Translation.new(:source(Unavailable)) without $found;
 

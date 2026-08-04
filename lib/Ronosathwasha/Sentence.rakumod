@@ -147,10 +147,12 @@ sub act-to-write(Lexicon:D $lexicon, Asks:D $reading --> SpeechAct) is export {
     Interrogative;
 }
 
-#| Build a whole sentence from a reading.
+#| Build one clause without sentence-final punctuation.
 #|
-#| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
-sub realize-sentence(
+#| A coordinated sentence uses this for each clause and punctuates the whole once.
+#| Keeping the clause builder separate prevents a connector from being emitted after
+#| a full stop and preserves the ordinary one-clause path unchanged.
+sub realize-clause(
     Script:D     $script,
     Lexicon:D    $lexicon,
     Morphology:D $morphology,
@@ -184,6 +186,27 @@ sub realize-sentence(
         );
     }
 
+    @words.join(' ');
+}
+
+#| English punctuation, borrowed whole, because the script has none of its own.
+sub sentence-end(Reading:D $reading --> Str) {
+    $reading.speech-act == Interrogative ?? '?' !! '.';
+}
+
+#| Build a whole sentence from either one clause or coordinated clauses.
+#|
+#| No return type, so a failure stays inert; see `Ronosathwasha::Types`.
+proto sub realize-sentence(|) is export {*}
+
+multi sub realize-sentence(
+    Script:D     $script,
+    Lexicon:D    $lexicon,
+    Morphology:D $morphology,
+    Reading:D    $reading,
+) {
+    my Str $clause = realize-clause($script, $lexicon, $morphology, $reading);
+
     # English punctuation, borrowed whole, because the script has none of its
     # own. The marks are redundant with the morphology, since the question prefix already
     # made this a question, and they are written anyway: a convention every
@@ -193,9 +216,26 @@ sub realize-sentence(
     # `!` for force rather than for the imperative itself, and this language
     # marks no such thing, so inventing an emphasis distinction here would put
     # a dimension in the punctuation that the grammar does not have.
-    my Str $end = $reading.speech-act == Interrogative ?? '?' !! '.';
+    return $clause ~ sentence-end($reading);
 
-    return @words.join(' ') ~ $end;
+    CATCH { default { .fail } }
+}
+
+multi sub realize-sentence(
+    Script:D            $script,
+    Lexicon:D           $lexicon,
+    Morphology:D        $morphology,
+    CoordinatedReading:D $reading,
+) {
+    my Str @parts;
+
+    for $reading.clauses.kv -> $index, $clause {
+        @parts.push: realize-clause($script, $lexicon, $morphology, $clause);
+        @parts.push: $reading.connectors[$index]
+            if $index < $reading.connectors.elems;
+    }
+
+    return @parts.join(' ') ~ sentence-end($reading.clauses.tail);
 
     CATCH { default { .fail } }
 }

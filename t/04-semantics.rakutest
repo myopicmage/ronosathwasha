@@ -7,8 +7,9 @@ use Ronosathwasha::Types;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Lexicon;
 use Ronosathwasha::Morphology;
+use Ronosathwasha::Words;
 
-plan 27;
+plan 31;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -19,12 +20,13 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 isa-ok $corpus, Coverage, 'the corpus parses into typed meaning';
 
 is $corpus.utterances.elems, 33, 'thirty-three utterances';
+is $corpus.coordinations.elems, 1, 'one utterance coordinates complete clauses';
 
 my %counts = $corpus.counts;
 is %counts<Attested>, 17, 'seventeen attested: the page, plus the three Kevin wrote on 2026-07-29';
 nok %counts<Derived>, 'nothing left unread';
-is %counts<Reviewed>, 14,
-    'fourteen reviewed, including the selective question';
+is %counts<Reviewed>, 15,
+    'fifteen reviewed, including the coordinated fire-home threat';
 
 # The status exists for a sentence the rules permit and a speaker declines, and
 # these are the first two anybody has written down. They fail differently, which is
@@ -37,6 +39,12 @@ is %counts<Reviewed>, 14,
 # wrong noun for it: `mirire` is `miri` plus `re`, so verbing it lands next to
 # `mirime` from the verb it was built from. Two routes to one meaning.
 is %counts<Rejected>, 2, 'and two rejected, failing in different ways';
+
+my $threat = $corpus.coordinations.head;
+isa-ok $threat, CoordinatedUtterance, 'the threat has a typed coordination declaration';
+is-deeply $threat.connectors.List, ('luru',), 'its connector keeps its lexical identity';
+is-deeply $threat.clauses.map(*.predicate).List, ('thəta', 'thwa'),
+    'both clause predicates are stated independently';
 
 # ------------------------------------------------------------ meaning is typed ---
 
@@ -135,18 +143,19 @@ is $teaching.aspect, Continuous, 'and the continuous marker is read as aspect';
 
 # --------------------------------------------------- derivation is disciplined ---
 #
-# A derived sentence may only recombine what is already declared. This checks
-# the claim rather than trusting the comment: every predicate in the corpus is
-# a stem the lexicon knows.
+# A derived sentence may only recombine what is already declared. This checks the
+# claim rather than trusting the comment: every predicate is either a listed stem,
+# a verb root recovered from its infinitive, or a compound the word parser divides.
 
 my Set $known = $lexicon.entries.map(*.roman).Set;
 
 my @unknown = $corpus.predicates.grep({
-    not ($known{$_} or $known{"{$_}swe"} or $known{"{$_}swo"})
+    not ($known{$_} or $known{"{$_}swe"} or $known{"{$_}swo"}
+        or parse-word($lexicon, $morphology, $_).defined)
 });
 
 is-deeply @unknown.List, (),
-    'every predicate is a lexicon stem, bare or with its infinitive';
+    'every predicate is composed entirely from declared lexical material';
 
 # Anything Kevin did not write himself, which is `derived`, `reviewed` and
 # `rejected` alike. Keyed on "not attested" rather than on `Derived`, because that

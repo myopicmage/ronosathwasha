@@ -19,8 +19,8 @@ plan 8;
 # fails as silently-better, a reclassified one fails as changed.
 #
 # **The map below is partly a declaration and partly a debt, and the split is
-# the point.** Ten entries are the settled language boundary and will not be
-# repaired; six are defects still waiting for one. Reading
+# the point.** Nine entries are the settled language boundary and will not be
+# repaired; four are defects still waiting for one. Reading
 # the map as either one thing loses the distinction that took a ruling to
 # establish.
 #
@@ -42,15 +42,11 @@ plan 8;
 #     present is `narame` ("hello") and plus future is `narathe` ("goodbye").
 #     One-offs rather than a series.
 #
-# Review 034 found five of these; the matrix found two more.
-#
-# **The seventh is not a lexicalization**, and Kevin took it off the ledger in
-# the same ruling. `thwame` is listed in `[phrase]` as "I like", but that is just
-# the regular present of `thwaswe` with the subject dropped, tangled up with
-# `-swe`. The mismatch it produces is real and stays measured; what it is
-# evidence about is a lexicon entry duplicating an ordinary inflection, not a
-# collision the language decided on. It is here under protest rather than by
-# declaration.
+# Review 034 found five of these; the matrix found two more. The seventh was
+# `thwame`, listed in `[phrase]` as "I like" even though it is the regular present
+# of `thwaswe` with the subject dropped. Kevin's 2026-08-04 utterance uses that
+# productive reading inside a larger clause, so the duplicate phrase entry is
+# gone and the matrix no longer records its manufactured collision.
 #
 # **The three plural interrogatives are a separate declared boundary.** The
 # lexical `toro` reading wins over `to` plus `rono` for every scope, so these
@@ -71,12 +67,12 @@ plan 8;
 # are realized, so they leave the matrix entirely rather than being classified
 # by it: the forty did not become correct, they became unaskable.
 #
-# The six owed entries are the questioned lexicalizations, and their heading
+# The four owed entries are the questioned lexicalizations, and their heading
 # below says what is left. Twenty-four were measured once this file started
 # driving the question dimensions it had been skipping; `parse-word`'s
 # fewest-stems tie-break repaired fifteen of them, and Kevin's ruling now moves
 # the three `rono` cases into the settled boundary beside the six lexicalized
-# cases.
+# cases. Removing the duplicate `thwame` phrase entry repaired the remaining two.
 #
 # This file costs about two minutes on its own: 918 pipeline runs, each an intent
 # decode, a realization, and a full sentence reading. The question dimensions are
@@ -234,14 +230,6 @@ my %lexicalized =
     'predicate nara present' => 'changes nominal,predicate,tense (narame.)',
     'predicate nara future' => 'changes nominal,predicate,tense (narathe.)';
 
-# Off the ledger in the same ruling, and here because the mismatch still fires.
-# `thwame` is the regular present of `thwaswe` with the subject dropped, listed
-# in `[phrase]` as though it were a fixed expression. Whether that entry should
-# exist is a lexicon question nobody has answered; until somebody does, this
-# measures it rather than blessing it.
-my %listed-inflection =
-    'predicate thwa present' => 'changes nominal,predicate,tense (thwame.)';
-
 # Debt, and the only entries here that are. Defects awaiting repair rather than
 # anything the language decided, kept so the repair has something to shrink,
 # which is what this map was originally for.
@@ -262,14 +250,12 @@ my %listed-inflection =
 # remains the selective "which people" form. Those three entries are declared
 # below rather than left as repair debt.
 #
-# **`nara`, `she` and `thwa` survived for the other reason on the ledger.** They
-# inflect onto listed words, so questioning them lands on `tenarame`, `tesheme`
-# and `tethwame` whichever marker is used, and `twe-` cannot help with a
-# collision that is about the stem. These six are the questioned face of the six
-# declared lexicalizations above, so a ruling that those are deliberate arguably
-# reaches these too; nobody has said so and this does not assume it.
+# **`nara` and `she` survived for the other reason on the ledger.** They inflect
+# onto listed words, so questioning them lands on `tenarame` and `tesheme`
+# whichever marker is used, and `twe-` cannot help with a collision that is about
+# the stem. These four are the questioned face of declared lexicalizations above.
 #
-# The runtime boundary refuses all six correctly. What is wrong is that the
+# The runtime boundary refuses all four correctly. What is wrong is that the
 # capabilities block promises the model this construction works, so the prose is
 # ahead of the grammar until they are repaired or declared.
 my %declared-plural-interrogatives =
@@ -281,20 +267,17 @@ my %declared-plural-interrogatives =
 my %questioned-predicates =
     'questioned open predicate nara' => 'unreadable (tenarame?)',
     'questioned open predicate she' => 'unreadable (tesheme?)',
-    'questioned open predicate thwa' => 'unreadable (tethwame?)',
 
-    # The only entries the selective marker produces. All three are the
+    # The only entries the selective marker produces. Both are the
     # lexicalized stems, which collide on the stem rather than on the marker, so
     # `twe-` cannot help. Zero selective participant entries, which is the
     # measurement Codex's implementation earns.
     'questioned selective predicate nara' => 'unreadable (twenarame?)',
-    'questioned selective predicate she' => 'unreadable (twesheme?)',
-    'questioned selective predicate thwa' => 'unreadable (twethwame?)';
+    'questioned selective predicate she' => 'unreadable (twesheme?)';
 
 my %owed = |%questioned-predicates;
 
-my %expected = |%lexicalized, |%listed-inflection,
-    |%declared-plural-interrogatives, |%owed;
+my %expected = |%lexicalized, |%declared-plural-interrogatives, |%owed;
 
 is $cases,
     @roots.elems * 5 + @stems.elems * 6 + @interrogatives.elems * 5,
@@ -310,7 +293,7 @@ is-deeply %map.keys.grep({ (%expected{$_}:exists) && %map{$_} ne %expected{$_} }
     (), 'no reclassifications: a changed mechanism is a changed defect';
 
 is %map.elems, %expected.elems,
-    'the boundary has seven pre-existing, three ruled interrogative, and six owed entries';
+    'the boundary has six lexicalized, three ruled interrogative, and four owed entries';
 
 is %declared-plural-interrogatives.elems, 3,
     'and three plural-toro collisions follow the new ruling';
@@ -330,7 +313,7 @@ is %lexicalized.elems, 6,
 # participant <stem> <role>" and "questioned <kind> predicate <stem>" agree up to
 # that position. Deliberate when they were named.
 my $known = %owed.keys.map({ .words[3] }).grep({
-    not .starts-with('ro') and not $_ eq any(<nara she thwa>)
+    not .starts-with('ro') and not $_ eq any(<nara she>)
 }).sort.List;
 
 is-deeply $known, (),

@@ -216,6 +216,33 @@ class Utterance does Asks is export {
     }
 }
 
+#| One reviewed utterance containing several independently typed clauses.
+#|
+#| The clauses remain ordinary `Utterance` values so every existing semantic
+#| invariant applies to each one. The wrapper owns the complete text and English
+#| translation, while the connector list states how those clauses relate.
+class CoordinatedUtterance is export {
+    has Str        $.text       is required;
+    has Str        $.english    is required;
+    has Status     $.status     is required;
+    has Utterance  @.clauses    is required;
+    has Str        @.connectors is required;
+    has Str        $.source;
+    has Str        $.derivation;
+
+    submethod TWEAK {
+        die 'a coordinated utterance requires at least two clauses'
+            if @!clauses.elems < 2;
+
+        die 'a coordinated utterance requires exactly one connector between each pair of clauses'
+            if @!connectors.elems != @!clauses.elems - 1;
+    }
+
+    method is-evidence(--> Bool) {
+        so $!status == Attested | Reviewed;
+    }
+}
+
 #| What the model-selection gate in stop 10 requires before it can run. Named
 #| here rather than there because the corpus is what has to satisfy it, and a
 #| floor stated far from the thing it measures drifts away from it.
@@ -241,6 +268,26 @@ our constant %REQUIRED is export = (
 
 class Coverage is export {
     has Utterance @.utterances is required;
+    has CoordinatedUtterance @.coordinations;
+
+    #| Every top-level corpus item, for exact-text lookup and status counts.
+    method entries(--> Seq) {
+        gather {
+            take $_ for @!utterances;
+            take $_ for @!coordinations;
+        }
+    }
+
+    #| Every independently meaningful clause, for grammatical coverage.
+    method clauses(--> Seq) {
+        gather {
+            take $_ for @!utterances;
+
+            for @!coordinations -> $coordination {
+                take $_ for $coordination.clauses;
+            }
+        }
+    }
 
     method !values-for(Str $dimension, @from) {
         given $dimension {
@@ -266,7 +313,7 @@ class Coverage is export {
     #| `"dimension: value"`. Empty means the gate may run.
     method missing(--> Seq) {
         %REQUIRED.keys.sort.map(-> $dimension {
-            my @have = self!values-for($dimension, @!utterances);
+            my @have = self!values-for($dimension, self.clauses);
             %REQUIRED{$dimension}
                 .grep({ @have.grep(* == $_).elems == 0 })
                 .map({ "$dimension: $_" })
@@ -277,7 +324,7 @@ class Coverage is export {
     #| The same question asked of evidence only. A gate satisfied entirely by
     #| sentences nobody has read is satisfied on paper.
     method missing-from-evidence(--> Seq) {
-        my @evidence = @!utterances.grep(*.is-evidence);
+        my @evidence = self.clauses.grep(*.is-evidence);
 
         %REQUIRED.keys.sort.map(-> $dimension {
             my @have = self!values-for($dimension, @evidence);
@@ -289,14 +336,14 @@ class Coverage is export {
     }
 
     method has-locative(--> Bool) {
-        @!utterances.grep(*.locative.defined).elems > 0;
+        self.clauses.grep(*.locative.defined).elems > 0;
     }
 
-    method predicates(--> Seq) { @!utterances.map(*.predicate).unique.sort }
+    method predicates(--> Seq) { self.clauses.map(*.predicate).unique.sort }
 
     method counts(--> Hash) {
         my %n;
-        %n{ .status.key }++ for @!utterances;
+        %n{ .status.key }++ for self.entries;
         %n;
     }
 }
@@ -342,67 +389,94 @@ sub decode(%table, $found, Str:D $field, Str:D $subject, IO::Path:D $path) {
     $value;
 }
 
+#| Decode one independently meaningful clause from a corpus table.
+sub load-utterance(%u, IO::Path:D $path --> Utterance) {
+    my Str $text = ~(%u<text> // '');
+
+    fail X::Ronosathwasha::Declaration::BadValue.new(
+        :$path, :field<text>, :subject('an utterance'), :found(%u<text>),
+    ) unless $text.chars;
+
+    my Argument @arguments = @(%u<arguments> // []).map: {
+        decode(%ARGUMENT, $_, 'arguments', $text, $path)
+    };
+
+    Utterance.new(
+        :$text,
+        :english(~%u<english>),
+        :status(decode(%STATUS, %u<status>, 'status', $text, $path)),
+        :speech-act(decode(%SPEECH-ACT, %u<speech_act>, 'speech_act', $text, $path)),
+        :predicate(~%u<predicate>),
+        :aspect(decode(%ASPECT, %u<aspect>, 'aspect', $text, $path)),
+        :polarity(decode(%POLARITY, %u<polarity>, 'polarity', $text, $path)),
+        :modality(decode(%MODALITY, %u<modality>, 'modality', $text, $path)),
+        :@arguments,
+
+        # Omitted rather than nulled. An absent `tense` key is a timeless
+        # predication, and a present one that names something unknown is still a
+        # bad value, so this cannot be a `// ''` that swallows both.
+        :tense(%u<tense>.defined
+            ?? decode(%TENSE, %u<tense>, 'tense', $text, $path)
+            !! Tense),
+
+        # Omitted rather than nulled, exactly as `tense` is: an absent key is a
+        # sentence that asks nothing. A present one naming something unknown is
+        # still a bad value, so this cannot collapse into a `// ''`.
+        :question-scope(%u<questioned>.defined
+            ?? decode(%QUESTION-SCOPE, %u<questioned>, 'questioned', $text, $path)
+            !! QuestionScope),
+        :question-kind(%u<question_kind>.defined
+            ?? decode(%QUESTION-KIND, %u<question_kind>, 'question_kind', $text, $path)
+            !! QuestionKind),
+
+        # Defaults false, so every existing entry keeps meaning what it meant
+        # and only a sentence that says so is read as copular.
+        :nominal-predicate(?(%u<nominal_predicate> // False)),
+        :explicit-copula(?(%u<explicit_copula> // True)),
+
+        :reference(%u<reference>.defined
+            ?? decode(%REFERENCE, %u<reference>, 'reference', $text, $path)
+            !! Reference),
+        :locative(%u<locative>.defined ?? ~%u<locative> !! Str),
+        :complement(%u<complement>.defined ?? ~%u<complement> !! Str),
+        :source(%u<source>.defined ?? ~%u<source> !! Str),
+        :derived-from(%u<derived_from>.defined ?? ~%u<derived_from> !! Str),
+        :derivation(%u<derivation>.defined ?? ~%u<derivation> !! Str),
+        :rejected-because(%u<rejected_because>.defined ?? ~%u<rejected_because> !! Str),
+    );
+}
+
 #| Load the corpus. No return type; see `Ronosathwasha::Types`.
 sub load-utterances(IO::Path:D $path) is export {
     my $doc = read-toml($path);
 
-    my Utterance @utterances = @(require-table($doc, 'utterance')).map: -> %u {
+    my Utterance @utterances = @(require-table($doc, 'utterance')).map: {
+        load-utterance($_, $path)
+    };
+
+    my CoordinatedUtterance @coordinations = @($doc.data<coordination> // []).map: -> %u {
         my Str $text = ~(%u<text> // '');
+        my Status $status = decode(%STATUS, %u<status>, 'status', $text, $path);
 
-        fail X::Ronosathwasha::Declaration::BadValue.new(
-            :$path, :field<text>, :subject('an utterance'), :found(%u<text>),
-        ) unless $text.chars;
-
-        my Argument @arguments = @(%u<arguments> // []).map: {
-            decode(%ARGUMENT, $_, 'arguments', $text, $path)
+        my Utterance @clauses = @(%u<clauses> // []).map: -> %clause {
+            my %declared = %clause.clone;
+            %declared<status> = %u<status>;
+            %declared<source> = %u<source> if %u<source>.defined;
+            load-utterance(%declared, $path);
         };
 
-        Utterance.new(
+        CoordinatedUtterance.new(
             :$text,
             :english(~%u<english>),
-            :status(decode(%STATUS, %u<status>, 'status', $text, $path)),
-            :speech-act(decode(%SPEECH-ACT, %u<speech_act>, 'speech_act', $text, $path)),
-            :predicate(~%u<predicate>),
-            :aspect(decode(%ASPECT, %u<aspect>, 'aspect', $text, $path)),
-            :polarity(decode(%POLARITY, %u<polarity>, 'polarity', $text, $path)),
-            :modality(decode(%MODALITY, %u<modality>, 'modality', $text, $path)),
-            :@arguments,
-
-            # Omitted rather than nulled. An absent `tense` key is a timeless
-            # predication, and a present one that names something unknown is still a
-            # bad value, so this cannot be a `// ''` that swallows both.
-            :tense(%u<tense>.defined
-                ?? decode(%TENSE, %u<tense>, 'tense', $text, $path)
-                !! Tense),
-
-            # Omitted rather than nulled, exactly as `tense` is: an absent key is a
-            # sentence that asks nothing. A present one naming something unknown is
-            # still a bad value, so this cannot collapse into a `// ''`.
-            :question-scope(%u<questioned>.defined
-                ?? decode(%QUESTION-SCOPE, %u<questioned>, 'questioned', $text, $path)
-                !! QuestionScope),
-            :question-kind(%u<question_kind>.defined
-                ?? decode(%QUESTION-KIND, %u<question_kind>, 'question_kind', $text, $path)
-                !! QuestionKind),
-
-            # Defaults false, so every existing entry keeps meaning what it meant
-            # and only a sentence that says so is read as copular.
-            :nominal-predicate(?(%u<nominal_predicate> // False)),
-            :explicit-copula(?(%u<explicit_copula> // True)),
-
-            :reference(%u<reference>.defined
-                ?? decode(%REFERENCE, %u<reference>, 'reference', $text, $path)
-                !! Reference),
-            :locative(%u<locative>.defined ?? ~%u<locative> !! Str),
-            :complement(%u<complement>.defined ?? ~%u<complement> !! Str),
+            :$status,
+            :@clauses,
+            :connectors(@(%u<connectors> // []).map(*.Str)),
             :source(%u<source>.defined ?? ~%u<source> !! Str),
-            :derived-from(%u<derived_from>.defined ?? ~%u<derived_from> !! Str),
             :derivation(%u<derivation>.defined ?? ~%u<derivation> !! Str),
-            :rejected-because(%u<rejected_because>.defined ?? ~%u<rejected_because> !! Str),
         );
-    }
+    };
 
-    return Coverage.new(:@utterances);
+    return Coverage.new(:@utterances, :@coordinations);
 
     CATCH { default { .fail } }
 }
