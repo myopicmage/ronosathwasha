@@ -278,11 +278,9 @@ sub optional-typed(%raw, Str:D $field, Mu:U $type) {
 #| `[phrase]` out here is what stops `narame` (hello) from becoming an expressive
 #| predicate or participant; the phatic branch and its phrase glossary own it.
 sub listed-entries(Lexicon:D $lexicon --> Seq) {
-    my $affixes = $lexicon.affixes.map(*.roman).Set;
-
-    $lexicon.entries
+    $lexicon.stem-entries
         .grep({ .section ne 'phrase' })
-        .grep({ not $affixes{.roman} and not .roman.contains(' ') });
+        .grep({ not .roman.contains(' ') });
 }
 
 #| The bare stem an infinitive recovers, or `Empty` for any other word.

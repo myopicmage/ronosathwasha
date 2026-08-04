@@ -14,7 +14,7 @@ use Ronosathwasha::Semantics;
 # the writable lexicon contains no disharmonious word, and a phrase harmonises
 # word by word rather than as a whole.
 
-plan 22;
+plan 24;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -58,6 +58,12 @@ is judge($script, $morphology, 'mothinəme'), LicensedDisharmony,
 
 is judge($script, $morphology, 'merorothwamo'), LicensedDisharmony,
     'and so is the back case';
+
+is judge($script, $morphology, 'mosene'), LicensedDisharmony,
+    'the negative indefinite licenses the front case by the same rule';
+
+is judge($script, $morphology, 'mero'), LicensedDisharmony,
+    'and licenses its back case';
 
 # The licence is checked, not assumed from the first two letters. `moluyo` is
 # the crab: all back, no negator, and it begins with `mo`.

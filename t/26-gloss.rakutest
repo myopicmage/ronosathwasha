@@ -11,7 +11,7 @@ use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 use Ronosathwasha::Gloss;
 
-plan 57;
+plan 60;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -35,6 +35,12 @@ is $morphology.by-id('past-je').gloss, 'PST',
     'and the morpheme it superseded keeps the label of the job it did';
 is $morphology.by-id('selective-question').gloss, 'Q.SEL',
     'the selective interrogative names both the question and its restriction';
+is $morphology.by-id('indefinite').gloss, 'INDF',
+    'the positive indefinite has its own quantifier label';
+is $morphology.by-id('negative-indefinite').gloss, 'NEG.INDF',
+    'and the negative indefinite does not masquerade as verbal negation';
+is $morphology.by-id('agentive').gloss, 'AGT',
+    'the productive doer suffix is visible as a derivation';
 
 # ----------------------------------------------------- the label is required ---
 #

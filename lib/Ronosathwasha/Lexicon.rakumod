@@ -33,9 +33,41 @@ class Lexicon is export {
     }
 
     #| The bound morphology, which is the part `data/morphology.toml` also
-    #| describes. Everything else in the lexicon is a root or a phrase.
+    #| describes. Derivational markers have their own section because their
+    #| spellings may remain content roots: agentive `-ro` and person `ro` are
+    #| both real, and erasing one by surface spelling would erase the paradigm.
     method affixes {
-        @!entries.grep({ .section eq 'marker' || .section eq 'particle' });
+        @!entries.grep({
+            .section eq 'marker'
+                || .section eq 'particle'
+                || .section eq 'derivational_marker'
+        });
+    }
+
+    #| The entries available as stems under the reader's established policy.
+    #|
+    #| Inflectional marker spellings block a same-spelled content entry. This is
+    #| what keeps `me` and `no` from multiplying old divisions throughout the
+    #| grammar. Derivational markers do not: their source or result may itself
+    #| be the content root they resemble, as agentive `-ro` now demonstrates.
+    #| The marker entries themselves are never stems in either case. Neither
+    #| are `[derived]` entries: those belong in the dictionary because their
+    #| conventional meanings matter, but their declared pieces remain the
+    #| language structure that readers and model intents operate on.
+    method stem-entries {
+        my $blocked = @!entries
+            .grep({ .section eq 'marker' || .section eq 'particle' })
+            .map(*.roman)
+            .Set;
+
+        @!entries
+            .grep({
+                .section ne 'marker'
+                    && .section ne 'particle'
+                    && .section ne 'derivational_marker'
+                    && .section ne 'derived'
+            })
+            .grep({ not $blocked{.roman} });
     }
 
     method forms(--> Set) {

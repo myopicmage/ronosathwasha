@@ -67,23 +67,28 @@ sub profile-of(Script:D $script, Str:D $word --> VowelProfile) is export {
 
 #| Whether a word obeys harmony, and if it does not, whether it is allowed to.
 #|
-#| The licensed case is the anti-harmonic negator of decision 3, and it is
-#| checked rather than assumed: the prefix has to be the one its own remainder
-#| would select. `mothinəme` qualifies because `thinəme` is front and negation
-#| takes `mo` with a front stem. A word that merely happens to begin with those
-#| two letters does not.
+#| The licensed case is an anti-harmonic prefix, and it is checked rather than
+#| assumed: the prefix has to be the one its own remainder would select.
+#| `mothinəme` qualifies because `thinəme` is front and negation takes `mo`
+#| with a front stem. `mero`, "no one", qualifies by the same rule through the
+#| negative indefinite. A word that merely happens to begin with those letters
+#| does not.
 sub judge(Script:D $script, Morphology:D $morphology, Str:D $word --> HarmonyJudgment) is export {
     return Harmonic unless profile-of($script, $word) == MixedWord;
 
-    my $negation = $morphology.by-id('negation');
+    my @anti-harmonic = $morphology.current.grep({
+        .position == Prefix && .alternation == AntiHarmonic
+    });
 
-    for ($negation.front-stem, $negation.back-stem) -> $prefix {
-        next unless $word.starts-with($prefix);
+    for @anti-harmonic -> $morpheme {
+        for $morpheme.forms -> $prefix {
+            next unless $word.starts-with($prefix);
 
-        my $remainder = profile-of($script, $word.substr($prefix.chars));
-        next if $remainder == MixedWord;
+            my $remainder = profile-of($script, $word.substr($prefix.chars));
+            next if $remainder == MixedWord;
 
-        return LicensedDisharmony if $negation.form-for($remainder) eq $prefix;
+            return LicensedDisharmony if $morpheme.form-for($remainder) eq $prefix;
+        }
     }
 
     Violates;

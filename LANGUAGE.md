@@ -1285,6 +1285,150 @@ the same idea rather than competing with it. The lexicon lists `sheshime` as a
 proper name, so ordinary reading keeps it whole while the internal structure
 remains visible as its etymology.
 
+## 32. Common words remain audibly built
+
+The demonstratives, locatives and existing lexical roots now produce a broad
+everyday vocabulary. **A transparent derivation stays productive unless usage
+has given the whole form a narrower conventional meaning.** The lexicon lists
+those conventional words, while the morphology remains capable of producing
+new members speakers have never heard before.
+
+### The full deictic grid
+
+Decision 31's person-anchored triple crosses with all four locatives:
+
+| relation | at | in | near | toward |
+|---|---|---|---|---|
+| speaker-side `she` | `sheshi`, here | `shethi`, in here | `shemi`, near here | `sheði`, toward here |
+| listener-side `sha` | `shashi`, there | `shathi`, in there | `shami`, near there | `shaði`, toward there |
+| away from both `sho` | `shoshu`, over there | `shothu`, in over there | `shomu`, near over there | `shoðu`, toward over there |
+
+`sheði medi`, literally "go toward here", is the ordinary expression for
+**come**. It is listed as a phrase because the conventional direction belongs
+to the motion event as a whole; `sheði` remains independently usable.
+
+The same locatives compose with the existing direction roots. The at-locative
+gives `niðəshi`, `siðəshi`, `miðəshi` and `ðiðəshi`: above, below, on the left
+and on the right. The toward-locative gives upward, downward, leftward and
+rightward as `niðəði`, `siðəði`, `miðəði` and `ðiðəði`. Compass directions use
+the same operation: `nwiðəði`, `swiðəði`, `mwiðəði`, `ðwiðəði` for northward,
+southward, westward and eastward.
+
+Home is no exception. `tashi`, `tathi`, `tami` and `taði` mean at home, in the
+home, near home and toward home. The language does not need four roots for four
+relations it already marks.
+
+### Questions, time and degree
+
+The open and selective question prefixes extend freely beyond the five old
+interrogatives:
+
+| base | open | selective |
+|---|---|---|
+| `thwasha`, language | `tethwasha`, what language | `twethwasha`, which language |
+| `dələ`, name | `tedələ`, what name | `twedələ`, which name |
+| `dwe`, day | `tedwe`, what day | `twedwe`, which day |
+
+The five established bases also have a selective series: `tworo`, `twomwu`,
+`twoluumo`, `twoduruu`, `twonootha`. These mean which person, thing, place,
+time and reason from a salient set. They remain productive forms rather than a
+second lexical interrogative table.
+
+Time takes the tense forms derivationally. `dwese` is yesterday and `dwethe`
+is tomorrow; `duruuso` is the past and `duruutho` is the future. `twathadwe`,
+old-day, is the conventional olden days. It does not take plural merely because
+the English gloss does.
+
+Degree remains compounding. `roronara`, very-good, has conventionalized as
+**excellent**; `rorotura`, very-bad, as **terrible**.
+
+### Indefinites reuse the question geometry
+
+**Harmonic `li-`/`lu-` on a nominal marks the positive indefinite.** These are
+the same forms as verbal potential, with nominal host distinguishing their job:
+
+| base | form | meaning |
+|---|---|---|
+| `ro` | `luro` | someone |
+| `mwu` | `lumwu` | something |
+| `luumo` | `luluumo` | somewhere |
+| `duruu` | `luduruu` | sometime |
+| `nootha` | `lunootha` | for some reason |
+
+**Anti-harmonic `mo-`/`me-` on a nominal marks the negative indefinite.** It
+shares the verbal negator's forms and its licensed opposition to the host:
+
+| base | form | meaning |
+|---|---|---|
+| `ro` | `mero` | no one |
+| `mwu` | `memwu` | nothing |
+| `luumo` | `meluumo` | nowhere |
+| `duruu` | `meduruu` | never |
+| `nootha` | `menootha` | for no reason |
+
+The ten common forms are listed because their English-sized meanings are
+conventional. The rules are not closed paradigms. `lisene`, some cat, and
+`merunə`, no dog, are equally grammatical without dictionary entries.
+
+### A productive person suffix
+
+**Harmonic `-re`/`-ro` derives the ordinary agent of a predicate.** Existing
+`mirire`, teacher, was already `miri-re`; it is now evidence for a live rule
+rather than an isolated compound.
+
+The common additions are `tayare`, thinker; `thwashare`, speaker; `mwatheyare`,
+believer; and `tonəro`, knower or expert. New forms remain available wherever
+they make sense: `thinəre` is an eater and `rorothwaro` is a lover.
+
+### Locative metaphor earns meanings by use
+
+Decision 27 already blessed abstract locatives. Two more expressions have now
+earned conventional readings:
+
+```text
+nootha-thu    reason-LOC.IN      because, due to, for a reason
+thwasha-thi   language-LOC.IN    in or by means of language
+```
+
+`noothathu` is listed with the clause connectors because it now functions as
+**because**. This does not turn every noun plus locative into an arbitrary
+English preposition. The parts license a relation; actual use licenses its
+conventional reading.
+
+### The afterlife is over there, later
+
+**`Shoshutho` is the Rono umbrella name for the afterlife: `sho-shu-tho`, the
+over-there-later.** It mirrors `Sheshime`, the here-now, without claiming that
+every postmortem destination is one place. A cosmology may contain many
+afterlives, and their inhabitants may have their own names in their own
+languages. `Shoshutho` is what a Rono speaker can call the whole category from
+here.
+
+The capital letter belongs to romanization, not to the native script. Rono is
+caseless, but its Latin transcription may use a capital to distinguish the
+proper name `Shoshutho` from a composition being discussed as grammar. The
+lexicon key remains lowercase because lexical lookup is caseless.
+
+### Transparency is not a blank cheque
+
+The following forms receive **no new lexical meanings**:
+
+| form | tempting gloss refused |
+|---|---|
+| `thəta` | hearth |
+| `turamwu` | problem |
+| `naramwu` | benefit or blessing |
+| `thinəta` | kitchen, pantry or restaurant |
+| `mirireta` | school |
+| `nararo` / `turaro` | friend / enemy |
+
+Their pieces can still occur together. `thəta` is fire-home, and in the right
+predication it may mean that a home is essentially fiery, which is excellent
+for a fire elemental and alarming for everyone else. What it does not mean by
+mere inspection is hearth. Likewise good-person and bad-person make moral
+claims, not neutral social relationships. Productivity gives speakers forms;
+it does not silently manufacture the culture that would conventionalize them.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

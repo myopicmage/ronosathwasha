@@ -7,14 +7,14 @@
 #
 # **Keyed by identity, not by form.** A morpheme is named by the job it does,
 # and its spellings are fields. That is not a stylistic choice: `me` and `mo`
-# are the present tense and they are also the negator, and `tho` is the back
-# future today and was the question marker yesterday. Keying on the form makes
-# those collisions unrepresentable in a TOML table, which is why the lexicon
-# had to carry two of them in a comment. Keying on the job makes them ordinary.
+# are the present tense, the negator and the negative indefinite; `li` and `lu`
+# are potential and indefinite; `tho` is the back future today and was the
+# question marker yesterday. Keying on the form makes those collisions
+# unrepresentable in a TOML table. Keying on the job makes them ordinary.
 #
 # `front_stem` and `back_stem` name the form taken *with* a stem of that class,
 # never the form's own vowel class. For a harmonic morpheme the two coincide
-# and the distinction looks pedantic. For the anti-harmonic negator they are
+# and the distinction looks pedantic. For the anti-harmonic prefixes they are
 # deliberately crossed, and the same two field names still say the right thing.
 #
 # Neutral stems select the front alternant, so `front_stem` covers front and
@@ -58,6 +58,20 @@ position = "suffix"
 alternation = "harmonic"
 front_stem = "swe"
 back_stem = "swo"
+status = "current"
+
+# A harmonic person suffix derives the ordinary doer of a predicate. The
+# teacher already present in the lexicon is `miri-re`; the rule also gives
+# `thwasha-re`, speaker, and `tonə-ro`, knower or expert. Decision 32.
+[[morpheme]]
+id = "agentive"
+gloss = "AGT"
+role = "derivation"
+attaches_to = ["verb"]
+position = "suffix"
+alternation = "harmonic"
+front_stem = "re"
+back_stem = "ro"
 status = "current"
 
 [[morpheme]]
@@ -125,7 +139,7 @@ front_stem = "di"
 back_stem = "du"
 status = "current"
 
-# The one licensed harmony violation. The forms are the present tense's, and
+# The first licensed harmony violation. The forms are the present tense's, and
 # the classes are crossed against it: a front word takes `mo`, a back word
 # takes `me`, so the negator always leans the wrong way and is visible at a
 # glance without being stressed. Decision 3.
@@ -134,6 +148,20 @@ id = "negation"
 gloss = "NEG"
 role = "polarity"
 attaches_to = ["verb"]
+position = "prefix"
+alternation = "anti-harmonic"
+front_stem = "mo"
+back_stem = "me"
+status = "current"
+
+# The negative indefinite deliberately shares the negator's anti-harmonic
+# forms. Host resolves them: on a verb this is ordinary negation; on a nominal
+# it gives `mero`, no one, and `memwu`, nothing. Decision 32.
+[[morpheme]]
+id = "negative-indefinite"
+gloss = "NEG.INDF"
+role = "quantification"
+attaches_to = ["nominal"]
 position = "prefix"
 alternation = "anti-harmonic"
 front_stem = "mo"
@@ -153,7 +181,7 @@ status = "current"
 #
 # All five bases are back words, so all five take `to`, and the rule reproduces
 # every listed form with nothing left over. The lexicon entries are therefore
-# derived rather than primitive, and `tothwasha` is available for free.
+# derived rather than primitive, and front `tethwasha` is available for free.
 #
 # The two uses are in complementary distribution, which is why `Nari toro?`
 # needs no further marking: the interrogative word already carries the morpheme,
@@ -204,6 +232,22 @@ id = "potential"
 gloss = "POT"
 role = "modality"
 attaches_to = ["verb"]
+position = "prefix"
+alternation = "harmonic"
+front_stem = "li"
+back_stem = "lu"
+status = "current"
+
+# On a nominal, the potential marker's harmonic forms carry indefinite rather
+# than modal scope. The shared spelling is systematic: `luro` is some person,
+# while `lurorothwamo` begins with the potential. Host keeps the identities
+# separate.
+# Decision 32.
+[[morpheme]]
+id = "indefinite"
+gloss = "INDF"
+role = "quantification"
+attaches_to = ["nominal"]
 position = "prefix"
 alternation = "harmonic"
 front_stem = "li"

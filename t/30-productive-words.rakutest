@@ -1,0 +1,207 @@
+use Test;
+
+use Ronosathwasha::Chatbot;
+use Ronosathwasha::Types;
+use Ronosathwasha::Script;
+use Ronosathwasha::Lexicon;
+use Ronosathwasha::Morphology;
+use Ronosathwasha::Harmony;
+use Ronosathwasha::Words;
+
+plan 33;
+
+my IO::Path $data = repository-root.add('data');
+my $script     = load-script($data.add('script.toml'));
+my $lexicon    = load-lexicon($data.add('lexicon.toml'));
+my $morphology = load-morphology($data.add('morphology.toml'));
+
+sub forms-in(Str:D $section --> Set) {
+    $lexicon.in-section($section).map(*.roman).Set;
+}
+
+sub missing(Str:D $section, *@wanted --> List) {
+    my $forms = forms-in($section);
+    @wanted.grep({ not $forms{$_} }).List;
+}
+
+sub prefixed(Str:D $id, *@bases --> List) {
+    my $morpheme = $morphology.by-id($id);
+    @bases.map({ $morpheme.form-for(profile-of($script, $_)) ~ $_ }).List;
+}
+
+sub suffixed(Str:D $id, *@bases --> List) {
+    my $morpheme = $morphology.by-id($id);
+    @bases.map({ $_ ~ $morpheme.form-for(profile-of($script, $_)) }).List;
+}
+
+# ------------------------------------------------ the conventional vocabulary ---
+
+my @indefinites = <
+    luro lumwu luluumo luduruu lunootha
+    mero memwu meluumo meduruu menootha
+>;
+is-deeply missing('derived', @indefinites), (),
+    'the two five-word indefinite paradigms are conventional vocabulary';
+
+my @agents = <tayare thwashare mwatheyare tonəro>;
+is-deeply missing('derived', @agents), (), 'the four new common agent nouns are listed';
+
+my @times = <dwese dwethe duruuso duruutho twathadwe>;
+is-deeply missing('derived', @times), (), 'the five new time words are listed';
+
+is-deeply missing('derived', <roronara rorotura>), (),
+    'excellent and terrible are listed as adjectives';
+
+is-deeply missing('derived', <noothathu thwashathi>), (),
+    'the two locative metaphors have conventional dictionary meanings';
+
+is-deeply missing('phrase', ('sheði medi',)), (),
+    'come is listed without pretending its two words are a new root';
+
+is-deeply missing('proper_noun', <shoshutho>), (),
+    'Shoshutho is a proper name in the caseless lexicon';
+
+# --------------------------------------------------------- the locative grids ---
+
+my @locatives = <
+    locative-at locative-in locative-near locative-towards
+>.map({ $morphology.by-id($_) });
+
+my @grid;
+my @grid-ids;
+for <she sha sho> -> $stem {
+    my $profile = profile-of($script, $stem);
+    for @locatives -> $locative {
+        @grid.push: $stem ~ $locative.form-for($profile);
+        @grid-ids.push: $locative.id;
+    }
+}
+
+is-deeply @grid.List, <
+    sheshi shethi shemi sheði
+    shashi shathi shami shaði
+    shoshu shothu shomu shoðu
+>.List, 'the three deictics cross productively with all four locatives';
+
+is-deeply @grid.map({ parse-word($lexicon, $morphology, $_).suffixes.head.id }).List,
+    @grid-ids.List, 'and the parser recovers every member as locative morphology';
+
+is-deeply suffixed('locative-at', <niðə siðə miðə ðiðə>),
+    <niðəshi siðəshi miðəshi ðiðəshi>.List,
+    'body-relative directions locate above, below, left and right';
+
+is-deeply suffixed('locative-towards', <niðə siðə miðə ðiðə>),
+    <niðəði siðəði miðəði ðiðəði>.List,
+    'the same roots point upward, downward, leftward and rightward';
+
+is-deeply suffixed('locative-towards', <nwiðə swiðə mwiðə ðwiðə>),
+    <nwiðəði swiðəði mwiðəði ðwiðəði>.List,
+    'the compass roots point northward, southward, westward and eastward';
+
+is-deeply @locatives.map({ 'ta' ~ .form-for(NeutralWord) }).List,
+    <tashi tathi tami taði>.List,
+    'home composes as at, in, near and toward home';
+
+# --------------------------------------------------------------- questions ---
+
+my @open = prefixed('question', <thwasha dələ dwe>);
+my @selective = prefixed('selective-question', <thwasha dələ dwe>);
+my @selective-series = prefixed(
+    'selective-question', <ro mwu luumo duruu nootha>
+);
+
+is-deeply @open.List, <tethwasha tedələ tedwe>.List,
+    'open what-questions extend to language, name and day';
+is-deeply @selective.List, <twethwasha twedələ twedwe>.List,
+    'their selective partners ask which language, name and day';
+is-deeply @selective-series.List, <tworo twomwu twoluumo twoduruu twonootha>.List,
+    'the five ordinary bases also form the selective series';
+
+my @question-ids = ('question') xx 3;
+@question-ids.append: ('selective-question') xx 8;
+is-deeply (@open, @selective, @selective-series).flat.map({
+        parse-word($lexicon, $morphology, $_).prefixes.head.id
+    }).List,
+    @question-ids.List, 'the parser keeps open and selective morphology distinct';
+
+# ------------------------------------------------------------ time and degree ---
+
+is-deeply (
+    |suffixed('past', <dwe duruu>),
+    |suffixed('future', <dwe duruu>),
+).List, <dwese duruuso dwethe duruutho>.List,
+    'day and time take past and future forms productively';
+
+is 'twatha' ~ 'dwe', 'twathadwe', 'old plus day gives olden days';
+
+is-deeply ('roro' ~ 'nara', 'roro' ~ 'tura').List,
+    <roronara rorotura>.List, 'very good and very bad lexicalize as the two intensifiers';
+
+# ------------------------------------------------------- indefinite morphology ---
+
+my @bases = <ro mwu luumo duruu nootha>;
+is-deeply prefixed('indefinite', @bases),
+    <luro lumwu luluumo luduruu lunootha>.List,
+    'the positive indefinite paradigm is one harmonic prefix';
+
+is-deeply prefixed('negative-indefinite', @bases),
+    <mero memwu meluumo meduruu menootha>.List,
+    'the negative paradigm is one anti-harmonic prefix';
+
+is-deeply <lisene lurunə>.map({
+        parse-word($lexicon, $morphology, $_).prefixes.head.id
+    }).List,
+    <indefinite indefinite>.List,
+    'unlisted some-cat and some-dog prove the positive rule remains productive';
+
+is-deeply <mosene merunə>.map({
+        parse-word($lexicon, $morphology, $_).prefixes.head.id
+    }).List,
+    <negative-indefinite negative-indefinite>.List,
+    'unlisted no-cat and no-dog resolve the shared forms by nominal host';
+
+is-deeply <mosene merunə>.map({ judge($script, $morphology, $_) }).List,
+    (LicensedDisharmony, LicensedDisharmony),
+    'both anti-harmonic alternants carry an explicit licence';
+
+# ------------------------------------------------------------ agentive nouns ---
+
+is-deeply suffixed('agentive', <taya thwasha mwatheya tonə>), @agents.List,
+    'the four listed agent nouns are regular verb plus person derivations';
+
+is-deeply <thinəre rorothwaro>.map({
+        parse-word($lexicon, $morphology, $_).suffixes.head.id
+    }).List,
+    <agentive agentive>.List,
+    'unlisted eater and lover prove both agentive alternants remain productive';
+
+is-deeply @agents.map({ parse-word($lexicon, $morphology, $_).suffixes.head.id }).List,
+    <agentive agentive agentive agentive>.List,
+    'dictionary listing does not hide the agentive structure from the reader';
+
+# ---------------------------------------------------- blessed conventional uses ---
+
+is-deeply suffixed('locative-in', <nootha thwasha>),
+    <noothathu thwashathi>.List,
+    'because and by-language remain transparent locative extensions';
+
+my $at = $morphology.by-id('locative-at');
+my $future = $morphology.by-id('future');
+my $over-there = 'sho' ~ $at.form-for(BackWord);
+is $over-there ~ $future.form-for(BackWord), 'shoshutho',
+    'over there plus later derives Shoshutho';
+
+my $afterlife = parse-word($lexicon, $morphology, 'Shoshutho');
+is-deeply ($afterlife.stems.List, $afterlife.morpheme-ids.List),
+    (('shoshutho',), ()),
+    'ordinary reading keeps the proper name whole while its etymology stays visible';
+
+is 'she' ~ $morphology.by-id('locative-towards').form-for(FrontWord) ~ ' medi',
+    'sheði medi', 'come is transparently go toward here';
+
+# ---------------------------------------------------------- what did not ship ---
+
+my @rejected = <thəta turamwu naramwu thinəta mirireta nararo turaro>;
+my $all-forms = $lexicon.forms;
+is-deeply @rejected.grep({ $all-forms{$_}:exists }).List, (),
+    'no transparent compound was assigned a meaning its parts do not earn';

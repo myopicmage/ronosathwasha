@@ -95,8 +95,7 @@ class Alternants is export {
         @!suffixes = @alternating.grep(*.position == Suffix);
         @!prefixes = @alternating.grep(*.position == Prefix);
 
-        my %bound = $!lexicon.affixes.map(*.roman).Set;
-        my @listed = $!lexicon.entries.map(*.roman).unique;
+        my @listed = $!lexicon.stem-entries.map(*.roman).unique;
 
         my $infinitive = $!morphology.by-id('infinitive');
         my @recovered = @listed.map({
@@ -107,7 +106,7 @@ class Alternants is export {
                 orelse Empty;
         }).grep(*.defined);
 
-        @!bases = (@listed.grep({ not %bound{$_}:exists }), @recovered)
+        @!bases = (@listed, @recovered)
             .flat.unique.sort({ .chars });
     }
 

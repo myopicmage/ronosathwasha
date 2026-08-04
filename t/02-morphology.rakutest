@@ -9,7 +9,7 @@ use Ronosathwasha::Lexicon;
 use Ronosathwasha::Script;
 use Ronosathwasha::Harmony;
 
-plan 48;
+plan 56;
 
 my IO::Path $data = repository-root.add('data');
 
@@ -48,16 +48,16 @@ is-deeply ($declared (-) $written).keys.sort.List, (),
 is-deeply ($written (-) $declared).keys.sort.List, (),
     'every affix in the lexicon is claimed by a current morpheme';
 
-is $morphology.current.elems, 19, 'nineteen current morphemes';
+is $morphology.current.elems, 22, 'twenty-two current morphemes';
 
-# Thirty-three distinct forms from nineteen morphemes: seventeen alternating pairs
-# and invariant `sa` would naively make thirty-five, but two complete pairs are
-# shared. The negator reuses present `me/mo`, and the copularizer reuses
-# infinitive `swe/swo`. Counting forms and counting morphemes give different
-# answers here, and the gap is precisely what a file keyed by surface form
-# could not have held.
-is $declared.elems, 33, 'covering thirty-three distinct surface forms';
-is $lexicon.affixes.elems, 33, 'which is every bound morpheme the lexicon lists';
+# Thirty-five distinct forms from twenty-two morphemes. The negative indefinite
+# reuses negation `me/mo`, the indefinite reuses potential `li/lu`, and the
+# copularizer reuses infinitive `swe/swo`. The agentive contributes the only two
+# new spellings. Counting forms and counting morphemes give different answers
+# here, and the gap is precisely what a file keyed by surface form could not
+# have held.
+is $declared.elems, 35, 'covering thirty-five distinct surface forms';
+is $lexicon.affixes.elems, 35, 'which is every bound morpheme the lexicon lists';
 
 # --------------------------------------------------------- choosing a form ---
 #
@@ -81,6 +81,16 @@ is $present.alternation, Alternating, 'while the tense it shares its forms with 
 is $present.position, Suffix, 'present tense is a suffix';
 is $negation.position, Prefix, 'negation is a prefix, which is what separated them in the lexicon comment';
 
+my $negative-indefinite = $morphology.by-id('negative-indefinite');
+is $negative-indefinite.form-for(FrontWord), 'mo',
+    'a front nominal takes anti-harmonic negative indefinite mo-';
+is $negative-indefinite.form-for(BackWord), 'me',
+    'and a back nominal takes anti-harmonic negative indefinite me-';
+is $negative-indefinite.role, MarksQuantification,
+    'the negative indefinite marks quantification rather than verbal polarity';
+ok $negative-indefinite.declared-for(NominalStem),
+    'and its declared host records that distinction';
+
 my $possessive = $morphology.by-id('possessive');
 is $possessive.form-for(BackWord), 'sa', 'an invariant morpheme ignores the stem class';
 
@@ -91,6 +101,12 @@ is-deeply $copularizer.hosts.List, (NominalStem,),
     'and is declared for the nominal it turns into a predicate';
 is-deeply $copularizer.forms.sort.List, ('swe', 'swo'),
     'while reusing both surface forms of the infinitive';
+
+my $agentive = $morphology.by-id('agentive');
+is $agentive.form-for(FrontWord), 're', 'a front verb takes agentive -re';
+is $agentive.form-for(BackWord), 'ro', 'a back verb takes agentive -ro';
+is $agentive.role, MarksDerivation, 'the agentive marks a derivation';
+ok $agentive.declared-for(VerbStem), 'and is declared for its source verb';
 
 # ------------------------------------------------------------------- hosts ---
 

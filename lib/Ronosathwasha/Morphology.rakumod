@@ -163,6 +163,8 @@ my constant %ROLE = (
     'number'      => MarksNumber,      'possession' => MarksPossession,
     'nonfinite'   => MarksNonfinite,   'locative'   => MarksLocative,
     'predication' => MarksPredication,
+    'quantification' => MarksQuantification,
+    'derivation'     => MarksDerivation,
 );
 
 #| Which role strings a declaration may use, and what each one means.

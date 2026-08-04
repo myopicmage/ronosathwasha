@@ -35,8 +35,8 @@ our enum VowelProfile is export <FrontWord BackWord NeutralWord MixedWord>;
 
 #| Whether a word obeys harmony. `LicensedDisharmony` is not a gentler
 #| `Violates`: it carries the rule that permits the form. Anti-harmonic
-#| negation is the only licence the language currently grants, and a correctly
-#| negated word has to stay distinguishable from an accident.
+#| prefixes are the only licence the language currently grants, and a correctly
+#| opposed word has to stay distinguishable from an accident.
 our enum HarmonyJudgment is export <Harmonic LicensedDisharmony Violates>;
 
 #| Whether a form is still the language's answer. `Superseded` is the
@@ -74,12 +74,12 @@ our enum Alternation is export <Alternating AntiHarmonic Invariant Unpaired>;
 #| is real: every other value marks a feature of a predicate, while a copularizer
 #| brings one into being out of a nominal. Uniform prefixes win anyway. The prefix
 #| is not decoration, it is what keeps these names out of the way of `Semantics`,
-#| and a set where ten values announce that and one does not is a set where the
-#| eleventh reads as an oversight.
+#| and a set where twelve values announce that and one does not is a set where the
+#| thirteenth reads as an oversight.
 our enum MorphemeRole is export <
     MarksTense MarksAspect MarksPolarity MarksSpeechAct MarksModality
     MarksCase MarksNumber MarksPossession MarksNonfinite MarksLocative
-    MarksPredication
+    MarksPredication MarksQuantification MarksDerivation
 >;
 
 #| What a morpheme attaches to.

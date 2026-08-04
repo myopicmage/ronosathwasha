@@ -141,6 +141,37 @@
 
 [proper_noun]
 "sheshime" = "Sheshime (the here-now; universe)"
+"shoshutho" = "Shoshutho (the over-there-later; afterlife)"
+
+
+# Conventional meanings assembled from productive morphology. These are
+# dictionary words, not additional roots: the reader and the model vocabulary
+# recover their declared parts rather than treating the whole spelling as an
+# opaque nominal. Decision 32.
+[derived]
+"luro" = "someone (indefinite-person)"
+"lumwu" = "something (indefinite-thing)"
+"luluumo" = "somewhere (indefinite-place)"
+"luduruu" = "sometime (indefinite-time)"
+"lunootha" = "for some reason (indefinite-reason)"
+"mero" = "no one (negative-indefinite-person)"
+"memwu" = "nothing (negative-indefinite-thing)"
+"meluumo" = "nowhere (negative-indefinite-place)"
+"meduruu" = "never (negative-indefinite-time)"
+"menootha" = "for no reason (negative-indefinite-reason)"
+"tayare" = "thinker (think-person)"
+"thwashare" = "speaker (speak-person)"
+"mwatheyare" = "believer (believe-person)"
+"tonəro" = "knower, expert (know-person)"
+"dwese" = "yesterday (day-past)"
+"dwethe" = "tomorrow (day-future)"
+"duruuso" = "the past (time-past)"
+"duruutho" = "the future (time-future)"
+"twathadwe" = "olden days (old-day)"
+"roronara" = "excellent (very-good)"
+"rorotura" = "terrible (very-bad)"
+"noothathu" = "because, due to (reason-LOC.IN)"
+"thwashathi" = "in or by means of language (language-LOC.IN)"
 
 
 # The w-infix turns a body-relative direction into a compass one.
@@ -211,8 +242,8 @@
 "ne" = "plural (front or neutral), (noun)ne"
 "no" = "plural (back), (noun)no"
 "sa" = "possessive, (noun)sa"
-"me" = "present tense (front or neutral), (verb)me; negation before back, me(verb)"
-"mo" = "present tense (back), (verb)mo; negation before front or neutral, mo(verb)"
+"me" = "present tense (front or neutral), (verb)me; negation or negative indefinite before back, me(verb) or me(nominal)"
+"mo" = "present tense (back), (verb)mo; negation or negative indefinite before front or neutral, mo(verb) or mo(nominal)"
 "se" = "past tense (front or neutral), (verb)se"
 "so" = "past tense (back), (verb)so"
 "the" = "future tense (front or neutral), (verb)the"
@@ -225,13 +256,21 @@
 "do" = "command (back), do(verb)"
 "di" = "continuous (front or neutral), (verb)di"
 "du" = "continuous (back), (verb)du"
-"li" = "might (front or neutral), li(verb)"
-"lu" = "might (back), lu(verb)"
-# Negation is anti-harmonic, so it takes the opposite class to the word it
-# attaches to: `mo` before a front or neutral word, `me` before a back one.
+"li" = "might or indefinite (front or neutral), li(verb) or li(nominal)"
+"lu" = "might or indefinite (back), lu(verb) or lu(nominal)"
+
+
+[derivational_marker]
+"re" = "agentive (front or neutral), (verb)re"
+"ro" = "agentive (back), (verb)ro"
+
+
+# Negation and the negative indefinite are anti-harmonic, so they take the
+# opposite class to the word they attach to: `mo` before a front or neutral
+# word, `me` before a back one.
 # Both live on the tense entries above, because a TOML table cannot repeat a
 # key and the present tense already claims those two forms. Position separates
-# them: the negator is a prefix and the tense marker is a suffix.
+# the prefixes from the tense marker; host separates their two prefix jobs.
 
 
 [particle]
@@ -256,3 +295,4 @@
 "tono twa" = "I'm thirsty (I want drink)"
 "thənəlayi tumamo" = "I cast fireball"
 "moluyosa dələthi" = "in the name of Moluyo (invocation, crab-POSS name-LOC.IN)"
+"sheði medi" = "come (go toward here)"

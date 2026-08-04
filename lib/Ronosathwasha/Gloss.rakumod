@@ -283,7 +283,6 @@ class StemGloss is export {
 #| "to teach", and the lexicon has no separate entry for the bare form.
 sub stem-glosses(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
     my @markers = $morphology.by-id('infinitive').forms;
-    my $affixes = $lexicon.affixes.map(*.roman).Set;
 
     my %nominal;
     my %verbal;
@@ -292,7 +291,7 @@ sub stem-glosses(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export
     # block below rebinds `$_` to the marker, so `.roman` inside it would be
     # asked of a `Str` and die about a missing method rather than about anything
     # to do with the lexicon.
-    for $lexicon.entries.grep({ not $affixes{.roman} and not .roman.contains(' ') }) -> $entry {
+    for $lexicon.stem-entries.grep({ not .roman.contains(' ') }) -> $entry {
         my Str $label = short-gloss($entry.gloss);
         my Str $roman = $entry.roman;
 

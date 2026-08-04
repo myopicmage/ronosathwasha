@@ -69,10 +69,11 @@ my $audit = alternants($script, $lexicon, $morphology);
 #
 # The prefixed case is the one that was missing: rebuilding cannot reach a
 # prefixed word the lexicon lists, because `parse-word` treats a listed word as
-# one indivisible stem. `toro` respelled `tero` was accepted as its own stem and
-# reported by nothing at all.
+# one indivisible stem. `tomwu` respelled `temwu` was accepted as its own stem
+# and reported by nothing at all. This uses `mwu` rather than `ro` now that
+# `te-ro` has the independent agentive analysis "asker".
 
-is $audit.check('tero'), 'toro',
+is $audit.check('temwu'), 'tomwu',
     'a prefixed word carrying the wrong alternant is caught by decomposition';
 
 nok $audit.check('toro').defined,
@@ -191,6 +192,11 @@ my %expected =
     'LANGUAGE.md thwaswo'     => 'thwaswe',
     'LANGUAGE.md twaswo'      => 'twaswe',
     'LANGUAGE.md thwashaswo'  => 'thwashaswe',
+
+    # Decision 32 refuses this proposed good-person compound and cites the
+    # proposal exactly. With productive agentive morphology present, the audit
+    # correctly observes that a neutral `nara` would select front `-re`.
+    'LANGUAGE.md nararo' => 'narare',
 
     # Deliberately not Ronosathwasha. `u` is back and `e` is front, so no legal
     # word holds both, and a shaping test needs the two chevron directions in one

@@ -126,9 +126,14 @@ grammar Morphemes is export {
     # reading the corpus attests. It is a default, not a resolution: reporting
     # that a word has more than one division belongs with the parse result,
     # where a caller can be told rather than quietly given one answer.
-    regex TOP { <prefix>* <stem>+? <suffix>* }
+    #
+    # A derivation occupies one slot immediately after the stem and before
+    # inflection. The single slot is structural: `miri-roro-yi` contains the
+    # compound `roro`, not two agentive suffixes waiting to be reharmonized.
+    regex TOP { <prefix>* <stem>+? <derivation>? <suffix>* }
 
     token prefix { @*PREFIXES }
+    token derivation { @*DERIVATIONS }
     token suffix { @*SUFFIXES }
     token stem   { @*STEMS }
 }
@@ -143,7 +148,7 @@ grammar Morphemes is export {
 #| becoming `to` plus `ro`, since `ro` is listed and a greedy prefix would take
 #| the `to` before the whole word was ever tried.
 grammar Lexicalised is Morphemes {
-    regex TOP { <prefix>*? <stem>+? <suffix>* }
+    regex TOP { <prefix>*? <stem>+? <derivation>? <suffix>* }
 }
 
 #| Every stem a word may be built on.
@@ -154,10 +159,10 @@ grammar Lexicalised is Morphemes {
 #| than demanded of the file.
 #| The stems the lexicon states outright, as against the ones derived from them.
 #|
-#| The bound morphology is in the lexicon too, and must not be offered as a stem.
-#| Left in, `di` and `me` and `yi` compete with real stems, and `medime` divides
-#| as negation plus `di` plus `me`, which is three morphemes that all exist and a
-#| word that means nothing.
+#| The bound morphology is in the lexicon too, and must not be offered as a
+#| stem. `Lexicon.stem-entries` owns the one subtle boundary: inflectional
+#| spellings keep blocking old homographs, while derivational `-ro` does not
+#| erase the independently listed person root `ro`.
 #| Derived-from-declarations results, kept per declaration object.
 #|
 #| Keyed on `.WHICH`, which for a class instance is its identity, so two
@@ -180,11 +185,9 @@ my %STEM-CACHE;
 #| the `do` block, and that one character of precedence is the whole difference.
 sub listed-stems(Lexicon:D $lexicon --> Seq) {
     (%STEM-CACHE{"listed|{ $lexicon.WHICH }"} //= do {
-        my $affixes = $lexicon.affixes.map(*.roman).Set;
-
-        $lexicon.entries
+        $lexicon.stem-entries
             .map(*.roman)
-            .grep({ not $affixes{$_} and not .contains(' ') })
+            .grep({ not .contains(' ') })
             .List;
     }).Seq;
 }
@@ -227,11 +230,10 @@ constant VERB-SECTION is export = 'verb';
 #| the lexicon; it is decision 16's derivation showing through.
 sub stem-hosts(Lexicon:D $lexicon, Morphology:D $morphology --> Map) is export {
     my @markers = $morphology.by-id('infinitive').forms;
-    my $affixes = $lexicon.affixes.map(*.roman).Set;
 
     my %hosts;
 
-    for $lexicon.entries.grep({ not $affixes{.roman} and not .roman.contains(' ') }) -> $entry {
+    for $lexicon.stem-entries.grep({ not .roman.contains(' ') }) -> $entry {
         my $host = $entry.section eq VERB-SECTION ?? VerbStem !! NominalStem;
         my Str $roman = $entry.roman;
 
@@ -337,19 +339,28 @@ sub parse-word(
 
     my $listed = divide($lexicon, $morphology, $word, Lexicalised, listed-stems($lexicon));
 
-    # One stem cannot be beaten, and most words are one stem, so the productive
-    # pass is skipped entirely for them. Exact rather than approximate: the
-    # comparison below can only prefer a division with *fewer* stems, and one is
-    # the floor.
-    return $listed if $listed.defined && $listed.stems.elems == 1;
+    # One stem with no visible derivation cannot be beaten, and most words have
+    # exactly that shape, so the productive pass is skipped for them. A listed
+    # division that consumes `-re` or `-ro` is not final: `torororu` can divide
+    # as lexical `toro` plus agentive `-ro`, or as question `to-` on `roro`, and
+    # the second reading uses no derivation at all.
+    return $listed
+        if $listed.defined
+            && $listed.stems.elems == 1
+            && not $listed.has-role(MarksDerivation);
 
     my $productive = divide($lexicon, $morphology, $word, Morphemes, stems-from($lexicon, $morphology));
 
     return $productive unless $listed.defined;
     return $listed unless $productive.defined;
 
-    # Fewest stems wins, and only then does the listed reading. The grammar has
-    # claimed this since `Morphemes` was written: taking the fewest stems
+    # Fewest stems wins. On a tie, fewer derivational affixes wins before the
+    # listed reading gets its ordinary precedence. Derivation remains wholly
+    # grammatical; this is only the default reading when the same letters are
+    # also an established content stem.
+    #
+    # The grammar has claimed this since `Morphemes` was written: taking the
+    # fewest stems
     # "prefers inflection over compounding, which is the reading the corpus
     # attests". The listed-first pass was quietly violating it.
     #
@@ -363,6 +374,15 @@ sub parse-word(
     # reading as the word `tomwu` rather than as `to` + `mwu`, and `thinəmedi`
     # reading as an inflection rather than the compound `thinə` + `medi`.
     return $productive if $productive.stems.elems < $listed.stems.elems;
+    return $listed if $listed.stems.elems < $productive.stems.elems;
+
+    my $listed-derivations = ($listed.prefixes, $listed.suffixes)
+        .flat.grep(*.role == MarksDerivation).elems;
+    my $productive-derivations = ($productive.prefixes, $productive.suffixes)
+        .flat.grep(*.role == MarksDerivation).elems;
+
+    return $productive if $productive-derivations < $listed-derivations;
+    return $listed if $listed-derivations < $productive-derivations;
 
     $listed;
 }
@@ -393,9 +413,13 @@ sub divide(
     # invocant of type 'List'", because the loop below then iterates one element
     # that is the whole list.
     my @prefix-morphemes = @(%by-position<prefix>);
-    my @suffix-morphemes = @(%by-position<suffix>);
+    my @derivation-morphemes = @(%by-position<suffix>)
+        .grep(*.role == MarksDerivation);
+    my @suffix-morphemes = @(%by-position<suffix>)
+        .grep(*.role != MarksDerivation);
 
     my @*PREFIXES = @prefix-morphemes.map({ .forms.Slip }).unique;
+    my @*DERIVATIONS = @derivation-morphemes.map({ .forms.Slip }).unique;
     my @*SUFFIXES = @suffix-morphemes.map({ .forms.Slip }).unique;
     my @*STEMS    = @inventory;
 
@@ -416,8 +440,13 @@ sub divide(
         @prefix-morphemes.grep({ .forms.first(~$m).defined }).List
     });
 
-    my @suffix-candidates = $match<suffix>.map(-> $m {
-        @suffix-morphemes.grep({ .forms.first(~$m).defined }).List
+    my @suffix-matches;
+    @suffix-matches.push: $match<derivation> if $match<derivation>.defined;
+    @suffix-matches.append: $match<suffix>;
+
+    my @all-suffix-morphemes = @(%by-position<suffix>);
+    my @suffix-candidates = @suffix-matches.map(-> $m {
+        @all-suffix-morphemes.grep({ .forms.first(~$m).defined }).List
     });
 
     my Str @stems = $match<stem>.map({ ~$_ });
