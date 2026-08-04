@@ -15,7 +15,7 @@ my $morphology = load-morphology($data.add('morphology.toml'));
 my $corpus     = load-utterances($data.add('utterances.toml'));
 
 # One test per corpus sentence, plus the checks below.
-plan $corpus.utterances.elems + 55;
+plan $corpus.utterances.elems + 61;
 
 sub read(Str $s) { read-sentence($script, $lexicon, $morphology, $s) }
 
@@ -70,6 +70,31 @@ is $eats.predicate, 'thinə',
 is read('Sho thinəme').reading.reference, Distal,   'back o is far';
 is read('Lari sha lithinəme').reading.reference, Medial, 'central a is middle';
 is read('She thinəme').reading.reference, Proximal, 'front e is near';
+
+# Decision 31 keeps the same three-way deixis when the demonstratives take the
+# at-locative. The location and its conversational anchor are independent
+# semantic facts, and the reader must preserve both.
+my @deictic-locations =
+    read('Sheshi thinəme').reading,
+    read('Shashi thinəme').reading,
+    read('Shoshu thinəme').reading;
+
+is-deeply @deictic-locations.map(*.reference).List,
+    (Proximal, Medial, Distal),
+    'here, there and over there retain speaker, listener and distal deixis';
+is-deeply @deictic-locations.map(*.locative).List,
+    <locative-at locative-at locative-at>.List,
+    'all three report the at-locative';
+
+is @deictic-locations[0].constituents.head.text, 'sheshi',
+    'here survives as one written constituent';
+is @deictic-locations[1].constituents.head.text, 'shashi',
+    'as does listener-side there';
+is @deictic-locations[2].constituents.head.text, 'shoshu',
+    'and distal over there';
+ok @deictic-locations[2].constituents.head.text.ends-with(
+    @deictic-locations[2].constituents.head.suffixes.head.back-stem
+), 'the distal form exposes its back-harmonic locative';
 
 # ------------------------------------------------------------------ the extras ---
 

@@ -1253,6 +1253,38 @@ distinct: **`tworono`** asks "which people" from a salient set. The two forms
 therefore differ in question kind, while the older `toronoru` surface is no
 longer left to choose between two readings.
 
+## 31. The universe is the here-now
+
+The demonstrative series and the locative series compose into **three
+person-anchored locations**:
+
+| relation to the conversation | derivation | form | meaning |
+|---|---|---|---|
+| near the speaker | `she` + `-shi` | `sheshi` | here |
+| near the listener | `sha` + `-shi` | `shashi` | there |
+| away from both | `sho` + `-shu` | `shoshu` | over there |
+
+This is the Korean and Japanese geometry, not three measured radii. The middle
+form belongs to the listener's side of the conversation, while the last belongs
+to neither participant. Decision 9 already put exactly those relations into
+`she`, `sha` and `sho`; the locative adds no new distinction.
+
+The forms introduce no new roots. `she` is front and takes front `-shi`; neutral
+`sha` also selects the front alternant by the ordinary harmony rule; back `sho`
+takes `-shu`. The resulting series is therefore productive morphology rather
+than three lexical exceptions.
+
+**The universe in which Ronosathwasha is spoken is `Sheshime`, "the
+here-now."** The name lexicalizes `sheshi` ("here") with `me` ("now"). It names
+reality from inside itself: wherever a speaker stands it is here, and whenever
+they speak it is now.
+
+The surface has a second grammatical analysis because suffixal `-me` is also
+the present tense: `she-shi-me`, "this-LOC.AT-PRS". That reading converges on
+the same idea rather than competing with it. The lexicon lists `sheshime` as a
+proper name, so ordinary reading keeps it whole while the internal structure
+remains visible as its etymology.
+
 ## Open
 
 - **Whether vowel length carries grammar.** Decision 20 takes length; it does

@@ -7,7 +7,7 @@ use Ronosathwasha::Morphology;
 use Ronosathwasha::Semantics;
 use Ronosathwasha::Words;
 
-plan 43;
+plan 48;
 
 my IO::Path $data = repository-root.add('data');
 my $lexicon    = load-lexicon($data.add('lexicon.toml'));
@@ -71,6 +71,23 @@ is-deeply $goes.prefixes.List, (), 'and no prefix was taken from it';
 my $that-thing = split('shamwuyi');
 is-deeply $that-thing.stems.List, ('sha', 'mwu'), 'a compound is two stems';
 is-deeply $that-thing.suffixes.map(*.id).List, ('object',), 'with one particle after both';
+
+# Decision 31 spends no roots on the deictic location series. Each word keeps
+# the demonstrative as its stem and adds the harmonic at-locative.
+my @locations = <sheshi shashi shoshu>.map(&split);
+
+is-deeply @locations.map(*.stems.head).List, <she sha sho>.List,
+    'here, there and over there keep the three demonstrative stems';
+is-deeply @locations.map(*.suffixes.head.id).List,
+    <locative-at locative-at locative-at>.List,
+    'and each is the same at-locative derivation';
+
+my $universe = split('sheshime');
+is-deeply $universe.stems.List, ('sheshime',),
+    'the universe name is lexicalized as one proper-name stem';
+is-deeply $universe.prefixes.List, (), 'nothing is taken from its front';
+is-deeply $universe.suffixes.List, (),
+    'and its visible here-now derivation remains etymology, not inflection';
 
 # ------------------------------------------------------- against the corpus ---
 #

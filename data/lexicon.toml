@@ -139,6 +139,10 @@
 "nootha" = "reason, cause"
 
 
+[proper_noun]
+"sheshime" = "Sheshime (the here-now; universe)"
+
+
 # The w-infix turns a body-relative direction into a compass one.
 [direction]
 "niðə" = "up"
