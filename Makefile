@@ -167,7 +167,7 @@ raku-test: $(RAKU_STAMP) ## Run the Raku test suite
 typecheck: ## Type-check, strict
 	$(PY) -m mypy
 
-check: $(RAKU_STAMP) ## Test and type-check
+check: $(RAKU_STAMP) $(PARADIGMS) ## Test and type-check
 	+$(MAKE) -j$(CHECK_JOBS) test raku-test typecheck
 
 install: ## Build both halves and install them (macOS)

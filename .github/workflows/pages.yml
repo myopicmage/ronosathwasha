@@ -27,6 +27,13 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
 
+      # The config loader deliberately requires the local model path to exist,
+      # but the tests never read or execute the ten-gigabyte weights.
+      - name: Provide the model-path test fixture
+        run: |
+          mkdir -p "$HOME/models"
+          touch "$HOME/models/Qwen3-14B-Q5_K_M.gguf"
+
       - name: Verify the project and build the site
         run: nix develop 'path:.' --command make check github-pages
 
