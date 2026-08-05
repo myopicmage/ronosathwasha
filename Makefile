@@ -50,6 +50,7 @@ WEB := $(UFO) tools/webfont.py
 
 FONT := build/Ronosathwasha.ttf
 DICTIONARY := build/dictionary.html
+INDEX := build/index.html
 SYLLABARY := build/syllabary.html
 KEYLAYOUT := layouts/Ronosathwasha.keylayout
 PAGES := $(wildcard docs/*.html)
@@ -61,7 +62,7 @@ STAMP := build/.docs.stamp
 
 .DEFAULT_GOAL := help
 
-.PHONY: help all site font dict syllabary pages keylayout serve share speak validate chat chat-all test raku-test typecheck check install clean
+.PHONY: help all site github-pages font dict syllabary pages keylayout serve share speak validate chat chat-all test raku-test typecheck check install clean
 
 help: ## List these targets
 	@grep -hE '^[a-z][a-z-]*:.*## ' $(MAKEFILE_LIST) \
@@ -72,7 +73,16 @@ help: ## List these targets
 
 all: font dict pages keylayout ## Build every artefact
 
-site: dict syllabary pages ## Build everything servable into build/
+site: dict syllabary pages $(INDEX) ## Build everything servable into build/
+
+# Only HTML is public. The rest of build/ includes intermediate UFO and
+# morphology files that produce these self-contained pages, plus optional local
+# speech experiments. A fresh directory prevents a page removed from source
+# from surviving in a later deployment.
+github-pages: site ## Build the clean GitHub Pages artifact
+	rm -rf build/github-pages
+	mkdir -p build/github-pages
+	cp build/*.html build/github-pages/
 
 font: $(FONT) ## Compile the font
 dict: $(DICTIONARY) ## Build the searchable dictionary page
@@ -94,6 +104,12 @@ $(PARADIGMS): $(RAKU_STAMP) $(MORPHOLOGY) $(LEXICON) $(SCRIPT) tools/paradigms.r
 
 $(DICTIONARY): $(WEB) $(LEXICON) $(PARADIGMS) tools/build_dictionary.py
 	$(PY) -m tools.build_dictionary
+
+# The dictionary is the public site's front door, while its descriptive
+# filename remains useful when build/ is served as a directory locally. Copy
+# rather than symlink because GitHub Pages artifacts reject symbolic links.
+$(INDEX): $(DICTIONARY)
+	cp $< $@
 
 # The specimen sheet. Depends on nothing but the shapes: it shows the syllabary
 # rather than the vocabulary, so the lexicon moving does not date it.

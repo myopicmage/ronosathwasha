@@ -7,13 +7,12 @@
 
   outputs = { self, nixpkgs }:
     let
-      # One system, because that is the only kind of machine Kevin has, and the
-      # list was not merely aspirational but wrong: nixpkgs-unstable has dropped
-      # `x86_64-darwin`, so evaluating any attribute for it throws and points at
-      # the 26.11 release notes. Nothing noticed because nobody asks for that
-      # attribute. A list that claims four platforms and evaluates on one is worse
-      # than a list of one.
-      systems = [ "aarch64-darwin" ];
+      # These are the two machines that actually execute the project: Kevin's
+      # Apple Silicon Macs and GitHub's Linux runner for the public dictionary.
+      # `x86_64-darwin` remains deliberately absent. nixpkgs-unstable dropped it,
+      # so claiming support makes every flake-wide evaluation fail before it can
+      # reach a system the project uses.
+      systems = [ "aarch64-darwin" "x86_64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
