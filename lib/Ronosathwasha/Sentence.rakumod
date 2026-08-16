@@ -130,7 +130,7 @@ sub realize-word(
 #| `Asks:D` rather than `Reading:D`, because `Express` obeys the same rule when a
 #| sentence is generated instead of rebuilt, and two copies of this decision would
 #| be two chances for `totoro`. The role does not promise `.predicate`; both types
-#| that compose it carry one, and Raku checks at the call, which `CLAUDE.md`'s
+#| that compose it carry one, and Raku checks at the call, which `AGENTS.md`'s
 #| role-stub note is about.
 sub act-to-write(Lexicon:D $lexicon, Asks:D $reading --> SpeechAct) is export {
     return $reading.speech-act unless $reading.speech-act == Interrogative;

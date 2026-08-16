@@ -107,7 +107,7 @@ use Ronosathwasha::Types;
 #|
 #| `MarksSpeechAct` becomes `speech act`, matching `speech_act` with its underscore
 #| relaxed. The prefixes exist because an enum's values collide with class names on
-#| import, which `CLAUDE.md` records; they carry no meaning here and come off.
+#| import, which `AGENTS.md` records; they carry no meaning here and come off.
 sub axis-of(MorphemeRole:D $role --> Str) {
     $role.key.subst(/^ Marks /, '').subst(/(<[a..z]>)(<[A..Z]>)/, { "$0 $1" }, :g).lc;
 }

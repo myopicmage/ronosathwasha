@@ -144,7 +144,7 @@ constant UNGLOSSED is export = '?';
 #| `FromCorpus` rather than `Attested`, and `FromReading` rather than `Derived`.
 #| Both of those names are already `Ronosathwasha::Semantics::Status` values, and
 #| Raku installs an enum's values as symbols in every importing scope, so either
-#| one would break any module using both. `CLAUDE.md` records this; it is the
+#| one would break any module using both. `AGENTS.md` records this; it is the
 #| fifth time it has come up.
 enum TranslationSource is export <FromCorpus FromReading Unavailable>;
 

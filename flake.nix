@@ -87,7 +87,7 @@
             # blaming a model for a change in behaviour.
             #
             # The weights are not here and must never be. They live in `~/models/`,
-            # for the reason `CLAUDE.md` gives: `path:.` copies this whole tree into
+            # for the reason `AGENTS.md` gives: `path:.` copies this whole tree into
             # the store on every evaluation, without consulting git.
             pkgs.llama-cpp
           ];

@@ -216,7 +216,7 @@ state crosses its inference boundary.
 ### Where the weights live
 
 **`~/models/`, referenced by absolute path from `config/chatbot.toml`.** Never
-inside the repository, and never fetched by a nix derivation. `CLAUDE.md` carries
+inside the repository, and never fetched by a nix derivation. `AGENTS.md` carries
 the arithmetic; the short version is that `path:.` copies the working tree into the
 nix store on every evaluation without consulting git, so a GGUF in the tree is
 copied on every `make`.

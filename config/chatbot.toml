@@ -22,7 +22,7 @@ quantisation = "Q5_K_M"
 #
 # Outside the repository, and that is not tidiness. `nix develop 'path:.'` copies
 # this whole tree into the nix store on every evaluation without consulting git, so
-# a ten-gigabyte file in here would be copied on every `make`. `CLAUDE.md` carries
+# a ten-gigabyte file in here would be copied on every `make`. `AGENTS.md` carries
 # the full argument.
 path = "~/models/Qwen3-14B-Q5_K_M.gguf"
 

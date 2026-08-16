@@ -27,7 +27,7 @@ url="${CHAT_SERVER_URL:-http://127.0.0.1:8080}"
 port="${CHAT_SERVER_PORT:-8080}"
 wait_seconds="${CHAT_SERVER_WAIT:-120}"
 
-# The weights stay outside the repository, and CLAUDE.md carries the argument:
+# The weights stay outside the repository, and AGENTS.md carries the argument:
 # `nix develop 'path:.'` copies this whole tree into the nix store on every
 # evaluation without consulting git, so a ten-gigabyte file in here would be
 # copied on every make.
